@@ -1969,7 +1969,7 @@
   "info": {
     "title": "Admission Service API",
     "description": "Admission Service",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "contact": {}
   },
   "tags": [],
