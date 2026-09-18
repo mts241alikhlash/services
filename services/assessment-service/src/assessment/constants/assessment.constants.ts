@@ -1,0 +1,1 @@
+export const ASSESSMENT_WEIGHT_TOTAL = 100

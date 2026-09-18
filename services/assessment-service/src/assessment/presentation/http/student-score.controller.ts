@@ -1,0 +1,135 @@
+import { RequirePermissions } from '../../../platform/access-control/permission/decorators/require-permissions.decorator.js'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common'
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
+
+import { JwtAuthGuard } from '../../../platform/auth/index.js'
+import { CurrentUser } from '../../../core/decorators/current-user.decorator.js'
+import type { AuthenticatedUser } from '../../../core/types/authenticated-user.type.js'
+
+import { CreateStudentScoreDto } from './dto/request/create-student-score.dto.js'
+import { UpdateStudentScoreDto } from './dto/request/update-student-score.dto.js'
+import { StudentScoreQueryDto } from './dto/request/student-score-query.dto.js'
+import { StudentScoreRosterQueryDto } from './dto/request/student-score-roster-query.dto.js'
+import { BulkUpsertStudentScoreDto } from './dto/request/bulk-upsert-student-score.dto.js'
+import { GetStudentScoresUseCase } from '../../application/use-cases/get-student-scores/get-student-scores.use-case.js'
+import { GetMyStudentScoresUseCase } from '../../application/use-cases/get-my-student-scores/get-my-student-scores.use-case.js'
+import { GetStudentScoreByIdUseCase } from '../../application/use-cases/get-student-score-by-id/get-student-score-by-id.use-case.js'
+import { CreateStudentScoreUseCase } from '../../application/use-cases/create-student-score/create-student-score.use-case.js'
+import { UpdateStudentScoreUseCase } from '../../application/use-cases/update-student-score/update-student-score.use-case.js'
+import { DeleteStudentScoreUseCase } from '../../application/use-cases/delete-student-score/delete-student-score.use-case.js'
+import { GetStudentScoreRosterUseCase } from '../../application/use-cases/get-student-score-roster/get-student-score-roster.use-case.js'
+import { BulkUpsertStudentScoresUseCase } from '../../application/use-cases/bulk-upsert-student-scores/bulk-upsert-student-scores.use-case.js'
+import { GradeAssignedStudentScoresUseCase } from '../../application/use-cases/grade-assigned-student-scores/grade-assigned-student-scores.use-case.js'
+
+@ApiTags('Student Scores')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('student-scores')
+export class StudentScoreController {
+  constructor(
+    private readonly getAll: GetStudentScoresUseCase,
+    private readonly getMine: GetMyStudentScoresUseCase,
+    private readonly getById: GetStudentScoreByIdUseCase,
+    private readonly createUC: CreateStudentScoreUseCase,
+    private readonly updateUC: UpdateStudentScoreUseCase,
+    private readonly deleteUC: DeleteStudentScoreUseCase,
+    private readonly rosterUC: GetStudentScoreRosterUseCase,
+    private readonly bulkUpsertUC: BulkUpsertStudentScoresUseCase,
+    private readonly gradeAssignedUC: GradeAssignedStudentScoresUseCase,
+  ) {}
+
+  @Get()
+  @RequirePermissions('student-scores.read')
+  @ApiOperation({ summary: 'List student scores' })
+  async findAll(@Query() q: StudentScoreQueryDto) {
+    return this.getAll.execute(q)
+  }
+
+  @Get('me')
+  @RequirePermissions('student-scores.read-own')
+  @ApiOperation({ summary: 'Your own marks — no student parameter exists' })
+  async findMine(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() q: StudentScoreQueryDto,
+  ) {
+    return this.getMine.execute(q, user.id)
+  }
+
+  @Get('roster')
+  @RequirePermissions('student-scores.read')
+  @ApiOperation({
+    summary: 'Get the full class roster with scores for one assessment item',
+  })
+  async getRoster(@Query() q: StudentScoreRosterQueryDto) {
+    return this.rosterUC.execute(q.assessmentItemId)
+  }
+
+  @Get(':id')
+  @RequirePermissions('student-scores.read')
+  @ApiOperation({ summary: 'Get student score by ID' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.getById.execute(id)
+  }
+
+  @Post()
+  @RequirePermissions('student-scores.create')
+  @ApiOperation({ summary: 'Create student score' })
+  async create(@Body() dto: CreateStudentScoreDto) {
+    return this.createUC.execute(dto)
+  }
+
+  @Post('bulk')
+  @RequirePermissions('student-scores.manage')
+  @ApiOperation({
+    summary: 'Bulk upsert scores for any class on one assessment item',
+  })
+  async bulkUpsert(@Body() dto: BulkUpsertStudentScoreDto) {
+    return this.bulkUpsertUC.execute(dto)
+  }
+
+  @Post('assigned/bulk')
+  @RequirePermissions('student-scores.manage-assigned')
+  @ApiOperation({
+    summary: 'Bulk upsert scores for a class you teach or supervise',
+  })
+  async bulkUpsertAssigned(
+    @Body() dto: BulkUpsertStudentScoreDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.gradeAssignedUC.execute(dto, user.id)
+  }
+
+  @Patch(':id')
+  @RequirePermissions('student-scores.update')
+  @ApiOperation({ summary: 'Update student score' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateStudentScoreDto,
+  ) {
+    return this.updateUC.execute(id, dto)
+  }
+
+  @Delete(':id')
+  @RequirePermissions('student-scores.delete')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete student score' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.deleteUC.execute(id)
+  }
+}
