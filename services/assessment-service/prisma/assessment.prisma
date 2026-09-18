@@ -1,0 +1,144 @@
+enum AssessmentType {
+  DAILY
+  MIDTERM
+  FINAL
+  ASSIGNMENT
+  PRACTICAL
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+  SICK
+}
+
+/// How much each kind of assessment counts toward a subject's final score,
+/// set by the employee for one class they teach. The five rows for an
+/// assignment sum to 100.
+///
+/// This is the outer of two layers. It fixes the proportions — "harian 40%"
+/// stays 40% however many quizzes are added — while `AssessmentItem.weight`
+/// decides how the items *inside* one kind weigh against each other. A employee
+/// who never touches the inner layer gets a plain average there, because item
+/// weight defaults to 1.
+model AssessmentWeight {
+  id                   String         @id @default(uuid()) @db.Uuid
+  teachingAssignmentId String         @map("teaching_assignment_id") @db.Uuid
+  type                 AssessmentType
+  weight               Float
+
+  @@unique([teachingAssignmentId, type])
+  @@index([teachingAssignmentId])
+  @@map("assessment_weights")
+}
+
+model AssessmentItem {
+  id                   String         @id @default(uuid()) @db.Uuid
+  teachingAssignmentId String         @map("teaching_assignment_id") @db.Uuid
+  name                 String         @db.VarChar(100)
+  type                 AssessmentType
+  /// Weight *within* its type, not across the whole subject — see
+  /// AssessmentWeight. Two homework items at 1 and 2 make the second count
+  /// double, and both still sit inside whatever the DAILY weight is.
+  weight               Float          @default(1)
+  maxScore             Float          @default(100) @map("max_score")
+  deletedAt            DateTime?      @map("deleted_at")
+
+  studentScores StudentScore[]
+
+  @@index([teachingAssignmentId])
+  @@map("assessment_items")
+}
+
+model StudentScore {
+  id               String    @id @default(uuid()) @db.Uuid
+  enrollmentId     String    @map("enrollment_id") @db.Uuid
+  assessmentItemId String    @map("assessment_item_id") @db.Uuid
+  score            Float?
+  note             String?   @db.Text
+  /// Set when the mark was last written by someone other than the employee
+  /// assigned to teach it — a homeroom employee correcting a mark in their own
+  /// class, or an administrator. Null means the subject employee entered it.
+  ///
+  /// A mark that changed and a mark that was corrected look identical in
+  /// `updatedAt` alone, and "who changed my child's grade" is a question a
+  /// school has to be able to answer.
+  correctedById    String?   @map("corrected_by_id") @db.Uuid
+  correctedAt      DateTime? @map("corrected_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  assessmentItem AssessmentItem @relation(fields: [assessmentItemId], references: [id])
+
+  @@unique([enrollmentId, assessmentItemId])
+  @@index([enrollmentId])
+  @@index([assessmentItemId])
+  @@map("student_scores")
+}
+
+model Attendance {
+  id           String           @id @default(uuid()) @db.Uuid
+  enrollmentId String           @map("enrollment_id") @db.Uuid
+  scheduleId   String?          @map("schedule_id") @db.Uuid
+  date         DateTime         @db.Date
+  status       AttendanceStatus
+  note         String?          @db.Text
+  deletedAt    DateTime?        @map("deleted_at")
+
+  @@unique([enrollmentId, date, scheduleId])
+  @@index([enrollmentId])
+  @@index([scheduleId])
+  @@map("attendances")
+}
+
+model ReportCard {
+  id           String    @id @default(uuid()) @db.Uuid
+  enrollmentId String    @unique @map("enrollment_id") @db.Uuid
+  totalAverage Float?    @map("total_average")
+  rank         Int?
+  employeeNote  String?   @map("employee_note") @db.Text
+  isPublished  Boolean   @default(false) @map("is_published")
+  deletedAt    DateTime? @map("deleted_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  subjects ReportCardSubject[]
+
+  @@map("report_cards")
+}
+
+/// One subject's line on a report card, as it stood when the card was
+/// generated.
+///
+/// Deliberately a stored snapshot rather than a view over StudentScore: a
+/// published report card is a document that has been handed to a parent, and
+/// it must keep saying what it said even after a passing score is revised, a weight is
+/// retuned, or a subject is renamed. That is also why the subject's name and
+/// code are copied in rather than read through the relation.
+model ReportCardSubject {
+  id           String @id @default(uuid()) @db.Uuid
+  reportCardId String @map("report_card_id") @db.Uuid
+  subjectId    String @map("subject_id") @db.Uuid
+
+  subjectCode String? @map("subject_code") @db.VarChar(20)
+  subjectName String  @map("subject_name") @db.VarChar(100)
+
+  score        Float
+  /// The passing score this line was judged against, copied from the teaching
+  /// assignment's override or the subject's default at generation time.
+  passingScore Int     @map("passing_score")
+  predicate    String  @db.VarChar(2)
+  description  String  @db.VarChar(50)
+  isComplete   Boolean @map("is_complete")
+
+  reportCard ReportCard @relation(fields: [reportCardId], references: [id], onDelete: Cascade)
+
+  @@unique([reportCardId, subjectId])
+  @@index([reportCardId])
+  @@index([subjectId])
+  @@map("report_card_subjects")
+}

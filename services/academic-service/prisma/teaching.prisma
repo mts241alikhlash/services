@@ -1,0 +1,83 @@
+enum Day {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+model TimeSlotType {
+  id        String    @id @default(uuid()) @db.Uuid
+  code      String    @db.VarChar(30)
+  name      String    @db.VarChar(100)
+  isLesson  Boolean   @default(true) @map("is_lesson")
+  days      Day[]     @default([])
+  deletedAt DateTime? @map("deleted_at")
+
+  /// How long a slot of this type usually runs, in minutes. It fills in the
+  /// end time when a slot is added; it does not constrain one already saved.
+  defaultDurationMinutes Int @default(40) @map("default_duration_minutes")
+
+  timeSlots TimeSlot[]
+
+  @@unique([code], where: { deletedAt: null })
+  @@map("time_slot_types")
+}
+
+model TimeSlot {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @db.VarChar(100)
+  startTime DateTime  @map("start_time") @db.Time(0)
+  endTime   DateTime  @map("end_time") @db.Time(0)
+  order     Int
+  typeId    String    @map("type_id") @db.Uuid
+  deletedAt DateTime? @map("deleted_at")
+
+  type      TimeSlotType @relation(fields: [typeId], references: [id])
+  schedules Schedule[]
+
+  @@map("time_slots")
+}
+
+model TeachingAssignment {
+  id           String    @id @default(uuid()) @db.Uuid
+  employeeId    String    @map("employee_id") @db.Uuid
+  classroomId  String    @map("classroom_id") @db.Uuid
+  subjectId    String    @map("subject_id") @db.Uuid
+  semesterId   String    @map("semester_id") @db.Uuid
+  /// Overrides Subject.passingScore for this class only. Null means follow the
+  /// subject's school-wide default, which is the normal case.
+  passingScore Int?      @map("passing_score")
+  deletedAt    DateTime? @map("deleted_at")
+
+  classroom Classroom @relation(fields: [classroomId], references: [id])
+  subject   Subject   @relation(fields: [subjectId], references: [id])
+  semester  Semester  @relation(fields: [semesterId], references: [id])
+
+  schedules Schedule[]
+
+  @@unique([employeeId, classroomId, subjectId, semesterId], where: { deletedAt: null })
+  @@index([employeeId])
+  @@index([classroomId])
+  @@index([subjectId])
+  @@index([semesterId])
+  @@map("teaching_assignments")
+}
+
+model Schedule {
+  id                   String    @id @default(uuid()) @db.Uuid
+  teachingAssignmentId String    @map("teaching_assignment_id") @db.Uuid
+  timeSlotId           String    @map("time_slot_id") @db.Uuid
+  day                  Day
+  room                 String?   @db.VarChar(50)
+  deletedAt            DateTime? @map("deleted_at")
+
+  teachingAssignment TeachingAssignment @relation(fields: [teachingAssignmentId], references: [id])
+  timeSlot           TimeSlot           @relation(fields: [timeSlotId], references: [id])
+
+  @@unique([teachingAssignmentId, day, timeSlotId], where: { deletedAt: null })
+  @@index([teachingAssignmentId])
+  @@index([timeSlotId])
+  @@map("schedules")
+}

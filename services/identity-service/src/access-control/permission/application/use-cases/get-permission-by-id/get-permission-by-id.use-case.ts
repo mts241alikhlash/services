@@ -1,0 +1,15 @@
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { IPermissionRepository } from '../../../domain/repositories/permission.repository.js'
+
+@Injectable()
+export class GetPermissionByIdUseCase {
+  constructor(private readonly permissionRepository: IPermissionRepository) {}
+
+  async execute(id: string) {
+    const permission = await this.permissionRepository.findById(id)
+    if (!permission) {
+      throw new NotFoundException(`Permission with ID ${id} not found`)
+    }
+    return permission
+  }
+}

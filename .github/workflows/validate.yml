@@ -1,0 +1,114 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+      DIRECT_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+      NODE_ENV: test
+      JWT_SECRET: ci-test-secret-241-platform-2026-09
+      PROVISIONING_SERVICE_TOKEN: ci-test-provisioning-token-241
+      IDENTITY_SERVICE_URL: http://identity-service:3000
+      ACADEMIC_SERVICE_URL: http://academic-service:3200
+      ADMISSION_SERVICE_URL: http://admission-service:3700
+      INVENTORY_SERVICE_URL: http://inventory-service:3300
+      PORTAL_SERVICE_URL: http://portal-service:3600
+      PRESENCE_SERVICE_URL: http://presence-service:3400
+      HR_SERVICE_URL: http://hr-service:3800
+      STUDENT_SERVICE_URL: http://student-service:3900
+      ASSESSMENT_SERVICE_URL: http://assessment-service:4000
+      FRONTEND_URL: http://localhost:5173
+      GOOGLE_CLIENT_ID: ci-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-google-client-secret
+      GOOGLE_CALLBACK_URL: http://localhost:3000/auth/google/callback
+      GOOGLE_OAUTH_SUCCESS_REDIRECT_URL: http://localhost:5173
+      GOOGLE_OAUTH_REDIRECT_ALLOWLIST: http://localhost:5173
+      S3_ENDPOINT: http://localhost:9000
+      S3_PUBLIC_ENDPOINT: http://localhost:9000
+      S3_REGION: us-east-1
+      S3_BUCKET: ci
+      S3_ACCESS_KEY_ID: ci
+      S3_SECRET_ACCESS_KEY: ci
+      PORTAL_BASE_URL: http://localhost:3600
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Require Changeset for release work
+        if: github.event_name == 'pull_request'
+        run: node .github/scripts/require-changeset.mjs '${{ github.event.pull_request.base.sha }}' services
+      - name: Validate contract compatibility
+        if: github.event_name == 'pull_request'
+        run: node scripts/check-contract-compatibility.mjs '${{ github.event.pull_request.base.sha }}'
+      - name: Validate contract versions
+        run: pnpm run version:check
+      - name: Validate affected services
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            base='${{ github.event.pull_request.base.sha }}'
+          else
+            base='${{ github.event.before }}'
+          fi
+
+          affected_json="$(node .github/scripts/affected-services.mjs "$base" --json)"
+          if [[ "$affected_json" == "[]" ]]; then
+            echo "No service projects affected"
+            exit 0
+          fi
+
+          while IFS= read -r service; do
+            pnpm --filter "$service" run prisma:generate
+            pnpm --filter "$service" run format:check
+            pnpm --filter "$service" run lint
+            pnpm --filter "$service" run typecheck
+            pnpm --filter "$service" run lint:strict
+            pnpm --filter "$service" run test
+            pnpm --filter "$service" run build
+            OPENAPI_VERSION="$(node -p "require('./services/${service}/package.json').version")" \
+              pnpm --filter "$service" run openapi:emit
+
+            generated="services/${service}/openapi.json"
+            contract="contracts/${service%-service}/openapi.json"
+            client="packages/api-${service%-service}/src"
+
+            test -f "$generated"
+            test -f "$contract" || {
+              echo "Missing OpenAPI baseline: $contract"
+              exit 1
+            }
+            cmp -s "$generated" "$contract" || {
+              echo "Stale OpenAPI baseline: $contract"
+              exit 1
+            }
+            test -f "$client/generated.ts" || {
+              echo "Missing generated API client: $client/generated.ts"
+              exit 1
+            }
+            test -f "$client/client.ts" || {
+              echo "Missing API client transport: $client/client.ts"
+              exit 1
+            }
+
+            package="@mts241alikhlash/api-${service%-service}"
+            pnpm --filter "$package" --if-present run typecheck
+            pnpm --filter "$package" --if-present run test
+          done < <(node -e 'for (const service of JSON.parse(process.argv[1])) console.log(service)' "$affected_json")
