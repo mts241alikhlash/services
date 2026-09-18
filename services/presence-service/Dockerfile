@@ -12,6 +12,7 @@ RUN pnpm --filter presence-service deploy --prod --legacy /out
 FROM node:24.20.0-alpine AS runner
 WORKDIR /app
 COPY --from=build --chown=node:node /out/ ./
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" ./node_modules/.bin/prisma generate
 USER node
 EXPOSE 3400
 CMD ["node", "dist/src/main.js"]
