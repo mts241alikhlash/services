@@ -2329,7 +2329,7 @@
   "info": {
     "title": "Assessment Service API",
     "description": "Assessment Service",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "contact": {}
   },
   "tags": [],
