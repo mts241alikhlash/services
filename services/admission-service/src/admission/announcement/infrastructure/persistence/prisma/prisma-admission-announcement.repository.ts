@@ -1,0 +1,103 @@
+import { Injectable } from '@nestjs/common'
+import { AdmissionAnnouncement, Prisma } from '@prisma/client'
+import { PrismaService } from '../../../../../core/database/prisma.service.js'
+import { PaginatedResult } from '../../../../../shared/domain/interfaces/repository.interface.js'
+import {
+  AdmissionAnnouncementQueryInput,
+  AdmissionAnnouncementWithWave,
+  CreateAdmissionAnnouncementRepositoryInput,
+  IAdmissionAnnouncementRepository,
+  UpdateAdmissionAnnouncementRepositoryInput,
+} from '../../../domain/repositories/admission-announcement-repository.js'
+
+const WAVE_SELECT = {
+  wave: { select: { id: true, name: true, code: true } },
+} satisfies Prisma.AdmissionAnnouncementInclude
+
+@Injectable()
+export class PrismaAdmissionAnnouncementRepository extends IAdmissionAnnouncementRepository {
+  constructor(private readonly prisma: PrismaService) {
+    super()
+  }
+
+  async findAll(
+    query: AdmissionAnnouncementQueryInput,
+  ): Promise<PaginatedResult<AdmissionAnnouncementWithWave>> {
+    const { page = 1, limit = 10, search, waveId, isPublished } = query
+    const skip = (page - 1) * limit
+
+    const where: Prisma.AdmissionAnnouncementWhereInput = {
+      deletedAt: null,
+      ...(waveId && { waveId }),
+      ...(isPublished !== undefined && { isPublished }),
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+          { content: { contains: search, mode: 'insensitive' } },
+        ],
+      }),
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.admissionAnnouncement.findMany({
+        where,
+        skip,
+        take: limit,
+        include: WAVE_SELECT,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.admissionAnnouncement.count({ where }),
+    ])
+
+    return { data, total, page, limit }
+  }
+
+  async findById(id: string): Promise<AdmissionAnnouncement | null> {
+    return this.findActiveById(id)
+  }
+
+  async findActiveById(id: string): Promise<AdmissionAnnouncement | null> {
+    return this.prisma.admissionAnnouncement.findFirst({
+      where: { id, deletedAt: null },
+    })
+  }
+
+  async create(
+    data: CreateAdmissionAnnouncementRepositoryInput,
+  ): Promise<AdmissionAnnouncementWithWave> {
+    return this.prisma.admissionAnnouncement.create({
+      data,
+      include: WAVE_SELECT,
+    })
+  }
+
+  async update(
+    id: string,
+    data: UpdateAdmissionAnnouncementRepositoryInput,
+  ): Promise<AdmissionAnnouncementWithWave> {
+    return this.prisma.admissionAnnouncement.update({
+      where: { id },
+      data,
+      include: WAVE_SELECT,
+    })
+  }
+
+  async publish(id: string): Promise<AdmissionAnnouncementWithWave> {
+    return this.prisma.admissionAnnouncement.update({
+      where: { id },
+      data: { isPublished: true, publishedAt: new Date() },
+      include: WAVE_SELECT,
+    })
+  }
+
+  async remove(id: string): Promise<AdmissionAnnouncement> {
+    return this.softDelete(id)
+  }
+
+  async softDelete(id: string): Promise<AdmissionAnnouncement> {
+    return this.prisma.admissionAnnouncement.update({
+      where: { id },
+      data: { deletedAt: new Date(), isPublished: false },
+    })
+  }
+}

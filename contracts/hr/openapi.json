@@ -1,0 +1,4452 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liveness and readiness check passed\n\nThe Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "degraded"
+                          ],
+                          "example": "ok"
+                        },
+                        "info": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "error": {
+                          "type": "object",
+                          "example": {},
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "details": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Health check failed\n\nThe Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "shutting_down"
+                      ],
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness + readiness probe (DB, memory)",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/employment-types": {
+      "get": {
+        "operationId": "EmploymentTypeController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name or code",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of employment types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EmploymentTypeResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "example": {
+                        "page": 1,
+                        "limit": 10,
+                        "total": 5,
+                        "totalPages": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all employment types (paginated, filterable)",
+        "tags": [
+          "Employment Types"
+        ]
+      },
+      "post": {
+        "operationId": "EmploymentTypeController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmploymentTypeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Employment type created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmploymentTypeResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Employment type code already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new employment type",
+        "tags": [
+          "Employment Types"
+        ]
+      }
+    },
+    "/employment-types/{id}": {
+      "get": {
+        "operationId": "EmploymentTypeController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Employment type details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmploymentTypeResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Employment type not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get an employment type by ID",
+        "tags": [
+          "Employment Types"
+        ]
+      },
+      "patch": {
+        "operationId": "EmploymentTypeController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEmploymentTypeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Employment type updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmploymentTypeResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Employment type not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an employment type",
+        "tags": [
+          "Employment Types"
+        ]
+      },
+      "delete": {
+        "operationId": "EmploymentTypeController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Employment type deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Employment type not found"
+          },
+          "409": {
+            "description": "Employment type is in use and cannot be deleted"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete an employment type",
+        "tags": [
+          "Employment Types"
+        ]
+      }
+    },
+    "/position-categories": {
+      "get": {
+        "operationId": "PositionCategoryController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name or code",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PositionCategoryResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "example": {
+                        "page": 1,
+                        "limit": 10,
+                        "total": 4,
+                        "totalPages": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all position categories",
+        "tags": [
+          "Position Categories"
+        ]
+      },
+      "post": {
+        "operationId": "PositionCategoryController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePositionCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PositionCategoryResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate code"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new position category",
+        "tags": [
+          "Position Categories"
+        ]
+      }
+    },
+    "/position-categories/{id}": {
+      "get": {
+        "operationId": "PositionCategoryController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PositionCategoryResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Position category not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get position category by ID",
+        "tags": [
+          "Position Categories"
+        ]
+      },
+      "patch": {
+        "operationId": "PositionCategoryController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePositionCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PositionCategoryResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Position category not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a position category",
+        "tags": [
+          "Position Categories"
+        ]
+      },
+      "delete": {
+        "operationId": "PositionCategoryController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "409": {
+            "description": "Still in use"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a position category",
+        "tags": [
+          "Position Categories"
+        ]
+      }
+    },
+    "/positions": {
+      "get": {
+        "operationId": "PositionController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by category ID",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PositionResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "example": {
+                        "page": 1,
+                        "limit": 10,
+                        "total": 15,
+                        "totalPages": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all positions (paginated, filterable)",
+        "tags": [
+          "Positions"
+        ]
+      },
+      "post": {
+        "operationId": "PositionController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePositionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PositionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate position name"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new position",
+        "tags": [
+          "Positions"
+        ]
+      }
+    },
+    "/positions/{id}": {
+      "get": {
+        "operationId": "PositionController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PositionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Position not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a position by ID",
+        "tags": [
+          "Positions"
+        ]
+      },
+      "patch": {
+        "operationId": "PositionController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePositionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PositionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Position not found"
+          },
+          "409": {
+            "description": "Duplicate position name"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a position",
+        "tags": [
+          "Positions"
+        ]
+      },
+      "delete": {
+        "operationId": "PositionController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Position deleted"
+          },
+          "404": {
+            "description": "Position not found"
+          },
+          "409": {
+            "description": "Position still in use"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a position (only if not in use)",
+        "tags": [
+          "Positions"
+        ]
+      }
+    },
+    "/employees/roster": {
+      "get": {
+        "description": "Deliberately returns ids alone: the caller resolves names and the active flag from identity-service, so a field added to the employee record here cannot change what payroll reads. Not filtered by position, position category, or employment type (FR-055, FR-056).",
+        "operationId": "EmployeeInternalController_roster",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeeRosterResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "User ids of every employee, for payroll",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/by-ids": {
+      "post": {
+        "description": "academic-service holds `employee_id` on teaching assignments and classroom supervisors and renders a name beside each. Ids that match nothing are absent from the response rather than returned as null.",
+        "operationId": "EmployeeInternalController_byIds",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeIdsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeeRefListResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Employees for a batch of ids",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/by-user/{userId}": {
+      "get": {
+        "operationId": "EmployeeInternalController_byUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeeIdByUserResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Resolve an account to its employee record",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/{id}/exists": {
+      "get": {
+        "operationId": "EmployeeInternalController_exists",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeeExistsResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Whether an employee record exists and is live",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/export": {
+      "get": {
+        "operationId": "EmployeeImportExportController_export",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name, NIP, or NUPTK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "employmentTypeId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by employment type ID",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns an Excel file as attachment",
+            "headers": {
+              "Content-Disposition": {
+                "description": "attachment; filename=\"employees.xlsx\"",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export employees to Excel (.xlsx)",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/import-template": {
+      "get": {
+        "operationId": "EmployeeImportExportController_downloadImportTemplate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns a blank Excel template file",
+            "headers": {
+              "Content-Disposition": {
+                "description": "attachment; filename=\"template_import_pegawai.xlsx\"",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Download blank import template (.xlsx) for employees",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/bulk-import": {
+      "post": {
+        "operationId": "EmployeeImportExportController_bulkImport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BulkImportEmployeesResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file or empty sheet"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Preview an employee import file (.xlsx): reports per row what would happen, and writes nothing. Post the result to bulk-import/resolve to apply it",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/bulk-import/resolve": {
+      "post": {
+        "operationId": "EmployeeImportExportController_resolveBulkImportConflicts",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveBulkImportConflictsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ResolveBulkImportResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Apply a previewed bulk import: create the new rows, and update or skip each conflicting one as the caller decided",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees": {
+      "get": {
+        "operationId": "EmployeeController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name, NIP, or NUPTK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "employmentTypeId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by employment type ID",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by academic year ID — shows employees with class supervisor or subject assignment in that year",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "positionCategoryId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by position category ID (primary position)",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filter by active status (user.isActive)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EmployeeResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "example": {
+                        "page": 1,
+                        "limit": 10,
+                        "total": 50,
+                        "totalPages": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all employees (paginated, searchable)",
+        "tags": [
+          "Employees"
+        ]
+      },
+      "post": {
+        "operationId": "EmployeeController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmployeeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeeResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Duplicate identifier / NIK / NIP / NUPTK"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create employee (User + Profile in one transaction)",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/me": {
+      "get": {
+        "description": "The employment half of a profile screen: employment type, structural positions and hire dates. Who teaches what is academic-service.",
+        "operationId": "EmployeeController_findMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeeResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not linked to an employee record"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Your own employment record — no id parameter exists",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/{id}": {
+      "get": {
+        "operationId": "EmployeeController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeeResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Employee not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get an employee by ID",
+        "tags": [
+          "Employees"
+        ]
+      },
+      "patch": {
+        "operationId": "EmployeeController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEmployeeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeeResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Employee not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update employee fields (NIP, NUPTK, employment status)",
+        "tags": [
+          "Employees"
+        ]
+      },
+      "delete": {
+        "operationId": "EmployeeController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Employee deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Employee not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete an employee (also deactivates User)",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/{id}/profile": {
+      "patch": {
+        "operationId": "EmployeeController_updateProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeeResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Employee not found"
+          },
+          "409": {
+            "description": "Duplicate NIK"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update employee's profile",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employees/{id}/toggle-active": {
+      "patch": {
+        "operationId": "EmployeeController_toggleActive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account status updated"
+          },
+          "404": {
+            "description": "Employee not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Activate or deactivate an employee account (without deleting)",
+        "tags": [
+          "Employees"
+        ]
+      }
+    },
+    "/employee-positions": {
+      "get": {
+        "operationId": "EmployeePositionsController_findAll",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EmployeePositionResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Employee not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get employee's position assignments",
+        "tags": [
+          "Employee Positions"
+        ]
+      },
+      "post": {
+        "operationId": "EmployeePositionsController_assign",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmployeePositionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeePositionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Position is inactive"
+          },
+          "404": {
+            "description": "Employee or position not found"
+          },
+          "409": {
+            "description": "Same position already assigned on that date"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Assign a position to an employee",
+        "tags": [
+          "Employee Positions"
+        ]
+      }
+    },
+    "/employee-positions/{id}": {
+      "patch": {
+        "operationId": "EmployeePositionsController_update",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "EmployeePosition link ID",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEmployeePositionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmployeePositionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Assignment not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a position assignment (hireDate / isPrimary)",
+        "tags": [
+          "Employee Positions"
+        ]
+      },
+      "delete": {
+        "operationId": "EmployeePositionsController_remove",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "EmployeePosition link ID",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Assignment removed"
+          },
+          "404": {
+            "description": "Assignment not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove a position assignment",
+        "tags": [
+          "Employee Positions"
+        ]
+      }
+    },
+    "/payroll/components": {
+      "get": {
+        "operationId": "SalaryComponentController_list",
+        "parameters": [
+          {
+            "name": "includeInactive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Salary Components"
+        ]
+      },
+      "post": {
+        "operationId": "SalaryComponentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSalaryComponentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Salary Components"
+        ]
+      }
+    },
+    "/payroll/components/{id}": {
+      "patch": {
+        "operationId": "SalaryComponentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSalaryComponentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Salary Components"
+        ]
+      },
+      "delete": {
+        "operationId": "SalaryComponentController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Refused while any assignment still uses it",
+        "tags": [
+          "Payroll — Salary Components"
+        ]
+      }
+    },
+    "/payroll/assignments": {
+      "get": {
+        "operationId": "SalaryAssignmentController_list",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Salary Assignments"
+        ]
+      },
+      "post": {
+        "operationId": "SalaryAssignmentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSalaryAssignmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set a salary — supersedes rather than overwriting, so an earlier run reproduces",
+        "tags": [
+          "Payroll — Salary Assignments"
+        ]
+      }
+    },
+    "/payroll/assignments/user/{userId}": {
+      "get": {
+        "operationId": "SalaryAssignmentController_forUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Salary Assignments"
+        ]
+      }
+    },
+    "/payroll/assignments/{id}": {
+      "delete": {
+        "operationId": "SalaryAssignmentController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Salary Assignments"
+        ]
+      }
+    },
+    "/payroll/runs": {
+      "get": {
+        "operationId": "PayrollRunController_list",
+        "parameters": [
+          {
+            "name": "year",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 2000,
+              "maximum": 2100,
+              "example": 2026,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "SUBMITTED",
+                "APPROVED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Runs"
+        ]
+      },
+      "post": {
+        "operationId": "PayrollRunController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePayrollRunDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Calculate a closed month into a DRAFT run",
+        "tags": [
+          "Payroll — Runs"
+        ]
+      }
+    },
+    "/payroll/runs/{id}": {
+      "get": {
+        "operationId": "PayrollRunController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Runs"
+        ]
+      }
+    },
+    "/payroll/runs/{id}/recalculate": {
+      "post": {
+        "operationId": "PayrollRunController_recalculate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Recompute a draft and report what moved",
+        "tags": [
+          "Payroll — Runs"
+        ]
+      }
+    },
+    "/payroll/runs/{id}/submit": {
+      "post": {
+        "operationId": "PayrollRunController_submit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Runs"
+        ]
+      }
+    },
+    "/payroll/runs/{id}/approve": {
+      "post": {
+        "operationId": "PayrollRunController_approve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Final. An approved run is corrected by adjustment",
+        "tags": [
+          "Payroll — Runs"
+        ]
+      }
+    },
+    "/payroll/payslips/me": {
+      "get": {
+        "operationId": "PayslipController_mine",
+        "parameters": [
+          {
+            "name": "year",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 2000,
+              "maximum": 2100,
+              "example": 2026,
+              "type": "number"
+            }
+          },
+          {
+            "name": "month",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 12,
+              "example": 7,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PayslipResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "My payslip — resolved from the token, approved runs only",
+        "tags": [
+          "Payroll — Payslips"
+        ]
+      }
+    },
+    "/payroll/payslips/{id}": {
+      "get": {
+        "operationId": "PayslipController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PayslipResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Payslips"
+        ]
+      }
+    },
+    "/payroll/runs/{id}/payslips": {
+      "get": {
+        "operationId": "PayslipController_forRun",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PayslipSummaryResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payroll — Payslips"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Employee Service API",
+    "description": "Employee Service",
+    "version": "0.1.2",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "EmploymentTypeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440007"
+          },
+          "code": {
+            "type": "string",
+            "example": "PNS"
+          },
+          "name": {
+            "type": "string",
+            "example": "Civil Servant"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name"
+        ]
+      },
+      "EmploymentTypeListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmploymentTypeResponseDto"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "example": {
+              "page": 1,
+              "limit": 10,
+              "total": 5,
+              "totalPages": 1
+            }
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateEmploymentTypeDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "PNS"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Civil Servant"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdateEmploymentTypeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Civil Servant Update"
+          }
+        }
+      },
+      "PositionCategoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440007"
+          },
+          "code": {
+            "type": "string",
+            "example": "MANAGEMENT"
+          },
+          "name": {
+            "type": "string",
+            "example": "Management"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name"
+        ]
+      },
+      "PositionCategoryListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PositionCategoryResponseDto"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "example": {
+              "page": 1,
+              "limit": 10,
+              "total": 4,
+              "totalPages": 1
+            }
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreatePositionCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "MANAGEMENT"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Management"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdatePositionCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Management Updated"
+          }
+        }
+      },
+      "PositionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440007"
+          },
+          "name": {
+            "type": "string",
+            "example": "Kepala Sekolah"
+          },
+          "category": {
+            "$ref": "#/components/schemas/PositionCategoryResponseDto"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "isActive"
+        ]
+      },
+      "PositionListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PositionResponseDto"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "example": {
+              "page": 1,
+              "limit": 10,
+              "total": 15,
+              "totalPages": 2
+            }
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreatePositionDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Kepala Sekolah"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440007"
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [
+          "name",
+          "categoryId"
+        ]
+      },
+      "UpdatePositionDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Kepala Sekolah"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440007"
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "EmployeeRosterResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "User ids of every employee on the books, soft-deleted ones excluded. Not filtered by position, position category, or employment type.",
+            "example": [
+              "0f8c3b3e-4a4f-4a3a-9a7a-2c5f6b1d9e10"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "EmployeeIdsDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "EmployeeRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "description": "The employee's account, so the caller resolves the name against identity-service rather than against this service."
+          },
+          "nip": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "nip"
+        ]
+      },
+      "EmployeeRefListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeRefDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "EmployeeIdByUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "nullable": true,
+            "description": "null when the account owns no employee record"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "EmployeeExistsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "false when missing or soft-deleted"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "BulkImportEmployeeRowDto": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 255
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "nik": {
+            "type": "string",
+            "maxLength": 16
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ]
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "birthDate": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "pattern": "^[0-9+]+$"
+          },
+          "nip": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "nuptk": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "employmentTypeCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifier",
+          "password",
+          "name",
+          "nik",
+          "gender",
+          "birthPlace",
+          "birthDate",
+          "employmentTypeCode"
+        ]
+      },
+      "BulkImportEmployeeRowResultDto": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "number",
+            "example": 2,
+            "description": "Excel row number (1 = header)"
+          },
+          "status": {
+            "enum": [
+              "SUCCESS",
+              "FAILED",
+              "CONFLICT"
+            ],
+            "type": "string",
+            "example": "SUCCESS",
+            "description": "CONFLICT means the row matches an existing employee by NIK/NIP/NUPTK. It is not applied automatically — resend it to the resolve endpoint with an \"update\" or \"skip\" decision. A taken identifier/username is still a hard FAILED, since it belongs to an unrelated account."
+          },
+          "identifier": {
+            "type": "string",
+            "example": "guru001"
+          },
+          "error": {
+            "type": "string",
+            "example": "Validation failed: identifier must not be empty",
+            "description": "Error detail. Present when status is FAILED or CONFLICT."
+          },
+          "existingId": {
+            "type": "string",
+            "description": "Existing employee ID this row conflicts with."
+          },
+          "data": {
+            "description": "The parsed row data, echoed back so the client can resend it to the resolve endpoint without re-parsing the Excel file.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BulkImportEmployeeRowDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "row",
+          "status"
+        ]
+      },
+      "BulkImportEmployeesResponseDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "example": 10,
+            "description": "Total rows processed"
+          },
+          "success": {
+            "type": "number",
+            "example": 8
+          },
+          "failed": {
+            "type": "number",
+            "example": 2
+          },
+          "conflict": {
+            "type": "number",
+            "example": 1,
+            "description": "Rows skipped because they match an existing employee."
+          },
+          "results": {
+            "description": "Per-row result. Failed rows include row number and error detail.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkImportEmployeeRowResultDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "success",
+          "failed",
+          "conflict",
+          "results"
+        ]
+      },
+      "ResolveBulkImportConflictDto": {
+        "type": "object",
+        "properties": {
+          "existingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Existing employee ID this row conflicts with"
+          },
+          "action": {
+            "enum": [
+              "update",
+              "skip"
+            ],
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BulkImportEmployeeRowDto"
+          }
+        },
+        "required": [
+          "action",
+          "data"
+        ]
+      },
+      "ResolveBulkImportConflictsDto": {
+        "type": "object",
+        "properties": {
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResolveBulkImportConflictDto"
+            }
+          }
+        },
+        "required": [
+          "conflicts"
+        ]
+      },
+      "ResolveBulkImportErrorDto": {
+        "type": "object",
+        "properties": {
+          "existingId": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "existingId",
+          "error"
+        ]
+      },
+      "ResolveBulkImportResponseDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "example": 5,
+            "description": "Total rows submitted"
+          },
+          "updated": {
+            "type": "number",
+            "example": 3,
+            "description": "Rows created or updated"
+          },
+          "skipped": {
+            "type": "number",
+            "example": 2,
+            "description": "Rows the caller chose to skip"
+          },
+          "failed": {
+            "type": "number",
+            "example": 0,
+            "description": "Rows that threw while processing"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResolveBulkImportErrorDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "updated",
+          "skipped",
+          "failed",
+          "errors"
+        ]
+      },
+      "ProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Profile ID",
+            "example": "550e8400-e29b-41d4-a716-446655440015"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owner user ID",
+            "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+          },
+          "name": {
+            "type": "string",
+            "example": "Ahmad Fauzi"
+          },
+          "nik": {
+            "type": "string",
+            "example": "3578010101080001"
+          },
+          "gender": {
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ],
+            "type": "string",
+            "example": "MALE"
+          },
+          "birthPlace": {
+            "type": "string",
+            "example": "Malang"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2008-01-01"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "example": "ahmad.fauzi@email.com"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "example": "081234567890"
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true,
+            "description": "Signed, time-limited profile photo URL (bucket is private)"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "name",
+          "nik",
+          "gender",
+          "birthPlace",
+          "birthDate"
+        ]
+      },
+      "EmployeeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "nip": {
+            "type": "string",
+            "nullable": true,
+            "example": "198006152005011001"
+          },
+          "nuptk": {
+            "type": "string",
+            "nullable": true,
+            "example": "1234567890123456"
+          },
+          "employmentType": {
+            "$ref": "#/components/schemas/EmploymentTypeResponseDto"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileResponseDto"
+          }
+        },
+        "required": [
+          "id",
+          "employmentType",
+          "isActive",
+          "profile"
+        ]
+      },
+      "EmployeeListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeResponseDto"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "example": {
+              "page": 1,
+              "limit": 10,
+              "total": 50,
+              "totalPages": 5
+            }
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateEmployeeDto": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "guru001",
+            "description": "Jika kosong, otomatis menggunakan NIP/NUPTK/NIK"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "P@ssw0rd!",
+            "description": "Jika kosong, otomatis menggunakan NIP/NUPTK/NIK"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Budi Santoso"
+          },
+          "nik": {
+            "type": "string",
+            "maxLength": 16,
+            "example": "3578010101700001"
+          },
+          "gender": {
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ],
+            "type": "string",
+            "example": "MALE"
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Surabaya"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1980-06-15"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "example": "budi.santoso@email.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "example": "081298765432"
+          },
+          "nip": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "198006152005011001"
+          },
+          "nuptk": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "1234567890123456"
+          },
+          "employmentTypeId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440007"
+          },
+          "positionId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440099",
+            "description": "Primary position (optional). When set, it is created as the primary EmployeePosition."
+          }
+        },
+        "required": [
+          "name",
+          "nik",
+          "gender",
+          "birthPlace",
+          "birthDate",
+          "employmentTypeId"
+        ]
+      },
+      "UpdateEmployeeDto": {
+        "type": "object",
+        "properties": {
+          "nip": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "198006152005011001"
+          },
+          "nuptk": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "1234567890123456"
+          },
+          "employmentTypeId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440007"
+          }
+        }
+      },
+      "UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ahmad Fauzi"
+          },
+          "nik": {
+            "type": "string",
+            "maxLength": 16,
+            "example": "3578010101080001"
+          },
+          "gender": {
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ],
+            "type": "string"
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Malang"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2008-01-01"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "example": "ahmad.fauzi@email.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "example": "081234567890"
+          },
+          "religionId": {
+            "type": "string",
+            "example": "religion-uuid",
+            "description": "Agama ID"
+          },
+          "bloodTypeId": {
+            "type": "string",
+            "example": "blood-type-uuid",
+            "description": "Golongan Darah ID"
+          },
+          "maritalStatus": {
+            "enum": [
+              "SINGLE",
+              "MARRIED",
+              "DIVORCED",
+              "WIDOWED"
+            ],
+            "type": "string",
+            "description": "Status Pernikahan"
+          },
+          "noKk": {
+            "type": "string",
+            "maxLength": 16,
+            "example": "3578010101080001",
+            "description": "No. KK (16 digit)"
+          },
+          "npwp": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "12.345.678.9-012.000",
+            "description": "NPWP"
+          }
+        }
+      },
+      "EmployeePositionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "positionId": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440002",
+            "description": "Position UUID"
+          },
+          "hireDate": {
+            "type": "string",
+            "example": "2020-01-01"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "id",
+          "positionId",
+          "hireDate",
+          "isPrimary"
+        ]
+      },
+      "CreateEmployeePositionDto": {
+        "type": "object",
+        "properties": {
+          "positionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Position ID (UUID)",
+            "example": "550e8400-e29b-41d4-a716-446655440007"
+          },
+          "hireDate": {
+            "type": "string",
+            "example": "2020-01-01",
+            "description": "Hire/assignment date"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "example": false,
+            "default": false
+          }
+        },
+        "required": [
+          "positionId",
+          "hireDate"
+        ]
+      },
+      "UpdateEmployeePositionDto": {
+        "type": "object",
+        "properties": {
+          "hireDate": {
+            "type": "string",
+            "example": "2020-01-01"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "CreateSalaryComponentDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,29}$",
+            "example": "POT_ALPA"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Potongan Alpa"
+          },
+          "type": {
+            "enum": [
+              "BASE",
+              "ALLOWANCE",
+              "ATTENDANCE_DRIVEN",
+              "DEDUCTION"
+            ],
+            "type": "string"
+          },
+          "driver": {
+            "enum": [
+              "PRESENT_DAYS",
+              "ABSENT_DAYS",
+              "LATE_COUNT",
+              "LATE_MINUTES",
+              "EARLY_LEAVE_COUNT",
+              "LEAVE_DAYS",
+              "OFFICIAL_DUTY_DAYS"
+            ],
+            "type": "string",
+            "description": "Required for ATTENDANCE_DRIVEN, optional for DEDUCTION, else forbidden."
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "type"
+        ]
+      },
+      "UpdateSalaryComponentDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,29}$",
+            "example": "POT_ALPA"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Potongan Alpa"
+          },
+          "type": {
+            "enum": [
+              "BASE",
+              "ALLOWANCE",
+              "ATTENDANCE_DRIVEN",
+              "DEDUCTION"
+            ],
+            "type": "string"
+          },
+          "driver": {
+            "enum": [
+              "PRESENT_DAYS",
+              "ABSENT_DAYS",
+              "LATE_COUNT",
+              "LATE_MINUTES",
+              "EARLY_LEAVE_COUNT",
+              "LEAVE_DAYS",
+              "OFFICIAL_DUTY_DAYS"
+            ],
+            "type": "string",
+            "description": "Required for ATTENDANCE_DRIVEN, optional for DEDUCTION, else forbidden."
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Deactivating stops new assignments"
+          }
+        }
+      },
+      "CreateSalaryAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "componentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "string",
+            "example": "3500000.00",
+            "description": "For BASE, ALLOWANCE and fixed DEDUCTION."
+          },
+          "rate": {
+            "type": "string",
+            "example": "150000.00",
+            "description": "Per unit of the driver, for any component that has one."
+          },
+          "effectiveFrom": {
+            "type": "string",
+            "example": "2026-09-01",
+            "description": "Any earlier open assignment is closed the day before this."
+          }
+        },
+        "required": [
+          "userId",
+          "componentId",
+          "effectiveFrom"
+        ]
+      },
+      "CreatePayrollRunDto": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "number",
+            "minimum": 2000,
+            "maximum": 2100,
+            "example": 2026
+          },
+          "month": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 12,
+            "example": 7
+          },
+          "kind": {
+            "enum": [
+              "ORIGINAL",
+              "ADJUSTMENT"
+            ],
+            "type": "string",
+            "default": "ORIGINAL"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "year",
+          "month"
+        ]
+      },
+      "PayslipRunResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "year": {
+            "type": "number"
+          },
+          "month": {
+            "type": "number"
+          },
+          "kind": {
+            "enum": [
+              "ORIGINAL",
+              "ADJUSTMENT"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "year",
+          "month",
+          "kind",
+          "status"
+        ]
+      },
+      "PayslipEmployeeResponseDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "identifier": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "identifier"
+        ]
+      },
+      "PayslipAttendanceResponseDto": {
+        "type": "object",
+        "properties": {
+          "presentDays": {
+            "type": "number"
+          },
+          "absentDays": {
+            "type": "number"
+          },
+          "lateCount": {
+            "type": "number"
+          },
+          "lateMinutes": {
+            "type": "number"
+          },
+          "earlyLeaveCount": {
+            "type": "number"
+          },
+          "leaveDays": {
+            "type": "number"
+          },
+          "officialDutyDays": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "presentDays",
+          "absentDays",
+          "lateCount",
+          "lateMinutes",
+          "earlyLeaveCount",
+          "leaveDays",
+          "officialDutyDays"
+        ]
+      },
+      "PayslipLineResponseDto": {
+        "type": "object",
+        "properties": {
+          "componentCode": {
+            "type": "string"
+          },
+          "componentName": {
+            "type": "string"
+          },
+          "componentType": {
+            "enum": [
+              "BASE",
+              "ALLOWANCE",
+              "ATTENDANCE_DRIVEN",
+              "DEDUCTION"
+            ],
+            "type": "string"
+          },
+          "amount": {
+            "type": "string",
+            "example": "3500000"
+          },
+          "driver": {
+            "nullable": true,
+            "enum": [
+              "PRESENT_DAYS",
+              "ABSENT_DAYS",
+              "LATE_COUNT",
+              "LATE_MINUTES",
+              "EARLY_LEAVE_COUNT",
+              "LEAVE_DAYS",
+              "OFFICIAL_DUTY_DAYS"
+            ],
+            "type": "string"
+          },
+          "driverCount": {
+            "type": "number",
+            "nullable": true,
+            "example": 3
+          },
+          "rate": {
+            "type": "string",
+            "nullable": true,
+            "example": "150000"
+          }
+        },
+        "required": [
+          "componentCode",
+          "componentName",
+          "componentType",
+          "amount"
+        ]
+      },
+      "PayslipResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "run": {
+            "$ref": "#/components/schemas/PayslipRunResponseDto"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/PayslipEmployeeResponseDto"
+          },
+          "attendance": {
+            "$ref": "#/components/schemas/PayslipAttendanceResponseDto"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayslipLineResponseDto"
+            }
+          },
+          "gross": {
+            "type": "string",
+            "example": "3650000"
+          },
+          "deductions": {
+            "type": "string",
+            "example": "150000"
+          },
+          "net": {
+            "type": "string",
+            "example": "3500000"
+          }
+        },
+        "required": [
+          "id",
+          "run",
+          "employee",
+          "attendance",
+          "lines",
+          "gross",
+          "deductions",
+          "net"
+        ]
+      },
+      "PayslipSummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/PayslipEmployeeResponseDto"
+          },
+          "gross": {
+            "type": "string",
+            "example": "3650000"
+          },
+          "deductions": {
+            "type": "string",
+            "example": "150000"
+          },
+          "net": {
+            "type": "string",
+            "example": "3500000"
+          }
+        },
+        "required": [
+          "id",
+          "employee",
+          "gross",
+          "deductions",
+          "net"
+        ]
+      }
+    }
+  }
+}

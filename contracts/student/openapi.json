@@ -1,0 +1,5584 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liveness and readiness check passed\n\nThe Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "degraded"
+                          ],
+                          "example": "ok"
+                        },
+                        "info": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "error": {
+                          "type": "object",
+                          "example": {},
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "details": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Health check failed\n\nThe Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "shutting_down"
+                      ],
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness + readiness probe (DB, memory)",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/student-enrollments/search": {
+      "post": {
+        "description": "The primitive behind every \"rows for this classroom in this term\" read in another service. Callers used to reach these by joining `student_enrollments` from their own tables; they resolve ids here and filter on their own foreign key instead. At least one filter is required — an unfiltered search is a whole-table read, not a query.",
+        "operationId": "EnrollmentInternalController_search",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchEnrollmentsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EnrollmentListResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No filter given"
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Enrolments matching a student, classroom or term",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/count-by-classrooms": {
+      "post": {
+        "operationId": "EnrollmentInternalController_countByClassrooms",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CountByClassroomsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ClassroomCountListResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Active enrolment counts for a batch of classrooms in one term",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/count-by-semesters": {
+      "post": {
+        "description": "academic-service asks this for its semester list, which offers a rollover only into a term that holds nothing yet. A term absent from the response holds nothing; a term the caller never asked about is a different thing entirely, and must not be read as empty.",
+        "operationId": "EnrollmentInternalController_countBySemesters",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SemesterIdsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SemesterCountListResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Live enrolment counts for a batch of terms",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/active/{studentId}": {
+      "get": {
+        "description": "With `semesterId`, the active enrolment in that term rather than whichever one is current.",
+        "operationId": "EnrollmentInternalController_active",
+        "parameters": [
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ActiveEnrollmentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "A student's active enrolment, as ids",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/summary/{id}": {
+      "get": {
+        "operationId": "EnrollmentInternalController_summary",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EnrollmentSummaryResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "One enrolment, as ids",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/by-classroom/{classroomId}": {
+      "get": {
+        "operationId": "EnrollmentInternalController_byClassroom",
+        "parameters": [
+          {
+            "name": "classroomId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EnrollmentListResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Active enrolments in a classroom and semester",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/by-ids": {
+      "post": {
+        "operationId": "EnrollmentInternalController_byIds",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CountActiveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EnrollmentListResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Enrolments for a batch of ids, as summaries",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/rollover": {
+      "post": {
+        "description": "academic-service copies the classrooms first and sends the resulting id map here. Idempotent per student: a student already enrolled in the target semester is skipped, so a failed run is repaired by repeating it.",
+        "operationId": "EnrollmentInternalController_rollover",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolloverEnrollmentsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/RolloverEnrollmentsResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Carry active enrolments into the next semester",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/count-active": {
+      "post": {
+        "operationId": "EnrollmentInternalController_countActive",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CountActiveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EnrollmentCountResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "How many of these enrolment ids are active",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/count-by-classroom/{classroomId}": {
+      "get": {
+        "operationId": "EnrollmentInternalController_countByClassroom",
+        "parameters": [
+          {
+            "name": "classroomId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EnrollmentCountResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Live enrolments in a classroom",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/count-by-semester/{semesterId}": {
+      "get": {
+        "operationId": "EnrollmentInternalController_countBySemester",
+        "parameters": [
+          {
+            "name": "semesterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EnrollmentCountResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Live enrolments in a semester",
+        "tags": [
+          "Student Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments": {
+      "get": {
+        "operationId": "EnrollmentController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "classroomId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "PROMOTED",
+                "REPEATED",
+                "TRANSFERRED",
+                "DROPPED",
+                "GRADUATED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List student enrollments",
+        "tags": [
+          "Enrollments"
+        ]
+      },
+      "post": {
+        "operationId": "EnrollmentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentEnrollmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create enrollment",
+        "tags": [
+          "Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/{id}": {
+      "get": {
+        "operationId": "EnrollmentController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get enrollment by ID",
+        "tags": [
+          "Enrollments"
+        ]
+      },
+      "patch": {
+        "operationId": "EnrollmentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudentEnrollmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update enrollment",
+        "tags": [
+          "Enrollments"
+        ]
+      },
+      "delete": {
+        "operationId": "EnrollmentController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete enrollment",
+        "tags": [
+          "Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/bulk": {
+      "post": {
+        "operationId": "EnrollmentController_bulkCreate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkCreateStudentEnrollmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Bulk create enrollments",
+        "tags": [
+          "Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/{id}/transfer": {
+      "patch": {
+        "operationId": "EnrollmentController_transfer",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student transferred"
+          },
+          "400": {
+            "description": "Enrollment is not ACTIVE"
+          },
+          "404": {
+            "description": "Enrollment not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Transfer student to a different class",
+        "tags": [
+          "Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/bulk-transfer": {
+      "post": {
+        "operationId": "EnrollmentController_bulkTransfer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkTransferStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Bulk transfer completed"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Bulk transfer students to a different class",
+        "tags": [
+          "Enrollments"
+        ]
+      }
+    },
+    "/student-enrollments/{id}/drop": {
+      "patch": {
+        "operationId": "EnrollmentController_drop",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DropStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student dropped"
+          },
+          "400": {
+            "description": "Enrollment is not ACTIVE"
+          },
+          "404": {
+            "description": "Enrollment not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Drop a student from enrollment",
+        "tags": [
+          "Enrollments"
+        ]
+      }
+    },
+    "/students/by-ids": {
+      "post": {
+        "description": "academic-service holds the four class officers as ids on a classroom structure and renders a name and a NIS beside each. Ids that match nothing are absent from the response rather than returned as null.",
+        "operationId": "StudentInternalController_byIds",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentRefListResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Students for a batch of ids",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/by-user/{userId}": {
+      "get": {
+        "operationId": "StudentInternalController_byUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentIdByUserResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Resolve an account to its student record",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/export": {
+      "get": {
+        "operationId": "StudentImportExportController_export",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name, NIS, or NISN",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classroomId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by class ID (UUID)",
+            "schema": {
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440004",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns an Excel file as attachment",
+            "headers": {
+              "Content-Disposition": {
+                "description": "attachment; filename=\"students.xlsx\"",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export students to Excel (.xlsx)",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/import-template": {
+      "get": {
+        "operationId": "StudentImportExportController_downloadImportTemplate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns a blank Excel template file",
+            "headers": {
+              "Content-Disposition": {
+                "description": "attachment; filename=\"template_import_siswa.xlsx\"",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Download blank import template (.xlsx) for students",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/bulk-import": {
+      "post": {
+        "operationId": "StudentImportExportController_bulkImport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BulkImportStudentsResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file or empty sheet"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Preview a student import file (.xlsx): reports per row what would happen, and writes nothing. Post the result to bulk-import/resolve to apply it",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/bulk-import/resolve": {
+      "post": {
+        "operationId": "StudentImportExportController_resolveBulkImportConflicts",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveBulkImportConflictsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ResolveBulkImportResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Apply a previewed bulk import: create the new rows, and update or skip each conflicting one as the caller decided",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/enrol": {
+      "post": {
+        "operationId": "StudentController_enrol",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrolExistingAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The student, whether created now or already present",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EnrolExistingAccountResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "NIS or NISN already in use"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Enrol an existing account as a student (admission handover)",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students": {
+      "get": {
+        "operationId": "StudentController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name, NIS, or NISN",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by semester ID — shows students enrolled in that semester",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "classroomId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by class ID via enrollment",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter by student status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "TRANSFERRED",
+                "DROPPED",
+                "GRADUATED"
+              ]
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filter by active status (user.isActive)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/StudentResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "example": {
+                        "page": 1,
+                        "limit": 10,
+                        "total": 50,
+                        "totalPages": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all students (paginated, searchable)",
+        "tags": [
+          "Students"
+        ]
+      },
+      "post": {
+        "operationId": "StudentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Active semester not found"
+          },
+          "409": {
+            "description": "Duplicate NIS or NISN"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new student (User + Profile + Student)",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/me": {
+      "get": {
+        "operationId": "StudentController_findMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not linked to a student record"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Your own student record — no id parameter exists",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/me/classroom": {
+      "get": {
+        "operationId": "StudentController_findMyClassroom",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Your classroom, or null when you have no enrolment this term",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/MyClassroomResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The classroom you are enrolled in — no id parameter exists",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/{id}": {
+      "get": {
+        "operationId": "StudentController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Student not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a student by ID",
+        "tags": [
+          "Students"
+        ]
+      },
+      "patch": {
+        "operationId": "StudentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Student not found"
+          },
+          "409": {
+            "description": "Duplicate NIS or NISN"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update student master data (NIS, NISN, status)",
+        "tags": [
+          "Students"
+        ]
+      },
+      "delete": {
+        "operationId": "StudentController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Student deleted"
+          },
+          "404": {
+            "description": "Student not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete a student (also deactivates User)",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/with-relations": {
+      "post": {
+        "operationId": "StudentController_createWithRelations",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentWithRelationsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate NIS, NISN, or parent NIK"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a student with address and parents atomically (single transaction)",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/students/{id}/toggle-active": {
+      "patch": {
+        "operationId": "StudentController_toggleActive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account status updated"
+          },
+          "404": {
+            "description": "Student not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Activate or deactivate a student account (without deleting)",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/student-parents": {
+      "get": {
+        "operationId": "StudentParentController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by student name/NIS/NISN or parent name/NIK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by student ID (UUID)",
+            "schema": {
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440001",
+              "type": "string"
+            }
+          },
+          {
+            "name": "parentId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by parent ID (UUID)",
+            "schema": {
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440003",
+              "type": "string"
+            }
+          },
+          {
+            "name": "relation",
+            "required": false,
+            "in": "query",
+            "description": "Filter by relation",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "FATHER",
+                "MOTHER",
+                "GUARDIAN"
+              ]
+            }
+          },
+          {
+            "name": "isPrimary",
+            "required": false,
+            "in": "query",
+            "description": "Filter by primary relation",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/StudentParentResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "example": {
+                        "page": 1,
+                        "limit": 10,
+                        "total": 15,
+                        "totalPages": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all student-parent links (paginated, searchable)",
+        "tags": [
+          "Student Parents"
+        ]
+      },
+      "post": {
+        "operationId": "StudentParentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentParentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentParentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Student or parent not found"
+          },
+          "409": {
+            "description": "Link already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a student-parent link",
+        "tags": [
+          "Student Parents"
+        ]
+      }
+    },
+    "/student-parents/{id}": {
+      "get": {
+        "operationId": "StudentParentController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentParentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Link not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a student-parent link by ID",
+        "tags": [
+          "Student Parents"
+        ]
+      },
+      "patch": {
+        "operationId": "StudentParentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudentParentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentParentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Link not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a student-parent link (relation/isPrimary)",
+        "tags": [
+          "Student Parents"
+        ]
+      },
+      "delete": {
+        "operationId": "StudentParentController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Link deleted"
+          },
+          "404": {
+            "description": "Link not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a student-parent link",
+        "tags": [
+          "Student Parents"
+        ]
+      }
+    },
+    "/student-graduations/candidates": {
+      "get": {
+        "operationId": "GraduationController_findCandidates",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/GraduationCandidateListDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Students eligible to graduate, from the active semester",
+        "tags": [
+          "Graduations"
+        ]
+      }
+    },
+    "/student-graduations/holds": {
+      "get": {
+        "operationId": "GraduationController_findHolds",
+        "parameters": [
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GraduationHoldDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Students held back from graduating, newest decision first",
+        "tags": [
+          "Graduations"
+        ]
+      }
+    },
+    "/student-graduations/bulk": {
+      "post": {
+        "operationId": "GraduationController_bulkGraduate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkGraduationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BulkGraduationResultDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Graduate a cohort in one run",
+        "tags": [
+          "Graduations"
+        ]
+      }
+    },
+    "/student-graduations": {
+      "get": {
+        "operationId": "GraduationController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List student graduations",
+        "tags": [
+          "Graduations"
+        ]
+      },
+      "post": {
+        "operationId": "GraduationController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentGraduationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Graduation created"
+          },
+          "409": {
+            "description": "Student already has a graduation record"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a graduation record",
+        "tags": [
+          "Graduations"
+        ]
+      }
+    },
+    "/student-graduations/{id}": {
+      "get": {
+        "operationId": "GraduationController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Graduation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get graduation by ID",
+        "tags": [
+          "Graduations"
+        ]
+      },
+      "patch": {
+        "operationId": "GraduationController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudentGraduationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Graduation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update graduation record",
+        "tags": [
+          "Graduations"
+        ]
+      },
+      "delete": {
+        "operationId": "GraduationController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Graduation deleted"
+          },
+          "404": {
+            "description": "Graduation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete graduation record",
+        "tags": [
+          "Graduations"
+        ]
+      }
+    },
+    "/parents/count-by-occupation/{occupationId}": {
+      "get": {
+        "operationId": "ParentInternalController_countByOccupation",
+        "parameters": [
+          {
+            "name": "occupationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ParentOccupationCountResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Count live parents naming an occupation",
+        "tags": [
+          "Parents"
+        ]
+      }
+    },
+    "/parents": {
+      "get": {
+        "operationId": "ParentController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name, NIK, email, or phone",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "occupationId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by occupation ID (UUID)",
+            "schema": {
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440012",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ParentResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "example": {
+                        "page": 1,
+                        "limit": 10,
+                        "total": 20,
+                        "totalPages": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all parents (paginated, filterable)",
+        "tags": [
+          "Parents"
+        ]
+      },
+      "post": {
+        "operationId": "ParentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateParentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ParentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Occupation not found"
+          },
+          "409": {
+            "description": "Duplicate NIK / inactive occupation"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new parent",
+        "tags": [
+          "Parents"
+        ]
+      }
+    },
+    "/parents/{id}": {
+      "get": {
+        "operationId": "ParentController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ParentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Parent not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a parent by ID",
+        "tags": [
+          "Parents"
+        ]
+      },
+      "patch": {
+        "operationId": "ParentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ParentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Parent or occupation not found"
+          },
+          "409": {
+            "description": "Duplicate NIK / inactive occupation"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a parent",
+        "tags": [
+          "Parents"
+        ]
+      },
+      "delete": {
+        "operationId": "ParentController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Parent deleted"
+          },
+          "404": {
+            "description": "Parent not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a parent (soft delete)",
+        "tags": [
+          "Parents"
+        ]
+      }
+    },
+    "/student-promotions/recommend": {
+      "post": {
+        "operationId": "SemesterPromotionController_recommend",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRecommendationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of students with recommended promotion actions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PromotionRecommendationDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Semester not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generate per-student promotion recommendations based on class level",
+        "tags": [
+          "Semesters"
+        ]
+      }
+    },
+    "/student-promotions/preview": {
+      "post": {
+        "operationId": "SemesterPromotionController_previewPromotion",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Promotion preview with student counts per action",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PromotionPreviewDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Semester not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Preview promotion summary counts from per-student decisions",
+        "tags": [
+          "Semesters"
+        ]
+      }
+    },
+    "/student-promotions": {
+      "post": {
+        "operationId": "SemesterPromotionController_promote",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Promotion result with counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PromotionResultDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Semester or class not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Execute batch student promotion across academic years (PROMOTE/REPEAT)",
+        "tags": [
+          "Semesters"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Student Service API",
+    "description": "Student Service",
+    "version": "0.1.2",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "SearchEnrollmentsDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "classroomId": {
+            "type": "string"
+          },
+          "semesterId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "default": 1000
+          }
+        }
+      },
+      "ActiveEnrollmentSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "classroomId": {
+            "type": "string"
+          },
+          "semesterId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "object",
+            "nullable": true
+          },
+          "studentUserId": {
+            "type": "object",
+            "nullable": true,
+            "description": "The account behind the student, for callers resolving a name"
+          },
+          "studentNis": {
+            "type": "object",
+            "nullable": true
+          },
+          "studentName": {
+            "type": "object",
+            "nullable": true,
+            "description": "Resolved from identity-service by this service, not joined."
+          }
+        },
+        "required": [
+          "id",
+          "studentId",
+          "classroomId",
+          "semesterId",
+          "status",
+          "studentUserId",
+          "studentNis",
+          "studentName"
+        ]
+      },
+      "EnrollmentListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActiveEnrollmentSummary"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "CountByClassroomsDto": {
+        "type": "object",
+        "properties": {
+          "classroomIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "semesterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "classroomIds",
+          "semesterId"
+        ]
+      },
+      "ClassroomCountDto": {
+        "type": "object",
+        "properties": {
+          "classroomId": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "classroomId",
+          "count"
+        ]
+      },
+      "ClassroomCountListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Classrooms with no active enrolment are absent, not zero.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClassroomCountDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "SemesterIdsDto": {
+        "type": "object",
+        "properties": {
+          "semesterIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "semesterIds"
+        ]
+      },
+      "SemesterCountDto": {
+        "type": "object",
+        "properties": {
+          "semesterId": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "semesterId",
+          "count"
+        ]
+      },
+      "SemesterCountListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Terms with no live enrolment are absent, not zero.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SemesterCountDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ActiveEnrollmentResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "nullable": true,
+            "description": "null when the student has no active enrolment",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ActiveEnrollmentSummary"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "EnrollmentSummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ActiveEnrollmentSummary"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "CountActiveDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "RolloverEnrollmentsDto": {
+        "type": "object",
+        "properties": {
+          "sourceSemesterId": {
+            "type": "string"
+          },
+          "targetSemesterId": {
+            "type": "string"
+          },
+          "classroomIdMap": {
+            "type": "object",
+            "description": "Source classroom id -> target classroom id, built by academic-service.",
+            "example": {
+              "old-uuid": "new-uuid"
+            }
+          }
+        },
+        "required": [
+          "sourceSemesterId",
+          "targetSemesterId",
+          "classroomIdMap"
+        ]
+      },
+      "RolloverEnrollmentsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "EnrollmentCountResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Live enrolments. Soft-deleted excluded."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "CreateStudentEnrollmentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classroomId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "semesterId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "studentId",
+          "classroomId",
+          "semesterId"
+        ]
+      },
+      "BulkCreateStudentEnrollmentDto": {
+        "type": "object",
+        "properties": {
+          "enrollments": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateStudentEnrollmentDto"
+            }
+          }
+        },
+        "required": [
+          "enrollments"
+        ]
+      },
+      "UpdateStudentEnrollmentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classroomId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "semesterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "PROMOTED",
+              "REPEATED",
+              "TRANSFERRED",
+              "DROPPED",
+              "GRADUATED"
+            ],
+            "type": "string"
+          },
+          "endedAt": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "TransferStudentDto": {
+        "type": "object",
+        "properties": {
+          "targetClassroomId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Target classroom ID to transfer the student to"
+          },
+          "note": {
+            "type": "string",
+            "description": "Reason for transfer"
+          }
+        },
+        "required": [
+          "targetClassroomId"
+        ]
+      },
+      "BulkTransferStudentDto": {
+        "type": "object",
+        "properties": {
+          "enrollmentIds": {
+            "minItems": 1,
+            "description": "Array of enrollment IDs to transfer",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "targetClassroomId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Target classroom ID to transfer students to"
+          },
+          "note": {
+            "type": "string",
+            "description": "Reason for transfer"
+          }
+        },
+        "required": [
+          "enrollmentIds",
+          "targetClassroomId"
+        ]
+      },
+      "DropStudentDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "description": "Reason for dropping the enrollment"
+          }
+        }
+      },
+      "StudentIdsDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "StudentRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "description": "The student's account, so the caller resolves the name against identity-service rather than against this service."
+          },
+          "nis": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "nis"
+        ]
+      },
+      "StudentRefListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentRefDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "StudentIdByUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "nullable": true,
+            "description": "null when the account owns no student record"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "BulkImportStudentRowDto": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 255
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "nik": {
+            "type": "string",
+            "maxLength": 16
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ]
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "birthDate": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "pattern": "^[0-9+]+$"
+          },
+          "grade": {
+            "type": "number"
+          },
+          "classroomCode": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "nis": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "nisn": {
+            "type": "string",
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "identifier",
+          "password",
+          "name",
+          "nik",
+          "gender",
+          "birthPlace",
+          "birthDate",
+          "nis",
+          "nisn"
+        ]
+      },
+      "BulkImportRowResultDto": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "number",
+            "example": 2,
+            "description": "Excel row number (1 = header)"
+          },
+          "status": {
+            "enum": [
+              "SUCCESS",
+              "FAILED",
+              "CONFLICT"
+            ],
+            "type": "string",
+            "example": "SUCCESS",
+            "description": "CONFLICT means the row matches an existing student by NIS/NISN. It is not applied automatically — resend it to the resolve endpoint with an \"update\" or \"skip\" decision."
+          },
+          "identifier": {
+            "type": "string",
+            "example": "siswa001"
+          },
+          "error": {
+            "type": "string",
+            "example": "Validation failed: identifier must not be empty; nis must not be empty",
+            "description": "Error detail. Present when status is FAILED or CONFLICT."
+          },
+          "existingId": {
+            "type": "string",
+            "description": "Existing student ID this row conflicts with."
+          },
+          "data": {
+            "description": "The parsed row data, echoed back so the client can resend it to the resolve endpoint without re-parsing the Excel file.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BulkImportStudentRowDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "row",
+          "status"
+        ]
+      },
+      "BulkImportStudentsResponseDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "example": 10,
+            "description": "Total rows processed"
+          },
+          "success": {
+            "type": "number",
+            "example": 8
+          },
+          "failed": {
+            "type": "number",
+            "example": 2
+          },
+          "conflict": {
+            "type": "number",
+            "example": 1,
+            "description": "Rows skipped because they match an existing student."
+          },
+          "results": {
+            "description": "Per-row result. Failed rows include row number and error detail.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkImportRowResultDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "success",
+          "failed",
+          "conflict",
+          "results"
+        ]
+      },
+      "ResolveBulkImportConflictDto": {
+        "type": "object",
+        "properties": {
+          "existingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Existing student ID this row conflicts with"
+          },
+          "action": {
+            "enum": [
+              "update",
+              "skip"
+            ],
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BulkImportStudentRowDto"
+          }
+        },
+        "required": [
+          "action",
+          "data"
+        ]
+      },
+      "ResolveBulkImportConflictsDto": {
+        "type": "object",
+        "properties": {
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResolveBulkImportConflictDto"
+            }
+          }
+        },
+        "required": [
+          "conflicts"
+        ]
+      },
+      "ResolveBulkImportErrorDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number",
+            "example": 3,
+            "description": "Position of the failed item in the submitted array, so the caller can mark the row it came from rather than guessing."
+          },
+          "existingId": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "index",
+          "existingId",
+          "error"
+        ]
+      },
+      "ResolveBulkImportResponseDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "example": 5,
+            "description": "Total rows submitted"
+          },
+          "updated": {
+            "type": "number",
+            "example": 3,
+            "description": "Rows created or updated"
+          },
+          "skipped": {
+            "type": "number",
+            "example": 2,
+            "description": "Rows the caller chose to skip"
+          },
+          "failed": {
+            "type": "number",
+            "example": 0,
+            "description": "Rows that threw while processing"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResolveBulkImportErrorDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "updated",
+          "skipped",
+          "failed",
+          "errors"
+        ]
+      },
+      "EnrolProfileDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Siti Nurhaliza"
+          },
+          "nik": {
+            "type": "string",
+            "example": "3204014504100002"
+          },
+          "gender": {
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ],
+            "type": "string"
+          },
+          "birthPlace": {
+            "type": "string",
+            "example": "Bandung"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2010-04-05"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "religionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "name",
+          "nik",
+          "gender",
+          "birthPlace",
+          "birthDate"
+        ]
+      },
+      "EnrolParentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ahmad Fauzi"
+          },
+          "nik": {
+            "type": "string",
+            "example": "3204010101800001"
+          },
+          "birthPlace": {
+            "type": "string",
+            "example": "Bandung"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1980-01-01"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "occupationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "income": {
+            "enum": [
+              "BELOW_500K",
+              "BETWEEN_500K_1M",
+              "BETWEEN_1M_2M",
+              "BETWEEN_2M_3M",
+              "ABOVE_3M"
+            ],
+            "type": "string"
+          },
+          "relation": {
+            "enum": [
+              "FATHER",
+              "MOTHER",
+              "GUARDIAN"
+            ],
+            "type": "string",
+            "example": "FATHER"
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "nik",
+          "birthPlace",
+          "birthDate",
+          "occupationId",
+          "relation"
+        ]
+      },
+      "EnrolAddressDto": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string"
+          },
+          "rt": {
+            "type": "string"
+          },
+          "rw": {
+            "type": "string"
+          },
+          "village": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "province": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "street",
+          "rt",
+          "rw",
+          "village",
+          "district",
+          "city",
+          "province",
+          "postalCode"
+        ]
+      },
+      "EnrolExistingAccountDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Admission operation identifier"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Existing user account to enrol"
+          },
+          "nis": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "2026001"
+          },
+          "nisn": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "0101234567"
+          },
+          "gradeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classroomId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Enrols into the active semester"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/EnrolProfileDto"
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnrolParentDto"
+            }
+          },
+          "address": {
+            "$ref": "#/components/schemas/EnrolAddressDto"
+          }
+        },
+        "required": [
+          "userId",
+          "nis",
+          "nisn",
+          "profile"
+        ]
+      },
+      "EnrolExistingAccountResponseDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "description": "The student row this account now points at"
+          },
+          "parentsLinked": {
+            "type": "number",
+            "description": "Parents created or reused and linked"
+          },
+          "enrollmentCreated": {
+            "type": "boolean",
+            "description": "Whether a classroom enrolment was created"
+          },
+          "alreadyEnrolled": {
+            "type": "boolean",
+            "description": "True when the account was already a student and nothing was written. The caller may retry safely; this is what makes that true."
+          }
+        },
+        "required": [
+          "studentId",
+          "parentsLinked",
+          "enrollmentCreated",
+          "alreadyEnrolled"
+        ]
+      },
+      "StudentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "User account ID",
+            "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+          },
+          "nis": {
+            "type": "string",
+            "example": "2024001"
+          },
+          "nisn": {
+            "type": "string",
+            "example": "0012345678"
+          },
+          "status": {
+            "type": "string",
+            "example": "ACTIVE",
+            "description": "Student master status"
+          },
+          "gradeId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Classroom Level ID"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "nis",
+          "nisn",
+          "status"
+        ]
+      },
+      "StudentListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentResponseDto"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "example": {
+              "page": 1,
+              "limit": 10,
+              "total": 50,
+              "totalPages": 5
+            }
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "MyClassroomResponseDto": {
+        "type": "object",
+        "properties": {
+          "classroom": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The classroom the caller is enrolled in"
+          },
+          "structure": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true,
+            "description": "Ketua, wakil, sekretaris and bendahara — null before the class elects them"
+          },
+          "supervisor": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true,
+            "description": "The homeroom teacher — null before one is assigned"
+          },
+          "classmates": {
+            "type": "array",
+            "description": "Everyone enrolled in it this term, the caller included",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "subjects": {
+            "type": "array",
+            "description": "What the class is taught this term, and by whom",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "required": [
+          "classroom",
+          "classmates",
+          "subjects"
+        ]
+      },
+      "CreateStudentDto": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "siswa001",
+            "description": "Auto-uses NIS if empty"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "P@ssw0rd!",
+            "description": "Auto-uses NIS if empty"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ahmad Fauzi"
+          },
+          "nik": {
+            "type": "string",
+            "maxLength": 16,
+            "example": "3578010101080001"
+          },
+          "gender": {
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ],
+            "type": "string",
+            "example": "MALE"
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Malang"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2008-01-01"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "example": "ahmad.fauzi@email.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "example": "081234567890"
+          },
+          "gradeId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Grade ID (UUID)"
+          },
+          "classroomId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Class ID — for auto-enrollment to the active semester",
+            "example": "550e8400-e29b-41d4-a716-446655440004"
+          },
+          "nis": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "2024001",
+            "description": "Boleh kosong saat pendataan awal"
+          },
+          "nisn": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "0012345678",
+            "description": "Boleh kosong saat pendataan awal"
+          }
+        },
+        "required": [
+          "name",
+          "nik",
+          "gender",
+          "birthPlace",
+          "birthDate"
+        ]
+      },
+      "CreateAddressDto": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "Jl. Veteran No. 1"
+          },
+          "rt": {
+            "type": "string",
+            "maxLength": 5,
+            "example": "001"
+          },
+          "rw": {
+            "type": "string",
+            "maxLength": 5,
+            "example": "002"
+          },
+          "village": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Penanggungan"
+          },
+          "district": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Klojen"
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Kota Malang"
+          },
+          "province": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Jawa Timur"
+          },
+          "country": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Indonesia",
+            "default": "Indonesia"
+          },
+          "postalCode": {
+            "type": "string",
+            "maxLength": 10,
+            "example": "65113"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "example": false,
+            "default": false
+          },
+          "latitude": {
+            "type": "number",
+            "nullable": true,
+            "example": -6.914744
+          },
+          "longitude": {
+            "type": "number",
+            "nullable": true,
+            "example": 107.60981
+          }
+        },
+        "required": [
+          "street",
+          "rt",
+          "rw",
+          "village",
+          "district",
+          "city",
+          "province",
+          "postalCode"
+        ]
+      },
+      "ParentWithRelationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Budi Santoso"
+          },
+          "nik": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16,
+            "example": "3578010101700001"
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Surabaya"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1970-01-01"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "example": "budi.santoso@email.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "example": "082345678901"
+          },
+          "occupationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Occupation ID (UUID)",
+            "example": "550e8400-e29b-41d4-a716-446655440012"
+          },
+          "income": {
+            "enum": [
+              "BELOW_500K",
+              "BETWEEN_500K_1M",
+              "BETWEEN_1M_2M",
+              "BETWEEN_2M_3M",
+              "ABOVE_3M"
+            ],
+            "type": "string",
+            "description": "Parent income range"
+          },
+          "relation": {
+            "default": "FATHER",
+            "enum": [
+              "FATHER",
+              "MOTHER",
+              "GUARDIAN"
+            ],
+            "type": "string",
+            "example": "FATHER"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "example": false,
+            "default": false
+          }
+        },
+        "required": [
+          "name",
+          "nik",
+          "birthPlace",
+          "birthDate",
+          "occupationId"
+        ]
+      },
+      "CreateStudentWithRelationsDto": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "siswa001",
+            "description": "Auto-uses NIS if empty"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "P@ssw0rd!",
+            "description": "Auto-uses NIS if empty"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ahmad Fauzi"
+          },
+          "nik": {
+            "type": "string",
+            "maxLength": 16,
+            "example": "3578010101080001"
+          },
+          "gender": {
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ],
+            "type": "string",
+            "example": "MALE"
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Malang"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "2008-01-01"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "example": "ahmad.fauzi@email.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "example": "081234567890"
+          },
+          "gradeId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Grade ID (UUID)"
+          },
+          "classroomId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Class ID — for auto-enrollment to the active semester",
+            "example": "550e8400-e29b-41d4-a716-446655440004"
+          },
+          "nis": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "2024001",
+            "description": "Boleh kosong saat pendataan awal"
+          },
+          "nisn": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "0012345678",
+            "description": "Boleh kosong saat pendataan awal"
+          },
+          "address": {
+            "$ref": "#/components/schemas/CreateAddressDto"
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParentWithRelationDto"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "nik",
+          "gender",
+          "birthPlace",
+          "birthDate"
+        ]
+      },
+      "UpdateStudentDto": {
+        "type": "object",
+        "properties": {
+          "gradeId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Grade ID (UUID)"
+          },
+          "nis": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "2024001",
+            "description": "Boleh kosong saat pendataan awal"
+          },
+          "nisn": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "0012345678",
+            "description": "Boleh kosong saat pendataan awal"
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "TRANSFERRED",
+              "DROPPED",
+              "GRADUATED"
+            ],
+            "type": "string",
+            "description": "Student status (ACTIVE, TRANSFERRED, DROPPED, GRADUATED)"
+          }
+        }
+      },
+      "StudentParentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "relation": {
+            "type": "string",
+            "example": "MOTHER",
+            "description": "ParentRelation enum"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "studentId",
+          "parentId",
+          "relation",
+          "isPrimary"
+        ]
+      },
+      "StudentParentListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentParentResponseDto"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "example": {
+              "page": 1,
+              "limit": 10,
+              "total": 15,
+              "totalPages": 2
+            }
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateStudentParentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Student ID (UUID)",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Parent ID (UUID)",
+            "example": "550e8400-e29b-41d4-a716-446655440003"
+          },
+          "relation": {
+            "enum": [
+              "FATHER",
+              "MOTHER",
+              "GUARDIAN"
+            ],
+            "type": "string",
+            "example": "FATHER",
+            "description": "Relation: FATHER, MOTHER, GUARDIAN"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "description": "Whether this parent is the primary contact",
+            "example": true
+          }
+        },
+        "required": [
+          "studentId",
+          "parentId",
+          "relation"
+        ]
+      },
+      "UpdateStudentParentDto": {
+        "type": "object",
+        "properties": {
+          "relation": {
+            "enum": [
+              "FATHER",
+              "MOTHER",
+              "GUARDIAN"
+            ],
+            "type": "string"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "GraduationYearDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "example": "2026/2027"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "GraduationPreviousHoldDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "academicYearName": {
+            "type": "string",
+            "example": "2026/2027"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Nilai belum lengkap"
+          },
+          "decidedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "academicYearName",
+          "reason",
+          "decidedAt"
+        ]
+      },
+      "GraduationCandidateDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "nis": {
+            "type": "string"
+          },
+          "classroomId": {
+            "type": "string"
+          },
+          "classroomName": {
+            "type": "string"
+          },
+          "gradeName": {
+            "type": "string"
+          },
+          "previousHold": {
+            "$ref": "#/components/schemas/GraduationPreviousHoldDto"
+          }
+        },
+        "required": [
+          "studentId",
+          "studentName",
+          "nis",
+          "classroomId",
+          "classroomName",
+          "gradeName"
+        ]
+      },
+      "GraduationCandidateListDto": {
+        "type": "object",
+        "properties": {
+          "academicYear": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GraduationYearDto"
+              }
+            ]
+          },
+          "finalGradeName": {
+            "type": "string",
+            "nullable": true,
+            "example": "IX"
+          },
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GraduationCandidateDto"
+            }
+          }
+        },
+        "required": [
+          "academicYear",
+          "finalGradeName",
+          "students"
+        ]
+      },
+      "GraduationHoldDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "nis": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "academicYearName": {
+            "type": "string",
+            "example": "2026/2027"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Nilai belum lengkap"
+          },
+          "decidedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "studentId",
+          "studentName",
+          "nis",
+          "academicYearId",
+          "academicYearName",
+          "reason",
+          "decidedAt"
+        ]
+      },
+      "BulkGraduationStudentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "certificateNo": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "DN-01/2026"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "studentId"
+        ]
+      },
+      "BulkGraduationHeldStudentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Nilai belum lengkap"
+          }
+        },
+        "required": [
+          "studentId",
+          "reason"
+        ]
+      },
+      "BulkGraduationDto": {
+        "type": "object",
+        "properties": {
+          "graduationDate": {
+            "type": "string",
+            "example": "2026-06-15"
+          },
+          "students": {
+            "minItems": 1,
+            "maxItems": 1000,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkGraduationStudentDto"
+            }
+          },
+          "held": {
+            "maxItems": 1000,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkGraduationHeldStudentDto"
+            }
+          }
+        },
+        "required": [
+          "students"
+        ]
+      },
+      "BulkGraduationResultDto": {
+        "type": "object",
+        "properties": {
+          "graduated": {
+            "type": "number"
+          },
+          "skipped": {
+            "type": "number",
+            "description": "Already held a graduation record"
+          },
+          "held": {
+            "type": "number",
+            "description": "Students recorded as held back. A rerun rewrites the reason rather than stacking a second hold."
+          }
+        },
+        "required": [
+          "graduated",
+          "skipped",
+          "held"
+        ]
+      },
+      "CreateStudentGraduationDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "graduationDate": {
+            "type": "string",
+            "example": "2026-06-15"
+          },
+          "certificateNo": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "DN-01/2026"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "studentId",
+          "academicYearId"
+        ]
+      },
+      "UpdateStudentGraduationDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "graduationDate": {
+            "type": "string",
+            "example": "2026-06-15"
+          },
+          "certificateNo": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "DN-01/2026"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "ParentOccupationCountResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Live parents naming this occupation. Soft-deleted excluded.",
+            "example": 3
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ParentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Budi Santoso"
+          },
+          "nik": {
+            "type": "string",
+            "example": "3578010101700001"
+          },
+          "birthPlace": {
+            "type": "string",
+            "example": "Surabaya"
+          },
+          "birthDate": {
+            "format": "date-time",
+            "type": "string",
+            "example": "1970-01-01T00:00:00Z"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "example": "budi.santoso@email.com"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "example": "082345678901"
+          },
+          "occupationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Occupation ID",
+            "example": "550e8400-e29b-41d4-a716-446655440012"
+          },
+          "educationId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Education ID",
+            "example": "550e8400-e29b-41d4-a716-446655440013"
+          },
+          "income": {
+            "nullable": true,
+            "enum": [
+              "BELOW_500K",
+              "BETWEEN_500K_1M",
+              "BETWEEN_1M_2M",
+              "BETWEEN_2M_3M",
+              "ABOVE_3M"
+            ],
+            "type": "string",
+            "description": "Parent income range"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "nik",
+          "birthPlace",
+          "birthDate",
+          "occupationId"
+        ]
+      },
+      "ParentListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParentResponseDto"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "example": {
+              "page": 1,
+              "limit": 10,
+              "total": 20,
+              "totalPages": 2
+            }
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateParentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Budi Santoso"
+          },
+          "nik": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16,
+            "example": "3578010101700001"
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Surabaya"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1970-01-01"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "example": "budi.santoso@email.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "example": "082345678901"
+          },
+          "occupationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Occupation ID (UUID)",
+            "example": "550e8400-e29b-41d4-a716-446655440012"
+          },
+          "income": {
+            "enum": [
+              "BELOW_500K",
+              "BETWEEN_500K_1M",
+              "BETWEEN_1M_2M",
+              "BETWEEN_2M_3M",
+              "ABOVE_3M"
+            ],
+            "type": "string",
+            "description": "Parent income range"
+          }
+        },
+        "required": [
+          "name",
+          "nik",
+          "birthPlace",
+          "birthDate",
+          "occupationId"
+        ]
+      },
+      "UpdateParentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Budi Santoso"
+          },
+          "nik": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16,
+            "example": "3578010101700001"
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Surabaya"
+          },
+          "birthDate": {
+            "type": "string",
+            "example": "1970-01-01"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "example": "budi.santoso@email.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "example": "082345678901"
+          },
+          "occupationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Occupation ID (UUID)",
+            "example": "550e8400-e29b-41d4-a716-446655440012"
+          },
+          "income": {
+            "enum": [
+              "BELOW_500K",
+              "BETWEEN_500K_1M",
+              "BETWEEN_1M_2M",
+              "BETWEEN_2M_3M",
+              "ABOVE_3M"
+            ],
+            "type": "string",
+            "description": "Parent income range"
+          }
+        }
+      },
+      "GenerateRecommendationDto": {
+        "type": "object",
+        "properties": {
+          "sourceAcademicYearId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Academic year the students are leaving, e.g. 2025/2026"
+          },
+          "targetAcademicYearId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Academic year the students are entering, e.g. 2026/2027"
+          }
+        },
+        "required": [
+          "sourceAcademicYearId",
+          "targetAcademicYearId"
+        ]
+      },
+      "PromotionRecommendationItemDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "nis": {
+            "type": "string"
+          },
+          "sourceClassroomId": {
+            "type": "string"
+          },
+          "sourceClassroomName": {
+            "type": "string"
+          },
+          "sourceLevel": {
+            "type": "string"
+          },
+          "recommendedAction": {
+            "enum": [
+              "PROMOTE",
+              "REPEAT"
+            ],
+            "type": "string"
+          },
+          "targetClassroomId": {
+            "type": "string"
+          },
+          "targetClassroomName": {
+            "type": "string"
+          },
+          "targetLevel": {
+            "type": "string"
+          },
+          "averageScore": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "studentId",
+          "studentName",
+          "nis",
+          "sourceClassroomId",
+          "sourceClassroomName",
+          "sourceLevel",
+          "recommendedAction"
+        ]
+      },
+      "PromotionRecommendationDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PromotionRecommendationItemDto"
+            }
+          },
+          "totalStudents": {
+            "type": "number"
+          },
+          "excludedGraduatingCount": {
+            "type": "number",
+            "description": "Final-year students excluded from this run; graduate them under Kelulusan"
+          }
+        },
+        "required": [
+          "items",
+          "totalStudents",
+          "excludedGraduatingCount"
+        ]
+      },
+      "PromotionStudentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Student ID"
+          },
+          "sourceClassroomId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Source classroom ID from current semester"
+          },
+          "targetClassroomId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Classroom in the new academic year, required for both actions"
+          },
+          "action": {
+            "enum": [
+              "PROMOTE",
+              "REPEAT"
+            ],
+            "type": "string",
+            "description": "Promotion action",
+            "example": "PROMOTE"
+          },
+          "declineReason": {
+            "type": "string",
+            "description": "Reason for declining promotion (required when REPEAT)"
+          }
+        },
+        "required": [
+          "studentId",
+          "sourceClassroomId",
+          "targetClassroomId",
+          "action"
+        ]
+      },
+      "PromotionDto": {
+        "type": "object",
+        "properties": {
+          "sourceAcademicYearId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Academic year the students are leaving, e.g. 2025/2026"
+          },
+          "targetAcademicYearId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Academic year the students are entering, e.g. 2026/2027"
+          },
+          "students": {
+            "minItems": 1,
+            "description": "Per-student promotion decisions",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PromotionStudentDto"
+            }
+          }
+        },
+        "required": [
+          "sourceAcademicYearId",
+          "targetAcademicYearId",
+          "students"
+        ]
+      },
+      "PromotionPreviewItemDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "enum": [
+              "PROMOTE",
+              "REPEAT"
+            ],
+            "type": "string"
+          },
+          "studentCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "action",
+          "studentCount"
+        ]
+      },
+      "PromotionPreviewDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PromotionPreviewItemDto"
+            }
+          },
+          "totalStudents": {
+            "type": "number"
+          },
+          "promotedCount": {
+            "type": "number"
+          },
+          "repeatedCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "totalStudents",
+          "promotedCount",
+          "repeatedCount"
+        ]
+      },
+      "PromotionResultDto": {
+        "type": "object",
+        "properties": {
+          "promoted": {
+            "type": "number"
+          },
+          "repeated": {
+            "type": "number"
+          },
+          "skipped": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "promoted",
+          "repeated",
+          "skipped"
+        ]
+      }
+    }
+  }
+}

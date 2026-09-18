@@ -1,0 +1,29 @@
+{
+  "name": "241-services",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24.20.0 <25",
+    "pnpm": ">=11.25.0 <12"
+  },
+  "scripts": {
+    "check": "pnpm --recursive --if-present run check",
+    "test": "pnpm --recursive --if-present run test",
+    "build": "pnpm --recursive --if-present run build",
+    "openapi:emit": "node scripts/emit-openapi.mjs",
+    "openapi:check": "node scripts/emit-openapi.mjs --check",
+    "version:check": "node scripts/check-contract-versions.mjs",
+    "api:generate": "node scripts/generate-api-clients.mjs",
+    "api:check": "node scripts/generate-api-clients.mjs --check",
+    "api:typecheck": "pnpm --filter '@mts241alikhlash/api-*' --if-present run typecheck",
+    "changeset": "changeset",
+    "version": "changeset version && node scripts/emit-openapi.mjs",
+    "release": "changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.3",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "~5.9.3"
+  }
+}
