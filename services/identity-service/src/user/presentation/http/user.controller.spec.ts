@@ -1,0 +1,125 @@
+import { Test, TestingModule } from '@nestjs/testing'
+import { CreateUserDto } from './dto/request/create-user.dto.js'
+import { UpdateUserDto } from './dto/request/update-user.dto.js'
+import { UserQueryDto } from './dto/request/user-query.dto.js'
+import { CreateUserUseCase } from '../../application/use-cases/create-user/create-user.use-case.js'
+import { DeleteUserUseCase } from '../../application/use-cases/delete-user/delete-user.use-case.js'
+import { GetUserByIdUseCase } from '../../application/use-cases/get-user-by-id/get-user-by-id.use-case.js'
+import { GetUserSummaryUseCase } from '../../application/use-cases/get-user-summary/get-user-summary.use-case.js'
+import { GetUsersUseCase } from '../../application/use-cases/get-users/get-users.use-case.js'
+import { UpdateUserUseCase } from '../../application/use-cases/update-user/update-user.use-case.js'
+import { UserController } from './user.controller.js'
+
+describe('UserController', () => {
+  let controller: UserController
+
+  const mockGetUsersUseCase = { execute: jest.fn() }
+  const mockGetUserByIdUseCase = { execute: jest.fn() }
+  const mockGetUserSummaryUseCase = { execute: jest.fn() }
+  const mockCreateUserUseCase = { execute: jest.fn() }
+  const mockUpdateUserUseCase = { execute: jest.fn() }
+  const mockDeleteUserUseCase = { execute: jest.fn() }
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [UserController],
+      providers: [
+        { provide: GetUsersUseCase, useValue: mockGetUsersUseCase },
+        { provide: GetUserByIdUseCase, useValue: mockGetUserByIdUseCase },
+        {
+          provide: GetUserSummaryUseCase,
+          useValue: mockGetUserSummaryUseCase,
+        },
+        { provide: CreateUserUseCase, useValue: mockCreateUserUseCase },
+        { provide: UpdateUserUseCase, useValue: mockUpdateUserUseCase },
+        { provide: DeleteUserUseCase, useValue: mockDeleteUserUseCase },
+      ],
+    }).compile()
+
+    controller = module.get<UserController>(UserController)
+    jest.clearAllMocks()
+  })
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined()
+  })
+
+  describe('summary', () => {
+    it('delegates to GetUserSummaryUseCase', async () => {
+      const summary = { total: 12, active: 10, inactive: 2 }
+      mockGetUserSummaryUseCase.execute.mockResolvedValue(summary)
+
+      await expect(controller.summary()).resolves.toEqual(summary)
+      expect(mockGetUserSummaryUseCase.execute).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('create', () => {
+    it('should delegate to CreateUserUseCase with dto', async () => {
+      const dto: CreateUserDto = {
+        identifier: 'newuser',
+        password: 'pass123',
+      }
+      const expected = { id: 'user-1', identifier: 'newuser' }
+      mockCreateUserUseCase.execute.mockResolvedValue(expected)
+
+      const result = await controller.create(dto)
+
+      expect(mockCreateUserUseCase.execute).toHaveBeenCalledWith(dto)
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('findAll', () => {
+    it('should delegate to GetUsersUseCase with query', async () => {
+      const query: UserQueryDto = { page: 1, limit: 10 }
+      const expected = {
+        data: [],
+        meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      }
+      mockGetUsersUseCase.execute.mockResolvedValue(expected)
+
+      const result = await controller.findAll(query)
+
+      expect(mockGetUsersUseCase.execute).toHaveBeenCalledWith(query)
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('findOne', () => {
+    it('should delegate to GetUserByIdUseCase with id (any user, gated by users.read)', async () => {
+      const id = 'user-1'
+      mockGetUserByIdUseCase.execute.mockResolvedValue({ id })
+
+      const result = await controller.findOne(id)
+
+      expect(mockGetUserByIdUseCase.execute).toHaveBeenCalledWith(id)
+      expect(result).toEqual({ id })
+    })
+  })
+
+  describe('update', () => {
+    it('should delegate to UpdateUserUseCase with id and dto (any user, gated by users.update)', async () => {
+      const id = 'user-1'
+      const dto: UpdateUserDto = { identifier: 'updated' }
+      const expected = { id, identifier: 'updated' }
+      mockUpdateUserUseCase.execute.mockResolvedValue(expected)
+
+      const result = await controller.update(id, dto)
+
+      expect(mockUpdateUserUseCase.execute).toHaveBeenCalledWith(id, dto)
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('remove', () => {
+    it('should delegate to DeleteUserUseCase with id', async () => {
+      const id = 'user-1'
+      mockDeleteUserUseCase.execute.mockResolvedValue(undefined)
+
+      await controller.remove(id)
+
+      expect(mockDeleteUserUseCase.execute).toHaveBeenCalledWith(id)
+    })
+  })
+})

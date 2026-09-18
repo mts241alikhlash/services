@@ -1,0 +1,107 @@
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
+import { PromotionAction } from '../../../domain/enums/promotion-action.enum.js'
+import {
+  IPromotionRepository,
+  PromotionResult,
+} from '../../../domain/repositories/promotion.repository.js'
+import { PromotionSemesterResolver } from '../../services/promotion-semester-resolver.service.js'
+import type { PromoteStudentsInput } from './promote-students.input.js'
+
+@Injectable()
+export class PromoteStudentsUseCase {
+  private readonly logger = new Logger(PromoteStudentsUseCase.name)
+
+  constructor(
+    private readonly promotionRepository: IPromotionRepository,
+    private readonly semesterResolver: PromotionSemesterResolver,
+  ) {}
+
+  async execute(input: PromoteStudentsInput): Promise<PromotionResult> {
+    const { sourceAcademicYearId, targetAcademicYearId, students } = input
+
+    const { source: sourceSemester, target: targetSemester } =
+      await this.semesterResolver.resolveBoth(
+        sourceAcademicYearId,
+        targetAcademicYearId,
+      )
+
+    for (const student of students) {
+      const sourceClassroom = await this.promotionRepository.findClassroomById(
+        student.sourceClassroomId,
+      )
+      if (!sourceClassroom) {
+        throw new NotFoundException(
+          `Source classroom with ID ${student.sourceClassroomId} not found`,
+        )
+      }
+      if (sourceClassroom.academicYearId !== sourceSemester.academicYearId) {
+        throw new BadRequestException(
+          `Source classroom "${sourceClassroom.code}" does not belong to source academic year`,
+        )
+      }
+
+      if (!student.targetClassroomId) {
+        throw new BadRequestException(
+          'PROMOTE/REPEAT action requires a targetClassroomId',
+        )
+      }
+
+      if (student.action === PromotionAction.REPEAT && !student.declineReason) {
+        throw new BadRequestException('REPEAT action requires a declineReason')
+      }
+
+      const targetClassroom = await this.promotionRepository.findClassroomById(
+        student.targetClassroomId,
+      )
+      if (!targetClassroom) {
+        throw new NotFoundException(
+          `Target classroom with ID ${student.targetClassroomId} not found`,
+        )
+      }
+      if (targetClassroom.academicYearId !== targetSemester.academicYearId) {
+        throw new BadRequestException(
+          `Target classroom "${targetClassroom.code}" does not belong to target academic year`,
+        )
+      }
+
+      const sourceLevel = sourceClassroom.grade.level
+      const targetLevel = targetClassroom.grade.level
+
+      if (
+        student.action === PromotionAction.PROMOTE &&
+        targetLevel <= sourceLevel
+      ) {
+        throw new BadRequestException(
+          `PROMOTE expects target level higher than ${sourceLevel}, but got ${targetLevel}`,
+        )
+      }
+
+      if (
+        student.action === PromotionAction.REPEAT &&
+        targetLevel !== sourceLevel
+      ) {
+        throw new BadRequestException(
+          `REPEAT expects target level ${sourceLevel}, but got ${targetLevel}`,
+        )
+      }
+    }
+
+    const result = await this.promotionRepository.executePromotion(
+      sourceSemester.id,
+      targetSemester.id,
+      students,
+    )
+
+    this.logger.log(
+      `Promotion completed: ${result.promoted} promoted, ` +
+        `${result.repeated} repeated, ${result.skipped} skipped`,
+    )
+
+    return result
+  }
+}

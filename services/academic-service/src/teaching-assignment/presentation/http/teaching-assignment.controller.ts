@@ -1,0 +1,96 @@
+import { RequirePermissions } from '../../../platform/access-control/permission/decorators/require-permissions.decorator.js'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common'
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
+
+import { CurrentUser } from '../../../core/decorators/current-user.decorator.js'
+import type { AuthenticatedUser } from '../../../core/types/authenticated-user.type.js'
+import { JwtAuthGuard } from '../../../platform/auth/index.js'
+import { CreateTeachingAssignmentDto } from './dto/request/create-teaching-assignment.dto.js'
+import { TeachingAssignmentQueryDto } from './dto/request/teaching-assignment-query.dto.js'
+import { UpdateTeachingAssignmentDto } from './dto/request/update-teaching-assignment.dto.js'
+import { GetTeachingAssignmentsUseCase } from '../../application/use-cases/get-teaching-assignments/get-teaching-assignments.use-case.js'
+import { GetMyTeachingAssignmentsUseCase } from '../../application/use-cases/get-my-teaching-assignments/get-my-teaching-assignments.use-case.js'
+import { GetTeachingAssignmentByIdUseCase } from '../../application/use-cases/get-teaching-assignment-by-id/get-teaching-assignment-by-id.use-case.js'
+import { CreateTeachingAssignmentUseCase } from '../../application/use-cases/create-teaching-assignment/create-teaching-assignment.use-case.js'
+import { UpdateTeachingAssignmentUseCase } from '../../application/use-cases/update-teaching-assignment/update-teaching-assignment.use-case.js'
+import { DeleteTeachingAssignmentUseCase } from '../../application/use-cases/delete-teaching-assignment/delete-teaching-assignment.use-case.js'
+
+@ApiTags('Teaching Assignments')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('teaching-assignments')
+export class TeachingAssignmentController {
+  constructor(
+    private readonly getAll: GetTeachingAssignmentsUseCase,
+    private readonly getMine: GetMyTeachingAssignmentsUseCase,
+    private readonly getById: GetTeachingAssignmentByIdUseCase,
+    private readonly createUC: CreateTeachingAssignmentUseCase,
+    private readonly updateUC: UpdateTeachingAssignmentUseCase,
+    private readonly deleteUC: DeleteTeachingAssignmentUseCase,
+  ) {}
+
+  @Get()
+  @RequirePermissions('teaching-assignments.read')
+  @ApiOperation({ summary: 'List teaching assignments' })
+  async findAll(@Query() q: TeachingAssignmentQueryDto) {
+    return this.getAll.execute(q)
+  }
+
+  @Get('me')
+  @RequirePermissions('teaching-assignments.read-own')
+  @ApiOperation({ summary: 'The classes you are assigned to teach' })
+  async findMine(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() q: TeachingAssignmentQueryDto,
+  ) {
+    return this.getMine.execute(q, user.id)
+  }
+
+  @Get(':id')
+  @RequirePermissions('teaching-assignments.read')
+  @ApiOperation({ summary: 'Get teaching assignment by ID' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.getById.execute(id)
+  }
+
+  @Post()
+  @RequirePermissions('teaching-assignments.create')
+  @ApiOperation({ summary: 'Create teaching assignment' })
+  async create(@Body() dto: CreateTeachingAssignmentDto) {
+    return this.createUC.execute(dto)
+  }
+
+  @Patch(':id')
+  @RequirePermissions('teaching-assignments.update')
+  @ApiOperation({ summary: 'Update teaching assignment' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateTeachingAssignmentDto,
+  ) {
+    return this.updateUC.execute(id, dto)
+  }
+
+  @Delete(':id')
+  @RequirePermissions('teaching-assignments.delete')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete teaching assignment' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.deleteUC.execute(id)
+  }
+}

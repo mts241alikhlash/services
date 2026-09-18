@@ -1,0 +1,11 @@
+import { Injectable } from '@nestjs/common'
+import { IConditionRepository } from '../../../domain/repositories/condition.repository.js'
+
+@Injectable()
+export class GetConditionsUseCase {
+  constructor(private readonly conditionRepository: IConditionRepository) {}
+
+  async execute(search?: string) {
+    return this.conditionRepository.findMany(search)
+  }
+}
