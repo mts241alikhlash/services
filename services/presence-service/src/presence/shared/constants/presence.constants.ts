@@ -1,0 +1,9 @@
+export const DUPLICATE_SCAN_WINDOW_SECONDS = 60
+
+export const MAX_OFFLINE_WINDOW_HOURS = 8
+
+export const MAX_SCAN_BATCH_SIZE = 500
+
+export const FUTURE_SCAN_TOLERANCE_SECONDS = 30
+
+export const PRESENCE_DEVICE_REQUEST_KEY = 'presenceDevice'

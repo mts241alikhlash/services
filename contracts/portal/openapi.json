@@ -1,0 +1,4975 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "degraded"
+                          ],
+                          "example": "ok"
+                        },
+                        "info": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "error": {
+                          "type": "object",
+                          "example": {},
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "details": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "shutting_down"
+                      ],
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness + readiness probe (DB, memory)",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/files/upload": {
+      "post": {
+        "operationId": "FileController_upload",
+        "parameters": [
+          {
+            "name": "appKey",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "ACADEMIC",
+                "ADMIN",
+                "ADMISSION",
+                "INVENTORY",
+                "PORTAL",
+                "PRESENCE"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FileResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload a file",
+        "tags": [
+          "Files"
+        ]
+      }
+    },
+    "/files": {
+      "get": {
+        "operationId": "FileController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FileResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all files",
+        "tags": [
+          "Files"
+        ]
+      }
+    },
+    "/files/{id}": {
+      "delete": {
+        "operationId": "FileController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "File deleted"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a file",
+        "tags": [
+          "Files"
+        ]
+      }
+    },
+    "/portal/posts": {
+      "get": {
+        "operationId": "PostController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BERITA",
+                "ARTIKEL",
+                "PENGUMUMAN"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "SCHEDULED",
+                "PUBLISHED",
+                "ARCHIVED"
+              ]
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Matches title or summary",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeDeleted",
+            "required": false,
+            "in": "query",
+            "description": "Show the recycle bin instead of the working list",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PostAdminSummaryDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List portal content for management",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "post": {
+        "operationId": "PostController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostAdminDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Type-specific field on wrong type"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create content — always starts as a draft",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/posts/{id}": {
+      "get": {
+        "operationId": "PostController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostAdminDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get one content item",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "patch": {
+        "operationId": "PostController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePostDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostAdminDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Someone else saved first"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update content",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "delete": {
+        "operationId": "PostController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft delete — recoverable for 30 days",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/posts/{id}/preview": {
+      "get": {
+        "operationId": "PostController_preview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The item exactly as a visitor will see it",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/posts/{id}/publish": {
+      "post": {
+        "operationId": "PostController_publish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishPostDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostAdminDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Schedule is in the past"
+          },
+          "422": {
+            "description": "Required fields still missing"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publish now, or schedule for a future moment",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/posts/{id}/unpublish": {
+      "post": {
+        "operationId": "PostController_unpublish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostVersionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostAdminDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Someone else saved first"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Take an item back off the public site",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/posts/{id}/archive": {
+      "post": {
+        "operationId": "PostController_archive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostVersionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostAdminDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "File an item away, keeping its publication date",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/posts/{id}/pin": {
+      "post": {
+        "operationId": "PostController_pin",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PinPostDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostAdminDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Pin or unpin an item at the top of its feed",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/posts/{id}/restore": {
+      "post": {
+        "operationId": "PostController_restore",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostAdminDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Past the 30-day window"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Restore a deleted item to the state it was in",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/public/posts": {
+      "get": {
+        "operationId": "PostPublicController_findAll",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BERITA",
+                "ARTIKEL",
+                "PENGUMUMAN"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "categorySlug",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "prestasi",
+              "type": "string"
+            }
+          },
+          {
+            "name": "tagSlug",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "olimpiade",
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": false,
+            "in": "query",
+            "description": "Pengumuman only: active hides expired notices, archive shows only those. An expired notice stays reachable at its own address either way.",
+            "schema": {
+              "default": "active",
+              "type": "string",
+              "enum": [
+                "active",
+                "archive"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Matches title or summary",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PostSummaryDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Published content listing, newest first",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/public/posts/{type}/{slug}": {
+      "get": {
+        "operationId": "PostPublicController_findOne",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "BERITA",
+                "ARTIKEL",
+                "PENGUMUMAN"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "juara-1-olimpiade-matematika",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PostDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "301": {
+            "description": "The address moved — Location carries the current one"
+          },
+          "404": {
+            "description": "Unknown, draft, scheduled, archived, or deleted — identical in every case"
+          }
+        },
+        "summary": "Published content detail by public address",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/public/posts/{type}/{slug}/related": {
+      "get": {
+        "operationId": "PostPublicController_findRelated",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "BERITA",
+                "ARTIKEL",
+                "PENGUMUMAN"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "juara-1-olimpiade-matematika",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PostSummaryDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Anchor is not publicly visible"
+          }
+        },
+        "summary": "Up to four more items like this one",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/media": {
+      "get": {
+        "operationId": "MediaController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Previously uploaded portal media, so an editor reuses (FR-055)",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/media/{fileId}/usage": {
+      "get": {
+        "operationId": "MediaController_findUsage",
+        "parameters": [
+          {
+            "name": "fileId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Which content references this file, and whether it is public",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/public/media/{fileId}": {
+      "get": {
+        "operationId": "MediaPublicController_findOne",
+        "parameters": [
+          {
+            "name": "fileId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "variant",
+            "required": false,
+            "in": "query",
+            "description": "preview returns the 1200×630 JPEG share card — this is what og:image points at, never the original",
+            "schema": {
+              "enum": [
+                "preview"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to a fresh signed URL"
+          },
+          "404": {
+            "description": "No such file, or nothing public references it — identical in both cases"
+          }
+        },
+        "summary": "Public file, if published content references it",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/categories": {
+      "get": {
+        "operationId": "CategoryController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Content categories, including deactivated ones",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "post": {
+        "operationId": "CategoryController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "That address is already taken"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a category",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/categories/{id}": {
+      "patch": {
+        "operationId": "CategoryController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Rename, reorder, or deactivate a category",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "delete": {
+        "operationId": "CategoryController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "409": {
+            "description": "Still in use — the body names the count and some titles"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a category that nothing references",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/public/categories": {
+      "get": {
+        "operationId": "CategoryPublicController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Active categories with published counts, for the filter bar",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/tags": {
+      "get": {
+        "operationId": "TagController_findAll",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Matches the tag label",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tags in use, optionally filtered by label",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "post": {
+        "operationId": "TagController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTagDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "That tag already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a tag up front — the post form also creates on first use",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/tags/{id}": {
+      "patch": {
+        "operationId": "TagController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTagDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Rename a tag — its public address is unchanged",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "delete": {
+        "operationId": "TagController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a tag — the posts it labelled are untouched",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/public/tags": {
+      "get": {
+        "operationId": "TagPublicController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Tags, for the public filter bar",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/homepage/sections": {
+      "get": {
+        "operationId": "HomepageController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HomepageSectionSettingDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Homepage section configuration",
+        "tags": [
+          "Portal — Homepage"
+        ]
+      }
+    },
+    "/portal/homepage/sections/{key}": {
+      "patch": {
+        "operationId": "HomepageController_update",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "berita",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHomepageSectionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/HomepageSectionSettingDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change how many items a section shows, or hide it",
+        "tags": [
+          "Portal — Homepage"
+        ]
+      }
+    },
+    "/portal/public/homepage": {
+      "get": {
+        "operationId": "HomepagePublicController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/HomepageResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Everything the public homepage renders, in one round trip",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/public/meta": {
+      "get": {
+        "operationId": "PortalDiscoveryController_meta",
+        "parameters": [
+          {
+            "name": "path",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "/berita/juara-1-olimpiade",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PageMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resolves to nothing public — caller falls back to defaults"
+          }
+        },
+        "summary": "Link-preview metadata for a public portal path",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/public/sitemap": {
+      "get": {
+        "operationId": "PortalDiscoveryController_sitemap",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SitemapEntryDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Every publicly visible item with its lastModified",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/agenda": {
+      "get": {
+        "operationId": "AgendaController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "SCHEDULED",
+                "PUBLISHED",
+                "ARCHIVED"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Matches title or location",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeDeleted",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Agenda entries for management",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "post": {
+        "operationId": "AgendaController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAgendaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          },
+          "400": {
+            "description": "endTime is not after startTime"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create an entry — always starts as a draft",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/agenda/{id}": {
+      "get": {
+        "operationId": "AgendaController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "patch": {
+        "operationId": "AgendaController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAgendaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "409": {
+            "description": "Someone else saved first"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "delete": {
+        "operationId": "AgendaController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/agenda/{id}/publish": {
+      "post": {
+        "operationId": "AgendaController_publish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishAgendaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/agenda/{id}/unpublish": {
+      "post": {
+        "operationId": "AgendaController_unpublish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgendaVersionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/agenda/{id}/archive": {
+      "post": {
+        "operationId": "AgendaController_archive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgendaVersionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/agenda/{id}/restore": {
+      "post": {
+        "operationId": "AgendaController_restore",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/public/agenda": {
+      "get": {
+        "operationId": "AgendaPublicController_findAll",
+        "parameters": [
+          {
+            "name": "scope",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "upcoming",
+              "type": "string",
+              "enum": [
+                "upcoming",
+                "past"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Upcoming (nearest first) or past (most recent first) school activities",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/public/agenda/{slug}": {
+      "get": {
+        "operationId": "AgendaPublicController_findOne",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "pentas-seni-akhir-tahun",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "404": {
+            "description": "Unknown, draft, or deleted"
+          }
+        },
+        "summary": "One activity — reachable whether or not it has happened yet",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/albums": {
+      "get": {
+        "operationId": "GalleryController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Albums for management",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "post": {
+        "operationId": "GalleryController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAlbumDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create an album — always starts as a draft",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/albums/{id}": {
+      "get": {
+        "operationId": "GalleryController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "patch": {
+        "operationId": "GalleryController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAlbumDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "delete": {
+        "operationId": "GalleryController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/albums/{id}/photos": {
+      "post": {
+        "operationId": "GalleryController_addPhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddPhotoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add a photo — alt text required (FR-057)",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/albums/{id}/photos/order": {
+      "patch": {
+        "operationId": "GalleryController_reorderPhotos",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderPhotosDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reorder — position is the array index (FR-048)",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/albums/{id}/photos/{photoId}": {
+      "patch": {
+        "operationId": "GalleryController_updatePhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "photoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePhotoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Edit a photo caption or its alt text (FR-048)",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "delete": {
+        "operationId": "GalleryController_removePhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "photoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/albums/{id}/publish": {
+      "post": {
+        "operationId": "GalleryController_publish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishAlbumDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          },
+          "422": {
+            "description": "The album has no photos"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/albums/{id}/unpublish": {
+      "post": {
+        "operationId": "GalleryController_unpublish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlbumVersionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Take the album down — every photo stops being fetchable",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/public/albums": {
+      "get": {
+        "operationId": "GalleryPublicController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 60,
+              "default": 24,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Published albums, newest event first",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/public/albums/{slug}": {
+      "get": {
+        "operationId": "GalleryPublicController_findOne",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "pentas-seni-2026",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 60,
+              "default": 24,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "404": {
+            "description": "Unknown, draft, or deleted"
+          }
+        },
+        "summary": "One album with its photos paginated for progressive loading",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/pages": {
+      "get": {
+        "operationId": "PageController_findAll",
+        "parameters": [
+          {
+            "name": "includeDeleted",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Informational pages",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "post": {
+        "operationId": "PageController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a page — always starts as a draft",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/pages/{id}": {
+      "get": {
+        "operationId": "PageController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "patch": {
+        "operationId": "PageController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Someone else saved first"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "delete": {
+        "operationId": "PageController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/pages/{id}/publish": {
+      "post": {
+        "operationId": "PageController_publish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageVersionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/pages/{id}/unpublish": {
+      "post": {
+        "operationId": "PageController_unpublish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageVersionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Take a page off the site — menu entries pointing at it drop out too",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/navigation": {
+      "get": {
+        "operationId": "NavigationController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The public menu as configured, including hidden",
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "post": {
+        "operationId": "NavigationController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNavItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Zero or more than one destination set"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/navigation/order": {
+      "patch": {
+        "operationId": "NavigationController_reorder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderNavDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reorder — position is the array index (FR-053)",
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/navigation/{id}": {
+      "patch": {
+        "operationId": "NavigationController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNavItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      },
+      "delete": {
+        "operationId": "NavigationController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Portal — Content"
+        ]
+      }
+    },
+    "/portal/public/navigation": {
+      "get": {
+        "operationId": "PagePublicController_navigation",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "The public menu, in display order",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    },
+    "/portal/public/pages/{slug}": {
+      "get": {
+        "operationId": "PagePublicController_findOne",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "visi-misi",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "301": {
+            "description": "The address moved"
+          },
+          "404": {
+            "description": "Unknown, draft, or deleted"
+          }
+        },
+        "summary": "A published informational page",
+        "tags": [
+          "Portal — Public"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Portal Service API",
+    "description": "Portal Service",
+    "version": "0.1.6",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "FileResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "uploadedBy": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "filename": {
+            "type": "string",
+            "example": "12345-photo.jpg"
+          },
+          "originalName": {
+            "type": "string",
+            "example": "photo.jpg"
+          },
+          "mimeType": {
+            "type": "string",
+            "example": "image/jpeg"
+          },
+          "sizeBytes": {
+            "type": "number",
+            "example": 102400
+          },
+          "storageKey": {
+            "type": "string",
+            "example": "files/12345-photo.jpg"
+          },
+          "url": {
+            "type": "string",
+            "description": "Signed, time-limited download URL (bucket is private)"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "originalName",
+          "mimeType",
+          "sizeBytes",
+          "storageKey",
+          "url",
+          "createdAt"
+        ]
+      },
+      "PostAdminSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "enum": [
+              "BERITA",
+              "ARTIKEL",
+              "PENGUMUMAN"
+            ],
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "SCHEDULED",
+              "PUBLISHED",
+              "ARCHIVED"
+            ],
+            "type": "string"
+          },
+          "category": {
+            "type": "object",
+            "nullable": true
+          },
+          "authorName": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "pinnedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "slug",
+          "status",
+          "authorName",
+          "version",
+          "updatedAt"
+        ]
+      },
+      "PostAdminDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "enum": [
+              "BERITA",
+              "ARTIKEL",
+              "PENGUMUMAN"
+            ],
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "coverFileId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "coverAltText": {
+            "type": "string",
+            "nullable": true
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "category": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "SCHEDULED",
+              "PUBLISHED",
+              "ARCHIVED"
+            ],
+            "type": "string"
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "scheduledAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "attachmentFileId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "pinnedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "metaTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "metaDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "authorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "authorName": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number",
+            "description": "Send this back on update; a mismatch is a 409"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "slug",
+          "summary",
+          "body",
+          "status",
+          "tags",
+          "authorId",
+          "authorName",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PostDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "enum": [
+              "BERITA",
+              "ARTIKEL",
+              "PENGUMUMAN"
+            ],
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string",
+            "description": "Sanitized HTML"
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Stable public media address, never a signed URL",
+            "example": "/portal/public/media/2f1c…"
+          },
+          "coverAltText": {
+            "type": "string",
+            "nullable": true
+          },
+          "category": {
+            "type": "object",
+            "nullable": true
+          },
+          "authorName": {
+            "type": "string",
+            "description": "Attribution survives the author deactivating"
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "PENGUMUMAN only"
+          },
+          "attachmentUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "PENGUMUMAN only, public download"
+          },
+          "metaTitle": {
+            "type": "string"
+          },
+          "metaDescription": {
+            "type": "string"
+          },
+          "tags": {
+            "description": "Free-form labels (FR-038)",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "slug",
+          "summary",
+          "body",
+          "authorName",
+          "publishedAt",
+          "updatedAt",
+          "metaTitle",
+          "metaDescription",
+          "tags"
+        ]
+      },
+      "CreatePostDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "BERITA",
+              "ARTIKEL",
+              "PENGUMUMAN"
+            ],
+            "type": "string",
+            "example": "BERITA"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Juara 1 Olimpiade Matematika Tingkat Kabupaten"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Short excerpt shown in listings and used as the default meta description",
+            "example": "A grade VIII student won first place at the district olympiad."
+          },
+          "body": {
+            "type": "string",
+            "description": "Rich text body. Sanitized server-side before it is stored.",
+            "example": "<p>Alhamdulillah, santri kami...</p>"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 220,
+            "description": "Override the slug generated from the title",
+            "example": "juara-1-olimpiade-matematika"
+          },
+          "coverFileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coverAltText": {
+            "type": "string",
+            "maxLength": 300,
+            "example": "Penyerahan piala di aula madrasah"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tags": {
+            "description": "Tag labels. Sent as names, not ids — tags are created on first use, so the editor types rather than picks (FR-038).",
+            "example": [
+              "olimpiade",
+              "matematika"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 60
+            }
+          },
+          "metaTitle": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "metaDescription": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "PENGUMUMAN only — rejected for BERITA and ARTIKEL",
+            "example": "2026-09-01T00:00:00.000Z"
+          },
+          "attachmentFileId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "PENGUMUMAN only — downloadable attachment"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "summary",
+          "body"
+        ]
+      },
+      "UpdatePostDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Juara 1 Olimpiade Matematika Tingkat Kabupaten"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Short excerpt shown in listings and used as the default meta description",
+            "example": "A grade VIII student won first place at the district olympiad."
+          },
+          "body": {
+            "type": "string",
+            "description": "Rich text body. Sanitized server-side before it is stored.",
+            "example": "<p>Alhamdulillah, santri kami...</p>"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 220,
+            "description": "Override the slug generated from the title",
+            "example": "juara-1-olimpiade-matematika"
+          },
+          "coverFileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coverAltText": {
+            "type": "string",
+            "maxLength": 300,
+            "example": "Penyerahan piala di aula madrasah"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tags": {
+            "description": "Tag labels. Sent as names, not ids — tags are created on first use, so the editor types rather than picks (FR-038).",
+            "example": [
+              "olimpiade",
+              "matematika"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 60
+            }
+          },
+          "metaTitle": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "metaDescription": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "PENGUMUMAN only — rejected for BERITA and ARTIKEL",
+            "example": "2026-09-01T00:00:00.000Z"
+          },
+          "attachmentFileId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "PENGUMUMAN only — downloadable attachment"
+          },
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Version the editor loaded. A mismatch returns 409 rather than overwriting a concurrent save.",
+            "example": 3
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "PublishPostDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Version the editor loaded; a mismatch returns 409.",
+            "example": 3
+          },
+          "scheduledAt": {
+            "type": "string",
+            "description": "Go live at this moment instead of now. Must be in the future. The item becomes public when this passes, whether or not the status-normalising job has run.",
+            "example": "2026-08-09T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "PostVersionDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Version the editor loaded; a mismatch returns 409.",
+            "example": 3
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "PinPostDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Version the editor loaded; a mismatch returns 409.",
+            "example": 3
+          },
+          "pinned": {
+            "type": "boolean",
+            "description": "True pins the item to the top of its feed, false unpins it."
+          }
+        },
+        "required": [
+          "version",
+          "pinned"
+        ]
+      },
+      "PostSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "enum": [
+              "BERITA",
+              "ARTIKEL",
+              "PENGUMUMAN"
+            ],
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "coverAltText": {
+            "type": "string",
+            "nullable": true
+          },
+          "category": {
+            "type": "object",
+            "nullable": true
+          },
+          "authorName": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isPinned": {
+            "type": "boolean",
+            "description": "Pinned items lead the listing"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "slug",
+          "summary",
+          "authorName",
+          "publishedAt",
+          "isPinned",
+          "tags"
+        ]
+      },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Prestasi"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 120,
+            "description": "Public filter address. Derived from the name when omitted.",
+            "example": "prestasi"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true,
+            "description": "Deactivating hides a category from the filter bar and from the editor form without touching the content already filed under it (FR-036)."
+          },
+          "displayOrder": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Prestasi"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 120,
+            "description": "Public filter address. Derived from the name when omitted.",
+            "example": "prestasi"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true,
+            "description": "Deactivating hides a category from the filter bar and from the editor form without touching the content already filed under it (FR-036)."
+          },
+          "displayOrder": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+          }
+        }
+      },
+      "CreateTagDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "example": "olimpiade"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateTagDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "example": "Olimpiade"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "HomepageSectionSettingDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string"
+          },
+          "itemCount": {
+            "type": "number"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "itemCount",
+          "isEnabled",
+          "displayOrder"
+        ]
+      },
+      "UpdateHomepageSectionDto": {
+        "type": "object",
+        "properties": {
+          "itemCount": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "How many items this section shows on the public homepage"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "HomepageSectionDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "berita"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 1
+          },
+          "kind": {
+            "enum": [
+              "post",
+              "agenda",
+              "album"
+            ],
+            "type": "string",
+            "description": "Which shape `items` carries — the client renders per kind"
+          },
+          "items": {
+            "description": "Empty when the section has nothing published yet — the page renders an empty state rather than breaking",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "key",
+          "displayOrder",
+          "kind",
+          "items"
+        ]
+      },
+      "HomepageResponseDto": {
+        "type": "object",
+        "properties": {
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HomepageSectionDto"
+            }
+          }
+        },
+        "required": [
+          "sections"
+        ]
+      },
+      "PageMetaDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "canonicalUrl": {
+            "type": "string",
+            "description": "Absolute address this content lives at"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Always a /portal/public/media/:id?variant=preview address, never a signed URL — a crawler caches what it is given, and an expiring URL becomes a dead image in every card already shared"
+          },
+          "type": {
+            "enum": [
+              "website",
+              "article"
+            ],
+            "type": "string"
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "canonicalUrl",
+          "type"
+        ]
+      },
+      "SitemapEntryDto": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "example": "/berita/juara-1-olimpiade"
+          },
+          "lastModified": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "lastModified"
+        ]
+      },
+      "CreateAgendaDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Pentas Seni Akhir Tahun"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 220
+          },
+          "description": {
+            "type": "string",
+            "description": "HTML — sanitized server-side before storage"
+          },
+          "startTime": {
+            "type": "string",
+            "example": "2026-12-20T01:00:00.000Z"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "2026-12-20T05:00:00.000Z"
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Aula MTs Persis 241"
+          },
+          "coverFileId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "startTime",
+          "endTime",
+          "location"
+        ]
+      },
+      "UpdateAgendaDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Pentas Seni Akhir Tahun"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 220
+          },
+          "description": {
+            "type": "string",
+            "description": "HTML — sanitized server-side before storage"
+          },
+          "startTime": {
+            "type": "string",
+            "example": "2026-12-20T01:00:00.000Z"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "2026-12-20T05:00:00.000Z"
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Aula MTs Persis 241"
+          },
+          "coverFileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "description": "A mismatch returns 409.",
+            "example": 2
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "PublishAgendaDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "example": 2
+          },
+          "scheduledAt": {
+            "type": "string",
+            "description": "Go live at this moment instead of now. Must be in the future."
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "AgendaVersionDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "example": 2
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "CreateAlbumDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Pentas Seni 2026"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 220
+          },
+          "description": {
+            "type": "string"
+          },
+          "eventDate": {
+            "type": "string",
+            "example": "2026-12-20",
+            "description": "When the activity happened — not when the album was published. An album uploaded in March may document an event from January."
+          },
+          "coverFileId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "title",
+          "eventDate"
+        ]
+      },
+      "UpdateAlbumDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Pentas Seni 2026"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 220
+          },
+          "description": {
+            "type": "string"
+          },
+          "eventDate": {
+            "type": "string",
+            "example": "2026-12-20",
+            "description": "When the activity happened — not when the album was published. An album uploaded in March may document an event from January."
+          },
+          "coverFileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "description": "A mismatch returns 409.",
+            "example": 2
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "AddPhotoDto": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "altText": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Required. A gallery of images with no descriptions is unusable with a screen reader (FR-057)."
+          },
+          "caption": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "fileId",
+          "altText"
+        ]
+      },
+      "ReorderPhotosDto": {
+        "type": "object",
+        "properties": {
+          "photoIds": {
+            "description": "Photo ids in the order they should appear",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "photoIds"
+        ]
+      },
+      "UpdatePhotoDto": {
+        "type": "object",
+        "properties": {
+          "caption": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 300
+          },
+          "altText": {
+            "type": "string",
+            "maxLength": 300
+          }
+        }
+      },
+      "PublishAlbumDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "example": 2
+          },
+          "scheduledAt": {
+            "type": "string",
+            "description": "Must be in the future when given."
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "AlbumVersionDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "example": 2
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "CreatePageDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Visi & Misi"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 220,
+            "description": "Public address. Derived from the title when omitted."
+          },
+          "body": {
+            "type": "string",
+            "description": "HTML — sanitized server-side before storage"
+          },
+          "metaTitle": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "metaDescription": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "title",
+          "body"
+        ]
+      },
+      "UpdatePageDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Visi & Misi"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 220,
+            "description": "Public address. Derived from the title when omitted."
+          },
+          "body": {
+            "type": "string",
+            "description": "HTML — sanitized server-side before storage"
+          },
+          "metaTitle": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "metaDescription": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "description": "A mismatch returns 409.",
+            "example": 2
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "PageVersionDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 0,
+            "example": 2
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "CreateNavItemDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 60,
+            "example": "Profil"
+          },
+          "pageId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Link to a portal page"
+          },
+          "routeKey": {
+            "type": "string",
+            "maxLength": 60,
+            "description": "A built-in listing: berita, artikel, agenda, galeri"
+          },
+          "externalUrl": {
+            "type": "string",
+            "maxLength": 500,
+            "format": "uri",
+            "description": "An address outside the portal, e.g. the PPDB application"
+          },
+          "displayOrder": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [
+          "label"
+        ]
+      },
+      "ReorderNavDto": {
+        "type": "object",
+        "properties": {
+          "itemIds": {
+            "description": "Item ids in the order they should render",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "itemIds"
+        ]
+      },
+      "UpdateNavItemDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 60,
+            "example": "Profil"
+          },
+          "pageId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Link to a portal page"
+          },
+          "routeKey": {
+            "type": "string",
+            "maxLength": 60,
+            "description": "A built-in listing: berita, artikel, agenda, galeri"
+          },
+          "externalUrl": {
+            "type": "string",
+            "maxLength": 500,
+            "format": "uri",
+            "description": "An address outside the portal, e.g. the PPDB application"
+          },
+          "displayOrder": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    }
+  }
+}

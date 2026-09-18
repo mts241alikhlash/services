@@ -1,0 +1,3060 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "degraded"
+                          ],
+                          "example": "ok"
+                        },
+                        "info": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "error": {
+                          "type": "object",
+                          "example": {},
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "details": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "shutting_down"
+                      ],
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness + readiness probe (DB, memory)",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/inventory/assets": {
+      "get": {
+        "operationId": "AssetController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "keyword",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "statusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "conditionId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fundingSourceId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all inventory assets (paginated, filterable)",
+        "tags": [
+          "Inventory Assets"
+        ]
+      },
+      "post": {
+        "operationId": "AssetController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new asset (parent) with N numbered units (quantity)",
+        "tags": [
+          "Inventory Assets"
+        ]
+      }
+    },
+    "/inventory/assets/{id}": {
+      "get": {
+        "operationId": "AssetController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get asset by ID",
+        "tags": [
+          "Inventory Assets"
+        ]
+      },
+      "patch": {
+        "operationId": "AssetController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an existing asset",
+        "tags": [
+          "Inventory Assets"
+        ]
+      },
+      "delete": {
+        "operationId": "AssetController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete an asset",
+        "tags": [
+          "Inventory Assets"
+        ]
+      }
+    },
+    "/inventory/assets/{id}/units": {
+      "post": {
+        "operationId": "AssetController_addUnits",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUnitsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add more physical units to an existing asset",
+        "tags": [
+          "Inventory Assets"
+        ]
+      }
+    },
+    "/inventory/asset-units": {
+      "get": {
+        "operationId": "AssetUnitController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "lendable",
+            "required": false,
+            "in": "query",
+            "description": "Only units whose status permits transactions — what a loan form needs. Units already reserved by a pending loan, or out on an approved one, hold a status that forbids transactions and are excluded by the same rule.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Matches unit number or asset name.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List asset units (paginated, searchable, lendable-only)",
+        "tags": [
+          "Inventory Asset Units"
+        ]
+      }
+    },
+    "/inventory/asset-units/{id}": {
+      "patch": {
+        "operationId": "AssetUnitController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUnitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an asset unit (condition/status/location/custodian/etc.)",
+        "tags": [
+          "Inventory Asset Units"
+        ]
+      },
+      "delete": {
+        "operationId": "AssetUnitController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete an asset unit",
+        "tags": [
+          "Inventory Asset Units"
+        ]
+      }
+    },
+    "/inventory/categories": {
+      "get": {
+        "operationId": "CategoryController_getCategories",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryCategoryResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get category list",
+        "tags": [
+          "Inventory Categories"
+        ]
+      },
+      "post": {
+        "operationId": "CategoryController_createCategory",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryCategoryResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create category item",
+        "tags": [
+          "Inventory Categories"
+        ]
+      }
+    },
+    "/inventory/categories/{id}": {
+      "patch": {
+        "operationId": "CategoryController_updateCategory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryCategoryResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update category item",
+        "tags": [
+          "Inventory Categories"
+        ]
+      },
+      "delete": {
+        "operationId": "CategoryController_deleteCategory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete category item",
+        "tags": [
+          "Inventory Categories"
+        ]
+      }
+    },
+    "/inventory/conditions": {
+      "get": {
+        "operationId": "ConditionController_getConditions",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryConditionResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get condition list",
+        "tags": [
+          "Inventory Conditions"
+        ]
+      },
+      "post": {
+        "operationId": "ConditionController_createCondition",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConditionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryConditionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create condition item",
+        "tags": [
+          "Inventory Conditions"
+        ]
+      }
+    },
+    "/inventory/conditions/{id}": {
+      "patch": {
+        "operationId": "ConditionController_updateCondition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConditionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryConditionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update condition item",
+        "tags": [
+          "Inventory Conditions"
+        ]
+      },
+      "delete": {
+        "operationId": "ConditionController_deleteCondition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete condition item",
+        "tags": [
+          "Inventory Conditions"
+        ]
+      }
+    },
+    "/inventory/funding-sources": {
+      "get": {
+        "operationId": "FundingSourceController_getFundingSources",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryFundingSourceResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get funding source list",
+        "tags": [
+          "Inventory Funding Sources"
+        ]
+      },
+      "post": {
+        "operationId": "FundingSourceController_createFundingSource",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFundingSourceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryFundingSourceResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create funding source item",
+        "tags": [
+          "Inventory Funding Sources"
+        ]
+      }
+    },
+    "/inventory/funding-sources/{id}": {
+      "patch": {
+        "operationId": "FundingSourceController_updateFundingSource",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFundingSourceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryFundingSourceResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update funding source item",
+        "tags": [
+          "Inventory Funding Sources"
+        ]
+      },
+      "delete": {
+        "operationId": "FundingSourceController_deleteFundingSource",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete funding source item",
+        "tags": [
+          "Inventory Funding Sources"
+        ]
+      }
+    },
+    "/inventory/locations": {
+      "get": {
+        "operationId": "LocationController_getLocations",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryLocationResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get location list",
+        "tags": [
+          "Inventory Locations"
+        ]
+      },
+      "post": {
+        "operationId": "LocationController_createLocation",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLocationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryLocationResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create location item",
+        "tags": [
+          "Inventory Locations"
+        ]
+      }
+    },
+    "/inventory/locations/{id}": {
+      "patch": {
+        "operationId": "LocationController_updateLocation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLocationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryLocationResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update location item",
+        "tags": [
+          "Inventory Locations"
+        ]
+      },
+      "delete": {
+        "operationId": "LocationController_deleteLocation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete location item",
+        "tags": [
+          "Inventory Locations"
+        ]
+      }
+    },
+    "/inventory/statuses": {
+      "get": {
+        "operationId": "StatusController_getStatuses",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryStatusResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get status list",
+        "tags": [
+          "Inventory Statuses"
+        ]
+      },
+      "post": {
+        "operationId": "StatusController_createStatus",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryStatusResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create status item",
+        "tags": [
+          "Inventory Statuses"
+        ]
+      }
+    },
+    "/inventory/statuses/{id}": {
+      "patch": {
+        "operationId": "StatusController_updateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryStatusResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update status item",
+        "tags": [
+          "Inventory Statuses"
+        ]
+      },
+      "delete": {
+        "operationId": "StatusController_deleteStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete status item",
+        "tags": [
+          "Inventory Statuses"
+        ]
+      }
+    },
+    "/inventory/metadata": {
+      "get": {
+        "operationId": "MetadataController_getMetadata",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryMetadataResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get metadata for inventory dropdowns",
+        "tags": [
+          "Inventory Reference Data Metadata"
+        ]
+      }
+    },
+    "/inventory/loans": {
+      "get": {
+        "operationId": "LoanController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "keyword",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "statusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all loan transactions",
+        "tags": [
+          "Inventory Loans"
+        ]
+      },
+      "post": {
+        "operationId": "LoanController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Request a new loan",
+        "tags": [
+          "Inventory Loans"
+        ]
+      }
+    },
+    "/inventory/loans/{id}": {
+      "get": {
+        "operationId": "LoanController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get loan transaction by ID",
+        "tags": [
+          "Inventory Loans"
+        ]
+      }
+    },
+    "/inventory/loans/{id}/return": {
+      "post": {
+        "operationId": "LoanController_returnLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnLoanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Return borrowed assets",
+        "tags": [
+          "Inventory Loans"
+        ]
+      }
+    },
+    "/inventory/histories": {
+      "get": {
+        "operationId": "HistoryController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "unitId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all asset circulation history logs",
+        "tags": [
+          "Inventory Asset History"
+        ]
+      }
+    },
+    "/inventory/workflows": {
+      "get": {
+        "operationId": "WorkflowController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all workflow templates",
+        "tags": [
+          "Inventory Workflows"
+        ]
+      },
+      "post": {
+        "operationId": "WorkflowController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkflowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new workflow template",
+        "tags": [
+          "Inventory Workflows"
+        ]
+      }
+    },
+    "/inventory/workflows/{id}": {
+      "get": {
+        "operationId": "WorkflowController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get workflow template by ID",
+        "tags": [
+          "Inventory Workflows"
+        ]
+      }
+    },
+    "/inventory/approvals": {
+      "get": {
+        "operationId": "ApprovalController_findPending",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get pending approvals assigned to the current user roles",
+        "tags": [
+          "Inventory Approvals"
+        ]
+      }
+    },
+    "/inventory/approvals/{id}/action": {
+      "post": {
+        "operationId": "ApprovalController_process",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve or reject a pending workflow step",
+        "tags": [
+          "Inventory Approvals"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Inventory Service API",
+    "description": "Inventory Service",
+    "version": "0.1.7",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "CreateAssetDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Asset name"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Number of physical units to create (each gets its own number)",
+            "default": 1
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Category UUID"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Brand name"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model or Type"
+          },
+          "barcode": {
+            "type": "string",
+            "description": "Barcode identifier"
+          },
+          "assetNumber": {
+            "type": "string",
+            "description": "Custom asset number"
+          },
+          "purchaseDate": {
+            "type": "string",
+            "description": "Purchase Date"
+          },
+          "purchasePrice": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Purchase Price"
+          },
+          "usefulLifeMonths": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Useful life in months"
+          },
+          "fundingSourceId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Funding Source UUID"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Location UUID"
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Status UUID"
+          },
+          "conditionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Condition UUID"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Extra notes"
+          }
+        },
+        "required": [
+          "name",
+          "categoryId",
+          "purchaseDate",
+          "purchasePrice",
+          "locationId",
+          "statusId",
+          "conditionId"
+        ]
+      },
+      "CreateUnitsDto": {
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Jumlah unit tambahan",
+            "default": 1
+          },
+          "conditionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Condition UUID (default unit baru)"
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Status UUID (default unit baru)"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Location UUID (default unit baru)"
+          }
+        },
+        "required": [
+          "conditionId",
+          "statusId",
+          "locationId"
+        ]
+      },
+      "UpdateAssetDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Asset name"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Category UUID"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Brand name"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model or Type"
+          },
+          "assetNumber": {
+            "type": "string",
+            "description": "Batch/asset number"
+          },
+          "purchaseDate": {
+            "type": "string",
+            "description": "Purchase Date"
+          },
+          "purchasePrice": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Purchase Price (per unit)"
+          },
+          "usefulLifeMonths": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Useful life in months"
+          },
+          "fundingSourceId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Funding Source UUID"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Extra notes"
+          }
+        }
+      },
+      "UpdateUnitDto": {
+        "type": "object",
+        "properties": {
+          "conditionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Condition UUID"
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Status UUID"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Location UUID"
+          },
+          "custodianId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Custodian user UUID"
+          },
+          "barcode": {
+            "type": "string",
+            "description": "Barcode / QR code"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Notes"
+          }
+        }
+      },
+      "InventoryCategoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "ELK"
+          },
+          "name": {
+            "type": "string",
+            "example": "Elektronik"
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Categories nest; null at the top of a tree."
+          },
+          "depreciationRatePercent": {
+            "type": "string",
+            "example": "12.50",
+            "description": "A string, not a number: the column is `Decimal(5,2)`, and Prisma hands a Decimal back as its string form so no precision is lost on the way."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "parentId",
+          "depreciationRatePercent",
+          "createdAt"
+        ]
+      },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "CAT-001"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Elektronik"
+          },
+          "depreciationRatePercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "example": 10
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "depreciationRatePercent"
+        ]
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "CAT-001"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Elektronik"
+          },
+          "depreciationRatePercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "example": 10
+          }
+        }
+      },
+      "InventoryConditionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "BAIK"
+          },
+          "name": {
+            "type": "string",
+            "example": "Baik"
+          },
+          "isUsable": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether an asset in this condition may still be lent out."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "isUsable",
+          "createdAt"
+        ]
+      },
+      "CreateConditionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "COND-GOOD"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Baik"
+          },
+          "isUsable": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdateConditionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "COND-GOOD"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Baik"
+          },
+          "isUsable": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "InventoryFundingSourceResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "BOS"
+          },
+          "name": {
+            "type": "string",
+            "example": "Dana BOS"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "description",
+          "createdAt"
+        ]
+      },
+      "CreateFundingSourceDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "FUND-GOV"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "APBD"
+          },
+          "description": {
+            "type": "string",
+            "example": "Keterangan tambahan"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdateFundingSourceDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "FUND-GOV"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "APBD"
+          },
+          "description": {
+            "type": "string",
+            "example": "Keterangan tambahan"
+          }
+        }
+      },
+      "InventoryLocationResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "LAB1"
+          },
+          "name": {
+            "type": "string",
+            "example": "Laboratorium 1"
+          },
+          "building": {
+            "type": "string",
+            "nullable": true,
+            "example": "Gedung A"
+          },
+          "room": {
+            "type": "string",
+            "nullable": true,
+            "example": "R-08"
+          },
+          "rack": {
+            "type": "string",
+            "nullable": true,
+            "example": "Rak 3"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "building",
+          "room",
+          "rack",
+          "description",
+          "createdAt"
+        ]
+      },
+      "CreateLocationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "LOC-A"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gedung Rektorat"
+          },
+          "building": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gedung Utama"
+          },
+          "room": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ruang 301"
+          },
+          "rack": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Rak B"
+          },
+          "description": {
+            "type": "string",
+            "example": "Keterangan tambahan"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdateLocationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "LOC-A"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gedung Rektorat"
+          },
+          "building": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gedung Utama"
+          },
+          "room": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ruang 301"
+          },
+          "rack": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Rak B"
+          },
+          "description": {
+            "type": "string",
+            "example": "Keterangan tambahan"
+          }
+        }
+      },
+      "InventoryStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "TERSEDIA"
+          },
+          "name": {
+            "type": "string",
+            "example": "Tersedia"
+          },
+          "allowTransactions": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether an asset in this status may be borrowed or returned."
+          },
+          "systemKey": {
+            "nullable": true,
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "LOAN_PENDING",
+              "LOAN_APPROVED",
+              "LOAN_REJECTED",
+              "LOAN_RETURNED"
+            ],
+            "type": "string",
+            "description": "Set only on the statuses the workflow reasons about, so renaming one in the interface cannot change what the code does with it."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "allowTransactions",
+          "systemKey",
+          "createdAt"
+        ]
+      },
+      "CreateStatusDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "STATUS-ACTIVE"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Aktif"
+          },
+          "allowTransactions": {
+            "type": "boolean",
+            "example": true
+          },
+          "systemKey": {
+            "nullable": true,
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "LOAN_PENDING",
+              "LOAN_APPROVED",
+              "LOAN_REJECTED",
+              "LOAN_RETURNED"
+            ],
+            "type": "string",
+            "description": "Protected role of this status in the loan lifecycle (null = custom, no special role)."
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdateStatusDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "STATUS-ACTIVE"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Aktif"
+          },
+          "allowTransactions": {
+            "type": "boolean",
+            "example": true
+          },
+          "systemKey": {
+            "nullable": true,
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "LOAN_PENDING",
+              "LOAN_APPROVED",
+              "LOAN_REJECTED",
+              "LOAN_RETURNED"
+            ],
+            "type": "string",
+            "description": "Protected role of this status in the loan lifecycle (null = custom, no special role)."
+          }
+        }
+      },
+      "InventoryMetadataResponseDto": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryCategoryResponseDto"
+            }
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryLocationResponseDto"
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryConditionResponseDto"
+            }
+          },
+          "statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryStatusResponseDto"
+            }
+          },
+          "fundingSources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryFundingSourceResponseDto"
+            }
+          }
+        },
+        "required": [
+          "categories",
+          "locations",
+          "conditions",
+          "statuses",
+          "fundingSources"
+        ]
+      },
+      "CreateLoanDto": {
+        "type": "object",
+        "properties": {
+          "expectedReturnDate": {
+            "type": "string",
+            "description": "Expected date of returning the assets"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Purpose of borrowing"
+          },
+          "unitIds": {
+            "description": "IDs of the asset units to borrow",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "expectedReturnDate",
+          "purpose",
+          "unitIds"
+        ]
+      },
+      "ReturnLoanItemDto": {
+        "type": "object",
+        "properties": {
+          "unitId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Asset unit ID being returned"
+          },
+          "returnedConditionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Condition ID of the asset when returned"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Notes on returning the asset"
+          }
+        },
+        "required": [
+          "unitId",
+          "returnedConditionId"
+        ]
+      },
+      "ReturnLoanDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReturnLoanItemDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "CreateWorkflowStepDto": {
+        "type": "object",
+        "properties": {
+          "stepSequence": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Sequence number of the step (1-indexed)"
+          },
+          "approverRoleCode": {
+            "type": "string",
+            "description": "Role code authorized to approve this step (e.g. ADMIN, PRINCIPAL)"
+          },
+          "isMandatory": {
+            "type": "boolean",
+            "description": "False leaves this step to the previous approver, who decides per request whether it is also taken. A mandatory step is always taken.",
+            "default": true
+          }
+        },
+        "required": [
+          "stepSequence",
+          "approverRoleCode"
+        ]
+      },
+      "CreateWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the workflow"
+          },
+          "targetEntity": {
+            "type": "string",
+            "description": "Target entity class name"
+          },
+          "description": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateWorkflowStepDto"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "targetEntity",
+          "steps"
+        ]
+      },
+      "ApproveActionDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "type": "string",
+            "description": "Action to perform: APPROVE or REJECT"
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional rejection or approval note"
+          },
+          "forwardToNextApprover": {
+            "type": "boolean",
+            "description": "Forward this loan to the next approver instead of finishing here. Only meaningful when the next step is optional — a mandatory one is always taken, and this cannot waive it. Ignored on a rejection."
+          }
+        },
+        "required": [
+          "action"
+        ]
+      }
+    }
+  }
+}

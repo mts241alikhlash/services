@@ -1,0 +1,2947 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "degraded"
+                          ],
+                          "example": "ok"
+                        },
+                        "info": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "error": {
+                          "type": "object",
+                          "example": {},
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "details": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "shutting_down"
+                      ],
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness + readiness probe (DB, memory)",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/admissions/waves/active": {
+      "get": {
+        "operationId": "AdmissionPublicController_getActiveWaves",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Active waves and document requirements"
+          }
+        },
+        "summary": "Active admission waves with requirements (landing page)",
+        "tags": [
+          "Admission — Public"
+        ]
+      }
+    },
+    "/admissions/register": {
+      "post": {
+        "operationId": "AdmissionPublicController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicRegisterApplicantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Applicant registered"
+          },
+          "400": {
+            "description": "Wave closed or invalid data"
+          },
+          "409": {
+            "description": "Email already registered"
+          }
+        },
+        "summary": "Register a new applicant account",
+        "tags": [
+          "Admission — Public"
+        ]
+      }
+    },
+    "/admissions/my-application": {
+      "get": {
+        "operationId": "AdmissionApplicantController_getMyApplication",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Application detail"
+          },
+          "404": {
+            "description": "No application for this account"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get my application (form, documents, payment, wave)",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      },
+      "patch": {
+        "operationId": "AdmissionApplicantController_updateMyApplication",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyApplicationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Application updated"
+          },
+          "409": {
+            "description": "Not editable in current status"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update my application form (partial, per wizard step)",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      }
+    },
+    "/admissions/my-application/ensure": {
+      "post": {
+        "operationId": "AdmissionApplicantController_ensureMyApplication",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Application already existed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ApplicationDetailResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Application created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ApplicationDetailResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration is not open"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Ensure my application exists (idempotent)",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      }
+    },
+    "/admissions/my-application/submit": {
+      "post": {
+        "operationId": "AdmissionApplicantController_submit",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Application submitted"
+          },
+          "400": {
+            "description": "Incomplete data or documents"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Submit my application for verification",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      }
+    },
+    "/admissions/my-application/documents/{typeCode}": {
+      "put": {
+        "operationId": "AdmissionApplicantController_uploadDocument",
+        "parameters": [
+          {
+            "name": "typeCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "KK",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document uploaded"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload (or replace) a required document",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      }
+    },
+    "/admissions/my-application/payment": {
+      "put": {
+        "operationId": "AdmissionApplicantController_uploadPaymentProof",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadPaymentProofDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment proof uploaded"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload payment transfer proof",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      }
+    },
+    "/admissions/announcements": {
+      "get": {
+        "operationId": "AdmissionApplicantController_getAnnouncements",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Published announcements for my wave (or global)",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      }
+    },
+    "/admissions/stats": {
+      "get": {
+        "operationId": "AdmissionAdminController_getStats",
+        "parameters": [
+          {
+            "name": "waveId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admission statistics per status and wave",
+        "tags": [
+          "Admission — Admin"
+        ]
+      }
+    },
+    "/admissions/applications": {
+      "get": {
+        "operationId": "AdmissionAdminController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name, registration number, or email",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "SUBMITTED",
+                "REVISION_NEEDED",
+                "VERIFIED",
+                "ACCEPTED",
+                "ENROLLING",
+                "REJECTED",
+                "ENROLLED"
+              ]
+            }
+          },
+          {
+            "name": "waveId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List applications (paginated, filterable)",
+        "tags": [
+          "Admission — Admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdmissionAdminRegistrationController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterApplicantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Applicant registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/RegisteredApplicantResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already registered"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create an applicant account and a DRAFT application",
+        "tags": [
+          "Admission — Admin Registration"
+        ]
+      }
+    },
+    "/admissions/applications/{id}": {
+      "get": {
+        "operationId": "AdmissionAdminController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "404": {
+            "description": "Application not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Application detail (form, documents, payment)",
+        "tags": [
+          "Admission — Admin"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/documents/{docId}/verify": {
+      "patch": {
+        "operationId": "AdmissionAdminController_verifyDocument",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "docId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyDocumentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve or reject a document",
+        "tags": [
+          "Admission — Admin"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/payment/verify": {
+      "patch": {
+        "operationId": "AdmissionAdminController_verifyPayment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Verify or reject the payment proof",
+        "tags": [
+          "Admission — Admin"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/request-revision": {
+      "post": {
+        "operationId": "AdmissionAdminController_requestRevision",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestRevisionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Return the application to the applicant for revision",
+        "tags": [
+          "Admission — Admin"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/verify": {
+      "post": {
+        "operationId": "AdmissionAdminController_verifyApplication",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark application VERIFIED (all docs approved + payment verified)",
+        "tags": [
+          "Admission — Admin"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/accept": {
+      "post": {
+        "operationId": "AdmissionAdminController_accept",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptApplicationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Accept the application",
+        "tags": [
+          "Admission — Admin"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/reject": {
+      "post": {
+        "operationId": "AdmissionAdminController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectApplicationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reject the application",
+        "tags": [
+          "Admission — Admin"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/enroll": {
+      "post": {
+        "operationId": "AdmissionAdminController_enroll",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollApplicantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          },
+          "409": {
+            "description": "NIS/NISN/NIK conflict"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Provision the accepted applicant as a student",
+        "tags": [
+          "Admission — Admin"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/form": {
+      "patch": {
+        "operationId": "AdmissionAdminRegistrationController_updateForm",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyApplicationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Application detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ApplicationDetailResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Not editable in current status"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Fill a step of an application on behalf of its owner",
+        "tags": [
+          "Admission — Admin Registration"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/submit": {
+      "post": {
+        "operationId": "AdmissionAdminRegistrationController_submit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Application submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ApplicationDetailResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Incomplete data or documents"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Submit an application on behalf of its owner",
+        "tags": [
+          "Admission — Admin Registration"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/documents/{typeCode}": {
+      "put": {
+        "operationId": "AdmissionAdminRegistrationController_uploadDocument",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "typeCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "KK",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ApplicationDocumentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload a required document for an application",
+        "tags": [
+          "Admission — Admin Registration"
+        ]
+      }
+    },
+    "/admissions/applications/{id}/payment": {
+      "put": {
+        "operationId": "AdmissionAdminRegistrationController_uploadPaymentProof",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadPaymentProofDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment proof uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ApplicationPaymentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload payment proof for an application",
+        "tags": [
+          "Admission — Admin Registration"
+        ]
+      }
+    },
+    "/admissions/my-application/notifications": {
+      "get": {
+        "operationId": "AdmissionNotificationController_getNotifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "My notifications (latest 50, with unread count)",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      }
+    },
+    "/admissions/notifications/read-all": {
+      "patch": {
+        "operationId": "AdmissionNotificationController_markAllRead",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark all my notifications as read",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      }
+    },
+    "/admissions/notifications/{id}/read": {
+      "patch": {
+        "operationId": "AdmissionNotificationController_markRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark a notification as read",
+        "tags": [
+          "Admission — Applicant"
+        ]
+      }
+    },
+    "/admissions/waves": {
+      "get": {
+        "operationId": "AdmissionWaveController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List admission waves",
+        "tags": [
+          "Admission — Waves"
+        ]
+      },
+      "post": {
+        "operationId": "AdmissionWaveController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdmissionWaveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create an admission wave",
+        "tags": [
+          "Admission — Waves"
+        ]
+      }
+    },
+    "/admissions/waves/{id}": {
+      "get": {
+        "operationId": "AdmissionWaveController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get an admission wave",
+        "tags": [
+          "Admission — Waves"
+        ]
+      },
+      "patch": {
+        "operationId": "AdmissionWaveController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdmissionWaveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an admission wave",
+        "tags": [
+          "Admission — Waves"
+        ]
+      },
+      "delete": {
+        "operationId": "AdmissionWaveController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete an admission wave (no applicants only)",
+        "tags": [
+          "Admission — Waves"
+        ]
+      }
+    },
+    "/admissions/manage-announcements": {
+      "get": {
+        "operationId": "AdmissionAnnouncementController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "waveId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isPublished",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List admission announcements (admin)",
+        "tags": [
+          "Admission — Announcements"
+        ]
+      },
+      "post": {
+        "operationId": "AdmissionAnnouncementController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdmissionAnnouncementDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create an admission announcement",
+        "tags": [
+          "Admission — Announcements"
+        ]
+      }
+    },
+    "/admissions/manage-announcements/{id}": {
+      "patch": {
+        "operationId": "AdmissionAnnouncementController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdmissionAnnouncementDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an admission announcement",
+        "tags": [
+          "Admission — Announcements"
+        ]
+      },
+      "delete": {
+        "operationId": "AdmissionAnnouncementController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete an admission announcement",
+        "tags": [
+          "Admission — Announcements"
+        ]
+      }
+    },
+    "/admissions/manage-announcements/{id}/publish": {
+      "post": {
+        "operationId": "AdmissionAnnouncementController_publish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publish + notify applicants in scope",
+        "tags": [
+          "Admission — Announcements"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Admission Service API",
+    "description": "Admission Service",
+    "version": "0.1.6",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "PublicRegisterApplicantDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ahmad Fauzi"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "example": "ahmad@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "example": "081234567890"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 72
+          },
+          "passwordConfirm": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "password",
+          "passwordConfirm"
+        ]
+      },
+      "ApplicationWaveResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Gelombang 1"
+          },
+          "code": {
+            "type": "string",
+            "example": "GEL-1"
+          },
+          "registrationFee": {
+            "type": "number",
+            "example": 250000
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code",
+          "registrationFee"
+        ]
+      },
+      "ApplicationParentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "relation": {
+            "type": "string",
+            "example": "FATHER",
+            "enum": [
+              "FATHER",
+              "MOTHER",
+              "GUARDIAN"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "example": "Budi Santoso"
+          },
+          "nik": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "relation",
+          "name",
+          "isPrimary"
+        ]
+      },
+      "ApplicationDocumentTypeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "KK"
+          },
+          "name": {
+            "type": "string",
+            "example": "Kartu Keluarga"
+          },
+          "isRequired": {
+            "type": "boolean",
+            "example": true
+          },
+          "sortOrder": {
+            "type": "number",
+            "example": 1
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "isRequired",
+          "sortOrder",
+          "isActive"
+        ]
+      },
+      "ApplicationFileResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "filename": {
+            "type": "string",
+            "example": "1758000000000-kk.png"
+          },
+          "originalName": {
+            "type": "string",
+            "example": "kk.png"
+          },
+          "mimeType": {
+            "type": "string",
+            "example": "image/png"
+          },
+          "sizeBytes": {
+            "type": "number",
+            "example": 204800
+          },
+          "storageKey": {
+            "type": "string",
+            "example": "documents/Kartu Keluarga/1758000000000-kk.png"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "originalName",
+          "mimeType",
+          "sizeBytes",
+          "storageKey"
+        ]
+      },
+      "ApplicationDocumentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "applicationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "documentTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "example": "PENDING",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "verifiedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "documentType": {
+            "$ref": "#/components/schemas/ApplicationDocumentTypeResponseDto"
+          },
+          "file": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationFileResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "applicationId",
+          "documentTypeId",
+          "status",
+          "documentType"
+        ]
+      },
+      "ApplicationPaymentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "applicationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "example": 250000
+          },
+          "bankName": {
+            "type": "string",
+            "nullable": true,
+            "example": "BSI"
+          },
+          "senderAccountName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Ahmad Fauzi"
+          },
+          "transferDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "example": "2026-07-01"
+          },
+          "proofFileId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "example": "UNPAID",
+            "enum": [
+              "UNPAID",
+              "PENDING",
+              "VERIFIED",
+              "REJECTED"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "proofFile": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationFileResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "applicationId",
+          "amount",
+          "status"
+        ]
+      },
+      "ApplicationDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "waveId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registrationNumber": {
+            "type": "string",
+            "example": "PSB-2026-0001"
+          },
+          "status": {
+            "type": "string",
+            "example": "DRAFT"
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Ahmad Fauzi"
+          },
+          "nickname": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "birthPlace": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "birthDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "nik": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "nisn": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "street": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "rt": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "rw": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "village": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "district": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "city": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "province": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "postalCode": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "submittedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "revisionNote": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "wave": {
+            "$ref": "#/components/schemas/ApplicationWaveResponseDto"
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationParentResponseDto"
+            }
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationDocumentResponseDto"
+            }
+          },
+          "payment": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationPaymentResponseDto"
+              }
+            ]
+          },
+          "documentTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationDocumentTypeResponseDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "waveId",
+          "registrationNumber",
+          "status",
+          "fullName",
+          "wave",
+          "parents",
+          "documents"
+        ]
+      },
+      "UpdateApplicationParentDto": {
+        "type": "object",
+        "properties": {
+          "relation": {
+            "enum": [
+              "FATHER",
+              "MOTHER",
+              "GUARDIAN"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "nik": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15
+          },
+          "occupationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "educationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "income": {
+            "enum": [
+              "BELOW_500K",
+              "BETWEEN_500K_1M",
+              "BETWEEN_1M_2M",
+              "BETWEEN_2M_3M",
+              "ABOVE_3M"
+            ],
+            "type": "string"
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateMyApplicationDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "nickname": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "gender": {
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ],
+            "type": "string"
+          },
+          "birthPlace": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "nik": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16
+          },
+          "nisn": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "religionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15
+          },
+          "childOrder": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 30
+          },
+          "siblingCount": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30
+          },
+          "street": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "rt": {
+            "type": "string",
+            "maxLength": 5
+          },
+          "rw": {
+            "type": "string",
+            "maxLength": 5
+          },
+          "village": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "district": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "province": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "postalCode": {
+            "type": "string",
+            "maxLength": 10
+          },
+          "previousSchoolName": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "previousSchoolNpsn": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "previousSchoolAddress": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "graduationYear": {
+            "type": "number",
+            "minimum": 1990,
+            "maximum": 2100
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateApplicationParentDto"
+            }
+          }
+        }
+      },
+      "UploadPaymentProofDto": {
+        "type": "object",
+        "properties": {
+          "bankName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "BSI"
+          },
+          "senderAccountName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ahmad Fauzi"
+          },
+          "transferDate": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "bankName",
+          "senderAccountName"
+        ]
+      },
+      "VerifyDocumentDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "APPROVED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "description": "Required when the decision is REJECTED"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "VerifyPaymentDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "VERIFIED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "description": "Required when the decision is REJECTED"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "RequestRevisionDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "description": "Revision note shown to the applicant"
+          }
+        },
+        "required": [
+          "note"
+        ]
+      },
+      "AcceptApplicationDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "RejectApplicationDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Alasan penolakan"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "EnrollApplicantDto": {
+        "type": "object",
+        "properties": {
+          "nis": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "20260001"
+          },
+          "nisn": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "0091234567"
+          },
+          "gradeId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Grade level of the student (required)"
+          },
+          "classroomId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "When set, the student is enrolled into this classroom for the active semester"
+          }
+        },
+        "required": [
+          "nis",
+          "nisn",
+          "gradeId"
+        ]
+      },
+      "RegisterApplicantDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ahmad Fauzi"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "example": "ahmad@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 15,
+            "example": "081234567890"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 72
+          },
+          "passwordConfirm": {
+            "type": "string"
+          },
+          "waveId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "password",
+          "passwordConfirm",
+          "waveId"
+        ]
+      },
+      "RegisteredApplicantResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registrationNumber": {
+            "type": "string",
+            "example": "PSB-2026-0001"
+          },
+          "identifier": {
+            "type": "string",
+            "example": "ahmad@example.com"
+          }
+        },
+        "required": [
+          "id",
+          "registrationNumber",
+          "identifier"
+        ]
+      },
+      "CreateAdmissionWaveDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gelombang 1 — 2026/2027"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "G1-2026"
+          },
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "quota": {
+            "type": "number",
+            "minimum": 1,
+            "example": 100
+          },
+          "registrationFee": {
+            "type": "number",
+            "minimum": 0,
+            "example": 250000
+          },
+          "description": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [
+          "name",
+          "code",
+          "academicYearId",
+          "startDate",
+          "endDate",
+          "quota",
+          "registrationFee"
+        ]
+      },
+      "UpdateAdmissionWaveDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gelombang 1 — 2026/2027"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "G1-2026"
+          },
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "quota": {
+            "type": "number",
+            "minimum": 1,
+            "example": 100
+          },
+          "registrationFee": {
+            "type": "number",
+            "minimum": 0,
+            "example": 250000
+          },
+          "description": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "CreateAdmissionAnnouncementDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Pengumuman Hasil Seleksi Gelombang 1"
+          },
+          "content": {
+            "type": "string"
+          },
+          "waveId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Target wave; empty = all waves"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "title",
+          "content"
+        ]
+      },
+      "UpdateAdmissionAnnouncementDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Pengumuman Hasil Seleksi Gelombang 1"
+          },
+          "content": {
+            "type": "string"
+          },
+          "waveId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Target wave; empty = all waves"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  }
+}
