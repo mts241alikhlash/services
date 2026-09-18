@@ -2193,7 +2193,7 @@
   "info": {
     "title": "Inventory Service API",
     "description": "Inventory Service",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "contact": {}
   },
   "tags": [],

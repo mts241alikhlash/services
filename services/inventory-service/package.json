@@ -1,6 +1,6 @@
 {
   "name": "inventory-service",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "241 Inventory — assets, units, circulation, approvals",
   "author": "mhrmnvl",
   "private": true,
