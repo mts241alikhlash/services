@@ -1,0 +1,3177 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liveness and readiness check passed\n\nThe Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "degraded"
+                          ],
+                          "example": "ok"
+                        },
+                        "info": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "error": {
+                          "type": "object",
+                          "example": {},
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "details": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Health check failed\n\nThe Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "shutting_down"
+                      ],
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness + readiness probe (DB, memory)",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/assessment-items": {
+      "get": {
+        "operationId": "AssessmentItemController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "teachingAssignmentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DAILY",
+                "MIDTERM",
+                "FINAL",
+                "ASSIGNMENT",
+                "PRACTICAL"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List assessment items",
+        "tags": [
+          "Assessment Items"
+        ]
+      },
+      "post": {
+        "operationId": "AssessmentItemController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssessmentItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create assessment item",
+        "tags": [
+          "Assessment Items"
+        ]
+      }
+    },
+    "/assessment-items/{id}": {
+      "get": {
+        "operationId": "AssessmentItemController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get assessment item by ID",
+        "tags": [
+          "Assessment Items"
+        ]
+      },
+      "patch": {
+        "operationId": "AssessmentItemController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssessmentItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update assessment item",
+        "tags": [
+          "Assessment Items"
+        ]
+      },
+      "delete": {
+        "operationId": "AssessmentItemController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete assessment item",
+        "tags": [
+          "Assessment Items"
+        ]
+      }
+    },
+    "/assessment-weights": {
+      "get": {
+        "description": "Always returns all five assessment types; those never set come back as zero.",
+        "operationId": "AssessmentWeightController_findAll",
+        "parameters": [
+          {
+            "name": "teachingAssignmentId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the per-type weights for one teaching assignment",
+        "tags": [
+          "AssessmentWeights"
+        ]
+      },
+      "put": {
+        "description": "The submitted weights must total 100. Types omitted or set to zero contribute nothing to the subject score.",
+        "operationId": "AssessmentWeightController_replace",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceAssessmentWeightsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Replace the per-type weights for one teaching assignment",
+        "tags": [
+          "AssessmentWeights"
+        ]
+      }
+    },
+    "/student-scores": {
+      "get": {
+        "operationId": "StudentScoreController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "enrollmentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "assessmentItemId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List student scores",
+        "tags": [
+          "Student Scores"
+        ]
+      },
+      "post": {
+        "operationId": "StudentScoreController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentScoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create student score",
+        "tags": [
+          "Student Scores"
+        ]
+      }
+    },
+    "/student-scores/me": {
+      "get": {
+        "operationId": "StudentScoreController_findMine",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "enrollmentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "assessmentItemId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Your own marks — no student parameter exists",
+        "tags": [
+          "Student Scores"
+        ]
+      }
+    },
+    "/student-scores/roster": {
+      "get": {
+        "operationId": "StudentScoreController_getRoster",
+        "parameters": [
+          {
+            "name": "assessmentItemId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the full class roster with scores for one assessment item",
+        "tags": [
+          "Student Scores"
+        ]
+      }
+    },
+    "/student-scores/{id}": {
+      "get": {
+        "operationId": "StudentScoreController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get student score by ID",
+        "tags": [
+          "Student Scores"
+        ]
+      },
+      "patch": {
+        "operationId": "StudentScoreController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudentScoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update student score",
+        "tags": [
+          "Student Scores"
+        ]
+      },
+      "delete": {
+        "operationId": "StudentScoreController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete student score",
+        "tags": [
+          "Student Scores"
+        ]
+      }
+    },
+    "/student-scores/bulk": {
+      "post": {
+        "operationId": "StudentScoreController_bulkUpsert",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpsertStudentScoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Bulk upsert scores for any class on one assessment item",
+        "tags": [
+          "Student Scores"
+        ]
+      }
+    },
+    "/student-scores/assigned/bulk": {
+      "post": {
+        "operationId": "StudentScoreController_bulkUpsertAssigned",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpsertStudentScoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Bulk upsert scores for a class you teach or supervise",
+        "tags": [
+          "Student Scores"
+        ]
+      }
+    },
+    "/attendances/suggestions": {
+      "get": {
+        "operationId": "AttendanceController_suggestions",
+        "parameters": [
+          {
+            "name": "classroomId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "2026-08-10",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Gate pre-fill for a class, unconfirmed",
+        "tags": [
+          "Attendances"
+        ]
+      }
+    },
+    "/attendances": {
+      "get": {
+        "operationId": "AttendanceController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "enrollmentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "scheduleId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "classroomId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PRESENT",
+                "SICK",
+                "EXCUSED",
+                "ABSENT",
+                "LATE"
+              ]
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List attendances",
+        "tags": [
+          "Attendances"
+        ]
+      },
+      "post": {
+        "operationId": "AttendanceController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAttendanceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create attendance",
+        "tags": [
+          "Attendances"
+        ]
+      }
+    },
+    "/attendances/me": {
+      "get": {
+        "operationId": "AttendanceController_findMine",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "enrollmentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "scheduleId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "classroomId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PRESENT",
+                "SICK",
+                "EXCUSED",
+                "ABSENT",
+                "LATE"
+              ]
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Your own attendance — no student parameter exists",
+        "tags": [
+          "Attendances"
+        ]
+      }
+    },
+    "/attendances/recap": {
+      "get": {
+        "operationId": "AttendanceController_getRecap",
+        "parameters": [
+          {
+            "name": "classroomId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "required": false,
+            "in": "query",
+            "description": "Month (1-12). Omit for whole-semester recap.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 12,
+              "type": "number"
+            }
+          },
+          {
+            "name": "year",
+            "required": false,
+            "in": "query",
+            "description": "Year, required together with month.",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get attendance recap per student",
+        "tags": [
+          "Attendances"
+        ]
+      }
+    },
+    "/attendances/recap/trend": {
+      "get": {
+        "operationId": "AttendanceController_getTrend",
+        "parameters": [
+          {
+            "name": "classroomId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get monthly attendance percentage trend for a classroom",
+        "tags": [
+          "Attendances"
+        ]
+      }
+    },
+    "/attendances/{id}": {
+      "get": {
+        "operationId": "AttendanceController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get attendance by ID",
+        "tags": [
+          "Attendances"
+        ]
+      },
+      "patch": {
+        "operationId": "AttendanceController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAttendanceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update attendance",
+        "tags": [
+          "Attendances"
+        ]
+      },
+      "delete": {
+        "operationId": "AttendanceController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete attendance",
+        "tags": [
+          "Attendances"
+        ]
+      }
+    },
+    "/attendances/bulk": {
+      "post": {
+        "operationId": "AttendanceController_bulkUpsert",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpsertAttendanceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Bulk upsert attendances for a date",
+        "tags": [
+          "Attendances"
+        ]
+      }
+    },
+    "/report-cards/averages": {
+      "post": {
+        "description": "Read by student-service on the promotion screen, which colours each row by whether the average clears the passing score. Enrolments with no report card are simply absent from the response.",
+        "operationId": "ReportCardInternalController_averages",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollmentIdsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ReportCardAveragesResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Report-card averages for a batch of enrolments",
+        "tags": [
+          "Report Cards"
+        ]
+      }
+    },
+    "/rapors": {
+      "get": {
+        "operationId": "ReportCardController_findAll",
+        "parameters": [
+          {
+            "name": "studentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "classroomId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isPublished",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List reportCards (paginated, filterable)",
+        "tags": [
+          "ReportCards"
+        ]
+      }
+    },
+    "/rapors/me": {
+      "get": {
+        "operationId": "ReportCardController_findMine",
+        "parameters": [
+          {
+            "name": "studentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "classroomId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isPublished",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Your own published report cards — no user parameter exists",
+        "tags": [
+          "ReportCards"
+        ]
+      }
+    },
+    "/rapors/me/{id}/detail": {
+      "get": {
+        "operationId": "ReportCardController_findMyDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Your own published report card, with its attendance",
+        "tags": [
+          "ReportCards"
+        ]
+      }
+    },
+    "/rapors/{id}/detail": {
+      "get": {
+        "operationId": "ReportCardController_findDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Any student's report card, with its attendance",
+        "tags": [
+          "ReportCards"
+        ]
+      }
+    },
+    "/rapors/{id}": {
+      "get": {
+        "operationId": "ReportCardController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get reportCard by ID",
+        "tags": [
+          "ReportCards"
+        ]
+      },
+      "patch": {
+        "operationId": "ReportCardController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateReportCardDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update reportCard details",
+        "tags": [
+          "ReportCards"
+        ]
+      },
+      "delete": {
+        "operationId": "ReportCardController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete a reportCard",
+        "tags": [
+          "ReportCards"
+        ]
+      }
+    },
+    "/rapors/generate": {
+      "post": {
+        "operationId": "ReportCardController_generate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateReportCardDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generate reportCard for a student",
+        "tags": [
+          "ReportCards"
+        ]
+      }
+    },
+    "/rapors/generate/bulk": {
+      "post": {
+        "description": "Published cards are left untouched and reported as skipped, so one issued report does not block the rest of the class.",
+        "operationId": "ReportCardController_bulkGenerate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkGenerateReportCardDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BulkGenerateReportCardResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generate report cards for every active enrolment in a classroom",
+        "tags": [
+          "ReportCards"
+        ]
+      }
+    },
+    "/rapors/{id}/publish": {
+      "patch": {
+        "operationId": "ReportCardController_publish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publish a reportCard",
+        "tags": [
+          "ReportCards"
+        ]
+      }
+    },
+    "/rapors/{id}/export": {
+      "get": {
+        "operationId": "ReportCardController_exportPdf",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export reportCard as PDF",
+        "tags": [
+          "ReportCards"
+        ]
+      }
+    },
+    "/dashboards/me": {
+      "get": {
+        "operationId": "MyDashboardController_findMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/MyDashboardResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Your own dashboard — as a student, an employee, or both",
+        "tags": [
+          "Dashboards"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Assessment Service API",
+    "description": "Assessment Service",
+    "version": "0.1.3",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "CreateAssessmentItemDto": {
+        "type": "object",
+        "properties": {
+          "teachingAssignmentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "type": {
+            "enum": [
+              "DAILY",
+              "MIDTERM",
+              "FINAL",
+              "ASSIGNMENT",
+              "PRACTICAL"
+            ],
+            "type": "string"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0,
+            "default": 1
+          },
+          "maxScore": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 100
+          }
+        },
+        "required": [
+          "teachingAssignmentId",
+          "name",
+          "type"
+        ]
+      },
+      "UpdateAssessmentItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "type": {
+            "enum": [
+              "DAILY",
+              "MIDTERM",
+              "FINAL",
+              "ASSIGNMENT",
+              "PRACTICAL"
+            ],
+            "type": "string"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0
+          },
+          "maxScore": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      },
+      "AssessmentWeightRecordDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "DAILY",
+              "MIDTERM",
+              "FINAL",
+              "ASSIGNMENT",
+              "PRACTICAL"
+            ],
+            "type": "string"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Percentage this type contributes to the subject score",
+            "example": 40
+          }
+        },
+        "required": [
+          "type",
+          "weight"
+        ]
+      },
+      "ReplaceAssessmentWeightsDto": {
+        "type": "object",
+        "properties": {
+          "teachingAssignmentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The class and subject these weights apply to"
+          },
+          "weights": {
+            "minItems": 1,
+            "maxItems": 5,
+            "description": "The complete set. Types left out contribute nothing. The listed weights must total 100.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssessmentWeightRecordDto"
+            }
+          }
+        },
+        "required": [
+          "teachingAssignmentId",
+          "weights"
+        ]
+      },
+      "CreateStudentScoreDto": {
+        "type": "object",
+        "properties": {
+          "enrollmentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "assessmentItemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enrollmentId",
+          "assessmentItemId"
+        ]
+      },
+      "BulkStudentScoreRecordDto": {
+        "type": "object",
+        "properties": {
+          "enrollmentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enrollmentId"
+        ]
+      },
+      "BulkUpsertStudentScoreDto": {
+        "type": "object",
+        "properties": {
+          "assessmentItemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "records": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkStudentScoreRecordDto"
+            }
+          }
+        },
+        "required": [
+          "assessmentItemId",
+          "records"
+        ]
+      },
+      "UpdateStudentScoreDto": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateAttendanceDto": {
+        "type": "object",
+        "properties": {
+          "enrollmentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PRESENT",
+              "SICK",
+              "EXCUSED",
+              "ABSENT",
+              "LATE"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enrollmentId",
+          "date",
+          "status"
+        ]
+      },
+      "BulkAttendanceRecordDto": {
+        "type": "object",
+        "properties": {
+          "enrollmentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "enum": [
+              "PRESENT",
+              "SICK",
+              "EXCUSED",
+              "ABSENT",
+              "LATE"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enrollmentId",
+          "status"
+        ]
+      },
+      "BulkUpsertAttendanceDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "scheduleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "records": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkAttendanceRecordDto"
+            }
+          }
+        },
+        "required": [
+          "date",
+          "records"
+        ]
+      },
+      "UpdateAttendanceDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "PRESENT",
+              "SICK",
+              "EXCUSED",
+              "ABSENT",
+              "LATE"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "EnrollmentIdsDto": {
+        "type": "object",
+        "properties": {
+          "enrollmentIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "enrollmentIds"
+        ]
+      },
+      "ReportCardAverageDto": {
+        "type": "object",
+        "properties": {
+          "enrollmentId": {
+            "type": "string"
+          },
+          "totalAverage": {
+            "type": "object",
+            "nullable": true,
+            "description": "null when the card exists but has no scored subjects yet"
+          }
+        },
+        "required": [
+          "enrollmentId",
+          "totalAverage"
+        ]
+      },
+      "ReportCardAveragesResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportCardAverageDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "GenerateReportCardDto": {
+        "type": "object",
+        "properties": {
+          "enrollmentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employeeNote": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "number",
+            "minimum": 1
+          },
+          "isPublished": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enrollmentId"
+        ]
+      },
+      "BulkGenerateReportCardDto": {
+        "type": "object",
+        "properties": {
+          "classroomId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Classroom whose active enrolments are graded"
+          },
+          "semesterId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Semester the report cards belong to"
+          }
+        },
+        "required": [
+          "classroomId",
+          "semesterId"
+        ]
+      },
+      "BulkGenerateReportCardResponseDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "description": "Active enrolments considered"
+          },
+          "generated": {
+            "type": "number",
+            "description": "Report cards generated or regenerated"
+          },
+          "skipped": {
+            "type": "number",
+            "description": "Enrolments left alone because their card is published"
+          },
+          "skippedEnrollmentIds": {
+            "description": "Enrolment ids whose card was left published and untouched",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "generated",
+          "skipped",
+          "skippedEnrollmentIds"
+        ]
+      },
+      "UpdateReportCardDto": {
+        "type": "object",
+        "properties": {
+          "employeeNote": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "number",
+            "minimum": 1
+          }
+        }
+      },
+      "DashboardSemesterResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "example": "Ganjil"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "DashboardTodayResponseDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2026-08-21"
+          },
+          "isWeeklyHoliday": {
+            "type": "boolean",
+            "example": false,
+            "description": "Whether today is one of the school's weekly holidays, so an empty timetable can say why it is empty."
+          }
+        },
+        "required": [
+          "date",
+          "isWeeklyHoliday"
+        ]
+      },
+      "DashboardClassroomResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "code": {
+            "type": "string",
+            "example": "VIII-A"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "example": "Kelas VIII A"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name"
+        ]
+      },
+      "DashboardLessonResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "startTime": {
+            "type": "string",
+            "example": "07:00",
+            "description": "Wall clock, HH:mm"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "08:20",
+            "description": "Wall clock, HH:mm"
+          },
+          "subjectName": {
+            "type": "string",
+            "example": "Matematika"
+          },
+          "classroomCode": {
+            "type": "string",
+            "nullable": true,
+            "example": "VIII-A",
+            "description": "The class being taught. Present on an employee’s row."
+          },
+          "employeeName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Siti Aminah",
+            "description": "Who takes the lesson. Present on a student’s row."
+          },
+          "room": {
+            "type": "string",
+            "nullable": true,
+            "example": "R-08"
+          }
+        },
+        "required": [
+          "id",
+          "startTime",
+          "endTime",
+          "subjectName",
+          "classroomCode",
+          "employeeName",
+          "room"
+        ]
+      },
+      "DashboardAttendanceRecapResponseDto": {
+        "type": "object",
+        "properties": {
+          "present": {
+            "type": "number",
+            "example": 120
+          },
+          "absent": {
+            "type": "number",
+            "example": 2
+          },
+          "late": {
+            "type": "number",
+            "example": 3
+          },
+          "excused": {
+            "type": "number",
+            "example": 1
+          },
+          "sick": {
+            "type": "number",
+            "example": 4
+          }
+        },
+        "required": [
+          "present",
+          "absent",
+          "late",
+          "excused",
+          "sick"
+        ]
+      },
+      "DashboardScoreResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440003"
+          },
+          "subjectName": {
+            "type": "string",
+            "example": "Matematika"
+          },
+          "assessmentName": {
+            "type": "string",
+            "example": "Ulangan Harian 2"
+          },
+          "score": {
+            "type": "number",
+            "nullable": true,
+            "example": 85
+          },
+          "maxScore": {
+            "type": "number",
+            "example": 100,
+            "description": "The maximum this assessment is marked out of. Sent because a score is meaningless without it: 40 out of 50 is not a failing 40."
+          }
+        },
+        "required": [
+          "id",
+          "subjectName",
+          "assessmentName",
+          "score",
+          "maxScore"
+        ]
+      },
+      "DashboardReportCardResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440004"
+          },
+          "semesterName": {
+            "type": "string",
+            "example": "Ganjil"
+          }
+        },
+        "required": [
+          "id",
+          "semesterName"
+        ]
+      },
+      "MyStudentDashboardResponseDto": {
+        "type": "object",
+        "properties": {
+          "classroom": {
+            "nullable": true,
+            "description": "Null between years, when no enrolment exists for the active semester.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DashboardClassroomResponseDto"
+              }
+            ]
+          },
+          "todayLessons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardLessonResponseDto"
+            }
+          },
+          "attendance": {
+            "$ref": "#/components/schemas/DashboardAttendanceRecapResponseDto"
+          },
+          "latestScores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardScoreResponseDto"
+            }
+          },
+          "latestReportCard": {
+            "nullable": true,
+            "description": "The most recent published report card. An unpublished one is a draft the school has not handed over, and is never returned here.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DashboardReportCardResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "classroom",
+          "todayLessons",
+          "attendance",
+          "latestScores",
+          "latestReportCard"
+        ]
+      },
+      "DashboardTeachingLoadResponseDto": {
+        "type": "object",
+        "properties": {
+          "classroomCount": {
+            "type": "number",
+            "example": 4,
+            "description": "Distinct classes taught"
+          },
+          "subjectCount": {
+            "type": "number",
+            "example": 2,
+            "description": "Distinct subjects taught"
+          }
+        },
+        "required": [
+          "classroomCount",
+          "subjectCount"
+        ]
+      },
+      "DashboardSupervisedClassroomResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "code": {
+            "type": "string",
+            "example": "VIII-A"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "example": "Kelas VIII A"
+          },
+          "studentCount": {
+            "type": "number",
+            "example": 32,
+            "description": "Students enrolled this semester"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "studentCount"
+        ]
+      },
+      "DashboardUngradedAssessmentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440005"
+          },
+          "name": {
+            "type": "string",
+            "example": "Ulangan Harian 2"
+          },
+          "subjectName": {
+            "type": "string",
+            "example": "Matematika"
+          },
+          "classroomCode": {
+            "type": "string",
+            "example": "VIII-A"
+          },
+          "gradedCount": {
+            "type": "number",
+            "example": 12,
+            "description": "Students marked so far"
+          },
+          "studentCount": {
+            "type": "number",
+            "example": 32,
+            "description": "Students enrolled in the class"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "subjectName",
+          "classroomCode",
+          "gradedCount",
+          "studentCount"
+        ]
+      },
+      "MyEmployeeDashboardResponseDto": {
+        "type": "object",
+        "properties": {
+          "todayLessons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardLessonResponseDto"
+            }
+          },
+          "load": {
+            "$ref": "#/components/schemas/DashboardTeachingLoadResponseDto"
+          },
+          "supervisedClassrooms": {
+            "description": "Classes this employee is wali kelas for. Usually empty.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardSupervisedClassroomResponseDto"
+            }
+          },
+          "ungradedAssessments": {
+            "description": "The first few outstanding assessments, for the panel.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardUngradedAssessmentResponseDto"
+            }
+          },
+          "ungradedTotal": {
+            "type": "number",
+            "example": 7,
+            "description": "How many assessments are outstanding in total, so a panel showing five is never read as five remaining."
+          }
+        },
+        "required": [
+          "todayLessons",
+          "load",
+          "supervisedClassrooms",
+          "ungradedAssessments",
+          "ungradedTotal"
+        ]
+      },
+      "MyDashboardResponseDto": {
+        "type": "object",
+        "properties": {
+          "semester": {
+            "nullable": true,
+            "description": "The active semester, or null between years.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DashboardSemesterResponseDto"
+              }
+            ]
+          },
+          "today": {
+            "$ref": "#/components/schemas/DashboardTodayResponseDto"
+          },
+          "student": {
+            "nullable": true,
+            "description": "Null when the caller has no student record.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MyStudentDashboardResponseDto"
+              }
+            ]
+          },
+          "employee": {
+            "nullable": true,
+            "description": "Null when the caller has no employee record.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MyEmployeeDashboardResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "semester",
+          "today"
+        ]
+      }
+    }
+  }
+}

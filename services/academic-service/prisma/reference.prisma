@@ -1,0 +1,26 @@
+model Occupation {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique @db.VarChar(100)
+  isActive  Boolean   @default(true) @map("is_active")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("occupations")
+}
+
+/// A parent's highest completed education, chosen on the student form and on
+/// the admission form.
+///
+/// Lives beside `Occupation` because it is the same kind of list, filled in on
+/// the same screen, by the same two services — student-service for a parent
+/// record and admission-service for an applicant's parents. It was declared in
+/// both of those and served by neither until 2026-09-09, so each would have
+/// created its own copy of the table on first migrate with nothing keeping the
+/// two in step.
+model Education {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique @db.VarChar(100)
+  isActive  Boolean   @default(true) @map("is_active")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("educations")
+}

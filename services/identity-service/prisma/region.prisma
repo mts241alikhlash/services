@@ -1,0 +1,34 @@
+/// An Indonesian administrative area, keyed on its Kemendagri code.
+///
+/// One flat table: the level is implied by the shape of the code, and the
+/// parent is the code with its last segment removed.
+///
+///   32              province
+///   32.04           regency or city
+///   32.04.01        district
+///   32.04.01.2001   village
+///
+/// Areas are renamed, split and merged almost every year, which is why a new
+/// Kepmendagri is issued that often. An address therefore stores both the code
+/// and the name it was filled in with: the name is what the form showed, the
+/// code is what still resolves after a rename.
+enum RegionLevel {
+  PROVINCE
+  REGENCY
+  DISTRICT
+  VILLAGE
+}
+
+model Region {
+  code       String      @id @db.VarChar(13)
+  name       String      @db.VarChar(100)
+  level      RegionLevel
+  parentCode String?     @map("parent_code") @db.VarChar(13)
+
+  parent   Region?  @relation("RegionTree", fields: [parentCode], references: [code])
+  children Region[] @relation("RegionTree")
+
+  @@index([parentCode])
+  @@index([level])
+  @@map("regions")
+}
