@@ -1,5 +1,11 @@
 # identity-service
 
+## 0.1.3
+
+### Patch Changes
+
+- 6962417: Republish service images. The previous images were deleted while recovering from an orphaned-package registry issue and never got rebuilt (an empty diff never re-triggers `publish-images`); this changeset forces a real one.
+
 ## 0.1.2
 
 ### Patch Changes
