@@ -3125,7 +3125,7 @@
   "info": {
     "title": "Presence Service API",
     "description": "Presence Service",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "contact": {}
   },
   "tags": [],
