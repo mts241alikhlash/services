@@ -1,0 +1,116 @@
+import { RequirePermissions } from '../../../../platform/access-control/permission/decorators/require-permissions.decorator.js'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common'
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger'
+import { JwtAuthGuard } from '../../../../platform/auth/index.js'
+import { PositionQueryDto } from './dto/request/position-query.dto.js'
+import {
+  PositionListResponseDto,
+  PositionResponseDto,
+} from './dto/response/position-response.dto.js'
+import { CreatePositionDto } from './dto/request/create-position.dto.js'
+import { UpdatePositionDto } from './dto/request/update-position.dto.js'
+import { CreatePositionUseCase } from '../../application/use-cases/create-position/create-position.use-case.js'
+import { DeletePositionUseCase } from '../../application/use-cases/delete-position/delete-position.use-case.js'
+import { GetPositionByIdUseCase } from '../../application/use-cases/get-position-by-id/get-position-by-id.use-case.js'
+import { GetPositionsUseCase } from '../../application/use-cases/get-positions/get-positions.use-case.js'
+import { UpdatePositionUseCase } from '../../application/use-cases/update-position/update-position.use-case.js'
+
+@ApiTags('Positions')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('positions')
+export class PositionController {
+  constructor(
+    private readonly getPositionsService: GetPositionsUseCase,
+    private readonly getPositionByIdService: GetPositionByIdUseCase,
+    private readonly createPositionService: CreatePositionUseCase,
+    private readonly updatePositionService: UpdatePositionUseCase,
+    private readonly deletePositionService: DeletePositionUseCase,
+  ) {}
+
+  @Get()
+  @RequirePermissions('positions.read')
+  @ApiOperation({ summary: 'List all positions (paginated, filterable)' })
+  @ApiResponse({ status: 200, type: PositionListResponseDto })
+  async findAll(@Query() query: PositionQueryDto) {
+    return this.getPositionsService.execute({
+      page: query.page,
+      limit: query.limit,
+      search: query.search,
+      categoryId: query.categoryId,
+      isActive: query.isActive,
+    })
+  }
+
+  @Get(':id')
+  @RequirePermissions('positions.read')
+  @ApiOperation({ summary: 'Get a position by ID' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 200, type: PositionResponseDto })
+  @ApiResponse({ status: 404, description: 'Position not found' })
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.getPositionByIdService.execute(id)
+  }
+
+  @Post()
+  @RequirePermissions('positions.create')
+  @ApiOperation({ summary: 'Create a new position' })
+  @ApiResponse({ status: 201, type: PositionResponseDto })
+  @ApiResponse({ status: 409, description: 'Duplicate position name' })
+  async create(@Body() dto: CreatePositionDto) {
+    return this.createPositionService.execute({
+      name: dto.name,
+      categoryId: dto.categoryId,
+      isActive: dto.isActive,
+    })
+  }
+
+  @Patch(':id')
+  @RequirePermissions('positions.update')
+  @ApiOperation({ summary: 'Update a position' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 200, type: PositionResponseDto })
+  @ApiResponse({ status: 404, description: 'Position not found' })
+  @ApiResponse({ status: 409, description: 'Duplicate position name' })
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdatePositionDto,
+  ) {
+    return this.updatePositionService.execute(id, {
+      name: dto.name,
+      categoryId: dto.categoryId,
+      isActive: dto.isActive,
+    })
+  }
+
+  @Delete(':id')
+  @RequirePermissions('positions.delete')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a position (only if not in use)' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 204, description: 'Position deleted' })
+  @ApiResponse({ status: 404, description: 'Position not found' })
+  @ApiResponse({ status: 409, description: 'Position still in use' })
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.deletePositionService.execute(id)
+  }
+}

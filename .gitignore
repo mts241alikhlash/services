@@ -1,0 +1,23 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+secrets/
+*.log
+*.tsbuildinfo
+.pnpm-store/
+.changeset/pre.json
+
+# AI tooling (local-only)
+.claude/
+.agents/
+.specify/
+skills-lock.json
+CLAUDE.md

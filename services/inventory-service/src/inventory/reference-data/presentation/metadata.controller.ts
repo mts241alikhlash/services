@@ -1,0 +1,27 @@
+import { Controller, Get, UseGuards } from '@nestjs/common'
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger'
+import { JwtAuthGuard } from '../../../platform/auth/index.js'
+import { RequirePermissions } from '../../../platform/access-control/permission/decorators/require-permissions.decorator.js'
+import { InventoryMetadataResponseDto } from '../dto/response/metadata-response.dto.js'
+import { GetMetadataUseCase } from '../use-cases/get-metadata.use-case.js'
+
+@ApiTags('Inventory Reference Data Metadata')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('inventory')
+export class MetadataController {
+  constructor(private readonly getMetadataUseCase: GetMetadataUseCase) {}
+
+  @Get('metadata')
+  @RequirePermissions('inventory-reference-data.read')
+  @ApiOperation({ summary: 'Get metadata for inventory dropdowns' })
+  @ApiResponse({ status: 200, type: InventoryMetadataResponseDto })
+  async getMetadata() {
+    return this.getMetadataUseCase.execute()
+  }
+}

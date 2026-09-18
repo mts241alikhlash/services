@@ -1,0 +1,32 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { EmploymentTypeResponseDto } from '../../../../../reference-data/employment-type/presentation/http/dto/response/employment-type-response.dto.js'
+import { ProfileResponseDto } from '../../../../../platform/profile/dto/response/profile-response.dto.js'
+import type { PaginationMeta } from '../../../../../shared/domain/interfaces/repository.interface.js'
+
+export class EmployeeResponseDto {
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440002' })
+  id!: string
+
+  @ApiPropertyOptional({ example: '198006152005011001' })
+  nip!: string | null
+
+  @ApiPropertyOptional({ example: '1234567890123456' })
+  nuptk!: string | null
+
+  @ApiProperty({ type: () => EmploymentTypeResponseDto })
+  employmentType!: EmploymentTypeResponseDto
+
+  @ApiProperty({ example: true })
+  isActive!: boolean
+
+  @ApiProperty({ type: () => ProfileResponseDto })
+  profile!: ProfileResponseDto
+}
+
+export class EmployeeListResponseDto {
+  @ApiProperty({ type: () => [EmployeeResponseDto] })
+  data!: EmployeeResponseDto[]
+
+  @ApiProperty({ example: { page: 1, limit: 10, total: 50, totalPages: 5 } })
+  meta!: PaginationMeta
+}

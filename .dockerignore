@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/dist-dev
+**/coverage
+**/.env
+**/.env.*
+!**/.env.example
+**/*.log
+.git
+.pnpm-store
+.changeset/pre.json
