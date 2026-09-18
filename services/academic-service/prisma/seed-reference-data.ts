@@ -1,7 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 import 'dotenv/config'
-import { pgSslOptions } from '../src/core/database/pg-ssl.js'
+import { pgSslOptions } from './pg-ssl.js'
 import { seedAcademicCalendarTypes } from './seeds/modules/academic-calendar-type.seed.js'
 import { seedEducations } from './seeds/modules/education.seed.js'
 import { seedOccupations } from './seeds/modules/occupation.seed.js'
