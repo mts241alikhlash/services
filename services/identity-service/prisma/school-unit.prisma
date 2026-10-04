@@ -1,0 +1,95 @@
+enum SchoolUnitStatus {
+  PRIVATE
+  PUBLIC
+}
+
+model SchoolUnitType {
+  id       String  @id @default(uuid()) @db.Uuid
+  code     String  @unique @db.VarChar(20)
+  name     String  @db.VarChar(100)
+  isActive Boolean @default(true) @map("is_active")
+
+  schoolUnits SchoolUnit[]
+
+  @@map("school_unit_types")
+}
+
+model SchoolUnit {
+  id        String           @id @default(uuid()) @db.Uuid
+  typeId    String?          @map("type_id") @db.Uuid
+  name      String           @db.VarChar(200)
+  surname   String           @db.VarChar(200)
+  nsm       String           @db.VarChar(20)
+  npsn      String           @unique @db.VarChar(20)
+  status    SchoolUnitStatus
+  npwp      String           @db.VarChar(30)
+  phone     String           @db.VarChar(15)
+  email     String           @db.VarChar(255)
+  website   String           @db.VarChar(255)
+  isActive  Boolean          @default(true) @map("is_active")
+  deletedAt DateTime?        @map("deleted_at")
+
+  type         SchoolUnitType?         @relation(fields: [typeId], references: [id])
+  socialMedias SchoolUnitSocialMedia[]
+  addresses    Address[]
+
+  @@map("school_units")
+}
+
+model SocialMedia {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @db.VarChar(50)
+  baseUrl   String    @default("") @map("base_url") @db.VarChar(255)
+  deletedAt DateTime? @map("deleted_at")
+
+  schoolUnitSocialMedias SchoolUnitSocialMedia[]
+
+  @@map("social_medias")
+}
+
+model SchoolUnitSocialMedia {
+  id            String    @id @default(uuid()) @db.Uuid
+  socialMediaId String    @map("social_media_id") @db.Uuid
+  schoolUnitId  String    @map("school_unit_id") @db.Uuid
+  username      String?   @db.VarChar(100)
+  deletedAt     DateTime? @map("deleted_at")
+
+  socialMedia SocialMedia @relation(fields: [socialMediaId], references: [id])
+  schoolUnit  SchoolUnit  @relation(fields: [schoolUnitId], references: [id])
+
+  @@map("school_unit_social_medias")
+}
+
+/// One address row, owned by exactly one of the two: a school unit, or a
+/// person. A person's address lives here because it describes the person, not
+/// their employment or enrolment — hr-service and student-service read it,
+/// they do not write it.
+model Address {
+  id           String  @id @default(uuid()) @db.Uuid
+  schoolUnitId String? @map("school_unit_id") @db.Uuid
+  profileId    String? @map("profile_id") @db.Uuid
+  street       String  @db.VarChar(255)
+  rt           String  @db.VarChar(5)
+  rw           String  @db.VarChar(5)
+  village      String  @db.VarChar(100)
+  district     String  @db.VarChar(100)
+  city         String  @db.VarChar(100)
+  province     String  @db.VarChar(100)
+  country      String  @default("Indonesia") @db.VarChar(100)
+  postalCode   String  @map("postal_code") @db.VarChar(10)
+
+  provinceCode String?   @map("province_code") @db.VarChar(13)
+  regencyCode  String?   @map("regency_code") @db.VarChar(13)
+  districtCode String?   @map("district_code") @db.VarChar(13)
+  villageCode  String?   @map("village_code") @db.VarChar(13)
+  isPrimary    Boolean   @default(false) @map("is_primary")
+  latitude     Float?
+  longitude    Float?
+  deletedAt    DateTime? @map("deleted_at")
+
+  schoolUnit SchoolUnit? @relation(fields: [schoolUnitId], references: [id])
+  profile    Profile?    @relation(fields: [profileId], references: [id])
+
+  @@index([profileId])
+  @@map("addresses")
+}

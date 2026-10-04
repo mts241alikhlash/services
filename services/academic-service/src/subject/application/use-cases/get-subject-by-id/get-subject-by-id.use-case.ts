@@ -1,0 +1,15 @@
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { ISubjectRepository } from '../../../domain/repositories/subject.repository.js'
+
+@Injectable()
+export class GetSubjectByIdUseCase {
+  constructor(private readonly subjectRepository: ISubjectRepository) {}
+
+  async execute(id: string) {
+    const subject = await this.subjectRepository.findById(id)
+    if (!subject) {
+      throw new NotFoundException(`Subject with ID ${id} not found`)
+    }
+    return subject
+  }
+}

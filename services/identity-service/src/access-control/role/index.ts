@@ -1,0 +1,6 @@
+export { RoleModule } from './role.module.js'
+export { IRoleRepository } from './domain/repositories/role.repository.js'
+export { CreateRoleDto } from './presentation/http/dto/request/create-role.dto.js'
+export { UpdateRoleDto } from './presentation/http/dto/request/update-role.dto.js'
+export { AssignRoleDto } from './presentation/http/dto/request/assign-role.dto.js'
+export { RoleResponseDto } from './presentation/http/dto/response/role-response.dto.js'

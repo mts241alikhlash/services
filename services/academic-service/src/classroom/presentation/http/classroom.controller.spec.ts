@@ -1,0 +1,112 @@
+import { Test, TestingModule } from '@nestjs/testing'
+import { CopyClassroomsToAcademicYearUseCase } from '../../application/use-cases/copy-classrooms-to-academic-year/copy-classrooms-to-academic-year.use-case.js'
+import { CreateClassroomUseCase } from '../../application/use-cases/create-classroom/create-classroom.use-case.js'
+import { DeleteClassroomUseCase } from '../../application/use-cases/delete-classroom/delete-classroom.use-case.js'
+import { GetClassroomByIdUseCase } from '../../application/use-cases/get-classroom-by-id/get-classroom-by-id.use-case.js'
+import { GetClassroomsUseCase } from '../../application/use-cases/get-classrooms/get-classrooms.use-case.js'
+import { UpdateClassroomUseCase } from '../../application/use-cases/update-classroom/update-classroom.use-case.js'
+import { ClassroomController } from './classroom.controller.js'
+
+describe('ClassroomController', () => {
+  let controller: ClassroomController
+
+  const mockGetClassesUC = { execute: jest.fn() }
+  const mockGetClassroomByIdUC = { execute: jest.fn() }
+  const mockCopyClassroomsUC = { execute: jest.fn() }
+  const mockCreateClassroomUC = { execute: jest.fn() }
+  const mockUpdateClassroomUC = { execute: jest.fn() }
+  const mockDeleteClassroomUC = { execute: jest.fn() }
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [ClassroomController],
+      providers: [
+        { provide: GetClassroomsUseCase, useValue: mockGetClassesUC },
+        { provide: GetClassroomByIdUseCase, useValue: mockGetClassroomByIdUC },
+        { provide: CreateClassroomUseCase, useValue: mockCreateClassroomUC },
+        {
+          provide: CopyClassroomsToAcademicYearUseCase,
+          useValue: mockCopyClassroomsUC,
+        },
+        { provide: UpdateClassroomUseCase, useValue: mockUpdateClassroomUC },
+        { provide: DeleteClassroomUseCase, useValue: mockDeleteClassroomUC },
+      ],
+    }).compile()
+
+    controller = module.get<ClassroomController>(ClassroomController)
+    jest.clearAllMocks()
+  })
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined()
+  })
+
+  describe('findAll', () => {
+    it('should delegate to GetClassroomsUseCase', async () => {
+      const query = { page: 1, limit: 10 }
+      const expected = {
+        data: [],
+        meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      }
+      mockGetClassesUC.execute.mockResolvedValue(expected)
+
+      const result = await controller.findAll(query)
+
+      expect(mockGetClassesUC.execute).toHaveBeenCalledWith(query)
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('findOne', () => {
+    it('should delegate to GetClassroomByIdUseCase', async () => {
+      mockGetClassroomByIdUC.execute.mockResolvedValue({ id: 'cls-1' })
+
+      const result = await controller.findOne('cls-1')
+
+      expect(mockGetClassroomByIdUC.execute).toHaveBeenCalledWith('cls-1')
+      expect(result).toEqual({ id: 'cls-1' })
+    })
+  })
+
+  describe('create', () => {
+    it('should delegate to CreateClassroomUseCase', async () => {
+      const dto = {
+        curriculumId: 'c',
+        academicYearId: 'a',
+        gradeId: 'lvl-7',
+        code: 'VII-A',
+        name: 'Awesome',
+        capacity: 30,
+      }
+      mockCreateClassroomUC.execute.mockResolvedValue({ id: 'new', ...dto })
+
+      await controller.create(dto)
+
+      expect(mockCreateClassroomUC.execute).toHaveBeenCalledWith(dto)
+    })
+  })
+
+  describe('update', () => {
+    it('should delegate to UpdateClassroomUseCase', async () => {
+      const dto = { name: 'B' }
+      mockUpdateClassroomUC.execute.mockResolvedValue({
+        id: 'cls-1',
+        name: 'B',
+      })
+
+      await controller.update('cls-1', dto)
+
+      expect(mockUpdateClassroomUC.execute).toHaveBeenCalledWith('cls-1', dto)
+    })
+  })
+
+  describe('remove', () => {
+    it('should delegate to DeleteClassroomUseCase', async () => {
+      mockDeleteClassroomUC.execute.mockResolvedValue(undefined)
+
+      await controller.remove('cls-1')
+
+      expect(mockDeleteClassroomUC.execute).toHaveBeenCalledWith('cls-1')
+    })
+  })
+})

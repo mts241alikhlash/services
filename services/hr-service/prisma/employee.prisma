@@ -1,0 +1,16 @@
+model Employee {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @unique @map("user_id") @db.Uuid
+  nip              String?   @db.VarChar(20)
+  nuptk            String?   @db.VarChar(20)
+  employmentTypeId String    @map("employment_type_id") @db.Uuid
+  deletedAt        DateTime? @map("deleted_at")
+
+  positions EmployeePosition[]
+
+  employmentType EmploymentType @relation(fields: [employmentTypeId], references: [id])
+
+  @@unique([nip], where: { deletedAt: null, nip: { not: null } })
+  @@unique([nuptk], where: { deletedAt: null, nuptk: { not: null } })
+  @@map("employees")
+}

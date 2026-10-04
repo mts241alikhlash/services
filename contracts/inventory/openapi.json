@@ -1,0 +1,6160 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "degraded"
+                          ],
+                          "example": "ok"
+                        },
+                        "info": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "error": {
+                          "type": "object",
+                          "example": {},
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "nullable": true
+                        },
+                        "details": {
+                          "type": "object",
+                          "example": {
+                            "database": {
+                              "status": "up",
+                              "responseTime": 12
+                            }
+                          },
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "status"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "up",
+                                  "degraded",
+                                  "down"
+                                ]
+                              },
+                              "responseTime": {
+                                "type": "number",
+                                "description": "Time the health indicator took to respond, in ms"
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "shutting_down"
+                      ],
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up",
+                          "responseTime": 12
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect",
+                          "responseTime": 3005
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "up",
+                              "degraded",
+                              "down"
+                            ]
+                          },
+                          "responseTime": {
+                            "type": "number",
+                            "description": "Time the health indicator took to respond, in ms"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness + readiness probe (DB, memory)",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/inventory/assets": {
+      "get": {
+        "operationId": "AssetController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "keyword",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "statusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "conditionId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fundingSourceId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryAssetListItemResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "page": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all inventory assets (paginated, filterable)",
+        "tags": [
+          "Inventory Assets"
+        ]
+      },
+      "post": {
+        "operationId": "AssetController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryAssetResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new asset (parent) with N numbered units (quantity)",
+        "tags": [
+          "Inventory Assets"
+        ]
+      }
+    },
+    "/inventory/assets/{id}": {
+      "get": {
+        "operationId": "AssetController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryAssetResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get asset by ID",
+        "tags": [
+          "Inventory Assets"
+        ]
+      },
+      "patch": {
+        "operationId": "AssetController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryAssetResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an existing asset",
+        "tags": [
+          "Inventory Assets"
+        ]
+      },
+      "delete": {
+        "operationId": "AssetController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete an asset",
+        "tags": [
+          "Inventory Assets"
+        ]
+      }
+    },
+    "/inventory/assets/{id}/units": {
+      "post": {
+        "operationId": "AssetController_addUnits",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUnitsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryAssetUnitResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add more physical units to an existing asset",
+        "tags": [
+          "Inventory Assets"
+        ]
+      }
+    },
+    "/inventory/asset-units": {
+      "get": {
+        "operationId": "AssetUnitController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "lendable",
+            "required": false,
+            "in": "query",
+            "description": "Only units whose status permits transactions — what a loan form needs. Units already reserved by a pending loan, or out on an approved one, hold a status that forbids transactions and are excluded by the same rule.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Matches unit number or asset name.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryAssetUnitListItemResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "page": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List asset units (paginated, searchable, lendable-only)",
+        "tags": [
+          "Inventory Asset Units"
+        ]
+      }
+    },
+    "/inventory/asset-units/{id}": {
+      "patch": {
+        "operationId": "AssetUnitController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUnitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryAssetUnitResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an asset unit (condition/status/location/custodian/etc.)",
+        "tags": [
+          "Inventory Asset Units"
+        ]
+      },
+      "delete": {
+        "operationId": "AssetUnitController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-delete an asset unit",
+        "tags": [
+          "Inventory Asset Units"
+        ]
+      }
+    },
+    "/inventory/categories": {
+      "get": {
+        "operationId": "CategoryController_getCategories",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryCategoryResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get category list",
+        "tags": [
+          "Inventory Categories"
+        ]
+      },
+      "post": {
+        "operationId": "CategoryController_createCategory",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryCategoryResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create category item",
+        "tags": [
+          "Inventory Categories"
+        ]
+      }
+    },
+    "/inventory/categories/{id}": {
+      "patch": {
+        "operationId": "CategoryController_updateCategory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryCategoryResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update category item",
+        "tags": [
+          "Inventory Categories"
+        ]
+      },
+      "delete": {
+        "operationId": "CategoryController_deleteCategory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete category item",
+        "tags": [
+          "Inventory Categories"
+        ]
+      }
+    },
+    "/inventory/conditions": {
+      "get": {
+        "operationId": "ConditionController_getConditions",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryConditionResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get condition list",
+        "tags": [
+          "Inventory Conditions"
+        ]
+      },
+      "post": {
+        "operationId": "ConditionController_createCondition",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConditionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryConditionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create condition item",
+        "tags": [
+          "Inventory Conditions"
+        ]
+      }
+    },
+    "/inventory/conditions/{id}": {
+      "patch": {
+        "operationId": "ConditionController_updateCondition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConditionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryConditionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update condition item",
+        "tags": [
+          "Inventory Conditions"
+        ]
+      },
+      "delete": {
+        "operationId": "ConditionController_deleteCondition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete condition item",
+        "tags": [
+          "Inventory Conditions"
+        ]
+      }
+    },
+    "/inventory/funding-sources": {
+      "get": {
+        "operationId": "FundingSourceController_getFundingSources",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryFundingSourceResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get funding source list",
+        "tags": [
+          "Inventory Funding Sources"
+        ]
+      },
+      "post": {
+        "operationId": "FundingSourceController_createFundingSource",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFundingSourceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryFundingSourceResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create funding source item",
+        "tags": [
+          "Inventory Funding Sources"
+        ]
+      }
+    },
+    "/inventory/funding-sources/{id}": {
+      "patch": {
+        "operationId": "FundingSourceController_updateFundingSource",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFundingSourceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryFundingSourceResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update funding source item",
+        "tags": [
+          "Inventory Funding Sources"
+        ]
+      },
+      "delete": {
+        "operationId": "FundingSourceController_deleteFundingSource",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete funding source item",
+        "tags": [
+          "Inventory Funding Sources"
+        ]
+      }
+    },
+    "/inventory/locations": {
+      "get": {
+        "operationId": "LocationController_getLocations",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryLocationResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get location list",
+        "tags": [
+          "Inventory Locations"
+        ]
+      },
+      "post": {
+        "operationId": "LocationController_createLocation",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLocationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryLocationResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create location item",
+        "tags": [
+          "Inventory Locations"
+        ]
+      }
+    },
+    "/inventory/locations/{id}": {
+      "patch": {
+        "operationId": "LocationController_updateLocation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLocationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryLocationResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update location item",
+        "tags": [
+          "Inventory Locations"
+        ]
+      },
+      "delete": {
+        "operationId": "LocationController_deleteLocation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete location item",
+        "tags": [
+          "Inventory Locations"
+        ]
+      }
+    },
+    "/inventory/statuses": {
+      "get": {
+        "operationId": "StatusController_getStatuses",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryStatusResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get status list",
+        "tags": [
+          "Inventory Statuses"
+        ]
+      },
+      "post": {
+        "operationId": "StatusController_createStatus",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryStatusResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create status item",
+        "tags": [
+          "Inventory Statuses"
+        ]
+      }
+    },
+    "/inventory/statuses/{id}": {
+      "patch": {
+        "operationId": "StatusController_updateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryStatusResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update status item",
+        "tags": [
+          "Inventory Statuses"
+        ]
+      },
+      "delete": {
+        "operationId": "StatusController_deleteStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete status item",
+        "tags": [
+          "Inventory Statuses"
+        ]
+      }
+    },
+    "/inventory/metadata": {
+      "get": {
+        "operationId": "MetadataController_getMetadata",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryMetadataResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get metadata for inventory dropdowns",
+        "tags": [
+          "Inventory Reference Data Metadata"
+        ]
+      }
+    },
+    "/inventory/loans": {
+      "get": {
+        "operationId": "LoanController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "keyword",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "statusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requesterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryLoanListItemResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "page": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all loan transactions",
+        "tags": [
+          "Inventory Loans"
+        ]
+      },
+      "post": {
+        "operationId": "LoanController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryLoanResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Request a new loan",
+        "tags": [
+          "Inventory Loans"
+        ]
+      }
+    },
+    "/inventory/loans/{id}": {
+      "get": {
+        "operationId": "LoanController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryLoanResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get loan transaction by ID",
+        "tags": [
+          "Inventory Loans"
+        ]
+      }
+    },
+    "/inventory/loans/{id}/return": {
+      "post": {
+        "operationId": "LoanController_returnLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnLoanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/InventoryLoanResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Return borrowed assets",
+        "tags": [
+          "Inventory Loans"
+        ]
+      }
+    },
+    "/inventory/histories": {
+      "get": {
+        "operationId": "HistoryController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "unitId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryHistoryResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "page": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all asset circulation history logs",
+        "tags": [
+          "Inventory Asset History"
+        ]
+      }
+    },
+    "/inventory/workflows/role-usage": {
+      "get": {
+        "operationId": "WorkflowController_roleUsage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RoleUsageResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Which roles approve steps of active workflows, for the role screen",
+        "tags": [
+          "Inventory Workflows"
+        ]
+      }
+    },
+    "/inventory/workflows": {
+      "get": {
+        "operationId": "WorkflowController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ApprovalWorkflowResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all workflow templates",
+        "tags": [
+          "Inventory Workflows"
+        ]
+      },
+      "post": {
+        "operationId": "WorkflowController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkflowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ApprovalWorkflowResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new workflow template",
+        "tags": [
+          "Inventory Workflows"
+        ]
+      }
+    },
+    "/inventory/workflows/{id}": {
+      "get": {
+        "operationId": "WorkflowController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ApprovalWorkflowResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get workflow template by ID",
+        "tags": [
+          "Inventory Workflows"
+        ]
+      }
+    },
+    "/inventory/approvals": {
+      "get": {
+        "operationId": "ApprovalController_findPending",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PendingApprovalResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get pending approvals assigned to the current user roles",
+        "tags": [
+          "Inventory Approvals"
+        ]
+      }
+    },
+    "/inventory/approvals/{id}/action": {
+      "post": {
+        "operationId": "ApprovalController_process",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ApprovalProcessResultResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve or reject a pending workflow step",
+        "tags": [
+          "Inventory Approvals"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Inventory Service API",
+    "description": "Inventory Service",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "InventoryAssetListItemResponseCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetListItemResponseFundingSourceDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetListItemResponseUnitsAssetCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetListItemResponseUnitsAssetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryAssetListItemResponseUnitsAssetCategoryDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "assetNumber",
+          "name",
+          "category"
+        ]
+      },
+      "InventoryAssetListItemResponseUnitsConditionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetListItemResponseUnitsStatusDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetListItemResponseUnitsLocationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetListItemResponseUnitsDto": {
+        "type": "object",
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/InventoryAssetListItemResponseUnitsAssetDto"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InventoryAssetListItemResponseUnitsConditionDto"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InventoryAssetListItemResponseUnitsStatusDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryAssetListItemResponseUnitsLocationDto"
+          },
+          "id": {
+            "type": "string"
+          },
+          "assetId": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentBookValue": {
+            "type": "number"
+          },
+          "conditionId": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "custodianId": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "assetId",
+          "unitNumber",
+          "currentBookValue",
+          "conditionId",
+          "statusId",
+          "locationId"
+        ]
+      },
+      "InventoryAssetListItemResponseCountDto": {
+        "type": "object",
+        "properties": {
+          "units": {
+            "type": "number"
+          }
+        }
+      },
+      "InventoryAssetListItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/InventoryAssetListItemResponseCategoryDto"
+          },
+          "fundingSource": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryAssetListItemResponseFundingSourceDto"
+              }
+            ]
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryAssetListItemResponseUnitsDto"
+            }
+          },
+          "_count": {
+            "$ref": "#/components/schemas/InventoryAssetListItemResponseCountDto"
+          },
+          "id": {
+            "type": "string"
+          },
+          "assetNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "fundingSourceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "model": {
+            "type": "string",
+            "nullable": true
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchasePrice": {
+            "type": "number"
+          },
+          "usefulLifeMonths": {
+            "type": "number",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "assetNumber",
+          "name",
+          "categoryId",
+          "purchaseDate",
+          "purchasePrice"
+        ]
+      },
+      "InventoryAssetListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryAssetListItemResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "InventoryAssetResponseCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetResponseFundingSourceDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetResponseUnitsAssetCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetResponseUnitsAssetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryAssetResponseUnitsAssetCategoryDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "assetNumber",
+          "name",
+          "category"
+        ]
+      },
+      "InventoryAssetResponseUnitsConditionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetResponseUnitsStatusDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetResponseUnitsLocationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetResponseUnitsDto": {
+        "type": "object",
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/InventoryAssetResponseUnitsAssetDto"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InventoryAssetResponseUnitsConditionDto"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InventoryAssetResponseUnitsStatusDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryAssetResponseUnitsLocationDto"
+          },
+          "id": {
+            "type": "string"
+          },
+          "assetId": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentBookValue": {
+            "type": "number"
+          },
+          "conditionId": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "custodianId": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "assetId",
+          "unitNumber",
+          "currentBookValue",
+          "conditionId",
+          "statusId",
+          "locationId"
+        ]
+      },
+      "InventoryAssetResponseCountDto": {
+        "type": "object",
+        "properties": {
+          "units": {
+            "type": "number"
+          }
+        }
+      },
+      "InventoryAssetResponseDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/InventoryAssetResponseCategoryDto"
+          },
+          "fundingSource": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryAssetResponseFundingSourceDto"
+              }
+            ]
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryAssetResponseUnitsDto"
+            }
+          },
+          "_count": {
+            "$ref": "#/components/schemas/InventoryAssetResponseCountDto"
+          },
+          "id": {
+            "type": "string"
+          },
+          "assetNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "fundingSourceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "model": {
+            "type": "string",
+            "nullable": true
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchasePrice": {
+            "type": "number"
+          },
+          "usefulLifeMonths": {
+            "type": "number",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "assetNumber",
+          "name",
+          "categoryId",
+          "purchaseDate",
+          "purchasePrice"
+        ]
+      },
+      "CreateAssetDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Asset name"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Number of physical units to create (each gets its own number)",
+            "default": 1
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Category UUID"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Brand name"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model or Type"
+          },
+          "barcode": {
+            "type": "string",
+            "description": "Barcode identifier"
+          },
+          "assetNumber": {
+            "type": "string",
+            "description": "Custom asset number"
+          },
+          "purchaseDate": {
+            "type": "string",
+            "description": "Purchase Date"
+          },
+          "purchasePrice": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Purchase Price"
+          },
+          "usefulLifeMonths": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Useful life in months"
+          },
+          "fundingSourceId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Funding Source UUID"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Location UUID"
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Status UUID"
+          },
+          "conditionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Condition UUID"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Extra notes"
+          }
+        },
+        "required": [
+          "name",
+          "categoryId",
+          "purchaseDate",
+          "purchasePrice",
+          "locationId",
+          "statusId",
+          "conditionId"
+        ]
+      },
+      "CreateUnitsDto": {
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Jumlah unit tambahan",
+            "default": 1
+          },
+          "conditionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Condition UUID (default unit baru)"
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Status UUID (default unit baru)"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Location UUID (default unit baru)"
+          }
+        },
+        "required": [
+          "conditionId",
+          "statusId",
+          "locationId"
+        ]
+      },
+      "InventoryAssetUnitResponseAssetCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetUnitResponseAssetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryAssetUnitResponseAssetCategoryDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "assetNumber",
+          "name",
+          "category"
+        ]
+      },
+      "InventoryAssetUnitResponseConditionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetUnitResponseStatusDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetUnitResponseLocationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetUnitResponseDto": {
+        "type": "object",
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/InventoryAssetUnitResponseAssetDto"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InventoryAssetUnitResponseConditionDto"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InventoryAssetUnitResponseStatusDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryAssetUnitResponseLocationDto"
+          },
+          "id": {
+            "type": "string"
+          },
+          "assetId": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentBookValue": {
+            "type": "number"
+          },
+          "conditionId": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "custodianId": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "assetId",
+          "unitNumber",
+          "currentBookValue",
+          "conditionId",
+          "statusId",
+          "locationId"
+        ]
+      },
+      "UpdateAssetDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Asset name"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Category UUID"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Brand name"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model or Type"
+          },
+          "assetNumber": {
+            "type": "string",
+            "description": "Batch/asset number"
+          },
+          "purchaseDate": {
+            "type": "string",
+            "description": "Purchase Date"
+          },
+          "purchasePrice": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Purchase Price (per unit)"
+          },
+          "usefulLifeMonths": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Useful life in months"
+          },
+          "fundingSourceId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Funding Source UUID"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Extra notes"
+          }
+        }
+      },
+      "InventoryAssetUnitListItemResponseAssetCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetUnitListItemResponseAssetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryAssetUnitListItemResponseAssetCategoryDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "assetNumber",
+          "name",
+          "category"
+        ]
+      },
+      "InventoryAssetUnitListItemResponseConditionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetUnitListItemResponseStatusDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetUnitListItemResponseLocationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "id",
+          "name"
+        ]
+      },
+      "InventoryAssetUnitListItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/InventoryAssetUnitListItemResponseAssetDto"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InventoryAssetUnitListItemResponseConditionDto"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InventoryAssetUnitListItemResponseStatusDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryAssetUnitListItemResponseLocationDto"
+          },
+          "id": {
+            "type": "string"
+          },
+          "assetId": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentBookValue": {
+            "type": "number"
+          },
+          "conditionId": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "custodianId": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "assetId",
+          "unitNumber",
+          "currentBookValue",
+          "conditionId",
+          "statusId",
+          "locationId"
+        ]
+      },
+      "InventoryAssetUnitListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryAssetUnitListItemResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "UpdateUnitDto": {
+        "type": "object",
+        "properties": {
+          "conditionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Condition UUID"
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Status UUID"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Location UUID"
+          },
+          "custodianId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Custodian user UUID"
+          },
+          "barcode": {
+            "type": "string",
+            "description": "Barcode / QR code"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Notes"
+          }
+        }
+      },
+      "InventoryCategoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "depreciationRatePercent": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "parentId",
+          "depreciationRatePercent",
+          "createdAt"
+        ]
+      },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "CAT-001"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Elektronik"
+          },
+          "depreciationRatePercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "example": 10
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "depreciationRatePercent"
+        ]
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "CAT-001"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Elektronik"
+          },
+          "depreciationRatePercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "example": 10
+          }
+        }
+      },
+      "InventoryConditionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isUsable": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "isUsable",
+          "createdAt"
+        ]
+      },
+      "CreateConditionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "COND-GOOD"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Baik"
+          },
+          "isUsable": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdateConditionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "COND-GOOD"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Baik"
+          },
+          "isUsable": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "InventoryFundingSourceResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "description",
+          "createdAt"
+        ]
+      },
+      "CreateFundingSourceDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "FUND-GOV"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "APBD"
+          },
+          "description": {
+            "type": "string",
+            "example": "Keterangan tambahan"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdateFundingSourceDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "FUND-GOV"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "APBD"
+          },
+          "description": {
+            "type": "string",
+            "example": "Keterangan tambahan"
+          }
+        }
+      },
+      "InventoryLocationResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "building": {
+            "type": "string",
+            "nullable": true
+          },
+          "room": {
+            "type": "string",
+            "nullable": true
+          },
+          "rack": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "building",
+          "room",
+          "rack",
+          "description",
+          "createdAt"
+        ]
+      },
+      "CreateLocationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "LOC-A"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gedung Rektorat"
+          },
+          "building": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gedung Utama"
+          },
+          "room": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ruang 301"
+          },
+          "rack": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Rak B"
+          },
+          "description": {
+            "type": "string",
+            "example": "Keterangan tambahan"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdateLocationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "LOC-A"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gedung Rektorat"
+          },
+          "building": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Gedung Utama"
+          },
+          "room": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ruang 301"
+          },
+          "rack": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Rak B"
+          },
+          "description": {
+            "type": "string",
+            "example": "Keterangan tambahan"
+          }
+        }
+      },
+      "InventoryStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "allowTransactions": {
+            "type": "boolean"
+          },
+          "systemKey": {
+            "nullable": true,
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "LOAN_PENDING",
+              "LOAN_APPROVED",
+              "LOAN_REJECTED",
+              "LOAN_RETURNED"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "allowTransactions",
+          "systemKey",
+          "createdAt"
+        ]
+      },
+      "CreateStatusDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "STATUS-ACTIVE"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Aktif"
+          },
+          "allowTransactions": {
+            "type": "boolean",
+            "example": true
+          },
+          "systemKey": {
+            "nullable": true,
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "LOAN_PENDING",
+              "LOAN_APPROVED",
+              "LOAN_REJECTED",
+              "LOAN_RETURNED"
+            ],
+            "type": "string",
+            "description": "Protected role of this status in the loan lifecycle (null = custom, no special role)."
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "UpdateStatusDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "STATUS-ACTIVE"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Aktif"
+          },
+          "allowTransactions": {
+            "type": "boolean",
+            "example": true
+          },
+          "systemKey": {
+            "nullable": true,
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "LOAN_PENDING",
+              "LOAN_APPROVED",
+              "LOAN_REJECTED",
+              "LOAN_RETURNED"
+            ],
+            "type": "string",
+            "description": "Protected role of this status in the loan lifecycle (null = custom, no special role)."
+          }
+        }
+      },
+      "InventoryMetadataResponseCategoriesDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "depreciationRatePercent": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "parentId",
+          "depreciationRatePercent",
+          "createdAt"
+        ]
+      },
+      "InventoryMetadataResponseLocationsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "building": {
+            "type": "string",
+            "nullable": true
+          },
+          "room": {
+            "type": "string",
+            "nullable": true
+          },
+          "rack": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "building",
+          "room",
+          "rack",
+          "description",
+          "createdAt"
+        ]
+      },
+      "InventoryMetadataResponseConditionsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isUsable": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "isUsable",
+          "createdAt"
+        ]
+      },
+      "InventoryMetadataResponseStatusesDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "allowTransactions": {
+            "type": "boolean"
+          },
+          "systemKey": {
+            "nullable": true,
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "LOAN_PENDING",
+              "LOAN_APPROVED",
+              "LOAN_REJECTED",
+              "LOAN_RETURNED"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "allowTransactions",
+          "systemKey",
+          "createdAt"
+        ]
+      },
+      "InventoryMetadataResponseFundingSourcesDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "description",
+          "createdAt"
+        ]
+      },
+      "InventoryMetadataResponseDto": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryMetadataResponseCategoriesDto"
+            }
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryMetadataResponseLocationsDto"
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryMetadataResponseConditionsDto"
+            }
+          },
+          "statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryMetadataResponseStatusesDto"
+            }
+          },
+          "fundingSources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryMetadataResponseFundingSourcesDto"
+            }
+          }
+        },
+        "required": [
+          "categories",
+          "locations",
+          "conditions",
+          "statuses",
+          "fundingSources"
+        ]
+      },
+      "InventoryLoanListItemResponseStatusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "systemKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "allowTransactions": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "allowTransactions"
+        ]
+      },
+      "InventoryLoanListItemResponseItemsUnitAssetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "model": {
+            "type": "string",
+            "nullable": true
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchasePrice": {
+            "type": "number"
+          },
+          "usefulLifeMonths": {
+            "type": "number"
+          },
+          "fundingSourceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "assetNumber",
+          "name",
+          "categoryId",
+          "purchaseDate",
+          "purchasePrice",
+          "usefulLifeMonths",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "InventoryLoanListItemResponseItemsUnitLocationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "building": {
+            "type": "string",
+            "nullable": true
+          },
+          "room": {
+            "type": "string",
+            "nullable": true
+          },
+          "rack": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "createdAt"
+        ]
+      },
+      "InventoryLoanListItemResponseItemsUnitStatusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "allowTransactions": {
+            "type": "boolean"
+          },
+          "systemKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "allowTransactions",
+          "createdAt"
+        ]
+      },
+      "InventoryLoanListItemResponseItemsUnitConditionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isUsable": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "isUsable",
+          "createdAt"
+        ]
+      },
+      "InventoryLoanListItemResponseItemsUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetId": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentBookValue": {
+            "type": "number"
+          },
+          "conditionId": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "custodianId": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/InventoryLoanListItemResponseItemsUnitAssetDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryLoanListItemResponseItemsUnitLocationDto"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InventoryLoanListItemResponseItemsUnitStatusDto"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InventoryLoanListItemResponseItemsUnitConditionDto"
+          }
+        },
+        "required": [
+          "id",
+          "assetId",
+          "unitNumber",
+          "currentBookValue",
+          "conditionId",
+          "statusId",
+          "locationId",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "InventoryLoanListItemResponseItemsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "loanId": {
+            "type": "string"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "returnedConditionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "$ref": "#/components/schemas/InventoryLoanListItemResponseItemsUnitDto"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "loanId",
+          "unitId"
+        ]
+      },
+      "InventoryLoanListItemResponseRequesterDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "identifier"
+        ]
+      },
+      "InventoryLoanListItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "loanNumber": {
+            "type": "string"
+          },
+          "requesterId": {
+            "type": "string"
+          },
+          "expectedReturnDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actualReturnDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "workflowInstanceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryLoanListItemResponseStatusDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryLoanListItemResponseItemsDto"
+            }
+          },
+          "requester": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryLoanListItemResponseRequesterDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "loanNumber",
+          "requesterId",
+          "expectedReturnDate",
+          "purpose",
+          "statusId"
+        ]
+      },
+      "InventoryLoanListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryLoanListItemResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "InventoryLoanResponseStatusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "systemKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "allowTransactions": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "allowTransactions"
+        ]
+      },
+      "InventoryLoanResponseItemsUnitAssetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "model": {
+            "type": "string",
+            "nullable": true
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchasePrice": {
+            "type": "number"
+          },
+          "usefulLifeMonths": {
+            "type": "number"
+          },
+          "fundingSourceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "assetNumber",
+          "name",
+          "categoryId",
+          "purchaseDate",
+          "purchasePrice",
+          "usefulLifeMonths",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "InventoryLoanResponseItemsUnitLocationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "building": {
+            "type": "string",
+            "nullable": true
+          },
+          "room": {
+            "type": "string",
+            "nullable": true
+          },
+          "rack": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "createdAt"
+        ]
+      },
+      "InventoryLoanResponseItemsUnitStatusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "allowTransactions": {
+            "type": "boolean"
+          },
+          "systemKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "allowTransactions",
+          "createdAt"
+        ]
+      },
+      "InventoryLoanResponseItemsUnitConditionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isUsable": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "isUsable",
+          "createdAt"
+        ]
+      },
+      "InventoryLoanResponseItemsUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetId": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentBookValue": {
+            "type": "number"
+          },
+          "conditionId": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "custodianId": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/InventoryLoanResponseItemsUnitAssetDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryLoanResponseItemsUnitLocationDto"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InventoryLoanResponseItemsUnitStatusDto"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InventoryLoanResponseItemsUnitConditionDto"
+          }
+        },
+        "required": [
+          "id",
+          "assetId",
+          "unitNumber",
+          "currentBookValue",
+          "conditionId",
+          "statusId",
+          "locationId",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "InventoryLoanResponseItemsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "loanId": {
+            "type": "string"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "returnedConditionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "$ref": "#/components/schemas/InventoryLoanResponseItemsUnitDto"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "loanId",
+          "unitId"
+        ]
+      },
+      "InventoryLoanResponseRequesterDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "identifier"
+        ]
+      },
+      "InventoryLoanResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "loanNumber": {
+            "type": "string"
+          },
+          "requesterId": {
+            "type": "string"
+          },
+          "expectedReturnDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actualReturnDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "workflowInstanceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryLoanResponseStatusDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryLoanResponseItemsDto"
+            }
+          },
+          "requester": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InventoryLoanResponseRequesterDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "loanNumber",
+          "requesterId",
+          "expectedReturnDate",
+          "purpose",
+          "statusId"
+        ]
+      },
+      "CreateLoanDto": {
+        "type": "object",
+        "properties": {
+          "expectedReturnDate": {
+            "type": "string",
+            "description": "Expected date of returning the assets"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Purpose of borrowing"
+          },
+          "unitIds": {
+            "description": "IDs of the asset units to borrow",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "expectedReturnDate",
+          "purpose",
+          "unitIds"
+        ]
+      },
+      "ReturnLoanItemDto": {
+        "type": "object",
+        "properties": {
+          "unitId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Asset unit ID being returned"
+          },
+          "returnedConditionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Condition ID of the asset when returned"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Notes on returning the asset"
+          }
+        },
+        "required": [
+          "unitId",
+          "returnedConditionId"
+        ]
+      },
+      "ReturnLoanDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReturnLoanItemDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "InventoryHistoryResponseUnitAssetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetNumber": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "model": {
+            "type": "string",
+            "nullable": true
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchasePrice": {
+            "type": "number"
+          },
+          "usefulLifeMonths": {
+            "type": "number"
+          },
+          "fundingSourceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "assetNumber",
+          "name",
+          "categoryId",
+          "purchaseDate",
+          "purchasePrice",
+          "usefulLifeMonths",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "InventoryHistoryResponseUnitLocationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "building": {
+            "type": "string",
+            "nullable": true
+          },
+          "room": {
+            "type": "string",
+            "nullable": true
+          },
+          "rack": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "createdAt"
+        ]
+      },
+      "InventoryHistoryResponseUnitStatusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "allowTransactions": {
+            "type": "boolean"
+          },
+          "systemKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "allowTransactions",
+          "createdAt"
+        ]
+      },
+      "InventoryHistoryResponseUnitConditionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isUsable": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "isUsable",
+          "createdAt"
+        ]
+      },
+      "InventoryHistoryResponseUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetId": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentBookValue": {
+            "type": "number"
+          },
+          "conditionId": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "custodianId": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/InventoryHistoryResponseUnitAssetDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryHistoryResponseUnitLocationDto"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InventoryHistoryResponseUnitStatusDto"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InventoryHistoryResponseUnitConditionDto"
+          }
+        },
+        "required": [
+          "id",
+          "assetId",
+          "unitNumber",
+          "currentBookValue",
+          "conditionId",
+          "statusId",
+          "locationId",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "InventoryHistoryResponseTransactionTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "direction",
+          "createdAt"
+        ]
+      },
+      "InventoryHistoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "transactionTypeId": {
+            "type": "string"
+          },
+          "previousConditionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "newConditionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "previousStatusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "newStatusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "previousLocationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "newLocationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "previousCustodianId": {
+            "type": "string",
+            "nullable": true
+          },
+          "newCustodianId": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "changedById": {
+            "type": "string"
+          },
+          "changedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "unit": {
+            "$ref": "#/components/schemas/InventoryHistoryResponseUnitDto"
+          },
+          "transactionType": {
+            "$ref": "#/components/schemas/InventoryHistoryResponseTransactionTypeDto"
+          },
+          "operationKey": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "unitId",
+          "transactionTypeId",
+          "changedById",
+          "changedAt"
+        ]
+      },
+      "InventoryHistoryListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryHistoryResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "RoleUsageResponseDto": {
+        "type": "object",
+        "properties": {
+          "roleCode": {
+            "type": "string",
+            "example": "PRINCIPAL"
+          },
+          "steps": {
+            "type": "number",
+            "description": "Active approval steps this role approves"
+          },
+          "workflows": {
+            "description": "Active workflows with such a step",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "roleCode",
+          "steps",
+          "workflows"
+        ]
+      },
+      "ApprovalWorkflowResponseStepsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "stepSequence": {
+            "type": "number"
+          },
+          "approverRoleCode": {
+            "type": "string"
+          },
+          "isMandatory": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "workflowId",
+          "stepSequence",
+          "approverRoleCode",
+          "isMandatory",
+          "createdAt"
+        ]
+      },
+      "ApprovalWorkflowResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "targetEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApprovalWorkflowResponseStepsDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "targetEntity",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateWorkflowStepDto": {
+        "type": "object",
+        "properties": {
+          "stepSequence": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Sequence number of the step (1-indexed)"
+          },
+          "approverRoleCode": {
+            "type": "string",
+            "description": "Role code authorized to approve this step (e.g. ADMIN, PRINCIPAL)"
+          },
+          "isMandatory": {
+            "type": "boolean",
+            "description": "False leaves this step to the previous approver, who decides per request whether it is also taken. A mandatory step is always taken.",
+            "default": true
+          }
+        },
+        "required": [
+          "stepSequence",
+          "approverRoleCode"
+        ]
+      },
+      "CreateWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the workflow"
+          },
+          "targetEntity": {
+            "type": "string",
+            "description": "Target entity class name"
+          },
+          "description": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateWorkflowStepDto"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "targetEntity",
+          "steps"
+        ]
+      },
+      "PendingApprovalResponseDetailsItemsUnitAssetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "PendingApprovalResponseDetailsItemsUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "asset": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PendingApprovalResponseDetailsItemsUnitAssetDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "unitNumber"
+        ]
+      },
+      "PendingApprovalResponseDetailsItemsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "unit": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PendingApprovalResponseDetailsItemsUnitDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "unitId"
+        ]
+      },
+      "PendingApprovalResponseDetailsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "loanNumber": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string",
+            "nullable": true
+          },
+          "expectedReturnDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingApprovalResponseDetailsItemsDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "loanNumber",
+          "items"
+        ]
+      },
+      "PendingApprovalResponseWorkflowStepsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "stepSequence": {
+            "type": "number"
+          },
+          "approverRoleCode": {
+            "type": "string"
+          },
+          "isMandatory": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "workflowId",
+          "stepSequence",
+          "approverRoleCode",
+          "isMandatory",
+          "createdAt"
+        ]
+      },
+      "PendingApprovalResponseWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "targetEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingApprovalResponseWorkflowStepsDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "targetEntity",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PendingApprovalResponseLogsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "instanceId": {
+            "type": "string"
+          },
+          "stepSequence": {
+            "type": "number"
+          },
+          "approverId": {
+            "type": "string"
+          },
+          "actionId": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "consequenceType": {
+            "enum": [
+              "NONE",
+              "FINAL_APPROVAL",
+              "REJECTION"
+            ],
+            "type": "string"
+          },
+          "consequenceStatus": {
+            "enum": [
+              "NOT_REQUIRED",
+              "PENDING",
+              "COMPLETED",
+              "FAILED"
+            ],
+            "type": "string"
+          },
+          "consequenceError": {
+            "type": "string",
+            "nullable": true
+          },
+          "consequenceUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "instanceId",
+          "stepSequence",
+          "approverId",
+          "actionId",
+          "createdAt",
+          "consequenceType",
+          "consequenceStatus",
+          "consequenceError",
+          "consequenceUpdatedAt"
+        ]
+      },
+      "PendingApprovalResponseDto": {
+        "type": "object",
+        "properties": {
+          "details": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PendingApprovalResponseDetailsDto"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "string"
+          },
+          "statusId": {
+            "type": "string"
+          },
+          "currentStepSequence": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "workflow": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PendingApprovalResponseWorkflowDto"
+              }
+            ]
+          },
+          "logs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingApprovalResponseLogsDto"
+            }
+          }
+        },
+        "required": [
+          "details",
+          "id",
+          "workflowId",
+          "referenceId",
+          "statusId",
+          "currentStepSequence",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ApproveActionDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "type": "string",
+            "description": "Action to perform: APPROVE or REJECT"
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional rejection or approval note"
+          },
+          "forwardToNextApprover": {
+            "type": "boolean",
+            "description": "Forward this loan to the next approver instead of finishing here. Only meaningful when the next step is optional — a mandatory one is always taken, and this cannot waive it. Ignored on a rejection."
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "ApprovalProcessResultResponseLogDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "instanceId": {
+            "type": "string"
+          },
+          "stepSequence": {
+            "type": "number"
+          },
+          "approverId": {
+            "type": "string"
+          },
+          "actionId": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "consequenceType": {
+            "enum": [
+              "NONE",
+              "FINAL_APPROVAL",
+              "REJECTION"
+            ],
+            "type": "string"
+          },
+          "consequenceStatus": {
+            "enum": [
+              "NOT_REQUIRED",
+              "PENDING",
+              "COMPLETED",
+              "FAILED"
+            ],
+            "type": "string"
+          },
+          "consequenceError": {
+            "type": "string",
+            "nullable": true
+          },
+          "consequenceUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "instanceId",
+          "stepSequence",
+          "approverId",
+          "actionId",
+          "createdAt",
+          "consequenceType",
+          "consequenceStatus",
+          "consequenceError",
+          "consequenceUpdatedAt"
+        ]
+      },
+      "ApprovalProcessResultResponseConsequenceDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "NONE",
+              "FINAL_APPROVAL",
+              "REJECTION"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "NOT_REQUIRED",
+              "PENDING",
+              "COMPLETED",
+              "FAILED"
+            ],
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "status"
+        ]
+      },
+      "ApprovalProcessResultResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "action": {
+            "enum": [
+              "REJECT",
+              "APPROVE_STEP",
+              "APPROVE_FINAL"
+            ],
+            "type": "string"
+          },
+          "nextStepSequence": {
+            "type": "number"
+          },
+          "log": {
+            "$ref": "#/components/schemas/ApprovalProcessResultResponseLogDto"
+          },
+          "consequence": {
+            "$ref": "#/components/schemas/ApprovalProcessResultResponseConsequenceDto"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "action",
+          "log",
+          "consequence",
+          "retryable"
+        ]
+      }
+    }
+  }
+}

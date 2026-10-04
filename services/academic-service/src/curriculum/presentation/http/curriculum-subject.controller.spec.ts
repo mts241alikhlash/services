@@ -1,0 +1,122 @@
+import { Test, TestingModule } from '@nestjs/testing'
+import { CreateCurriculumSubjectUseCase } from '../../application/use-cases/create-curriculum-subject/create-curriculum-subject.use-case.js'
+import { BulkCreateCurriculumSubjectsUseCase } from '../../application/use-cases/bulk-create-curriculum-subjects/bulk-create-curriculum-subjects.use-case.js'
+import { DeleteCurriculumSubjectUseCase } from '../../application/use-cases/delete-curriculum-subject/delete-curriculum-subject.use-case.js'
+import { GetCurriculumSubjectByIdUseCase } from '../../application/use-cases/get-curriculum-subject-by-id/get-curriculum-subject-by-id.use-case.js'
+import { GetCurriculumSubjectsUseCase } from '../../application/use-cases/get-curriculum-subjects/get-curriculum-subjects.use-case.js'
+import { UpdateCurriculumSubjectUseCase } from '../../application/use-cases/update-curriculum-subject/update-curriculum-subject.use-case.js'
+import { CurriculumSubjectController } from './curriculum-subject.controller.js'
+
+describe('CurriculumSubjectController', () => {
+  let controller: CurriculumSubjectController
+
+  const mockGetAll = { execute: jest.fn() }
+  const mockGetById = { execute: jest.fn() }
+  const mockCreate = { execute: jest.fn() }
+  const mockBulkCreate = { execute: jest.fn() }
+  const mockUpdate = { execute: jest.fn() }
+  const mockDelete = { execute: jest.fn() }
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [CurriculumSubjectController],
+      providers: [
+        { provide: GetCurriculumSubjectsUseCase, useValue: mockGetAll },
+        { provide: GetCurriculumSubjectByIdUseCase, useValue: mockGetById },
+        { provide: CreateCurriculumSubjectUseCase, useValue: mockCreate },
+        {
+          provide: BulkCreateCurriculumSubjectsUseCase,
+          useValue: mockBulkCreate,
+        },
+        { provide: UpdateCurriculumSubjectUseCase, useValue: mockUpdate },
+        { provide: DeleteCurriculumSubjectUseCase, useValue: mockDelete },
+      ],
+    }).compile()
+
+    controller = module.get<CurriculumSubjectController>(
+      CurriculumSubjectController,
+    )
+    jest.clearAllMocks()
+  })
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined()
+  })
+
+  describe('findAll', () => {
+    it('should delegate to GetCurriculumSubjectsUseCase', async () => {
+      const query = { page: 1, limit: 10 }
+      mockGetAll.execute.mockResolvedValue({ data: [], total: 0 })
+
+      await controller.findAll(query)
+
+      expect(mockGetAll.execute).toHaveBeenCalledWith(query)
+    })
+  })
+
+  describe('findOne', () => {
+    it('should delegate to GetCurriculumSubjectByIdUseCase', async () => {
+      mockGetById.execute.mockResolvedValue({ id: 'cs-1' })
+
+      const result = await controller.findOne('cs-1')
+
+      expect(mockGetById.execute).toHaveBeenCalledWith('cs-1')
+      expect(result).toEqual({ id: 'cs-1' })
+    })
+  })
+
+  describe('create', () => {
+    it('should delegate to CreateCurriculumSubjectUseCase', async () => {
+      const dto = {
+        curriculumId: 'c',
+        subjectId: 's',
+        hoursPerWeek: 4,
+      }
+      mockCreate.execute.mockResolvedValue({ id: 'new', ...dto })
+
+      await controller.create(dto)
+
+      expect(mockCreate.execute).toHaveBeenCalledWith(dto)
+    })
+  })
+
+  describe('bulkCreate', () => {
+    it('should delegate to BulkCreateCurriculumSubjectsUseCase', async () => {
+      const dto = {
+        items: [
+          { curriculumId: 'c-1', subjectId: 's-1' },
+          { curriculumId: 'c-1', subjectId: 's-2' },
+        ],
+      }
+      const result = { created: 2, skipped: 0 }
+      mockBulkCreate.execute.mockResolvedValue(result)
+
+      const response = await controller.bulkCreate(dto)
+
+      expect(mockBulkCreate.execute).toHaveBeenCalledWith(dto)
+      expect(response).toEqual(result)
+    })
+  })
+
+  describe('update', () => {
+    it('should delegate to UpdateCurriculumSubjectUseCase', async () => {
+      mockUpdate.execute.mockResolvedValue({ id: 'cs-1' })
+
+      await controller.update('cs-1', { hoursPerWeek: 6 })
+
+      expect(mockUpdate.execute).toHaveBeenCalledWith('cs-1', {
+        hoursPerWeek: 6,
+      })
+    })
+  })
+
+  describe('remove', () => {
+    it('should delegate to DeleteCurriculumSubjectUseCase', async () => {
+      mockDelete.execute.mockResolvedValue(undefined)
+
+      await controller.remove('cs-1')
+
+      expect(mockDelete.execute).toHaveBeenCalledWith('cs-1')
+    })
+  })
+})

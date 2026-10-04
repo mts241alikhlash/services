@@ -1,0 +1,68 @@
+enum UserGender {
+  MALE
+  FEMALE
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+model Profile {
+  id            String         @id @default(uuid()) @db.Uuid
+  userId        String         @unique @map("user_id") @db.Uuid
+  name          String         @db.VarChar(100)
+  nik           String         @unique @db.VarChar(16)
+  gender        UserGender
+  birthPlace    String         @map("birth_place") @db.VarChar(100)
+  birthDate     DateTime       @map("birth_date") @db.Date
+  email         String?        @unique @db.VarChar(255)
+  phone         String?        @unique @db.VarChar(15)
+  maritalStatus MaritalStatus? @map("marital_status")
+  noKk          String?        @map("no_kk") @db.VarChar(16)
+  npwp          String?        @db.VarChar(20)
+
+  religionId  String? @map("religion_id") @db.Uuid
+  bloodTypeId String? @map("blood_type_id") @db.Uuid
+
+  religion  Religion?  @relation(fields: [religionId], references: [id])
+  bloodType BloodType? @relation(fields: [bloodTypeId], references: [id])
+
+  avatarFileId String? @map("avatar_file_id") @db.Uuid
+  avatarFile   File?   @relation("ProfileAvatar", fields: [avatarFileId], references: [id])
+
+  user      User      @relation(fields: [userId], references: [id])
+  addresses Address[]
+
+  @@map("profiles")
+}
+
+/// The religions the school records, for the profile form's dropdown.
+///
+/// Served publicly at `GET /religions` and by id at `POST /religions/by-ids`:
+/// admission-service records a religion on an applicant who has no profile
+/// yet, so it needs the same list before there is a `Profile` to hang it on.
+model Religion {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique @db.VarChar(50)
+  isActive  Boolean   @default(true) @map("is_active")
+  deletedAt DateTime? @map("deleted_at")
+
+  profiles Profile[]
+
+  @@map("religions")
+}
+
+/// A, B, AB, O, with rhesus where the school records it.
+model BloodType {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique @db.VarChar(10)
+  isActive  Boolean   @default(true) @map("is_active")
+  deletedAt DateTime? @map("deleted_at")
+
+  profiles Profile[]
+
+  @@map("blood_types")
+}

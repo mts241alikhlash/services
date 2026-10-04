@@ -1,0 +1,5 @@
+export { IStudentRepository } from './domain/repositories/student.repository.js'
+export { IStudentParentRepository } from './domain/repositories/student-parent.repository.js'
+export { IStudentIdentityReadPort } from './domain/repositories/student-identity-read.port.js'
+export { StudentResponseDto } from './presentation/http/dto/response/student-response.dto.js'
+export { StudentModule } from './student.module.js'
