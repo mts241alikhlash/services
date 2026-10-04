@@ -40,6 +40,16 @@ jobs:
         shell: bash
         run: |
           services="$(node .github/scripts/affected-services.mjs '${{ github.event.before }}' --release-json --json)"
+          fresh=()
+          for service in $(jq -r '.[]' <<< "$services"); do
+            version="$(node -p "require('./services/$service/package.json').version")"
+            if git rev-parse -q --verify "refs/tags/$service@$version" > /dev/null; then
+              echo "$service@$version is already released" >> "$GITHUB_STEP_SUMMARY"
+            else
+              fresh+=("\"$service\"")
+            fi
+          done
+          services="[$(IFS=,; echo "${fresh[*]}")]"
           echo "services=$services" >> "$GITHUB_OUTPUT"
 
   version:
