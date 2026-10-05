@@ -119,6 +119,11 @@ export interface AdmissionStatusCount {
   count: number
 }
 
+export interface AdmissionStatsFilter {
+  waveId?: string
+  academicYearId?: string
+}
+
 export interface ApplicationWithDocsAndPayment
   extends AdmissionApplicationEntity, AdmissionApplicationFormFields {
   documents?: AdmissionDocumentRow[]

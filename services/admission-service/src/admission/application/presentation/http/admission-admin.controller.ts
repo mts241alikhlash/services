@@ -39,6 +39,7 @@ import { VerifyDocumentDto } from '../../../document/presentation/http/dto/reque
 import { VerifyPaymentUseCase } from '../../../payment/index.js'
 import { VerifyPaymentDto } from '../../../payment/presentation/http/dto/request/verify-payment.dto.js'
 import { AdmissionApplicationQueryDto } from './dto/request/admission-query.dto.js'
+import { AdmissionStatsQueryDto } from './dto/request/admission-stats-query.dto.js'
 import { AcceptApplicationUseCase } from '../../application/use-cases/accept-application/accept-application.use-case.js'
 import { EnrollApplicantUseCase } from '../../application/use-cases/enroll-applicant/enroll-applicant.use-case.js'
 import { GetAdmissionStatsUseCase } from '../../application/use-cases/get-admission-stats/get-admission-stats.use-case.js'
@@ -71,10 +72,10 @@ export class AdmissionAdminController {
   @RequirePermissions('admissions.read')
   @ApiOperation({ summary: 'Admission statistics per status and wave' })
   async getStats(
-    @Query('waveId') waveId?: string,
+    @Query() query: AdmissionStatsQueryDto,
   ): Promise<AdmissionStatsResponseDto> {
     return AdmissionStatsResponseDto.fromDomain(
-      await this.getStatsService.execute(waveId),
+      await this.getStatsService.execute(query),
     )
   }
 

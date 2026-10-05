@@ -3860,6 +3860,7 @@ export interface operations {
     AdmissionAdminController_getStats: {
         parameters: {
             query?: {
+                academicYearId?: string;
                 waveId?: string;
             };
             header?: never;

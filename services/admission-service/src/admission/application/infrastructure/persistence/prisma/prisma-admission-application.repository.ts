@@ -26,6 +26,7 @@ import {
 import {
   AcceptAdmissionApplicationInput,
   AdmissionApplicationQueryInput,
+  AdmissionStatsFilter,
   AdmissionStatusCount,
   AdmissionWaveAcceptedCount,
   ApplicationWithDocsAndPayment,
@@ -175,20 +176,32 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
     })
   }
 
-  async getStatusCounts(waveId?: string): Promise<AdmissionStatusCount[]> {
+  async getStatusCounts({
+    waveId,
+    academicYearId,
+  }: AdmissionStatsFilter): Promise<AdmissionStatusCount[]> {
     const grouped = await this.prisma.admissionApplication.groupBy({
       by: ['status'],
-      where: { deletedAt: null, ...(waveId && { waveId }) },
+      where: {
+        deletedAt: null,
+        ...(waveId && { waveId }),
+        ...(academicYearId && { wave: { academicYearId } }),
+      },
       _count: { _all: true },
     })
     return grouped.map((g) => ({ status: g.status, count: g._count._all }))
   }
 
-  async getWavesWithAcceptedCount(
-    waveId?: string,
-  ): Promise<AdmissionWaveAcceptedCount[]> {
+  async getWavesWithAcceptedCount({
+    waveId,
+    academicYearId,
+  }: AdmissionStatsFilter): Promise<AdmissionWaveAcceptedCount[]> {
     const waves = await this.prisma.admissionWave.findMany({
-      where: { deletedAt: null, ...(waveId && { id: waveId }) },
+      where: {
+        deletedAt: null,
+        ...(waveId && { id: waveId }),
+        ...(academicYearId && { academicYearId }),
+      },
       include: {
         _count: {
           select: {
