@@ -2,6 +2,7 @@ import type { AdmissionWaveAcceptedCount } from '../../../wave/index.js'
 import type {
   AdmissionApplicationEntity,
   AdmissionApplicationListRow,
+  AdmissionStatsFilter,
   AdmissionStatusCount,
   ApplicationWithDocsAndPayment,
   ApplicationWithParentsAndUser,
@@ -16,6 +17,7 @@ import type { AdmissionStatus } from '../../../../shared/domain/enums/admission-
 import type { AdmissionDocumentTypeRow } from '../../../document/index.js'
 
 export type {
+  AdmissionStatsFilter,
   AdmissionStatusCount,
   AdmissionWaveAcceptedCount,
   ApplicationWithDocsAndPayment,
@@ -117,9 +119,11 @@ export abstract class IAdmissionApplicationRepository {
     id: string,
     enrolledStudentId: string,
   ): Promise<ApplicationWithDocsAndPayment>
-  abstract getStatusCounts(waveId?: string): Promise<AdmissionStatusCount[]>
+  abstract getStatusCounts(
+    filter: AdmissionStatsFilter,
+  ): Promise<AdmissionStatusCount[]>
   abstract getWavesWithAcceptedCount(
-    waveId?: string,
+    filter: AdmissionStatsFilter,
   ): Promise<AdmissionWaveAcceptedCount[]>
   abstract findAdminDetailById(
     id: string,

@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common'
-import { IAdmissionApplicationRepository } from '../../../domain/repositories/admission-application-repository.js'
+import {
+  IAdmissionApplicationRepository,
+  type AdmissionStatsFilter,
+} from '../../../domain/repositories/admission-application-repository.js'
 
 @Injectable()
 export class GetAdmissionStatsUseCase {
@@ -7,10 +10,10 @@ export class GetAdmissionStatsUseCase {
     private readonly admissionApplicationRepository: IAdmissionApplicationRepository,
   ) {}
 
-  async execute(waveId?: string) {
+  async execute(filter: AdmissionStatsFilter = {}) {
     const [statusCounts, waves] = await Promise.all([
-      this.admissionApplicationRepository.getStatusCounts(waveId),
-      this.admissionApplicationRepository.getWavesWithAcceptedCount(waveId),
+      this.admissionApplicationRepository.getStatusCounts(filter),
+      this.admissionApplicationRepository.getWavesWithAcceptedCount(filter),
     ])
 
     const byStatus = Object.fromEntries(

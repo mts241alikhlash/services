@@ -772,6 +772,16 @@
             "required": false,
             "in": "query",
             "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
               "type": "string"
             }
           }
