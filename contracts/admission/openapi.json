@@ -2612,7 +2612,7 @@
   "info": {
     "title": "Admission Service API",
     "description": "Admission Service",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "contact": {}
   },
   "tags": [],
