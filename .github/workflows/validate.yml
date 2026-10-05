@@ -55,6 +55,7 @@ jobs:
           node-version: 24.21.0
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm dedupe --check
       - name: Require Changeset for release work
         if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         run: node .github/scripts/require-changeset.mjs '${{ github.event.pull_request.base.sha }}' services
