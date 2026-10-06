@@ -89,7 +89,9 @@ describe('SaveDocumentTypeUseCase', () => {
     const repo = repository()
     repo.nameTaken.mockResolvedValue(true)
     await expect(
-      new SaveDocumentTypeUseCase(repo as never).update('t1', { name: 'Photo' }),
+      new SaveDocumentTypeUseCase(repo as never).update('t1', {
+        name: 'Photo',
+      }),
     ).rejects.toThrow(ConflictException)
     expect(repo.update).not.toHaveBeenCalled()
   })
@@ -97,7 +99,9 @@ describe('SaveDocumentTypeUseCase', () => {
   it('answers 404 for an unknown type', async () => {
     const repo = repository(null)
     await expect(
-      new SaveDocumentTypeUseCase(repo as never).update('x', { isActive: false }),
+      new SaveDocumentTypeUseCase(repo as never).update('x', {
+        isActive: false,
+      }),
     ).rejects.toThrow(new NotFoundException('Jenis berkas tidak ditemukan'))
   })
 })
@@ -108,9 +112,9 @@ describe('ReorderDocumentTypesUseCase', () => {
   it('rewrites the order and returns the list', async () => {
     const repo = repository()
     repo.findAll.mockResolvedValue([type, t2])
-    const result = await new ReorderDocumentTypesUseCase(
-      repo as never,
-    ).execute(['t2', 't1'])
+    const result = await new ReorderDocumentTypesUseCase(repo as never).execute(
+      ['t2', 't1'],
+    )
     expect(repo.reorder).toHaveBeenCalledWith(['t2', 't1'])
     expect(result).toEqual([type, t2])
   })

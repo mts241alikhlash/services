@@ -13,7 +13,9 @@ export class DeleteDocumentTypeUseCase {
     const type = await this.repository.findById(id)
     if (!type) throw new NotFoundException('Jenis berkas tidak ditemukan')
     if (type.documentCount > 0) {
-      throw new ConflictException('Jenis berkas sudah dipakai, nonaktifkan saja')
+      throw new ConflictException(
+        'Jenis berkas sudah dipakai, nonaktifkan saja',
+      )
     }
     await this.repository.delete(id)
   }

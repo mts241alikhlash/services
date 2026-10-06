@@ -6,7 +6,9 @@ describe('documentTypeCode', () => {
       'SURAT_KETERANGAN_SEHAT',
     )
     expect(documentTypeCode('Pas Foto 3×4', new Set())).toBe('PAS_FOTO_3_4')
-    expect(documentTypeCode('Rapor Kelas 5–6', new Set())).toBe('RAPOR_KELAS_5_6')
+    expect(documentTypeCode('Rapor Kelas 5–6', new Set())).toBe(
+      'RAPOR_KELAS_5_6',
+    )
     expect(documentTypeCode('Ijazah/SKL (SD)', new Set())).toBe('IJAZAH_SKL_SD')
   })
 
@@ -30,7 +32,10 @@ describe('documentTypeCode', () => {
     )
     const long = 'SURAT_KETERANGAN_TIDAK_MAMPU_D'
     expect(
-      documentTypeCode('Surat Keterangan Tidak Mampu dari Kelurahan', new Set([long])),
+      documentTypeCode(
+        'Surat Keterangan Tidak Mampu dari Kelurahan',
+        new Set([long]),
+      ),
     ).toBe('SURAT_KETERANGAN_TIDAK_MAMPU_2')
   })
 })
