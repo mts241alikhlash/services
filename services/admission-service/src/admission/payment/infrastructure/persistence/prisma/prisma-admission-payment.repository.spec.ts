@@ -4,7 +4,7 @@ import type { PrismaService } from '../../../../../core/database/prisma.service.
 function makeTx(options: {
   quota: number
   filled: number
-  candidates?: Array<Record<string, unknown>>
+  candidates?: Record<string, unknown>[]
 }) {
   const calls: string[] = []
   const tx = {
