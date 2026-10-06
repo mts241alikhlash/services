@@ -33,23 +33,55 @@ export class VerifyPaymentUseCase {
       throw new ConflictException('Payment proof has not been uploaded')
     }
 
-    const updated = await this.payments.updatePaymentStatus(payment.id, {
-      status: input.status,
+    if (input.status !== AdmissionPaymentStatus.VERIFIED) {
+      const rejected = await this.payments.updatePaymentStatus(payment.id, {
+        status: input.status,
+        note: input.note ?? null,
+        adminId: input.adminId,
+      })
+      await this.notifications.notify(
+        input.applicationId,
+        'PAYMENT',
+        'Bukti pembayaran perlu diunggah ulang',
+        `Bukti pembayaran Anda belum dapat kami terima. Catatan panitia: ${input.note}. Silakan unggah ulang bukti transfer yang sesuai.`,
+      )
+      return serializePayment(rejected)
+    }
+
+    const result = await this.payments.verifyWithinQuota({
+      applicationId: input.applicationId,
+      paymentId: payment.id,
       note: input.note ?? null,
       adminId: input.adminId,
     })
+    if (result.outcome === 'FULL') {
+      throw new ConflictException('Gelombang penuh')
+    }
 
     await this.notifications.notify(
       input.applicationId,
       'PAYMENT',
-      input.status === AdmissionPaymentStatus.VERIFIED
-        ? 'Pembayaran terverifikasi'
-        : 'Bukti pembayaran perlu diunggah ulang',
-      input.status === AdmissionPaymentStatus.VERIFIED
-        ? 'Pembayaran biaya pendaftaran Anda telah diverifikasi panitia.'
-        : `Bukti pembayaran Anda belum dapat kami terima. Catatan panitia: ${input.note}. Silakan unggah ulang bukti transfer yang sesuai.`,
+      'Pembayaran terverifikasi',
+      'Pembayaran biaya pendaftaran Anda telah diverifikasi panitia.',
     )
 
-    return serializePayment(updated)
+    const target = result.targetWave
+    if (target) {
+      const fee = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+      }).format(target.registrationFee)
+      for (const applicationId of result.movedApplicationIds) {
+        await this.notifications.notify(
+          applicationId,
+          'GENERAL',
+          `Anda dipindahkan ke ${target.name}`,
+          `Kuota gelombang sebelumnya sudah penuh, sehingga pendaftaran Anda dipindahkan ke ${target.name}. Biaya pendaftaran menjadi ${fee}. Bila bukti transfer Anda tidak sesuai, panitia akan meminta Anda mengunggah ulang.`,
+        )
+      }
+    }
+
+    return serializePayment(result.payment)
   }
 }
