@@ -190,6 +190,31 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
   },
 
   {
+    module: 'admission-document-types',
+    action: 'create',
+    code: 'admission-document-types.create',
+    description: 'Add the document types applicants upload',
+  },
+  {
+    module: 'admission-document-types',
+    action: 'delete',
+    code: 'admission-document-types.delete',
+    description: 'Delete the document types applicants upload',
+  },
+  {
+    module: 'admission-document-types',
+    action: 'read',
+    code: 'admission-document-types.read',
+    description: 'Read the document types applicants upload',
+  },
+  {
+    module: 'admission-document-types',
+    action: 'update',
+    code: 'admission-document-types.update',
+    description: 'Update and reorder the document types applicants upload',
+  },
+
+  {
     module: 'admission-waves',
     action: 'create',
     code: 'admission-waves.create',

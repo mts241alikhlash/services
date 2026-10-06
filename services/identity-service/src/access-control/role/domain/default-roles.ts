@@ -285,6 +285,7 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         'admissions.enroll',
         'admission-waves.read',
         'admission-bank-accounts.read',
+        'admission-document-types.read',
       ],
     },
     { modules: ['admission-announcements'] },

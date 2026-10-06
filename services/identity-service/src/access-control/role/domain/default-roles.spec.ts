@@ -90,4 +90,18 @@ describe('default roles', () => {
       'TEACHER',
     ])
   })
+
+  it('lets admission staff read document types and admins manage them', () => {
+    expect(codesOf('STUDENT_AFFAIRS_STAFF')).toContain(
+      'admission-document-types.read',
+    )
+    expect(codesOf('STUDENT_AFFAIRS_STAFF')).not.toContain(
+      'admission-document-types.delete',
+    )
+    for (const action of ['read', 'create', 'update', 'delete']) {
+      expect(codesOf('ADMISSION_ADMIN')).toContain(
+        `admission-document-types.${action}`,
+      )
+    }
+  })
 })
