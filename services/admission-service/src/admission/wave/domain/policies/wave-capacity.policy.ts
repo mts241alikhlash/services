@@ -33,7 +33,6 @@ export function pickTargetWave<T extends TargetCandidate>(
           candidate.startDate.getTime() > source.startDate.getTime() &&
           !isWaveFull(candidate),
       )
-      .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())[0] ??
-    null
+      .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())[0] ?? null
   )
 }

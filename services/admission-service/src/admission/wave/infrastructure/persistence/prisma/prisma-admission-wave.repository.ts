@@ -7,6 +7,7 @@ import { PrismaService } from '../../../../../core/database/prisma.service.js'
 import { PaginatedResult } from '../../../../../shared/domain/interfaces/repository.interface.js'
 import { AcademicYearRef } from '../../../../../shared/domain/entities/reference.entity.js'
 import { admissionToday } from '../../../domain/policies/admission-calendar.js'
+import { withFilledCount } from './wave-capacity.queries.js'
 import { IReferenceLookupPort } from '../../../../../platform/reference-lookup/reference-lookup.port.js'
 import {
   AdmissionWaveQueryInput,
@@ -83,7 +84,9 @@ export class PrismaAdmissionWaveRepository extends IAdmissionWaveRepository {
     ])
 
     return {
-      data: await this.attachAcademicYears(data),
+      data: await this.attachAcademicYears(
+        await withFilledCount(this.prisma, data),
+      ),
       total,
       page,
       limit,
@@ -96,7 +99,9 @@ export class PrismaAdmissionWaveRepository extends IAdmissionWaveRepository {
       include: WAVE_INCLUDE,
     })
     if (!row) return null
-    const [withYear] = await this.attachAcademicYears([row])
+    const [withYear] = await this.attachAcademicYears(
+      await withFilledCount(this.prisma, [row]),
+    )
     return withYear
   }
 

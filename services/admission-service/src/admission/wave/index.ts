@@ -13,3 +13,9 @@ export {
   pickTargetWave,
 } from './domain/policies/wave-capacity.policy.js'
 export type { TargetCandidate } from './domain/policies/wave-capacity.policy.js'
+export {
+  countFilledByWave,
+  FILLED_APPLICATION_WHERE,
+  withFilledCount,
+} from './infrastructure/persistence/prisma/wave-capacity.queries.js'
+export type { FilledCountClient } from './infrastructure/persistence/prisma/wave-capacity.queries.js'
