@@ -44,7 +44,7 @@ describe('GetDocumentTypesUseCase', () => {
 describe('SaveDocumentTypeUseCase', () => {
   it('creates a trimmed type last with a generated code', async () => {
     const repo = repository()
-    await new SaveDocumentTypeUseCase(repo as never).create({
+    await new SaveDocumentTypeUseCase(repo).create({
       name: '  Photo ',
       isRequired: false,
       isActive: true,
@@ -94,7 +94,7 @@ describe('SaveDocumentTypeUseCase', () => {
 
   it('renames without touching the code and allows its own name', async () => {
     const repo = repository()
-    await new SaveDocumentTypeUseCase(repo as never).update('t1', {
+    await new SaveDocumentTypeUseCase(repo).update('t1', {
       name: ' Kartu Keluarga ',
       isRequired: false,
     })
@@ -132,9 +132,10 @@ describe('ReorderDocumentTypesUseCase', () => {
   it('rewrites the order and returns the list', async () => {
     const repo = repository()
     repo.findAll.mockResolvedValue([type, t2])
-    const result = await new ReorderDocumentTypesUseCase(repo as never).execute(
-      ['t2', 't1'],
-    )
+    const result = await new ReorderDocumentTypesUseCase(repo).execute([
+      't2',
+      't1',
+    ])
     expect(repo.reorder).toHaveBeenCalledWith(['t2', 't1'])
     expect(result).toEqual([type, t2])
   })
@@ -157,7 +158,7 @@ describe('ReorderDocumentTypesUseCase', () => {
 describe('DeleteDocumentTypeUseCase', () => {
   it('deletes an unused type', async () => {
     const repo = repository()
-    await new DeleteDocumentTypeUseCase(repo as never).execute('t1')
+    await new DeleteDocumentTypeUseCase(repo).execute('t1')
     expect(repo.delete).toHaveBeenCalledWith('t1')
   })
 
