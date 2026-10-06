@@ -107,7 +107,7 @@ export abstract class IAdmissionApplicationRepository {
     adminId: string,
   ): Promise<ApplicationWithDocsAndPayment>
   abstract findActiveWithWave(id: string): Promise<ApplicationWithWave | null>
-  abstract countAcceptedInWave(waveId: string): Promise<number>
+  abstract isWaveFull(waveId: string): Promise<boolean>
   abstract setAccepted(
     input: AcceptAdmissionApplicationInput,
   ): Promise<ApplicationWithDocsAndPayment>

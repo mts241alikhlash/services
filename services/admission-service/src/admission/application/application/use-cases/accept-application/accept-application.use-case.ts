@@ -41,15 +41,6 @@ export class AcceptApplicationUseCase {
       throw error
     }
 
-    const acceptedCount =
-      await this.admissionApplicationRepository.countAcceptedInWave(
-        application.waveId,
-      )
-    const quotaWarning =
-      acceptedCount >= application.wave.quota
-        ? `Wave quota (${application.wave.quota}) is already met; this acceptance exceeds it.`
-        : null
-
     const updated = await this.admissionApplicationRepository.setAccepted({
       id: application.id,
       adminId,
@@ -63,6 +54,6 @@ export class AcceptApplicationUseCase {
       `Berdasarkan hasil seleksi, Anda dinyatakan diterima sebagai calon santri baru.${dto.note ? ` Catatan panitia: ${dto.note}.` : ''} Informasi daftar ulang akan disampaikan melalui akun ini.`,
     )
 
-    return { ...serializeApplicationDetail(updated), quotaWarning }
+    return serializeApplicationDetail(updated)
   }
 }

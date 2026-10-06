@@ -18,6 +18,9 @@ export class EnsureMyApplicationUseCase {
         ...serializeApplicationDetail(existing),
         documentTypes:
           await this.admissionApplicantRepository.findActiveDocumentTypes(),
+        waveIsFull:
+          existing.payment?.status !== 'VERIFIED' &&
+          (await this.admissionApplicantRepository.isWaveFull(existing.waveId)),
       }
     }
 
@@ -35,6 +38,10 @@ export class EnsureMyApplicationUseCase {
 
     const documentTypes =
       await this.admissionApplicantRepository.findActiveDocumentTypes()
-    return { ...serializeApplicationDetail(created), documentTypes }
+    return {
+      ...serializeApplicationDetail(created),
+      documentTypes,
+      waveIsFull: false,
+    }
   }
 }

@@ -83,6 +83,9 @@ export class AdmissionStatsResponseWavesDto {
   @ApiProperty({ type: Number })
   quotaFillRate!: number
 
+  @ApiProperty({ type: Number })
+  filled!: number
+
   static fromDomain(
     domain: NonNullable<
       NonNullable<
@@ -91,6 +94,7 @@ export class AdmissionStatsResponseWavesDto {
     >,
   ): AdmissionStatsResponseWavesDto {
     const dto = new AdmissionStatsResponseWavesDto()
+    dto.filled = domain.filled
     dto.id = domain.id
     dto.name = domain.name
     dto.code = domain.code
@@ -1555,10 +1559,14 @@ export class AdmissionApplicationReviewResponseDto {
   @ApiPropertyOptional({ type: String, format: 'date-time' })
   updatedAt?: string
 
+  @ApiProperty({ type: Boolean })
+  waveIsFull!: boolean
+
   static fromDomain(
     domain: Awaited<ReturnType<GetApplicationByIdUseCase['execute']>>,
   ): AdmissionApplicationReviewResponseDto {
     const dto = new AdmissionApplicationReviewResponseDto()
+    dto.waveIsFull = domain.waveIsFull
     dto.duplicateNikCount = domain.duplicateNikCount
     dto.documentTypes = domain.documentTypes.map((x) =>
       AdmissionApplicationReviewResponseDocumentTypesDto.fromDomain(x),
@@ -3589,9 +3597,6 @@ export class AdmissionAcceptedApplicationResponseScholarshipsDto {
 }
 
 export class AdmissionAcceptedApplicationResponseDto {
-  @ApiProperty({ type: String, nullable: true })
-  quotaWarning!: string | null
-
   @ApiPropertyOptional({
     type: () => AdmissionAcceptedApplicationResponseDocumentsDto,
     isArray: true,
@@ -3812,7 +3817,6 @@ export class AdmissionAcceptedApplicationResponseDto {
     domain: Awaited<ReturnType<AcceptApplicationUseCase['execute']>>,
   ): AdmissionAcceptedApplicationResponseDto {
     const dto = new AdmissionAcceptedApplicationResponseDto()
-    dto.quotaWarning = domain.quotaWarning
     if (domain.documents !== undefined)
       dto.documents =
         domain.documents == null
@@ -7247,10 +7251,14 @@ export class MyAdmissionApplicationResponseDto {
   @ApiPropertyOptional({ type: String, format: 'date-time' })
   updatedAt?: string
 
+  @ApiProperty({ type: Boolean })
+  waveIsFull!: boolean
+
   static fromDomain(
     domain: Awaited<ReturnType<GetMyApplicationUseCase['execute']>>,
   ): MyAdmissionApplicationResponseDto {
     const dto = new MyAdmissionApplicationResponseDto()
+    dto.waveIsFull = domain.waveIsFull
     dto.documentTypes = domain.documentTypes.map((x) =>
       MyAdmissionApplicationResponseDocumentTypesDto.fromDomain(x),
     )

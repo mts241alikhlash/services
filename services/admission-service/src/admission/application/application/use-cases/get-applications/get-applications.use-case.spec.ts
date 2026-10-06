@@ -13,6 +13,7 @@ describe('Admission application read use-cases', () => {
     findActiveDocumentTypes: jest.fn(),
     getStatusCounts: jest.fn(),
     getWavesWithAcceptedCount: jest.fn(),
+    isWaveFull: jest.fn(),
   }
 
   let getApplications: GetApplicationsUseCase
@@ -99,14 +100,15 @@ describe('Admission application read use-cases', () => {
         { status: 'ACCEPTED', count: 6 },
       ])
       mockRepository.getWavesWithAcceptedCount.mockResolvedValue([
-        { id: 'w1', name: 'G1', code: 'G1', quota: 20, accepted: 5 },
+        { id: 'w1', name: 'G1', code: 'G1', quota: 20, accepted: 5, filled: 8 },
       ])
 
       const result = await getStats.execute()
 
       expect(result.total).toBe(10)
       expect(result.byStatus).toEqual({ SUBMITTED: 4, ACCEPTED: 6 })
-      expect(result.waves[0].quotaFillRate).toBe(0.25)
+      expect(result.waves[0].filled).toBe(8)
+      expect(result.waves[0].quotaFillRate).toBe(0.4)
     })
   })
 })
