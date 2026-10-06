@@ -50,6 +50,7 @@ function makeTx(options: {
                 applicationId: 'app1',
                 status: 'PENDING',
                 proofFileId: 'f1',
+                application: { waveId: 'w1' },
               }
             : options.payment,
         )
@@ -168,6 +169,7 @@ describe('PrismaAdmissionPaymentRepository.verifyWithinQuota', () => {
         applicationId: 'app1',
         status: 'VERIFIED',
         proofFileId: 'f1',
+        application: { waveId: 'w1' },
       },
     })
     const repo = new PrismaAdmissionPaymentRepository(prisma)
@@ -224,5 +226,25 @@ describe('PrismaAdmissionPaymentRepository.verifyWithinQuota', () => {
       movedApplicationIds: [],
     })
     expect(tx.admissionApplication.updateMany).not.toHaveBeenCalled()
+  })
+
+  it('asks for a retry when the application moved before the lock', async () => {
+    const { prisma, tx } = makeTx({
+      quota: 3,
+      filled: 0,
+      payment: {
+        id: 'pay1',
+        applicationId: 'app1',
+        status: 'PENDING',
+        proofFileId: 'f1',
+        application: { waveId: 'w2' },
+      },
+    })
+    const repo = new PrismaAdmissionPaymentRepository(prisma)
+
+    const result = await repo.verifyWithinQuota(input)
+
+    expect(result).toEqual({ outcome: 'WAVE_CHANGED' })
+    expect(tx.admissionPayment.update).not.toHaveBeenCalled()
   })
 })

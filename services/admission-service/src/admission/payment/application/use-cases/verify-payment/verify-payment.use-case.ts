@@ -63,6 +63,11 @@ export class VerifyPaymentUseCase {
     if (result.outcome === 'NO_PROOF') {
       throw new ConflictException('Payment proof has not been uploaded')
     }
+    if (result.outcome === 'WAVE_CHANGED') {
+      throw new ConflictException(
+        'Gelombang pendaftar baru saja berubah, silakan ulangi verifikasi',
+      )
+    }
 
     await this.notifications.notify(
       input.applicationId,

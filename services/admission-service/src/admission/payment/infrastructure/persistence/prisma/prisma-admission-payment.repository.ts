@@ -99,10 +99,17 @@ export class PrismaAdmissionPaymentRepository extends IAdmissionPaymentRepositor
 
       const current = await tx.admissionPayment.findFirst({
         where: { id: input.paymentId, applicationId: input.applicationId },
-        select: { status: true, proofFileId: true },
+        select: {
+          status: true,
+          proofFileId: true,
+          application: { select: { waveId: true } },
+        },
       })
       if (!current || current.status === 'UNPAID' || !current.proofFileId) {
         return { outcome: 'NO_PROOF' as const }
+      }
+      if (current.application.waveId !== wave.id) {
+        return { outcome: 'WAVE_CHANGED' as const }
       }
       if (current.status === 'VERIFIED') {
         return { outcome: 'ALREADY_VERIFIED' as const }
