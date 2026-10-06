@@ -23,7 +23,9 @@ export class GetApplicationByIdUseCase {
       : 0
 
     const documentTypes =
-      await this.admissionApplicationRepository.findActiveDocumentTypes()
+      await this.admissionApplicationRepository.findDocumentTypesForReview(
+        application.id,
+      )
 
     const waveIsFull =
       application.payment?.status !== 'VERIFIED' &&

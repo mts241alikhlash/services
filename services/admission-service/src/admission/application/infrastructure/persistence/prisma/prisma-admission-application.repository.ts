@@ -170,9 +170,13 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
     })
   }
 
-  async findActiveDocumentTypes(): Promise<AdmissionDocumentType[]> {
+  async findDocumentTypesForReview(
+    applicationId: string,
+  ): Promise<AdmissionDocumentType[]> {
     return this.prisma.admissionDocumentType.findMany({
-      where: { isActive: true },
+      where: {
+        OR: [{ isActive: true }, { documents: { some: { applicationId } } }],
+      },
       orderBy: { sortOrder: 'asc' },
     })
   }

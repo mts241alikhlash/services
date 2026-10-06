@@ -10,7 +10,7 @@ describe('Admission application read use-cases', () => {
     findAll: jest.fn(),
     findAdminDetailById: jest.fn(),
     countByNik: jest.fn(),
-    findActiveDocumentTypes: jest.fn(),
+    findDocumentTypesForReview: jest.fn(),
     getStatusCounts: jest.fn(),
     getWavesWithAcceptedCount: jest.fn(),
     isWaveFull: jest.fn(),
@@ -70,11 +70,16 @@ describe('Admission application read use-cases', () => {
         nik: '123',
       })
       mockRepository.countByNik.mockResolvedValue(2)
-      mockRepository.findActiveDocumentTypes.mockResolvedValue([{ id: 'dt1' }])
+      mockRepository.findDocumentTypesForReview.mockResolvedValue([
+        { id: 'dt1' },
+      ])
 
       const result = await getById.execute('app1')
 
       expect(mockRepository.countByNik).toHaveBeenCalledWith('123', 'app1')
+      expect(mockRepository.findDocumentTypesForReview).toHaveBeenCalledWith(
+        'app1',
+      )
       expect(result.duplicateNikCount).toBe(2)
       expect(result.documentTypes).toHaveLength(1)
     })
@@ -84,7 +89,7 @@ describe('Admission application read use-cases', () => {
         id: 'app1',
         nik: null,
       })
-      mockRepository.findActiveDocumentTypes.mockResolvedValue([])
+      mockRepository.findDocumentTypesForReview.mockResolvedValue([])
 
       const result = await getById.execute('app1')
 

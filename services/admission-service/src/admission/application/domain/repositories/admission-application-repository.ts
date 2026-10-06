@@ -129,7 +129,9 @@ export abstract class IAdmissionApplicationRepository {
     id: string,
   ): Promise<ApplicationWithParentsAndUser | null>
   abstract countByNik(nik: string, excludeId: string): Promise<number>
-  abstract findActiveDocumentTypes(): Promise<AdmissionDocumentTypeRow[]>
+  abstract findDocumentTypesForReview(
+    applicationId: string,
+  ): Promise<AdmissionDocumentTypeRow[]>
   abstract setRejected(
     input: RejectAdmissionApplicationInput,
   ): Promise<ApplicationWithDocsAndPayment>
