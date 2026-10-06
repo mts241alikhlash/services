@@ -35,6 +35,8 @@ export interface VerifyWithinQuotaInput {
 
 export type VerifyWithinQuotaResult =
   | { outcome: 'FULL' }
+  | { outcome: 'ALREADY_VERIFIED' }
+  | { outcome: 'NO_PROOF' }
   | {
       outcome: 'VERIFIED'
       payment: AdmissionPaymentWithProof

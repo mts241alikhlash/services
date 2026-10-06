@@ -97,6 +97,17 @@ export class PrismaAdmissionPaymentRepository extends IAdmissionPaymentRepositor
       const wave = application.wave
       await tx.$queryRaw`SELECT id FROM admission_waves WHERE id = ${wave.id}::uuid FOR UPDATE`
 
+      const current = await tx.admissionPayment.findFirst({
+        where: { id: input.paymentId, applicationId: input.applicationId },
+        select: { status: true, proofFileId: true },
+      })
+      if (!current || current.status === 'UNPAID' || !current.proofFileId) {
+        return { outcome: 'NO_PROOF' as const }
+      }
+      if (current.status === 'VERIFIED') {
+        return { outcome: 'ALREADY_VERIFIED' as const }
+      }
+
       const counts = await countFilledByWave(tx, [wave.id])
       const filledBefore = counts.get(wave.id) ?? 0
       if (isWaveFull({ quota: wave.quota, filledCount: filledBefore })) {
@@ -114,7 +125,9 @@ export class PrismaAdmissionPaymentRepository extends IAdmissionPaymentRepositor
         include: { proofFile: true, bankAccount: true },
       })
 
-      if (!isWaveFull({ quota: wave.quota, filledCount: filledBefore + 1 })) {
+      const countsAfter = await countFilledByWave(tx, [wave.id])
+      const filledAfter = countsAfter.get(wave.id) ?? 0
+      if (!isWaveFull({ quota: wave.quota, filledCount: filledAfter })) {
         return {
           outcome: 'VERIFIED' as const,
           payment,

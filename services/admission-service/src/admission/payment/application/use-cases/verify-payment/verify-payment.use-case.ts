@@ -57,6 +57,12 @@ export class VerifyPaymentUseCase {
     if (result.outcome === 'FULL') {
       throw new ConflictException('Gelombang penuh')
     }
+    if (result.outcome === 'ALREADY_VERIFIED') {
+      throw new ConflictException('Pembayaran sudah diverifikasi')
+    }
+    if (result.outcome === 'NO_PROOF') {
+      throw new ConflictException('Payment proof has not been uploaded')
+    }
 
     await this.notifications.notify(
       input.applicationId,

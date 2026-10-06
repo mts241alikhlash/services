@@ -4,8 +4,14 @@ import type { PrismaService } from '../../../../../core/database/prisma.service.
 function makeTx(options: {
   quota: number
   filled: number
+  filledAfter?: number
+  payment?: Record<string, unknown> | null
   candidates?: Record<string, unknown>[]
 }) {
+  const filledCounts = [
+    options.filled,
+    options.filledAfter ?? options.filled + 1,
+  ]
   const calls: string[] = []
   const tx = {
     $queryRaw: jest.fn().mockImplementation(() => {
@@ -25,11 +31,8 @@ function makeTx(options: {
       }),
       groupBy: jest.fn().mockImplementation(() => {
         calls.push('count')
-        return Promise.resolve(
-          options.filled
-            ? [{ waveId: 'w1', _count: { _all: options.filled } }]
-            : [],
-        )
+        const n = filledCounts.shift() ?? 0
+        return Promise.resolve(n ? [{ waveId: 'w1', _count: { _all: n } }] : [])
       }),
       findMany: jest.fn().mockResolvedValue([{ id: 'app2' }, { id: 'app3' }]),
       updateMany: jest.fn().mockResolvedValue({ count: 2 }),
@@ -38,6 +41,19 @@ function makeTx(options: {
       findMany: jest.fn().mockResolvedValue(options.candidates ?? []),
     },
     admissionPayment: {
+      findFirst: jest.fn().mockImplementation(() => {
+        calls.push('payment')
+        return Promise.resolve(
+          options.payment === undefined
+            ? {
+                id: 'pay1',
+                applicationId: 'app1',
+                status: 'PENDING',
+                proofFileId: 'f1',
+              }
+            : options.payment,
+        )
+      }),
       update: jest.fn().mockResolvedValue({ id: 'pay1', status: 'VERIFIED' }),
       updateMany: jest.fn().mockResolvedValue({ count: 2 }),
     },
@@ -63,7 +79,7 @@ describe('PrismaAdmissionPaymentRepository.verifyWithinQuota', () => {
     const result = await repo.verifyWithinQuota(input)
 
     expect(result).toEqual({ outcome: 'FULL' })
-    expect(calls).toEqual(['lock', 'count'])
+    expect(calls).toEqual(['lock', 'payment', 'count'])
     expect(tx.admissionPayment.update).not.toHaveBeenCalled()
   })
 
@@ -140,6 +156,73 @@ describe('PrismaAdmissionPaymentRepository.verifyWithinQuota', () => {
     const result = await repo.verifyWithinQuota(input)
 
     expect(result).toMatchObject({ movedApplicationIds: [], targetWave: null })
+    expect(tx.admissionApplication.updateMany).not.toHaveBeenCalled()
+  })
+
+  it('refuses to count a payment that is already verified', async () => {
+    const { prisma, tx } = makeTx({
+      quota: 3,
+      filled: 2,
+      payment: {
+        id: 'pay1',
+        applicationId: 'app1',
+        status: 'VERIFIED',
+        proofFileId: 'f1',
+      },
+    })
+    const repo = new PrismaAdmissionPaymentRepository(prisma)
+
+    const result = await repo.verifyWithinQuota(input)
+
+    expect(result).toEqual({ outcome: 'ALREADY_VERIFIED' })
+    expect(tx.admissionPayment.update).not.toHaveBeenCalled()
+    expect(tx.admissionApplication.updateMany).not.toHaveBeenCalled()
+  })
+
+  it('refuses a payment of another application or without a proof', async () => {
+    for (const payment of [
+      null,
+      {
+        id: 'pay1',
+        applicationId: 'app1',
+        status: 'UNPAID',
+        proofFileId: null,
+      },
+    ]) {
+      const { prisma, tx } = makeTx({ quota: 3, filled: 0, payment })
+      const repo = new PrismaAdmissionPaymentRepository(prisma)
+
+      const result = await repo.verifyWithinQuota(input)
+
+      expect(result).toEqual({ outcome: 'NO_PROOF' })
+      expect(tx.admissionPayment.update).not.toHaveBeenCalled()
+    }
+  })
+
+  it('does not move anyone when the verified seat does not count', async () => {
+    const { prisma, tx } = makeTx({
+      quota: 3,
+      filled: 2,
+      filledAfter: 2,
+      candidates: [
+        {
+          id: 'w2',
+          name: 'Gelombang 2',
+          academicYearId: 'y1',
+          startDate: new Date('2027-02-01'),
+          quota: 10,
+          registrationFee: 200000,
+        },
+      ],
+    })
+    const repo = new PrismaAdmissionPaymentRepository(prisma)
+
+    const result = await repo.verifyWithinQuota(input)
+
+    expect(result).toMatchObject({
+      outcome: 'VERIFIED',
+      movedApplicationIds: [],
+    })
     expect(tx.admissionApplication.updateMany).not.toHaveBeenCalled()
   })
 })
