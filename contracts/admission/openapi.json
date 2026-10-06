@@ -4061,6 +4061,9 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "waveIsFull": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -4068,7 +4071,8 @@
           "userId",
           "id",
           "waveId",
-          "status"
+          "status",
+          "waveIsFull"
         ]
       },
       "UpdateApplicationParentDto": {
@@ -5842,12 +5846,16 @@
           },
           "quotaFillRate": {
             "type": "number"
+          },
+          "filled": {
+            "type": "number"
           }
         },
         "required": [
           "quota",
           "accepted",
-          "quotaFillRate"
+          "quotaFillRate",
+          "filled"
         ]
       },
       "AdmissionStatsResponseDto": {
@@ -7233,6 +7241,9 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "waveIsFull": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -7241,7 +7252,8 @@
           "userId",
           "id",
           "waveId",
-          "status"
+          "status",
+          "waveIsFull"
         ]
       },
       "VerifyDocumentDto": {
@@ -8837,10 +8849,6 @@
       "AdmissionAcceptedApplicationResponseDto": {
         "type": "object",
         "properties": {
-          "quotaWarning": {
-            "type": "string",
-            "nullable": true
-          },
           "documents": {
             "type": "array",
             "items": {
@@ -9107,7 +9115,6 @@
           }
         },
         "required": [
-          "quotaWarning",
           "id",
           "waveId",
           "status"
@@ -10385,6 +10392,9 @@
           "quota": {
             "type": "number"
           },
+          "filledCount": {
+            "type": "number"
+          },
           "registrationFee": {
             "type": "number"
           },
@@ -10416,6 +10426,7 @@
           "startDate",
           "endDate",
           "quota",
+          "filledCount",
           "registrationFee",
           "description",
           "isActive",
