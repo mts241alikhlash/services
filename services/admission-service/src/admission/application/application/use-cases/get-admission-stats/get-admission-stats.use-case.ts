@@ -30,7 +30,8 @@ export class GetAdmissionStatsUseCase {
         code: w.code,
         quota: w.quota,
         accepted: w.accepted,
-        quotaFillRate: w.quota > 0 ? w.accepted / w.quota : 0,
+        filled: w.filled ?? 0,
+        quotaFillRate: w.quota > 0 ? (w.filled ?? 0) / w.quota : 0,
       })),
     }
   }

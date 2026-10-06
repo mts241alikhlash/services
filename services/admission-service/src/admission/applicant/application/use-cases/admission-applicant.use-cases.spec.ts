@@ -16,6 +16,7 @@ describe('Admission applicant use-cases', () => {
   const repo = {
     findOpenWave: jest.fn(),
     findActiveWave: jest.fn(),
+    isWaveFull: jest.fn(),
     isIdentifierTaken: jest.fn(),
     registerApplicant: jest.fn(),
     findMyApplication: jest.fn(),
@@ -64,6 +65,23 @@ describe('Admission applicant use-cases', () => {
   }
 
   describe('RegisterApplicantUseCase', () => {
+    it('refuses an admin registration into a full wave', async () => {
+      repo.findOpenWave.mockResolvedValue({ id: 'w1', quota: 1 })
+      repo.isWaveFull.mockResolvedValue(true)
+
+      await expect(
+        register.execute({
+          fullName: 'Budi',
+          email: 'budi@example.com',
+          password: 'rahasia123',
+          passwordConfirm: 'rahasia123',
+          waveId: 'w1',
+        }),
+      ).rejects.toThrow('Gelombang penuh')
+      expect(repo.registerApplicant).not.toHaveBeenCalled()
+      repo.isWaveFull.mockReset()
+    })
+
     it('rejects mismatched password confirmation', async () => {
       await expect(
         register.execute({ ...registerDto, passwordConfirm: 'nope' }),

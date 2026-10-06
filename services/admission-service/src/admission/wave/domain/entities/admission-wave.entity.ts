@@ -23,6 +23,7 @@ export interface ActiveWaveRow extends AdmissionWaveEntity {
   _count?: {
     applications?: number
   }
+  filledCount?: number
 }
 
 export interface AdmissionWaveAcceptedCount {
@@ -33,5 +34,6 @@ export interface AdmissionWaveAcceptedCount {
   code?: string
   quota: number
   accepted: number
+  filled?: number
   fillRate?: number
 }

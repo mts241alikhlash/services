@@ -20,6 +20,8 @@ function makePaymentRepository(
     savePaymentProof: jest.fn(),
     findPayment: jest.fn(),
     updatePaymentStatus: jest.fn(),
+    verifyWithinQuota: jest.fn(),
+    isWaveFull: jest.fn(),
     ...overrides,
   }
 }
@@ -64,7 +66,7 @@ describe('Payment layering', () => {
     expect(payments.updatePaymentStatus).not.toHaveBeenCalled()
   })
 
-  it('verifies an uploaded proof and tells the applicant', async () => {
+  it('verifies an uploaded proof through the quota check and tells the applicant', async () => {
     const notify = jest.fn()
     const payments = makePaymentRepository({
       findPayment: jest.fn().mockResolvedValue({
@@ -72,9 +74,12 @@ describe('Payment layering', () => {
         status: 'PENDING',
         proofFileId: 'f1',
       }),
-      updatePaymentStatus: jest
-        .fn()
-        .mockResolvedValue({ id: 'pay1', status: 'VERIFIED', amount: 150000 }),
+      verifyWithinQuota: jest.fn().mockResolvedValue({
+        outcome: 'VERIFIED',
+        payment: { id: 'pay1', status: 'VERIFIED', amount: 150000 },
+        movedApplicationIds: [],
+        targetWave: null,
+      }),
     })
     const useCase = new VerifyPaymentUseCase(payments, { notify })
 
@@ -84,12 +89,74 @@ describe('Payment layering', () => {
       adminId: 'admin1',
     })
 
+    expect(payments.verifyWithinQuota).toHaveBeenCalledWith({
+      applicationId: 'app1',
+      paymentId: 'pay1',
+      note: null,
+      adminId: 'admin1',
+    })
+    expect(payments.updatePaymentStatus).not.toHaveBeenCalled()
     expect(notify).toHaveBeenCalledWith(
       'app1',
       'PAYMENT',
       'Pembayaran terverifikasi',
       expect.any(String),
     )
+  })
+
+  it('refuses to verify into a full wave', async () => {
+    const notify = jest.fn()
+    const payments = makePaymentRepository({
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'PENDING',
+        proofFileId: 'f1',
+      }),
+      verifyWithinQuota: jest.fn().mockResolvedValue({ outcome: 'FULL' }),
+    })
+    const useCase = new VerifyPaymentUseCase(payments, { notify })
+
+    await expect(
+      useCase.execute({
+        applicationId: 'app1',
+        status: AdmissionPaymentStatus.VERIFIED,
+        adminId: 'admin1',
+      }),
+    ).rejects.toThrow('Gelombang penuh')
+    expect(notify).not.toHaveBeenCalled()
+  })
+
+  it('tells every moved applicant their new wave and fee', async () => {
+    const notify = jest.fn()
+    const payments = makePaymentRepository({
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'PENDING',
+        proofFileId: 'f1',
+      }),
+      verifyWithinQuota: jest.fn().mockResolvedValue({
+        outcome: 'VERIFIED',
+        payment: { id: 'pay1', status: 'VERIFIED', amount: 150000 },
+        movedApplicationIds: ['app2', 'app3'],
+        targetWave: { id: 'w2', name: 'Gelombang 2', registrationFee: 200000 },
+      }),
+    })
+    const useCase = new VerifyPaymentUseCase(payments, { notify })
+
+    await useCase.execute({
+      applicationId: 'app1',
+      status: AdmissionPaymentStatus.VERIFIED,
+      adminId: 'admin1',
+    })
+
+    for (const id of ['app2', 'app3']) {
+      expect(notify).toHaveBeenCalledWith(
+        id,
+        'GENERAL',
+        'Anda dipindahkan ke Gelombang 2',
+        expect.stringMatching(/Rp\s?200\.000/),
+      )
+    }
   })
 
   describe('UploadPaymentProofUseCase.executeForApplication', () => {
@@ -277,6 +344,35 @@ describe('Payment layering', () => {
           adminId: 'admin1',
         }),
       ).rejects.toThrow(ConflictException)
+    })
+
+    it('refuses a proof upload while the wave is full', async () => {
+      const payments = makePaymentRepository({
+        findByApplicationId: jest.fn().mockResolvedValue({
+          status: 'SUBMITTED',
+          waveId: 'w1',
+          payment: { id: 'pay1', status: 'UNPAID' },
+        }),
+        isWaveFull: jest.fn().mockResolvedValue(true),
+      })
+      const useCase = new UploadPaymentProofUseCase(
+        payments,
+        storage,
+        bankAccounts,
+      )
+
+      await expect(
+        useCase.executeForApplication({
+          applicationId: 'app1',
+          bankName: 'BSI',
+          bankAccountId: 'acc-1',
+          senderAccountName: 'Budi',
+          file: file,
+          adminId: 'admin1',
+        }),
+      ).rejects.toThrow('Gelombang penuh')
+      expect(payments.isWaveFull).toHaveBeenCalledWith('w1')
+      expect(payments.savePaymentProof).not.toHaveBeenCalled()
     })
 
     it('attributes the saved proof to the acting administrator', async () => {

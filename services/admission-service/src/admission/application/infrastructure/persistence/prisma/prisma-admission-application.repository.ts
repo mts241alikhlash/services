@@ -5,6 +5,7 @@ import {
   Prisma,
 } from '../../../../../generated/prisma/client.js'
 import { PrismaService } from '../../../../../core/database/prisma.service.js'
+import { countFilledByWave, isWaveFull } from '../../../../wave/index.js'
 import {
   isEligibleAdmissionParent,
   hasCompleteAddress,
@@ -217,12 +218,17 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
       orderBy: { startDate: 'desc' },
     })
 
+    const counts = await countFilledByWave(
+      this.prisma,
+      waves.map((w) => w.id),
+    )
     return waves.map((w) => ({
       id: w.id,
       name: w.name,
       code: w.code,
       quota: w.quota,
       accepted: w._count.applications,
+      filled: counts.get(w.id) ?? 0,
     }))
   }
 
@@ -258,13 +264,16 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
     return attachParentReferences(row, this.referenceLookup)
   }
 
-  async countAcceptedInWave(waveId: string): Promise<number> {
-    return this.prisma.admissionApplication.count({
-      where: {
-        waveId,
-        status: { in: ['ACCEPTED', 'ENROLLED'] },
-        deletedAt: null,
-      },
+  async isWaveFull(waveId: string): Promise<boolean> {
+    const wave = await this.prisma.admissionWave.findFirst({
+      where: { id: waveId },
+      select: { quota: true },
+    })
+    if (!wave) return false
+    const counts = await countFilledByWave(this.prisma, [waveId])
+    return isWaveFull({
+      quota: wave.quota,
+      filledCount: counts.get(waveId) ?? 0,
     })
   }
 

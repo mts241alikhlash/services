@@ -27,6 +27,12 @@ export class RegisterApplicantUseCase {
     if (!wave) {
       throw new BadRequestException('Pendaftaran sedang tidak dibuka')
     }
+    if (
+      input.waveId &&
+      (await this.admissionApplicantRepository.isWaveFull(wave.id))
+    ) {
+      throw new ConflictException('Gelombang penuh')
+    }
 
     const identifier = input.email.trim().toLowerCase()
     const identifierTaken =

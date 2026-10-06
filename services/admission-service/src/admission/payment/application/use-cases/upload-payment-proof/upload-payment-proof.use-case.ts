@@ -79,6 +79,9 @@ export class UploadPaymentProofUseCase {
     if (application.payment.status === 'VERIFIED') {
       throw new ConflictException('Pembayaran sudah diverifikasi')
     }
+    if (await this.payments.isWaveFull(application.waveId)) {
+      throw new ConflictException('Gelombang penuh')
+    }
     const account = await this.bankAccounts.findById(input.bankAccountId)
     if (!account?.isActive) {
       throw new BadRequestException('Rekening tujuan tidak tersedia')

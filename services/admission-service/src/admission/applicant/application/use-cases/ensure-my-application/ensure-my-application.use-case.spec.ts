@@ -6,6 +6,7 @@ import { EnsureMyApplicationUseCase } from './ensure-my-application.use-case.js'
 describe('EnsureMyApplicationUseCase', () => {
   const repo = {
     findMyDetail: jest.fn(),
+    isWaveFull: jest.fn(),
     findActiveWave: jest.fn(),
     ensureApplication: jest.fn(),
     findActiveDocumentTypes: jest.fn(),

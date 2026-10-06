@@ -706,7 +706,6 @@ export interface components {
             previousSchoolNpsn?: string | null;
             province?: string | null;
             provinceCode?: string | null;
-            quotaWarning: string | null;
             regencyCode?: string | null;
             registrationNumber?: string;
             religionId?: string | null;
@@ -1527,6 +1526,7 @@ export interface components {
             villageCode?: string | null;
             wave?: components["schemas"]["AdmissionApplicationReviewResponseWaveDto"];
             waveId: string;
+            waveIsFull: boolean;
         };
         AdmissionApplicationReviewResponseParentsDto: {
             applicationId: string;
@@ -2110,6 +2110,7 @@ export interface components {
         AdmissionStatsResponseWavesDto: {
             accepted: number;
             code?: string;
+            filled: number;
             id?: string;
             name?: string;
             quota: number;
@@ -2170,6 +2171,7 @@ export interface components {
             description: string | null;
             /** Format: date-time */
             endDate: string;
+            filledCount: number;
             id: string;
             isActive: boolean;
             lastRegistrationSeq: number;
@@ -2369,6 +2371,7 @@ export interface components {
             villageCode?: string | null;
             wave?: components["schemas"]["MyAdmissionApplicationResponseWaveDto"];
             waveId: string;
+            waveIsFull: boolean;
         };
         MyAdmissionApplicationResponseParentsDto: {
             applicationId: string;

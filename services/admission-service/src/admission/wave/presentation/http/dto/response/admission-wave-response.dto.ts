@@ -187,6 +187,9 @@ export class AdmissionWaveSummaryResponseDto {
   quota!: number
 
   @ApiProperty({ type: Number })
+  filledCount!: number
+
+  @ApiProperty({ type: Number })
   registrationFee!: number
 
   @ApiProperty({ type: String, nullable: true })
@@ -228,6 +231,7 @@ export class AdmissionWaveSummaryResponseDto {
     dto.startDate = domain.startDate.toISOString()
     dto.endDate = domain.endDate.toISOString()
     dto.quota = domain.quota
+    dto.filledCount = domain.filledCount ?? 0
     dto.registrationFee = domain.registrationFee
     dto.description = domain.description
     dto.isActive = domain.isActive

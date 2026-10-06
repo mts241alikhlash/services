@@ -74,6 +74,10 @@ export class PrismaAdmissionApplicantRepository extends IAdmissionApplicantRepos
     return this.reader.findActiveWave()
   }
 
+  async isWaveFull(waveId: string): Promise<boolean> {
+    return this.reader.isWaveFull(waveId)
+  }
+
   async ensureApplication(
     input: EnsureApplicationInput,
   ): Promise<ApplicationDetail> {

@@ -7,6 +7,7 @@ import type { AdmissionPaymentWithProof } from '../entities/admission-payment.en
 
 export interface AdmissionPaymentApplicationRef {
   status: string
+  waveId: string
   payment: AdmissionPaymentWithProof | null
 }
 
@@ -25,6 +26,25 @@ export interface UpdatePaymentStatusInput {
   adminId: string
 }
 
+export interface VerifyWithinQuotaInput {
+  applicationId: string
+  paymentId: string
+  note: string | null
+  adminId: string
+}
+
+export type VerifyWithinQuotaResult =
+  | { outcome: 'FULL' }
+  | { outcome: 'ALREADY_VERIFIED' }
+  | { outcome: 'NO_PROOF' }
+  | { outcome: 'WAVE_CHANGED' }
+  | {
+      outcome: 'VERIFIED'
+      payment: AdmissionPaymentWithProof
+      movedApplicationIds: string[]
+      targetWave: { id: string; name: string; registrationFee: number } | null
+    }
+
 export abstract class IAdmissionPaymentRepository {
   abstract findApplicationWithPayment(
     userId: string,
@@ -42,6 +62,10 @@ export abstract class IAdmissionPaymentRepository {
     paymentId: string,
     input: UpdatePaymentStatusInput,
   ): Promise<AdmissionPaymentWithProof>
+  abstract verifyWithinQuota(
+    input: VerifyWithinQuotaInput,
+  ): Promise<VerifyWithinQuotaResult>
+  abstract isWaveFull(waveId: string): Promise<boolean>
 }
 
 export type { AdmissionUploadFile }

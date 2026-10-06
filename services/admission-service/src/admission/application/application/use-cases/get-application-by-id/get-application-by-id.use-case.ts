@@ -25,10 +25,15 @@ export class GetApplicationByIdUseCase {
     const documentTypes =
       await this.admissionApplicationRepository.findActiveDocumentTypes()
 
+    const waveIsFull =
+      application.payment?.status !== 'VERIFIED' &&
+      (await this.admissionApplicationRepository.isWaveFull(application.waveId))
+
     return {
       ...serializeApplicationDetail(application),
       duplicateNikCount,
       documentTypes,
+      waveIsFull,
     }
   }
 }

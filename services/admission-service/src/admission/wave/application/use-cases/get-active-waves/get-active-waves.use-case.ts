@@ -22,7 +22,7 @@ export class GetActiveWavesUseCase {
         startDate: w.startDate,
         endDate: w.endDate,
         quota: w.quota,
-        remainingQuota: Math.max(w.quota - (w._count?.applications ?? 0), 0),
+        remainingQuota: Math.max(w.quota - (w.filledCount ?? 0), 0),
         registrationFee: Number(w.registrationFee),
         description: w.description,
       })),

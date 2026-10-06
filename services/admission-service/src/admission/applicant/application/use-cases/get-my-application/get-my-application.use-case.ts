@@ -18,6 +18,14 @@ export class GetMyApplicationUseCase {
     const documentTypes =
       await this.admissionApplicantRepository.findActiveDocumentTypes()
 
-    return { ...serializeApplicationDetail(application), documentTypes }
+    const waveIsFull =
+      application.payment?.status !== 'VERIFIED' &&
+      (await this.admissionApplicantRepository.isWaveFull(application.waveId))
+
+    return {
+      ...serializeApplicationDetail(application),
+      documentTypes,
+      waveIsFull,
+    }
   }
 }

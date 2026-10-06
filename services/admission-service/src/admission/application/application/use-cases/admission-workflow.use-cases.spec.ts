@@ -56,19 +56,19 @@ describe('Admission workflow use-cases', () => {
   })
 
   describe('AcceptApplicationUseCase', () => {
-    it('flags a quota warning and notifies on acceptance', async () => {
+    it('accepts without a quota check and notifies', async () => {
       repo.findActiveWithWave.mockResolvedValue({
         id: 'app1',
         status: 'VERIFIED',
         waveId: 'w1',
         wave: { quota: 10 },
       })
-      repo.countAcceptedInWave.mockResolvedValue(10)
       repo.setAccepted.mockResolvedValue({ id: 'app1', status: 'ACCEPTED' })
 
       const result = await accept.execute('app1', {}, 'admin1')
 
-      expect(result.quotaWarning).toContain('Wave quota')
+      expect(result).not.toHaveProperty('quotaWarning')
+      expect(repo.countAcceptedInWave).not.toHaveBeenCalled()
       expect(notifications.notify).toHaveBeenCalled()
     })
   })

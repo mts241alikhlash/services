@@ -174,6 +174,7 @@ export abstract class IAdmissionApplicantRepository {
 
   abstract findOpenWave(waveId: string): Promise<AdmissionWaveEntity | null>
   abstract findActiveWave(): Promise<AdmissionWaveEntity | null>
+  abstract isWaveFull(waveId: string): Promise<boolean>
   abstract ensureApplication(
     input: EnsureApplicationInput,
   ): Promise<ApplicationWithParentsAndUser>
