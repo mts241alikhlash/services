@@ -69,13 +69,11 @@ describe('Payment layering', () => {
   it('verifies an uploaded proof through the quota check and tells the applicant', async () => {
     const notify = jest.fn()
     const payments = makePaymentRepository({
-      findPayment: jest
-        .fn()
-        .mockResolvedValue({
-          id: 'pay1',
-          status: 'PENDING',
-          proofFileId: 'f1',
-        }),
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'PENDING',
+        proofFileId: 'f1',
+      }),
       verifyWithinQuota: jest.fn().mockResolvedValue({
         outcome: 'VERIFIED',
         payment: { id: 'pay1', status: 'VERIFIED', amount: 150000 },
@@ -109,13 +107,11 @@ describe('Payment layering', () => {
   it('refuses to verify into a full wave', async () => {
     const notify = jest.fn()
     const payments = makePaymentRepository({
-      findPayment: jest
-        .fn()
-        .mockResolvedValue({
-          id: 'pay1',
-          status: 'PENDING',
-          proofFileId: 'f1',
-        }),
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'PENDING',
+        proofFileId: 'f1',
+      }),
       verifyWithinQuota: jest.fn().mockResolvedValue({ outcome: 'FULL' }),
     })
     const useCase = new VerifyPaymentUseCase(payments, { notify })
@@ -133,13 +129,11 @@ describe('Payment layering', () => {
   it('tells every moved applicant their new wave and fee', async () => {
     const notify = jest.fn()
     const payments = makePaymentRepository({
-      findPayment: jest
-        .fn()
-        .mockResolvedValue({
-          id: 'pay1',
-          status: 'PENDING',
-          proofFileId: 'f1',
-        }),
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'PENDING',
+        proofFileId: 'f1',
+      }),
       verifyWithinQuota: jest.fn().mockResolvedValue({
         outcome: 'VERIFIED',
         payment: { id: 'pay1', status: 'VERIFIED', amount: 150000 },
@@ -350,6 +344,35 @@ describe('Payment layering', () => {
           adminId: 'admin1',
         }),
       ).rejects.toThrow(ConflictException)
+    })
+
+    it('refuses a proof upload while the wave is full', async () => {
+      const payments = makePaymentRepository({
+        findByApplicationId: jest.fn().mockResolvedValue({
+          status: 'SUBMITTED',
+          waveId: 'w1',
+          payment: { id: 'pay1', status: 'UNPAID' },
+        }),
+        isWaveFull: jest.fn().mockResolvedValue(true),
+      })
+      const useCase = new UploadPaymentProofUseCase(
+        payments,
+        storage,
+        bankAccounts,
+      )
+
+      await expect(
+        useCase.executeForApplication({
+          applicationId: 'app1',
+          bankName: 'BSI',
+          bankAccountId: 'acc-1',
+          senderAccountName: 'Budi',
+          file: file,
+          adminId: 'admin1',
+        }),
+      ).rejects.toThrow('Gelombang penuh')
+      expect(payments.isWaveFull).toHaveBeenCalledWith('w1')
+      expect(payments.savePaymentProof).not.toHaveBeenCalled()
     })
 
     it('attributes the saved proof to the acting administrator', async () => {
