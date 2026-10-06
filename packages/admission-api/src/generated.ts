@@ -296,6 +296,59 @@ export interface paths {
         patch: operations["AdmissionBankAccountController_update"];
         trace?: never;
     };
+    "/admissions/document-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List every document type, inactive included */
+        get: operations["AdmissionDocumentTypeController_findAll"];
+        put?: never;
+        /** Add a document type at the end of the list */
+        post: operations["AdmissionDocumentTypeController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/document-types/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a document type no applicant has used */
+        delete: operations["AdmissionDocumentTypeController_remove"];
+        options?: never;
+        head?: never;
+        /** Rename, mark required or (de)activate a type */
+        patch: operations["AdmissionDocumentTypeController_update"];
+        trace?: never;
+    };
+    "/admissions/document-types/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reorder every document type */
+        put: operations["AdmissionDocumentTypeController_reorder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admissions/form-options": {
         parameters: {
             query?: never;
@@ -1777,6 +1830,18 @@ export interface components {
             sizeBytes: number;
             storageKey: string;
         };
+        AdmissionDocumentTypeListResponseDto: {
+            data: components["schemas"]["AdmissionDocumentTypeResponseDto"][];
+        };
+        AdmissionDocumentTypeResponseDto: {
+            code: string;
+            documentCount: number;
+            id: string;
+            isActive: boolean;
+            isRequired: boolean;
+            name: string;
+            sortOrder: number;
+        };
         AdmissionEnrolledApplicationResponseAchievementsDto: {
             competitionFieldId: string | null;
             competitionLevelId: string | null;
@@ -2205,6 +2270,12 @@ export interface components {
             isActive?: boolean;
             sortOrder?: number;
         };
+        CreateAdmissionDocumentTypeDto: {
+            isActive: boolean;
+            isRequired: boolean;
+            /** @example Surat Keterangan Sehat */
+            name: string;
+        };
         CreateAdmissionWaveDto: {
             /** Format: uuid */
             academicYearId: string;
@@ -2534,6 +2605,9 @@ export interface components {
             /** @description Alasan penolakan */
             reason: string;
         };
+        ReorderAdmissionDocumentTypesDto: {
+            ids: string[];
+        };
         RequestRevisionDto: {
             /** @description Revision note shown to the applicant */
             note: string;
@@ -2559,6 +2633,12 @@ export interface components {
             bankName?: string;
             isActive?: boolean;
             sortOrder?: number;
+        };
+        UpdateAdmissionDocumentTypeDto: {
+            isActive?: boolean;
+            isRequired?: boolean;
+            /** @example Surat Keterangan Sehat */
+            name?: string;
         };
         UpdateAdmissionWaveDto: {
             /** Format: uuid */
@@ -3337,6 +3417,167 @@ export interface operations {
                         statusCode?: number;
                     };
                 };
+            };
+        };
+    };
+    AdmissionDocumentTypeController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDocumentTypeResponseDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDocumentTypeController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAdmissionDocumentTypeDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDocumentTypeResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Nama jenis berkas sudah ada */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDocumentTypeController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Jenis berkas sudah dipakai, nonaktifkan saja */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDocumentTypeController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAdmissionDocumentTypeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDocumentTypeResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Nama jenis berkas sudah ada */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDocumentTypeController_reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderAdmissionDocumentTypesDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDocumentTypeResponseDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Urutan jenis berkas tidak lengkap */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
