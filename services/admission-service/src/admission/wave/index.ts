@@ -7,3 +7,9 @@ export type {
   AdmissionWaveEntity,
 } from './domain/entities/admission-wave.entity.js'
 export { admissionToday } from './domain/policies/admission-calendar.js'
+export {
+  isWaveFull,
+  MOVABLE_STATUSES,
+  pickTargetWave,
+} from './domain/policies/wave-capacity.policy.js'
+export type { TargetCandidate } from './domain/policies/wave-capacity.policy.js'
