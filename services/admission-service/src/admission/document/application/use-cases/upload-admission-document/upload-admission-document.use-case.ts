@@ -119,7 +119,7 @@ export class UploadAdmissionDocumentUseCase {
 
     const { filename, storageKey } = await this.storage.save(input.file, [
       'documents',
-      String(documentType.name ?? ''),
+      String(documentType.code ?? ''),
     ])
 
     return this.documents.saveDocument({

@@ -40,7 +40,9 @@ export class PrismaAdmissionDocumentRepository extends IAdmissionDocumentReposit
   async findDocumentTypeByCode(
     code: string,
   ): Promise<AdmissionDocumentTypeRef | null> {
-    return this.prisma.admissionDocumentType.findFirst({ where: { code } })
+    return this.prisma.admissionDocumentType.findFirst({
+      where: { code, isActive: true },
+    })
   }
 
   async findActiveDocumentTypes(): Promise<AdmissionDocumentTypeRef[]> {

@@ -59,6 +59,26 @@ describe('SaveDocumentTypeUseCase', () => {
     })
   })
 
+  it.each(['', '   '])('refuses the blank name %j on create', async (name) => {
+    const repo = repository()
+    await expect(
+      new SaveDocumentTypeUseCase(repo as never).create({
+        name,
+        isRequired: true,
+        isActive: true,
+      }),
+    ).rejects.toThrow(new BadRequestException('Nama jenis berkas wajib diisi'))
+    expect(repo.create).not.toHaveBeenCalled()
+  })
+
+  it('refuses a blank name on rename', async () => {
+    const repo = repository()
+    await expect(
+      new SaveDocumentTypeUseCase(repo as never).update('t1', { name: '   ' }),
+    ).rejects.toThrow(BadRequestException)
+    expect(repo.update).not.toHaveBeenCalled()
+  })
+
   it('refuses a duplicate name on create', async () => {
     const repo = repository()
     repo.nameTaken.mockResolvedValue(true)

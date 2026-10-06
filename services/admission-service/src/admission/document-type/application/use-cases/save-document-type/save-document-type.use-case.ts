@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -15,7 +16,7 @@ export class SaveDocumentTypeUseCase {
   constructor(private readonly repository: IAdmissionDocumentTypeRepository) {}
 
   async create(input: CreateDocumentTypeInput) {
-    const name = input.name.trim()
+    const name = this.requireName(input.name)
     await this.assertNameFree(name)
     const [codes, maxSortOrder] = await Promise.all([
       this.repository.findAllCodes(),
@@ -33,12 +34,19 @@ export class SaveDocumentTypeUseCase {
     if (!(await this.repository.findById(id))) {
       throw new NotFoundException('Jenis berkas tidak ditemukan')
     }
-    const name = input.name?.trim()
+    const name =
+      input.name === undefined ? undefined : this.requireName(input.name)
     if (name !== undefined) await this.assertNameFree(name, id)
     return this.repository.update(id, {
       ...input,
       ...(name !== undefined && { name }),
     })
+  }
+
+  private requireName(raw: string) {
+    const name = raw.trim()
+    if (!name) throw new BadRequestException('Nama jenis berkas wajib diisi')
+    return name
   }
 
   private async assertNameFree(name: string, exceptId?: string) {
