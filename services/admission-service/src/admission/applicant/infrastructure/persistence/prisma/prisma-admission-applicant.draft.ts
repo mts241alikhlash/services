@@ -1,7 +1,9 @@
+import { ConflictException } from '@nestjs/common'
 import {
   AdmissionApplication,
   Prisma,
 } from '../../../../../generated/prisma/client.js'
+import { countFilledByWave, isWaveFull } from '../../../../wave/index.js'
 import {
   DecimalValue,
   toNumericValue,
@@ -23,6 +25,15 @@ export async function createDraftApplication(
     where: { id: input.waveId },
     data: { lastRegistrationSeq: { increment: 1 } },
   })
+  const filled = await countFilledByWave(tx, [input.waveId])
+  if (
+    isWaveFull({
+      quota: updatedWave.quota,
+      filledCount: filled.get(input.waveId) ?? 0,
+    })
+  ) {
+    throw new ConflictException('Gelombang penuh')
+  }
   const registrationNumber = `${input.waveCode}-${String(
     updatedWave.lastRegistrationSeq,
   ).padStart(4, '0')}`
