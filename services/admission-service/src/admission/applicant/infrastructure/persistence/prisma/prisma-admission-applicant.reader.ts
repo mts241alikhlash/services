@@ -11,7 +11,12 @@ import {
 } from '../../../../application/infrastructure/persistence/prisma/prisma-admission-application.includes.js'
 import type { AdmissionAnnouncementWithWave } from '../../../../announcement/index.js'
 import { ActiveWaveRow } from '../../../domain/repositories/admission-applicant-repository.js'
-import { admissionToday } from '../../../../wave/index.js'
+import {
+  admissionToday,
+  countFilledByWave,
+  isWaveFull,
+  withFilledCount,
+} from '../../../../wave/index.js'
 import { IReferenceLookupPort } from '../../../../../platform/reference-lookup/reference-lookup.port.js'
 import {
   attachParentReferences,
@@ -63,7 +68,7 @@ export class PrismaAdmissionApplicantReader {
 
   async findActiveWave(): Promise<AdmissionWave | null> {
     const today = admissionToday()
-    return this.prisma.admissionWave.findFirst({
+    const waves = await this.prisma.admissionWave.findMany({
       where: {
         isActive: true,
         deletedAt: null,
@@ -71,6 +76,24 @@ export class PrismaAdmissionApplicantReader {
         endDate: { gte: today },
       },
       orderBy: { startDate: 'asc' },
+    })
+    const counted = await withFilledCount(this.prisma, waves)
+    const open = counted.find((wave) => !isWaveFull(wave))
+    if (!open) return null
+    const { filledCount: _filledCount, ...wave } = open
+    return wave
+  }
+
+  async isWaveFull(waveId: string): Promise<boolean> {
+    const wave = await this.prisma.admissionWave.findFirst({
+      where: { id: waveId },
+      select: { quota: true },
+    })
+    if (!wave) return false
+    const counts = await countFilledByWave(this.prisma, [waveId])
+    return isWaveFull({
+      quota: wave.quota,
+      filledCount: counts.get(waveId) ?? 0,
     })
   }
 
@@ -96,11 +119,12 @@ export class PrismaAdmissionApplicantReader {
     })
     if (rows.length === 0) return []
 
+    const counted = await withFilledCount(this.prisma, rows)
     const years = await resolveAcademicYearNames(
       this.referenceLookup,
-      rows.map((row) => row.academicYearId),
+      counted.map((row) => row.academicYearId),
     )
-    return rows.map((row) => ({
+    return counted.map((row) => ({
       ...row,
       academicYear: years.get(row.academicYearId) ?? null,
     }))
