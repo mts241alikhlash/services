@@ -21,6 +21,7 @@ function makePaymentRepository(
     findPayment: jest.fn(),
     updatePaymentStatus: jest.fn(),
     verifyWithinQuota: jest.fn(),
+    cancelVerification: jest.fn(),
     isWaveFull: jest.fn(),
     ...overrides,
   }
