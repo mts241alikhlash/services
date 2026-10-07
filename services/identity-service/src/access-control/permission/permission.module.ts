@@ -13,6 +13,7 @@ import { DeletePermissionUseCase } from './application/use-cases/delete-permissi
 import { PermissionGuard } from './guards/permission.guard.js'
 import { RoleModule } from '../role/role.module.js'
 import { AuthModule } from '../../auth/auth.module.js'
+import { EnsureStructuralRolesUseCase } from '../role/application/use-cases/ensure-structural-roles/ensure-structural-roles.use-case.js'
 
 @Module({
   imports: [RoleModule, AuthModule],
@@ -32,9 +33,13 @@ import { AuthModule } from '../../auth/auth.module.js'
   exports: [IPermissionRepository, PermissionGuard],
 })
 export class PermissionModule implements OnApplicationBootstrap {
-  constructor(private readonly syncPermissions: SyncPermissionsUseCase) {}
+  constructor(
+    private readonly syncPermissions: SyncPermissionsUseCase,
+    private readonly ensureStructuralRoles: EnsureStructuralRolesUseCase,
+  ) {}
 
   async onApplicationBootstrap(): Promise<void> {
     await this.syncPermissions.execute()
+    await this.ensureStructuralRoles.execute()
   }
 }

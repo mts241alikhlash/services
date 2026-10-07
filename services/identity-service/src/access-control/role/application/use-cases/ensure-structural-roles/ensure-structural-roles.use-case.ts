@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { IRoleRepository } from '../../../domain/repositories/role.repository.js'
-import { STRUCTURAL_ROLES } from '../../../domain/policies/structural-roles.policy.js'
+import {
+  EMPLOYEE_SELF_SERVICE_PERMISSIONS,
+  STRUCTURAL_ROLES,
+} from '../../../domain/policies/structural-roles.policy.js'
 
 @Injectable()
 export class EnsureStructuralRolesUseCase {
@@ -22,19 +25,20 @@ export class EnsureStructuralRolesUseCase {
           description: role.description,
         })
         created.push(role.code)
-        continue
-      }
-
-      if (!existing.isSystem) {
+      } else if (!existing.isSystem) {
         await this.roleRepository.markSystem(existing.id)
         protectedNow.push(role.code)
+      }
+
+      if (role.code === 'EMPLOYEE' || role.code === 'TEACHER') {
+        await this.roleRepository.ensureStructuralPermissions(role.code, [
+          ...EMPLOYEE_SELF_SERVICE_PERMISSIONS,
+        ])
       }
     }
 
     if (created.length > 0) {
-      this.logger.log(
-        `Created structural roles with no permissions — grant them on the role screen: ${created.join(', ')}`,
-      )
+      this.logger.log(`Created structural roles: ${created.join(', ')}`)
     }
     if (protectedNow.length > 0) {
       this.logger.log(

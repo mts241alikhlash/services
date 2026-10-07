@@ -175,9 +175,9 @@ them; nothing about their shape has changed.
 
 ## Default roles
 
-Two kinds of role exist. A structural role (`SUPER_ADMIN`, `TEACHER`,
-`STUDENT`, `APPLICANT`) is `isSystem`: code assigns or recognises it, so it
-cannot be edited or deleted. A default role is ordinary data a school may edit
+Two kinds of role exist. A structural role (`SUPER_ADMIN`, `EMPLOYEE`,
+`TEACHER`, `STUDENT`, `APPLICANT`) is `isSystem`: code assigns or recognises it,
+so it cannot be edited or deleted. A default role is ordinary data a school may edit
 or delete. `PARENT` has no code path and is a default role with no permissions.
 
 `seed:permissions` creates every default role that is missing, with the grants
@@ -189,6 +189,12 @@ existing default role whose definition includes it, once, in the run that create
 code; a role the school has edited is never reset and a code removed later is not
 given back. Codes that existed before this behaviour, or that no default role
 defines, are granted in admin-web.
+
+The self-service bundle of `EMPLOYEE` and `TEACHER` is listed on the structural role
+itself (`permissions` in `structural-roles.policy.ts`) and is topped up at startup only
+while the role holds none of it: a new `EMPLOYEE`, and an existing `TEACHER` that never
+had the bundle, receive it once, and a school that removes some of it keeps its edit.
+`TEACHER` carries the same employee grants plus its academic grants.
 
 Nothing in any web app or service decides by a role's name. Roles are bundles
 of permissions, and the web checks permissions only. `admissions.apply` lets an
@@ -217,6 +223,7 @@ applicant fill in and submit their own PPDB application; admission-service's
 | `TREASURER` | Bendahara | `FINANCE_STAFF` plus payroll approval and PPDB payment verification |
 | `PUBLIC_RELATIONS` | Humas | school website and announcements |
 | `HOMEROOM_TEACHER` | Wali Kelas | attendance and report cards of the homeroom class |
+| `EMPLOYEE` | Pegawai | own employment record, attendance, leave, and payslip |
 | `PARENT` | Orang Tua | no permissions |
 
 ## How a request is actually authorized (current mechanism, since 2026-08-30)

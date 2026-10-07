@@ -43,6 +43,7 @@ describe('parseSsoApps', () => {
 describe('realms', () => {
   it('treats any role other than APPLICANT as staff', () => {
     expect(isStaff(['APPLICANT', 'TEACHER'])).toBe(true)
+    expect(isStaff(['EMPLOYEE'])).toBe(true)
     expect(isStaff(['APPLICANT'])).toBe(false)
     expect(isStaff([])).toBe(false)
   })
@@ -90,6 +91,15 @@ describe('canOpenApp', () => {
       canOpenApp('hr', {
         roles: ['STAFF'],
         permissions: ['presence-scans.read'],
+      }),
+    ).toBe(true)
+  })
+
+  it('opens hr for employee self-service access', () => {
+    expect(
+      canOpenApp('hr', {
+        roles: ['EMPLOYEE'],
+        permissions: ['employees.read-own'],
       }),
     ).toBe(true)
   })

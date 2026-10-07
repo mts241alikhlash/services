@@ -4,6 +4,7 @@ import {
   type PermissionApp,
 } from '../../permission/domain/policies/permission-apps.policy.js'
 import type { SystemPermission } from '../../permission/types/system-permission.type.js'
+import { EMPLOYEE_SELF_SERVICE_PERMISSIONS } from './policies/structural-roles.policy.js'
 
 export type Grant =
   | { app: PermissionApp }
@@ -42,6 +43,7 @@ const STUDENT_LISTS = [
 ]
 
 const TEACHER_CODES = (): string[] => [
+  ...EMPLOYEE_SELF_SERVICE_PERMISSIONS,
   'dashboards.read-own',
   'teaching-assignments.read-own',
   'schedules.read-own',
@@ -396,6 +398,13 @@ export const DEFAULT_ROLES: DefaultRole[] = [
     ],
   ),
   role('PARENT', 'Orang Tua', 'Orang tua atau wali siswa', []),
+  role(
+    'EMPLOYEE',
+    'Pegawai',
+    'Akses mandiri pegawai',
+    [{ codes: [...EMPLOYEE_SELF_SERVICE_PERMISSIONS] }],
+    true,
+  ),
   role(
     'TEACHER',
     'Guru',

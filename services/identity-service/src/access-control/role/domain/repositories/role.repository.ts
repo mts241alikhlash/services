@@ -45,6 +45,10 @@ export abstract class IRoleRepository {
     input: CreateStructuralRoleRepositoryInput,
   ): Promise<RoleEntity>
   abstract markSystem(id: string): Promise<RoleEntity>
+  abstract ensureStructuralPermissions(
+    roleCode: string,
+    permissionCodes: string[],
+  ): Promise<number>
   abstract assignRoleToUser(
     userId: string,
     roleId: string,

@@ -135,17 +135,15 @@ explain why.
 
 ## The guard the split broke
 
-`src/access-control/role/domain/depended-on-roles.spec.ts` used to prove
-that every role resolved by name somewhere in the backend was protected from
-deletion. Three of those roles — `TEACHER`, `STUDENT`, `APPLICANT` — are now
-resolved by `academic-service` and `admission-service`, which this repository
-cannot open.
+`src/access-control/role/domain/depended-on-roles.spec.ts` proves that roles
+resolved by name somewhere in the backend are protected from deletion. Four
+roles — `EMPLOYEE`, `TEACHER`, `STUDENT`, `APPLICANT` — are resolved by other
+services, which this repository cannot open.
 
 `requiredBy` therefore gained a `Cross-service — <service>: <file>` shape, and
-the sweep checks that shape rather than pretending to verify the file. **Deleting
-`TEACHER` on the role screen still breaks academic-service, and nothing here
-will go red.** Closing that needs a check spanning repositories. It is written
-down rather than fixed, which is the honest state.
+the sweep checks that shape rather than pretending to verify the file. Deleting
+one of these roles on the role screen breaks its consumer; the test records the
+cross-service dependency but cannot verify the sibling file.
 
 ## Authorization no longer reads identity-service's tables
 

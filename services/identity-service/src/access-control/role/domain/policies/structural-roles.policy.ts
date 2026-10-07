@@ -5,12 +5,27 @@ export interface StructuralRole {
   requiredBy: string
 }
 
+export const EMPLOYEE_SELF_SERVICE_PERMISSIONS = [
+  'employees.read-own',
+  'leave-requests.create',
+  'leave-requests.read-own',
+  'payroll-payslips.read-own',
+  'presence-records.read-own',
+] as const
+
 export const STRUCTURAL_ROLES: StructuralRole[] = [
   {
     code: 'SUPER_ADMIN',
     name: 'Super Admin',
     description: 'Platform Super Admin',
     requiredBy: 'PermissionGuard — the break-glass bypass',
+  },
+  {
+    code: 'EMPLOYEE',
+    name: 'Pegawai',
+    description: 'Employee self-service access',
+    requiredBy:
+      'Cross-service — hr-service: prisma-employee.repository.ts (provisioning employee accounts)',
   },
   {
     code: 'TEACHER',

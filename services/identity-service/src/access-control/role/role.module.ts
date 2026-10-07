@@ -1,4 +1,4 @@
-import { Module, OnApplicationBootstrap } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { RoleController } from './presentation/http/role.controller.js'
 import { PrismaRoleRepository } from './infrastructure/persistence/prisma/prisma-role.repository.js'
 import { IRoleRepository } from './domain/repositories/role.repository.js'
@@ -27,14 +27,6 @@ import { AuthModule } from '../../auth/auth.module.js'
     RemoveRoleFromUserUseCase,
     EnsureStructuralRolesUseCase,
   ],
-  exports: [IRoleRepository],
+  exports: [IRoleRepository, EnsureStructuralRolesUseCase],
 })
-export class RoleModule implements OnApplicationBootstrap {
-  constructor(
-    private readonly ensureStructuralRoles: EnsureStructuralRolesUseCase,
-  ) {}
-
-  async onApplicationBootstrap(): Promise<void> {
-    await this.ensureStructuralRoles.execute()
-  }
-}
+export class RoleModule {}
