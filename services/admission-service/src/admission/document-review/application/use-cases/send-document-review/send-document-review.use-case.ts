@@ -82,12 +82,12 @@ export class SendDocumentReviewUseCase {
       }
     }
 
-    await this.notifications.notify(
-      input.applicationId,
-      'DOCUMENT',
-      'Berkas disetujui',
-      'Seluruh berkas Anda telah diperiksa dan disetujui panitia.',
-    )
+    const recorded = await this.reviews.recordApproval(input.applicationId)
+    if (!recorded) {
+      throw new ConflictException(
+        'Hasil pemeriksaan sudah dikirim atau berkas berubah, muat ulang dan coba lagi',
+      )
+    }
     const verified = await this.verifyWhenReady.execute(
       input.applicationId,
       input.adminId,

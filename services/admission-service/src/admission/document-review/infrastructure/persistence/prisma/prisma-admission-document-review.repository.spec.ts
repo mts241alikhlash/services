@@ -373,4 +373,98 @@ describe('PrismaAdmissionDocumentReviewRepository writes', () => {
       data: { status: 'REVISION_NEEDED', revisionNote: 'Catatan' },
     })
   })
+
+  describe('recordApproval', () => {
+    function approving(overrides: Record<string, unknown> = {}) {
+      const tx = {
+        $queryRaw: jest.fn().mockResolvedValue([]),
+        admissionApplication: {
+          findFirst: jest.fn().mockResolvedValue({
+            status: 'SUBMITTED',
+            submittedAt: new Date('2026-10-01T00:00:00Z'),
+            documents: [
+              { documentTypeId: 'kk', status: 'APPROVED' },
+              { documentTypeId: 'surat', status: 'PENDING' },
+            ],
+          }),
+        },
+        admissionDocumentType: {
+          findMany: jest.fn().mockResolvedValue([{ id: 'kk' }]),
+        },
+        admissionNotification: {
+          findFirst: jest.fn().mockResolvedValue(null),
+          create: jest.fn().mockResolvedValue({}),
+        },
+        ...overrides,
+      }
+      const prisma = {
+        $transaction: jest.fn((run: (client: unknown) => unknown) => run(tx)),
+      }
+      return {
+        repository: new PrismaAdmissionDocumentReviewRepository(
+          prisma as never,
+        ),
+        tx,
+      }
+    }
+
+    it('locks the application and records the approval notice once', async () => {
+      const { repository, tx } = approving()
+
+      await expect(repository.recordApproval('app1')).resolves.toBe(true)
+
+      expect(tx.$queryRaw).toHaveBeenCalledTimes(1)
+      expect(tx.admissionNotification.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          applicationId: 'app1',
+          type: 'DOCUMENT',
+          title: 'Berkas disetujui',
+        }),
+      })
+    })
+
+    it('records nothing when the notice already exists for this submission', async () => {
+      const { repository, tx } = approving({
+        admissionNotification: {
+          findFirst: jest.fn().mockResolvedValue({ id: 'n1' }),
+          create: jest.fn(),
+        },
+      })
+
+      await expect(repository.recordApproval('app1')).resolves.toBe(false)
+      expect(tx.admissionNotification.create).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['no longer submitted', { status: 'REVISION_NEEDED', documents: [] }],
+      [
+        'a required document is no longer approved',
+        {
+          status: 'SUBMITTED',
+          documents: [{ documentTypeId: 'kk', status: 'REJECTED' }],
+        },
+      ],
+      [
+        'an optional document was rejected meanwhile',
+        {
+          status: 'SUBMITTED',
+          documents: [
+            { documentTypeId: 'kk', status: 'APPROVED' },
+            { documentTypeId: 'surat', status: 'REJECTED' },
+          ],
+        },
+      ],
+    ])('records nothing when %s', async (_name, application) => {
+      const { repository, tx } = approving({
+        admissionApplication: {
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({ submittedAt: null, ...application }),
+        },
+      })
+
+      await expect(repository.recordApproval('app1')).resolves.toBe(false)
+      expect(tx.admissionNotification.create).not.toHaveBeenCalled()
+    })
+  })
 })

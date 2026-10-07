@@ -232,6 +232,7 @@ describe('SendDocumentReviewUseCase', () => {
     const repository = {
       findContext: jest.fn().mockResolvedValue(found),
       markRevisionNeeded: jest.fn().mockResolvedValue(true),
+      recordApproval: jest.fn().mockResolvedValue(true),
       ...overrides,
     }
     const notifications = { notify: jest.fn().mockResolvedValue(undefined) }
@@ -258,14 +259,20 @@ describe('SendDocumentReviewUseCase', () => {
       verified: true,
     })
     expect(repository.markRevisionNeeded).not.toHaveBeenCalled()
-    expect(notifications.notify).toHaveBeenCalledTimes(1)
-    expect(notifications.notify).toHaveBeenCalledWith(
-      'app1',
-      'DOCUMENT',
-      'Berkas disetujui',
-      expect.any(String),
-    )
+    expect(repository.recordApproval).toHaveBeenCalledWith('app1')
+    expect(notifications.notify).not.toHaveBeenCalled()
     expect(verifyWhenReady.execute).toHaveBeenCalledWith('app1', 'admin1')
+  })
+
+  it('answers 409 and verifies nothing when the approval was already sent or the documents changed', async () => {
+    const { useCase, verifyWhenReady } = setup(context(), {
+      recordApproval: jest.fn().mockResolvedValue(false),
+    })
+
+    await expect(useCase.execute(send)).rejects.toBeInstanceOf(
+      ConflictException,
+    )
+    expect(verifyWhenReady.execute).not.toHaveBeenCalled()
   })
 
   it('stays submitted when the payment is not verified yet', async () => {

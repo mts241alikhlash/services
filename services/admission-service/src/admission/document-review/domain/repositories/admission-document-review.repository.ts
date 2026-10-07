@@ -10,6 +10,7 @@ export abstract class IAdmissionDocumentReviewRepository {
   abstract findQueue(query: ReviewQueueQuery): Promise<ReviewQueueResult>
   abstract findContext(applicationId: string): Promise<ReviewContext | null>
   abstract saveDecision(input: SaveDecisionInput): Promise<SaveDecisionResult>
+  abstract recordApproval(applicationId: string): Promise<boolean>
   abstract markRevisionNeeded(
     applicationId: string,
     note: string,

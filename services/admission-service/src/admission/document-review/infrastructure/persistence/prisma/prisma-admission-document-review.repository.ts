@@ -19,6 +19,11 @@ const PAST_SUBMITTED = [
   'ENROLLED',
 ] as const
 
+const APPROVAL_NOTICE = {
+  title: 'Berkas disetujui',
+  message: 'Seluruh berkas Anda telah diperiksa dan disetujui panitia.',
+}
+
 const DOCUMENT_SELECT = {
   id: true,
   documentTypeId: true,
@@ -240,6 +245,54 @@ export class PrismaAdmissionDocumentReviewRepository extends IAdmissionDocumentR
         select: DOCUMENT_SELECT,
       })
       return { outcome: 'SAVED' as const, document: toDocument(updated) }
+    })
+  }
+
+  recordApproval(applicationId: string): Promise<boolean> {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM admission_applications WHERE id = ${applicationId}::uuid FOR UPDATE`
+      const application = await tx.admissionApplication.findFirst({
+        where: { id: applicationId, deletedAt: null },
+        select: {
+          status: true,
+          submittedAt: true,
+          documents: { select: { documentTypeId: true, status: true } },
+        },
+      })
+      if (application?.status !== 'SUBMITTED') return false
+      if (application.documents.some((row) => row.status === 'REJECTED')) {
+        return false
+      }
+      const required = await tx.admissionDocumentType.findMany({
+        where: { isActive: true, isRequired: true },
+        select: { id: true },
+      })
+      const stillOpen = required.some(
+        (type) =>
+          !application.documents.some(
+            (row) =>
+              row.documentTypeId === type.id && row.status === 'APPROVED',
+          ),
+      )
+      if (stillOpen) return false
+
+      const alreadySent = await tx.admissionNotification.findFirst({
+        where: {
+          applicationId,
+          type: 'DOCUMENT',
+          title: APPROVAL_NOTICE.title,
+          ...(application.submittedAt && {
+            createdAt: { gte: application.submittedAt },
+          }),
+        },
+        select: { id: true },
+      })
+      if (alreadySent) return false
+
+      await tx.admissionNotification.create({
+        data: { applicationId, type: 'DOCUMENT', ...APPROVAL_NOTICE },
+      })
+      return true
     })
   }
 
