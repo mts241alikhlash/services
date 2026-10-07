@@ -164,5 +164,34 @@ describe('Document workflow use-cases', () => {
         }),
       )
     })
+
+    it('stores the file under the type code, never its editable name', async () => {
+      repo.findByApplicationId.mockResolvedValue({
+        id: 'app1',
+        status: 'DRAFT',
+      })
+      repo.findDocumentTypeByCode.mockResolvedValue({
+        id: 'dt1',
+        code: 'FAMILY_CARD',
+        name: '../Kartu/Keluarga',
+      })
+      storage.save.mockResolvedValue({
+        filename: 'stored.png',
+        storageKey: 'documents/FAMILY_CARD/stored.png',
+      })
+      repo.saveDocument.mockResolvedValue({ id: 'doc1' })
+
+      await uploadDocument.executeForApplication({
+        applicationId: 'app1',
+        documentTypeCode: 'FAMILY_CARD',
+        file: file,
+        adminId: 'admin1',
+      })
+
+      expect(storage.save).toHaveBeenCalledWith(file, [
+        'documents',
+        'FAMILY_CARD',
+      ])
+    })
   })
 })
