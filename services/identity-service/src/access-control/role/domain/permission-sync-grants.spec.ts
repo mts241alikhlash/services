@@ -2,8 +2,10 @@ import { syncPermissions } from '../../../../prisma/seeds/modules/permission-syn
 import { DEFAULT_ROLES } from './default-roles.js'
 import { SYSTEM_PERMISSIONS } from '../../permission/constants/permission-codes.constants.js'
 
-const NEW_CODES = SYSTEM_PERMISSIONS.map((p) => p.code).filter((code) =>
-  code.startsWith('admission-document-types.'),
+const NEW_CODES = SYSTEM_PERMISSIONS.map((p) => p.code).filter(
+  (code) =>
+    code.startsWith('admission-document-types.') ||
+    code.startsWith('admission-documents.'),
 )
 
 function fakePrisma(existingCodes: string[], roleCodes: string[]) {
@@ -89,6 +91,16 @@ describe('syncPermissions grants brand-new codes to existing default roles', () 
     expect(grantedTo('admission-document-types.delete')).not.toContain(
       'STUDENT_AFFAIRS_STAFF',
     )
+    const verify = grantedTo('admission-documents.verify')
+    expect(verify).toEqual(
+      expect.arrayContaining([
+        'ADMISSION_ADMIN',
+        'OPERATOR',
+        'STUDENT_AFFAIRS_STAFF',
+        'SUPER_ADMIN',
+      ]),
+    )
+    expect(verify).not.toContain('TREASURER')
   })
 
   it('leaves existing roles alone once the code is already in the database', async () => {
