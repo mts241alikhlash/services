@@ -127,7 +127,10 @@ export class StorageService {
         contentLength: response.ContentLength,
       }
     } catch (err) {
-      if (err instanceof Error && ['NoSuchKey', 'NotFound'].includes(err.name)) {
+      if (
+        err instanceof Error &&
+        ['NoSuchKey', 'NotFound'].includes(err.name)
+      ) {
         throw new NotFoundException('Berkas tidak ditemukan di penyimpanan')
       }
       this.logger.error(

@@ -16,6 +16,7 @@ import { PaymentModule } from './payment/index.js'
 import { NotificationModule } from './notification/index.js'
 import { BankAccountModule } from './bank-account/index.js'
 import { DocumentTypeModule } from './document-type/index.js'
+import { FileModule } from './file/index.js'
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { DocumentTypeModule } from './document-type/index.js'
     NotificationModule,
     BankAccountModule,
     DocumentTypeModule,
+    FileModule,
   ],
   controllers: [AdmissionPublicController, AdmissionApplicantController],
   providers: [GetActiveWavesUseCase, GetPublishedAnnouncementsUseCase],

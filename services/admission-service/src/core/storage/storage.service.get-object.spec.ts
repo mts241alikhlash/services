@@ -1,7 +1,4 @@
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common'
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { Readable } from 'node:stream'
 import { StorageService } from './storage.service.js'
 
@@ -30,7 +27,9 @@ describe('StorageService.getObject', () => {
       ContentLength: 3,
     })
 
-    const result = await storageWith(send).getObject('production/admission/a.pdf')
+    const result = await storageWith(send).getObject(
+      'production/admission/a.pdf',
+    )
 
     expect(result).toEqual({
       stream: body,
