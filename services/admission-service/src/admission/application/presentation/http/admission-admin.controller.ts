@@ -104,7 +104,7 @@ export class AdmissionAdminController {
   }
 
   @Patch('applications/:id/documents/:docId/verify')
-  @RequirePermissions('admissions.verify')
+  @RequirePermissions('admission-documents.verify')
   @ApiOperation({ summary: 'Approve or reject a document' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiParam({ name: 'docId', format: 'uuid' })
@@ -145,7 +145,7 @@ export class AdmissionAdminController {
   }
 
   @Post('applications/:id/request-revision')
-  @RequirePermissions('admissions.verify')
+  @RequirePermissions('admission-documents.verify')
   @ApiOperation({
     summary: 'Return the application to the applicant for revision',
   })
@@ -160,7 +160,7 @@ export class AdmissionAdminController {
   }
 
   @Post('applications/:id/verify')
-  @RequirePermissions('admissions.verify')
+  @RequirePermissions('admission-documents.verify')
   @ApiOperation({
     summary: 'Mark application VERIFIED (all docs approved + payment verified)',
   })

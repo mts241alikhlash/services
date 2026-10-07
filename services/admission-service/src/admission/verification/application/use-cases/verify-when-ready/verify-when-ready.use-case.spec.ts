@@ -18,7 +18,7 @@ function setup(overrides: Record<string, jest.Mock> = {}) {
   }
   const notifications = { notify: jest.fn().mockResolvedValue(undefined) }
   const useCase = new VerifyApplicationWhenReadyUseCase(
-    verification as never,
+    verification,
     notifications as never,
   )
   return { useCase, verification, notifications }

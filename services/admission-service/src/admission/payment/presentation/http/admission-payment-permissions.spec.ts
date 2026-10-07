@@ -29,9 +29,14 @@ describe('payment queue permissions', () => {
     ).toEqual(['admission-payments.verify'])
   })
 
-  it('leaves document verification and finalisation to admissions.verify', () => {
+  it('guards document verification and finalisation with admission-documents.verify', () => {
     const admin = AdmissionAdminController.prototype
-    expect(required(admin, 'verifyDocument')).toEqual(['admissions.verify'])
-    expect(required(admin, 'verifyApplication')).toEqual(['admissions.verify'])
+    for (const method of [
+      'verifyDocument',
+      'requestRevision',
+      'verifyApplication',
+    ]) {
+      expect(required(admin, method)).toEqual(['admission-documents.verify'])
+    }
   })
 })
