@@ -296,6 +296,74 @@ export interface paths {
         patch: operations["AdmissionBankAccountController_update"];
         trace?: never;
     };
+    "/admissions/document-reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Document review queue by tab, with tab counts */
+        get: operations["AdmissionDocumentReviewController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/document-reviews/{applicationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An applicant with every active document type */
+        get: operations["AdmissionDocumentReviewController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/document-reviews/{applicationId}/documents/{documentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Save an approve or reject decision without telling the applicant */
+        patch: operations["AdmissionDocumentReviewController_decide"];
+        trace?: never;
+    };
+    "/admissions/document-reviews/{applicationId}/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send the review result to the applicant, once */
+        post: operations["AdmissionDocumentReviewController_send"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admissions/document-types": {
         parameters: {
             query?: never;
@@ -1928,6 +1996,82 @@ export interface components {
             sizeBytes: number;
             storageKey: string;
         };
+        AdmissionDocumentReviewCountsDto: {
+            done: number;
+            revision: number;
+            waiting: number;
+        };
+        AdmissionDocumentReviewDocumentResponseDto: {
+            documentTypeId: string;
+            file: components["schemas"]["AdmissionDocumentReviewFileDto"];
+            id: string;
+            note: string | null;
+            /** @enum {string} */
+            status: "PENDING" | "APPROVED" | "REJECTED";
+            /** Format: date-time */
+            verifiedAt: string | null;
+        };
+        AdmissionDocumentReviewFileDto: {
+            id: string;
+            mimeType: string;
+            originalName: string;
+            storageKey: string;
+        };
+        AdmissionDocumentReviewMetaDto: {
+            counts: components["schemas"]["AdmissionDocumentReviewCountsDto"];
+            limit: number;
+            page: number;
+            total: number;
+            totalPages: number;
+        };
+        AdmissionDocumentReviewQueueResponseDto: {
+            data: components["schemas"]["AdmissionDocumentReviewRowResponseDto"][];
+            meta: components["schemas"]["AdmissionDocumentReviewMetaDto"];
+        };
+        AdmissionDocumentReviewResponseDto: {
+            applicantName: string;
+            applicationId: string;
+            paymentStatus: string | null;
+            readOnly: boolean;
+            registrationNumber: string;
+            revisionNote: string | null;
+            slots: components["schemas"]["AdmissionDocumentReviewSlotDto"][];
+            status: string;
+            /** Format: date-time */
+            submittedAt: string | null;
+            waveName: string;
+        };
+        AdmissionDocumentReviewRowResponseDto: {
+            applicantName: string;
+            applicationId: string;
+            registrationNumber: string;
+            status: string;
+            /** Format: date-time */
+            submittedAt: string | null;
+            summary: components["schemas"]["AdmissionDocumentReviewSummaryDto"];
+            waveName: string;
+        };
+        AdmissionDocumentReviewSendResponseDto: {
+            /** @enum {string} */
+            outcome: "APPROVED" | "REVISION_REQUESTED";
+            /** @enum {string} */
+            status: "SUBMITTED" | "REVISION_NEEDED" | "VERIFIED";
+            verified: boolean;
+        };
+        AdmissionDocumentReviewSlotDto: {
+            code: string;
+            document: components["schemas"]["AdmissionDocumentReviewDocumentResponseDto"] | null;
+            documentTypeId: string;
+            isRequired: boolean;
+            name: string;
+        };
+        AdmissionDocumentReviewSummaryDto: {
+            approved: number;
+            missing: number;
+            pending: number;
+            rejected: number;
+            total: number;
+        };
         AdmissionDocumentTypeListResponseDto: {
             data: components["schemas"]["AdmissionDocumentTypeResponseDto"][];
         };
@@ -2788,6 +2932,16 @@ export interface components {
             /** @description Revision note shown to the applicant */
             note: string;
         };
+        SaveDocumentDecisionDto: {
+            /** @description Required when the decision is REJECTED */
+            note?: string;
+            /** @enum {string} */
+            status: "APPROVED" | "REJECTED";
+        };
+        SendDocumentReviewDto: {
+            /** @description Free note about data that is wrong, or a document to upload; returns the form to the applicant */
+            dataNote?: string;
+        };
         UpdateAdmissionAnnouncementDto: {
             content?: string;
             /** @default false */
@@ -3593,6 +3747,143 @@ export interface operations {
                         statusCode?: number;
                     };
                 };
+            };
+        };
+    };
+    AdmissionDocumentReviewController_findAll: {
+        parameters: {
+            query?: {
+                limit?: number;
+                page?: number;
+                /** @description Search by applicant name or registration number */
+                search?: string;
+                tab?: "waiting" | "revision" | "done";
+                waveId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDocumentReviewRowResponseDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: components["schemas"]["AdmissionDocumentReviewMetaDto"];
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDocumentReviewController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDocumentReviewResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDocumentReviewController_decide: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveDocumentDecisionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDocumentReviewDocumentResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Keputusan berkas hanya bisa diubah selama pendaftaran menunggu pemeriksaan */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDocumentReviewController_send: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendDocumentReviewDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDocumentReviewSendResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Masih ada berkas wajib yang belum diputuskan atau belum diunggah */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
