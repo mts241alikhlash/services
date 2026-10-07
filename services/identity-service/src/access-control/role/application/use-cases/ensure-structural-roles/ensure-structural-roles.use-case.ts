@@ -1,9 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { IRoleRepository } from '../../../domain/repositories/role.repository.js'
-import {
-  EMPLOYEE_SELF_SERVICE_PERMISSIONS,
-  STRUCTURAL_ROLES,
-} from '../../../domain/policies/structural-roles.policy.js'
+import { STRUCTURAL_ROLES } from '../../../domain/policies/structural-roles.policy.js'
 
 @Injectable()
 export class EnsureStructuralRolesUseCase {
@@ -30,9 +27,9 @@ export class EnsureStructuralRolesUseCase {
         protectedNow.push(role.code)
       }
 
-      if (role.code === 'EMPLOYEE' || role.code === 'TEACHER') {
+      if (role.permissions) {
         await this.roleRepository.ensureStructuralPermissions(role.code, [
-          ...EMPLOYEE_SELF_SERVICE_PERMISSIONS,
+          ...role.permissions,
         ])
       }
     }

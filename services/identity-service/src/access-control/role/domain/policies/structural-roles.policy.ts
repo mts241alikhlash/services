@@ -3,6 +3,7 @@ export interface StructuralRole {
   name: string
   description: string
   requiredBy: string
+  permissions?: readonly string[]
 }
 
 export const EMPLOYEE_SELF_SERVICE_PERMISSIONS = [
@@ -26,6 +27,7 @@ export const STRUCTURAL_ROLES: StructuralRole[] = [
     description: 'Employee self-service access',
     requiredBy:
       'Cross-service — hr-service: prisma-employee.repository.ts (provisioning employee accounts)',
+    permissions: EMPLOYEE_SELF_SERVICE_PERMISSIONS,
   },
   {
     code: 'TEACHER',
@@ -33,6 +35,7 @@ export const STRUCTURAL_ROLES: StructuralRole[] = [
     description: 'Institution Teacher',
     requiredBy:
       'Cross-service — academic-service: prisma-teacher.writer.ts (provisioning a teacher account)',
+    permissions: EMPLOYEE_SELF_SERVICE_PERMISSIONS,
   },
   {
     code: 'STUDENT',

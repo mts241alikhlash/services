@@ -141,6 +141,13 @@ export class PrismaRoleRepository extends IRoleRepository {
         `Structural role ${roleCode} permissions are missing: ${missing.join(', ')}`,
       )
     }
+    const held = await this.prisma.rolePermission.count({
+      where: {
+        roleId: role.id,
+        permissionId: { in: permissions.map((permission) => permission.id) },
+      },
+    })
+    if (held > 0) return 0
     const assigned = await this.prisma.rolePermission.createMany({
       data: permissions.map((permission) => ({
         roleId: role.id,

@@ -7,11 +7,15 @@ describe('PrismaRoleRepository.ensureStructuralPermissions', () => {
       { id: 'permission-1', code: 'employees.read-own' },
       { id: 'permission-2', code: 'leave-requests.read-own' },
     ],
+    held = 0,
   ) {
     const prisma = {
       role: { findUnique: jest.fn().mockResolvedValue(role) },
       permission: { findMany: jest.fn().mockResolvedValue(permissions) },
-      rolePermission: { createMany: jest.fn().mockResolvedValue({ count: 1 }) },
+      rolePermission: {
+        count: jest.fn().mockResolvedValue(held),
+        createMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
     }
     return {
       repository: new PrismaRoleRepository(prisma as never),
@@ -19,7 +23,7 @@ describe('PrismaRoleRepository.ensureStructuralPermissions', () => {
     }
   }
 
-  it('adds missing grants without replacing existing role grants', async () => {
+  it('grants the whole bundle while the role holds none of it', async () => {
     const { repository, prisma } = repositoryWith()
 
     await expect(
@@ -35,6 +39,24 @@ describe('PrismaRoleRepository.ensureStructuralPermissions', () => {
       ],
       skipDuplicates: true,
     })
+  })
+
+  it('keeps what the school removed: grants nothing while the role still holds part of the bundle', async () => {
+    const { repository, prisma } = repositoryWith(undefined, undefined, 1)
+
+    await expect(
+      repository.ensureStructuralPermissions('EMPLOYEE', [
+        'employees.read-own',
+        'leave-requests.read-own',
+      ]),
+    ).resolves.toBe(0)
+    expect(prisma.rolePermission.count).toHaveBeenCalledWith({
+      where: {
+        roleId: 'role-employee',
+        permissionId: { in: ['permission-1', 'permission-2'] },
+      },
+    })
+    expect(prisma.rolePermission.createMany).not.toHaveBeenCalled()
   })
 
   it('fails bootstrap when a required permission is absent', async () => {
