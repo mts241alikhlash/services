@@ -1,11 +1,17 @@
 import { PrismaClient } from '../../../src/generated/prisma/client.js'
 import {
   DEFAULT_ROLES,
+  defaultRoleGrantsFor,
   resolveGrants,
 } from '../../../src/access-control/role/domain/default-roles.js'
 import { SYSTEM_PERMISSIONS } from '../../../src/access-control/permission/constants/permission-codes.constants.js'
 
 export async function syncPermissions(prisma: PrismaClient) {
+  const knownCodes = new Set(
+    (await prisma.permission.findMany({ select: { code: true } })).map(
+      (p) => p.code,
+    ),
+  )
   const permissionIds: string[] = []
   for (const perm of SYSTEM_PERMISSIONS) {
     const dbPerm = await prisma.permission.upsert({
@@ -78,6 +84,31 @@ export async function syncPermissions(prisma: PrismaClient) {
     })
     ;(existing ? seeded : created).push(role.code)
   }
+  const newCodes = new Set(
+    SYSTEM_PERMISSIONS.map((p) => p.code).filter((c) => !knownCodes.has(c)),
+  )
+  const newGrants = defaultRoleGrantsFor(newCodes).filter(
+    (g) => !created.includes(g.roleCode),
+  )
+  const existingRoles = await prisma.role.findMany({
+    where: { code: { in: newGrants.map((g) => g.roleCode) } },
+    select: { id: true, code: true },
+  })
+  let newlyGranted = 0
+  for (const role of existingRoles) {
+    const codes = newGrants.find((g) => g.roleCode === role.code)!.codes
+    const result = await prisma.rolePermission.createMany({
+      data: codes
+        .map((code) => idByCode.get(code))
+        .filter((id): id is string => id !== undefined)
+        .map((permissionId) => ({ roleId: role.id, permissionId })),
+      skipDuplicates: true,
+    })
+    newlyGranted += result.count
+  }
+  console.log(
+    `  [roles] ${newCodes.size} new codes, ${newlyGranted} grants added to existing default roles.`,
+  )
   console.log(
     `  [roles] created ${created.length} (${created.join(', ') || 'none'}), granted ${seeded.length} empty structural roles (${seeded.join(', ') || 'none'}).`,
   )

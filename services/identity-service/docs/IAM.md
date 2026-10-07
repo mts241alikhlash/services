@@ -184,8 +184,11 @@ or delete. `PARENT` has no code path and is a default role with no permissions.
 `src/access-control/role/domain/default-roles.ts` resolves from the catalogue.
 It never resets a role that exists: a school's edits survive every release.
 A structural role other than `SUPER_ADMIN` receives its grants only while it has
-none. A permission added in a later release reaches only `SUPER_ADMIN`; the
-school grants it to other roles in admin-web.
+none. A permission added in a later release reaches `SUPER_ADMIN` and every
+existing default role whose definition includes it, once, in the run that creates the
+code; a role the school has edited is never reset and a code removed later is not
+given back. Codes that existed before this behaviour, or that no default role
+defines, are granted in admin-web.
 
 Nothing in any web app or service decides by a role's name. Roles are bundles
 of permissions, and the web checks permissions only. `admissions.apply` lets an

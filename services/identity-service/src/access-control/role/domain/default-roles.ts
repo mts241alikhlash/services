@@ -471,3 +471,13 @@ export function resolveGrants(
     ...new Set(role.grants.flatMap((grant) => selected(grant, catalogue))),
   ].sort()
 }
+
+export function defaultRoleGrantsFor(
+  newCodes: ReadonlySet<string>,
+): { roleCode: string; codes: string[] }[] {
+  if (newCodes.size === 0) return []
+  return DEFAULT_ROLES.map((role) => ({
+    roleCode: role.code,
+    codes: resolveGrants(role.code).filter((code) => newCodes.has(code)),
+  })).filter((grant) => grant.codes.length > 0)
+}

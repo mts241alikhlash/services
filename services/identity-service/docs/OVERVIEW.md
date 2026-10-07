@@ -284,7 +284,7 @@ reset-password link points at accounts, or at PPDB for an applicant.
 pnpm install
 pnpm prisma:generate          # required before anything else
 pnpm prisma:migrate           # dev migration
-pnpm seed:permissions         # every release: new permission codes granted to SUPER_ADMIN; creates the default roles once and never resets them
+pnpm seed:permissions         # every release: new permission codes granted to SUPER_ADMIN and to the existing default roles that define them; creates the default roles once and never resets them
 SEED_ADMIN_PASSWORD=<12+ chars> pnpm seed:admin-minimal   # one account, SUPER_ADMIN, signs in at accounts — the smallest usable state; an existing admin keeps its password unless SEED_ADMIN_RESET_PASSWORD=true
 pnpm dev
 pnpm validate                 # format:check + lint + typecheck + lint:strict + test + build

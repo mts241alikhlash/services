@@ -99,6 +99,9 @@ describe('default roles', () => {
       'admission-document-types.delete',
     )
     for (const action of ['read', 'create', 'update', 'delete']) {
+      expect(codesOf('OPERATOR')).toContain(
+        `admission-document-types.${action}`,
+      )
       expect(codesOf('ADMISSION_ADMIN')).toContain(
         `admission-document-types.${action}`,
       )

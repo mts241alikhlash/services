@@ -1,3 +1,5 @@
+import { ConflictException } from '@nestjs/common'
+import { Prisma } from '../../../../../generated/prisma/client.js'
 import { PrismaAdmissionDocumentTypeRepository } from './prisma-admission-document-type.repository.js'
 
 const row = {
@@ -36,6 +38,13 @@ describe('PrismaAdmissionDocumentTypeRepository', () => {
     expect(prisma.admissionDocumentType.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      }),
+    )
+    expect(prisma.admissionDocumentType.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          _count: { select: { documents: true } },
+        }),
       }),
     )
     expect(result).toEqual([
@@ -88,5 +97,47 @@ describe('PrismaAdmissionDocumentTypeRepository', () => {
       where: { id: 't1' },
       data: { sortOrder: 2 },
     })
+  })
+
+  function knownError(code: string) {
+    return new Prisma.PrismaClientKnownRequestError('x', {
+      code,
+      clientVersion: 'test',
+    })
+  }
+
+  it('answers 409 when a concurrent create produced the same code', async () => {
+    const prisma = makePrisma()
+    prisma.admissionDocumentType.create.mockRejectedValue(knownError('P2002'))
+    const repo = new PrismaAdmissionDocumentTypeRepository(prisma as never)
+
+    await expect(
+      repo.create({
+        name: 'Photo',
+        code: 'PHOTO_2',
+        isRequired: true,
+        isActive: true,
+        sortOrder: 8,
+      }),
+    ).rejects.toThrow(new ConflictException('Nama jenis berkas sudah ada'))
+  })
+
+  it('answers 409 when an upload landed before the delete', async () => {
+    const prisma = makePrisma()
+    prisma.admissionDocumentType.delete.mockRejectedValue(knownError('P2003'))
+    const repo = new PrismaAdmissionDocumentTypeRepository(prisma as never)
+
+    await expect(repo.delete('t1')).rejects.toThrow(
+      new ConflictException('Jenis berkas sudah dipakai, nonaktifkan saja'),
+    )
+  })
+
+  it('lets other database errors through', async () => {
+    const prisma = makePrisma()
+    const failure = knownError('P2025')
+    prisma.admissionDocumentType.delete.mockRejectedValue(failure)
+    const repo = new PrismaAdmissionDocumentTypeRepository(prisma as never)
+
+    await expect(repo.delete('t1')).rejects.toBe(failure)
   })
 })
