@@ -126,7 +126,7 @@ export class AdmissionAdminController {
   }
 
   @Patch('applications/:id/payment/verify')
-  @RequirePermissions('admissions.verify')
+  @RequirePermissions('admission-payments.verify')
   @ApiOperation({ summary: 'Verify or reject the payment proof' })
   @ApiParam({ name: 'id', format: 'uuid' })
   async verifyPayment(
