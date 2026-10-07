@@ -119,9 +119,12 @@ describe('PrismaAdmissionPaymentQueueRepository.findQueue', () => {
           deletedAt: null,
           waveId: 'w1',
           OR: [
-            { fullName: { contains: 'psb_10%', mode: 'insensitive' } },
+            { fullName: { contains: 'psb\\_10\\%', mode: 'insensitive' } },
             {
-              registrationNumber: { contains: 'psb_10%', mode: 'insensitive' },
+              registrationNumber: {
+                contains: 'psb\\_10\\%',
+                mode: 'insensitive',
+              },
             },
           ],
         },

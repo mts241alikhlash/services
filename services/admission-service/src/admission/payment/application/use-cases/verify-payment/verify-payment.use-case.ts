@@ -34,6 +34,11 @@ export class VerifyPaymentUseCase {
     }
 
     if (input.status !== AdmissionPaymentStatus.VERIFIED) {
+      if (payment.status === 'VERIFIED') {
+        throw new ConflictException(
+          'Pembayaran sudah diverifikasi, batalkan verifikasi terlebih dahulu',
+        )
+      }
       const rejected = await this.payments.updatePaymentStatus(payment.id, {
         status: input.status,
         note: input.note ?? null,

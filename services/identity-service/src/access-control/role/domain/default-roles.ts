@@ -365,7 +365,11 @@ export const DEFAULT_ROLES: DefaultRole[] = [
       ],
     },
     {
-      codes: ['payroll-runs.approve', 'presence-periods.close'],
+      codes: [
+        'payroll-runs.approve',
+        'presence-periods.close',
+        'admission-waves.read',
+      ],
     },
   ]),
   role('PUBLIC_RELATIONS', 'Humas', 'Website dan pengumuman sekolah', [

@@ -53,7 +53,7 @@ const ROW_SELECT = {
 } as const
 
 function textFilter(search: string | undefined) {
-  const text = search?.trim()
+  const text = search?.trim().replace(/[\\%_]/g, '\\$&')
   if (!text) return {}
   return {
     OR: [

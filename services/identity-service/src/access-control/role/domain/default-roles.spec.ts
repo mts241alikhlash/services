@@ -124,4 +124,8 @@ describe('default roles', () => {
       'admission-payments.verify',
     )
   })
+
+  it('lets the treasurer read waves for the payment queue filter', () => {
+    expect(codesOf('TREASURER')).toContain('admission-waves.read')
+  })
 })
