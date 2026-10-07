@@ -148,6 +148,122 @@ describe('RefreshTokenUseCase', () => {
       expect(expiresAt.getTime()).toBeGreaterThan(Date.now() + 6 * 86400000)
     })
 
+    describe('a refresh that races a refresh', () => {
+      function raced(previousRotatedMsAgo: number | null) {
+        mockTokenManagerService.verifyRefreshToken.mockResolvedValue(
+          mockPayload,
+        )
+        mockTokenManagerService.hashToken.mockReturnValue('previous-hash')
+        mockTokenManagerService.constantTimeEqual.mockImplementation(
+          (a: string, b: string) => a === b,
+        )
+        mockTokenManagerService.generateTokenPair.mockResolvedValue({
+          accessToken: 'second-access-token',
+          refreshToken: 'must-not-be-used',
+        })
+        mockTokenManagerService.getRefreshExpirationMs.mockReturnValue(
+          604800000,
+        )
+        mockAuthRepository.findSessionWithUser.mockResolvedValue({
+          ...mockSession,
+          tokenHash: 'current-hash',
+          previousTokenHash: 'previous-hash',
+          previousRotatedAt:
+            previousRotatedMsAgo === null
+              ? null
+              : new Date(Date.now() - previousRotatedMsAgo),
+        })
+      }
+
+      it('lets the token that was just replaced mint an access token, without rotating again', async () => {
+        raced(5_000)
+
+        const result = await useCase.execute('previous-token')
+
+        expect(result).toEqual({
+          accessToken: 'second-access-token',
+          user: {
+            id: mockSession.user.id,
+            identifier: mockSession.user.identifier,
+            isActive: mockSession.user.isActive,
+          },
+        })
+        expect(result).not.toHaveProperty('refreshToken')
+        expect(mockAuthRepository.revokeSession).not.toHaveBeenCalled()
+        expect(mockAuthRepository.updateSessionToken).not.toHaveBeenCalled()
+        expect(mockAuthRepository.slideSession).not.toHaveBeenCalled()
+      })
+
+      it('still revokes the session when the replaced token comes back after the window', async () => {
+        raced(31_000)
+
+        await expect(useCase.execute('previous-token')).rejects.toThrow(
+          UnauthorizedException,
+        )
+        expect(mockAuthRepository.revokeSession).toHaveBeenCalledWith(
+          mockSession.id,
+        )
+      })
+
+      it('still revokes the session when a replaced token is presented but nothing was ever rotated', async () => {
+        raced(null)
+
+        await expect(useCase.execute('previous-token')).rejects.toThrow(
+          UnauthorizedException,
+        )
+        expect(mockAuthRepository.revokeSession).toHaveBeenCalledWith(
+          mockSession.id,
+        )
+      })
+
+      it('revokes the session for a token that is neither the current nor the replaced one', async () => {
+        raced(5_000)
+        mockTokenManagerService.hashToken.mockReturnValue('stolen-hash')
+
+        await expect(useCase.execute('some-other-token')).rejects.toThrow(
+          UnauthorizedException,
+        )
+        expect(mockAuthRepository.revokeSession).toHaveBeenCalledWith(
+          mockSession.id,
+        )
+      })
+
+      it('does not let the window revive a revoked session', async () => {
+        raced(5_000)
+        mockAuthRepository.findSessionWithUser.mockResolvedValue({
+          ...mockSession,
+          tokenHash: 'current-hash',
+          previousTokenHash: 'previous-hash',
+          previousRotatedAt: new Date(),
+          revokedAt: new Date(),
+        })
+
+        await expect(useCase.execute('previous-token')).rejects.toThrow(
+          UnauthorizedException,
+        )
+        expect(mockTokenManagerService.generateTokenPair).not.toHaveBeenCalled()
+      })
+    })
+
+    it('remembers the replaced token and when it was replaced', async () => {
+      validRefresh()
+      mockAuthRepository.findSessionWithUser.mockResolvedValue(mockSession)
+      mockTokenManagerService.hashToken
+        .mockReturnValueOnce('stored-hash')
+        .mockReturnValueOnce('new-hashed-refresh')
+
+      await useCase.execute('old-refresh-token')
+
+      expect(mockAuthRepository.updateSessionToken).toHaveBeenCalledWith(
+        mockSession.id,
+        expect.objectContaining({
+          tokenHash: 'new-hashed-refresh',
+          previousTokenHash: 'stored-hash',
+          previousRotatedAt: expect.any(Date) as Date,
+        }),
+      )
+    })
+
     it('should rotate tokens successfully', async () => {
       mockTokenManagerService.verifyRefreshToken.mockResolvedValue(mockPayload)
       mockAuthRepository.findSessionWithUser.mockResolvedValue(mockSession)

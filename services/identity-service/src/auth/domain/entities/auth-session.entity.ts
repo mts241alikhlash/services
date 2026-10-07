@@ -5,6 +5,8 @@ export interface AuthSessionEntity {
   id: string
   userId: string
   tokenHash: string
+  previousTokenHash?: string | null
+  previousRotatedAt?: Date | null
   userAgent?: string | null
   ipAddress?: string | null
   expiresAt: Date

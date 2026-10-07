@@ -3,6 +3,7 @@ import { IAuthRepository } from '../../../domain/repositories/auth.repository.js
 import {
   isUsable,
   slidExpiry,
+  withinReuseGrace,
 } from '../../../domain/policies/session-lifetime.policy.js'
 import { TokenManagerService } from '../../services/token-manager.service.js'
 
@@ -43,17 +44,37 @@ export class RefreshTokenUseCase {
     const incomingHash = this.tokenManagerService.hashToken(
       refreshTokenFromCookie,
     )
+    const user = {
+      id: session.user.id,
+      identifier: session.user.identifier,
+      isActive: session.user.isActive,
+    }
     if (
       !this.tokenManagerService.constantTimeEqual(
         incomingHash,
         session.tokenHash,
       )
     ) {
-      await this.authRepository.revokeSession(session.id)
-      this.logger.warn(
-        `Possible token reuse detected for session ${session.id}. Session revoked.`,
+      if (!this.isJustReplaced(session, incomingHash, now)) {
+        await this.authRepository.revokeSession(session.id)
+        this.logger.warn(
+          `Possible token reuse detected for session ${session.id}. Session revoked.`,
+        )
+        throw new UnauthorizedException(
+          'Token reuse detected. Session revoked.',
+        )
+      }
+
+      const racedGrants = await this.authRepository.findGrants(session.user.id)
+      const { accessToken } = await this.tokenManagerService.generateTokenPair(
+        session.user,
+        session.id,
+        racedGrants,
       )
-      throw new UnauthorizedException('Token reuse detected. Session revoked.')
+      this.logger.log(
+        `Refresh raced a refresh for session ${session.id}; access token issued, refresh token kept.`,
+      )
+      return { accessToken, user }
     }
 
     const grants = await this.authRepository.findGrants(session.user.id)
@@ -70,6 +91,8 @@ export class RefreshTokenUseCase {
     const expiresAt = slidExpiry(now, idleMs, session.absoluteExpiresAt)
     await this.authRepository.updateSessionToken(session.id, {
       tokenHash: newRefreshHash,
+      previousTokenHash: session.tokenHash,
+      previousRotatedAt: now,
       lastUsedAt: now,
       expiresAt,
     })
@@ -87,11 +110,25 @@ export class RefreshTokenUseCase {
       accessToken,
       refreshToken: rotatedRefreshToken,
       refreshExpiresInMs,
-      user: {
-        id: session.user.id,
-        identifier: session.user.identifier,
-        isActive: session.user.isActive,
-      },
+      user,
     }
+  }
+
+  private isJustReplaced(
+    session: {
+      previousTokenHash?: string | null
+      previousRotatedAt?: Date | null
+    },
+    incomingHash: string,
+    now: Date,
+  ): boolean {
+    return (
+      !!session.previousTokenHash &&
+      withinReuseGrace(session.previousRotatedAt, now) &&
+      this.tokenManagerService.constantTimeEqual(
+        incomingHash,
+        session.previousTokenHash,
+      )
+    )
   }
 }

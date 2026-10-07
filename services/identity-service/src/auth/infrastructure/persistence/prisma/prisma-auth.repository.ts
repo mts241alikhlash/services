@@ -155,6 +155,8 @@ export class PrismaAuthRepository extends IAuthRepository {
       where: { id: sessionId },
       data: {
         tokenHash: data.tokenHash,
+        previousTokenHash: data.previousTokenHash,
+        previousRotatedAt: data.previousRotatedAt,
         lastUsedAt: data.lastUsedAt,
         expiresAt: data.expiresAt,
       },
