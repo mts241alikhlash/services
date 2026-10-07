@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
+import { Prisma } from '../../../../../generated/prisma/client.js'
 import { PrismaService } from '../../../../../core/database/prisma.service.js'
 import type { AdmissionDocumentTypeEntity } from '../../../domain/entities/admission-document-type.entity.js'
 import {
@@ -28,6 +29,12 @@ function toEntity(row: {
 }): AdmissionDocumentTypeEntity {
   const { _count, ...rest } = row
   return { ...rest, documentCount: _count.documents }
+}
+
+function isKnownError(error: unknown, code: string) {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError && error.code === code
+  )
 }
 
 @Injectable()
@@ -80,12 +87,19 @@ export class PrismaAdmissionDocumentTypeRepository extends IAdmissionDocumentTyp
   async create(
     input: CreateDocumentTypeRecord,
   ): Promise<AdmissionDocumentTypeEntity> {
-    return toEntity(
-      await this.prisma.admissionDocumentType.create({
-        data: input,
-        select: SELECT,
-      }),
-    )
+    try {
+      return toEntity(
+        await this.prisma.admissionDocumentType.create({
+          data: input,
+          select: SELECT,
+        }),
+      )
+    } catch (error) {
+      if (isKnownError(error, 'P2002')) {
+        throw new ConflictException('Nama jenis berkas sudah ada')
+      }
+      throw error
+    }
   }
 
   async update(
@@ -113,6 +127,15 @@ export class PrismaAdmissionDocumentTypeRepository extends IAdmissionDocumentTyp
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.admissionDocumentType.delete({ where: { id } })
+    try {
+      await this.prisma.admissionDocumentType.delete({ where: { id } })
+    } catch (error) {
+      if (isKnownError(error, 'P2003')) {
+        throw new ConflictException(
+          'Jenis berkas sudah dipakai, nonaktifkan saja',
+        )
+      }
+      throw error
+    }
   }
 }

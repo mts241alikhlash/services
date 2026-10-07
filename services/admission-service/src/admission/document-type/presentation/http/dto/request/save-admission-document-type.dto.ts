@@ -1,4 +1,4 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   ArrayNotEmpty,
   IsArray,
@@ -7,6 +7,7 @@ import {
   IsString,
   IsUUID,
   MaxLength,
+  ValidateIf,
 } from 'class-validator'
 
 export class CreateAdmissionDocumentTypeDto {
@@ -25,9 +26,24 @@ export class CreateAdmissionDocumentTypeDto {
   isActive!: boolean
 }
 
-export class UpdateAdmissionDocumentTypeDto extends PartialType(
-  CreateAdmissionDocumentTypeDto,
-) {}
+export class UpdateAdmissionDocumentTypeDto {
+  @ApiPropertyOptional({ example: 'Surat Keterangan Sehat' })
+  @ValidateIf((_, value) => value !== undefined)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  name?: string
+
+  @ApiPropertyOptional()
+  @ValidateIf((_, value) => value !== undefined)
+  @IsBoolean()
+  isRequired?: boolean
+
+  @ApiPropertyOptional()
+  @ValidateIf((_, value) => value !== undefined)
+  @IsBoolean()
+  isActive?: boolean
+}
 
 export class ReorderAdmissionDocumentTypesDto {
   @ApiProperty({ type: [String], format: 'uuid' })
