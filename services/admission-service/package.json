@@ -1,6 +1,6 @@
 {
   "name": "admission-service",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "241 Admission — admission waves, applications, documents, payments, enrolment",
   "author": "mhrmnvl",
   "private": true,
