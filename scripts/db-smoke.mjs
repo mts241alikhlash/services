@@ -123,7 +123,7 @@ const seedEnv = { SEED_ADMIN_PASSWORD: 'smoke-admin-password' }
 inService('identity-service', ['tsx', 'prisma/seed-admin-minimal.ts'], seedEnv)
 inService('identity-service', ['tsx', 'prisma/seed-permissions.ts'])
 
-assert.equal(await count(identity, 'roles'), 25, 'four structural and twenty-one default roles')
+assert.equal(await count(identity, 'roles'), 26, 'five structural and twenty-one default roles')
 const applicantGrants = await sql(
   identity,
   `SELECT p.code FROM role_permissions rp
