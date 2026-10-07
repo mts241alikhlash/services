@@ -49,6 +49,8 @@ export interface CreateAuthorizationCodeInput {
 
 export interface UpdateSessionTokenRepositoryInput {
   tokenHash: string
+  previousTokenHash?: string
+  previousRotatedAt?: Date
   lastUsedAt: Date
   expiresAt: Date
 }

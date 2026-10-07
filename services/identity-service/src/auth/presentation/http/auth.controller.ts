@@ -253,11 +253,16 @@ export class AuthController {
 
     const result = await this.refreshTokenUseCase.execute(refreshToken)
 
-    this.setRefreshTokenCookie(
-      res,
-      result.refreshToken,
-      result.refreshExpiresInMs,
-    )
+    if (
+      result.refreshToken !== undefined &&
+      result.refreshExpiresInMs !== undefined
+    ) {
+      this.setRefreshTokenCookie(
+        res,
+        result.refreshToken,
+        result.refreshExpiresInMs,
+      )
+    }
 
     return {
       accessToken: result.accessToken,

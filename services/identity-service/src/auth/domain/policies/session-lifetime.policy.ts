@@ -28,3 +28,14 @@ export function slidExpiry(
 ): Date {
   return new Date(Math.min(now.getTime() + idleMs, absoluteExpiresAt.getTime()))
 }
+
+export const REFRESH_REUSE_GRACE_MS = 30_000
+
+export function withinReuseGrace(
+  rotatedAt: Date | null | undefined,
+  now: Date,
+): boolean {
+  return (
+    !!rotatedAt && now.getTime() - rotatedAt.getTime() <= REFRESH_REUSE_GRACE_MS
+  )
+}

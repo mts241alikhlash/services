@@ -251,6 +251,16 @@ central session alive while an app is used. Refresh and introspection refuse an 
 session whose central session is revoked or expired, even when the app row itself
 is not revoked; logout revokes the central session and every app session under it.
 
+A refresh rotates the refresh token and remembers the one it replaced
+(`previousTokenHash`, `previousRotatedAt`). A token that is neither the current nor
+the replaced one revokes that session (reuse detection). The replaced token is still
+accepted for `REFRESH_REUSE_GRACE_MS` (30 seconds) after the rotation, because two
+tabs, or two apps that share the `refresh_token` cookie on `localhost` in development,
+can send the same cookie before either response lands. In that window the caller gets
+a new access token only, no new refresh token and no `Set-Cookie`, so the cookie the
+first response set stays the newest. After the window the replaced token revokes the
+session as before.
+
 The seven routes under `/sso`: `POST /sso/login` (staff password sign-in, opens the
 central session, 204), `GET /sso/google` (staff Google sign-in through the accounts
 callback), `GET /sso/start` (an app hands its sign-in to accounts, 302),

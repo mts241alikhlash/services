@@ -96,6 +96,63 @@ describe('AuthController', () => {
     expect(controller).toBeDefined()
   })
 
+  describe('refresh', () => {
+    const user = { id: '1', identifier: 'admin', isActive: true }
+
+    it('rotates the refresh cookie and returns the new access token', async () => {
+      mockRefreshTokenService.execute.mockResolvedValue({
+        accessToken: 'access-token',
+        refreshToken: 'rotated-token',
+        refreshExpiresInMs: 604800000,
+        user,
+      })
+      const res = createMockResponse()
+
+      const result = await controller.refresh(
+        createMockRequest({
+          cookies: { refresh_token: 'old-token' },
+        }) as Request,
+        res as Response,
+      )
+
+      expect(mockRefreshTokenService.execute).toHaveBeenCalledWith('old-token')
+      expect(result).toEqual({ accessToken: 'access-token', user })
+      expect(res.cookie).toHaveBeenCalledWith(
+        'refresh_token',
+        'rotated-token',
+        expect.objectContaining({ httpOnly: true, sameSite: 'strict' }),
+      )
+    })
+
+    it('leaves the cookie alone when the use case answers a raced refresh with an access token only', async () => {
+      mockRefreshTokenService.execute.mockResolvedValue({
+        accessToken: 'second-access-token',
+        user,
+      })
+      const res = createMockResponse()
+
+      const result = await controller.refresh(
+        createMockRequest({
+          cookies: { refresh_token: 'old-token' },
+        }) as Request,
+        res as Response,
+      )
+
+      expect(result).toEqual({ accessToken: 'second-access-token', user })
+      expect(res.cookie).not.toHaveBeenCalled()
+    })
+
+    it('refuses a request without the cookie', async () => {
+      await expect(
+        controller.refresh(
+          createMockRequest() as Request,
+          createMockResponse() as Response,
+        ),
+      ).rejects.toThrow(UnauthorizedException)
+      expect(mockRefreshTokenService.execute).not.toHaveBeenCalled()
+    })
+  })
+
   describe('login', () => {
     const loginDto = { identifier: 'admin', password: 'password123' }
 
