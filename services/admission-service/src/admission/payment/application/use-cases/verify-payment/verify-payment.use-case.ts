@@ -1,3 +1,4 @@
+import { VerifyApplicationWhenReadyUseCase } from '../../../../verification/index.js'
 import { AdmissionPaymentStatus } from '../../../../../shared/domain/enums/admission-payment-status.enum.js'
 import {
   BadRequestException,
@@ -15,6 +16,7 @@ export class VerifyPaymentUseCase {
   constructor(
     private readonly payments: IAdmissionPaymentRepository,
     private readonly notifications: IAdmissionPaymentNotificationPort,
+    private readonly verifyWhenReady: VerifyApplicationWhenReadyUseCase,
   ) {}
 
   async execute(input: VerifyPaymentInput) {
@@ -97,6 +99,8 @@ export class VerifyPaymentUseCase {
         )
       }
     }
+
+    await this.verifyWhenReady.execute(input.applicationId, input.adminId)
 
     return serializePayment(result.payment)
   }

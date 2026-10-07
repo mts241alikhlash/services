@@ -16,6 +16,7 @@ import { AddPaymentUseCase } from './application/use-cases/add-payment/add-payme
 import { CancelPaymentUseCase } from './application/use-cases/cancel-payment/cancel-payment.use-case.js'
 import { GetEligibleApplicationsUseCase } from './application/use-cases/get-eligible-applications/get-eligible-applications.use-case.js'
 import { GetPaymentQueueUseCase } from './application/use-cases/get-payment-queue/get-payment-queue.use-case.js'
+import { VerificationModule } from '../verification/verification.module.js'
 import { BankAccountModule } from '../bank-account/bank-account.module.js'
 
 @Module({
@@ -25,6 +26,7 @@ import { BankAccountModule } from '../bank-account/bank-account.module.js'
     DocumentModule,
     NotificationModule,
     BankAccountModule,
+    VerificationModule,
   ],
   controllers: [AdmissionPaymentAdminController],
   providers: [

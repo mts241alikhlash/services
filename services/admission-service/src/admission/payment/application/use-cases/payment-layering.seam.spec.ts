@@ -9,6 +9,7 @@ import { IAdmissionPaymentNotificationPort } from '../../domain/repositories/adm
 import { IAdmissionPaymentRepository } from '../../domain/repositories/admission-payment-repository.js'
 import { IAdmissionFileStorage } from '../../../document/index.js'
 import { UploadPaymentProofUseCase } from './upload-payment-proof/upload-payment-proof.use-case.js'
+import type { VerifyApplicationWhenReadyUseCase } from '../../../verification/index.js'
 import type { IAdmissionBankAccountRepository } from '../../../bank-account/index.js'
 
 function makePaymentRepository(
@@ -27,6 +28,12 @@ function makePaymentRepository(
   }
 }
 
+function makeVerification(verified = false) {
+  return {
+    execute: jest.fn().mockResolvedValue(verified),
+  } as unknown as VerifyApplicationWhenReadyUseCase & { execute: jest.Mock }
+}
+
 describe('Payment layering', () => {
   it('exposes payment operations without HTTP DTOs', () => {
     expect(PaymentModule).toBeDefined()
@@ -38,7 +45,11 @@ describe('Payment layering', () => {
     const notifications: Pick<IAdmissionPaymentNotificationPort, 'notify'> = {
       notify: jest.fn(),
     }
-    const useCase = new VerifyPaymentUseCase(payments, notifications)
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      notifications,
+      makeVerification(),
+    )
 
     await expect(
       useCase.execute({
@@ -58,7 +69,11 @@ describe('Payment layering', () => {
       }),
     })
     const notifications = { notify: jest.fn() }
-    const useCase = new VerifyPaymentUseCase(payments, notifications)
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      notifications,
+      makeVerification(),
+    )
 
     await expect(
       useCase.execute({
@@ -82,7 +97,11 @@ describe('Payment layering', () => {
         .fn()
         .mockResolvedValue({ id: 'pay1', status: 'UNPAID', proofFileId: null }),
     })
-    const useCase = new VerifyPaymentUseCase(payments, { notify: jest.fn() })
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      { notify: jest.fn() },
+      makeVerification(),
+    )
 
     await expect(
       useCase.execute({
@@ -109,7 +128,11 @@ describe('Payment layering', () => {
         targetWave: null,
       }),
     })
-    const useCase = new VerifyPaymentUseCase(payments, { notify })
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      { notify },
+      makeVerification(),
+    )
 
     await useCase.execute({
       applicationId: 'app1',
@@ -142,7 +165,11 @@ describe('Payment layering', () => {
       }),
       verifyWithinQuota: jest.fn().mockResolvedValue({ outcome: 'FULL' }),
     })
-    const useCase = new VerifyPaymentUseCase(payments, { notify })
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      { notify },
+      makeVerification(),
+    )
 
     await expect(
       useCase.execute({
@@ -169,7 +196,11 @@ describe('Payment layering', () => {
         targetWave: { id: 'w2', name: 'Gelombang 2', registrationFee: 200000 },
       }),
     })
-    const useCase = new VerifyPaymentUseCase(payments, { notify })
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      { notify },
+      makeVerification(),
+    )
 
     await useCase.execute({
       applicationId: 'app1',
@@ -443,5 +474,89 @@ describe('Payment layering', () => {
         }),
       )
     })
+  })
+
+  it('tries to verify the application after a payment verification', async () => {
+    const verification = makeVerification(true)
+    const payments = makePaymentRepository({
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'PENDING',
+        proofFileId: 'f1',
+      }),
+      verifyWithinQuota: jest.fn().mockResolvedValue({
+        outcome: 'VERIFIED',
+        payment: { id: 'pay1', status: 'VERIFIED', amount: 150000 },
+        movedApplicationIds: [],
+        targetWave: null,
+      }),
+    })
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      { notify: jest.fn() },
+      verification,
+    )
+
+    await useCase.execute({
+      applicationId: 'app1',
+      status: AdmissionPaymentStatus.VERIFIED,
+      adminId: 'admin1',
+    })
+
+    expect(verification.execute).toHaveBeenCalledWith('app1', 'admin1')
+  })
+
+  it('does not try to verify the application when the payment is rejected', async () => {
+    const verification = makeVerification()
+    const payments = makePaymentRepository({
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'PENDING',
+        proofFileId: 'f1',
+      }),
+      updatePaymentStatus: jest
+        .fn()
+        .mockResolvedValue({ id: 'pay1', status: 'REJECTED', amount: 1 }),
+    })
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      { notify: jest.fn() },
+      verification,
+    )
+
+    await useCase.execute({
+      applicationId: 'app1',
+      status: AdmissionPaymentStatus.REJECTED,
+      note: 'Salah',
+      adminId: 'admin1',
+    })
+
+    expect(verification.execute).not.toHaveBeenCalled()
+  })
+
+  it('does not try to verify the application when the wave is full', async () => {
+    const verification = makeVerification()
+    const payments = makePaymentRepository({
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'PENDING',
+        proofFileId: 'f1',
+      }),
+      verifyWithinQuota: jest.fn().mockResolvedValue({ outcome: 'FULL' }),
+    })
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      { notify: jest.fn() },
+      verification,
+    )
+
+    await expect(
+      useCase.execute({
+        applicationId: 'app1',
+        status: AdmissionPaymentStatus.VERIFIED,
+        adminId: 'admin1',
+      }),
+    ).rejects.toThrow('Gelombang penuh')
+    expect(verification.execute).not.toHaveBeenCalled()
   })
 })

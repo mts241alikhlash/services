@@ -1,3 +1,4 @@
+import { VerifyApplicationWhenReadyUseCase } from '../../../../verification/index.js'
 import {
   BadRequestException,
   ConflictException,
@@ -72,6 +73,7 @@ export class SubmitApplicationUseCase {
     private readonly admissionApplicantRepository: IAdmissionApplicantRepository,
     private readonly notifications: AdmissionNotificationService,
     private readonly referenceLookup: IReferenceLookupPort,
+    private readonly verifyWhenReady: VerifyApplicationWhenReadyUseCase,
   ) {}
 
   async execute(userId: string) {
@@ -162,6 +164,9 @@ export class SubmitApplicationUseCase {
       'Formulir pendaftaran Anda telah kami terima dan akan diverifikasi oleh panitia. Anda akan menerima pemberitahuan setelah verifikasi selesai.',
     )
 
-    return serializeApplicationDetail(updated)
+    const verified = await this.verifyWhenReady.execute(application.id, null)
+    return serializeApplicationDetail(
+      verified ? { ...updated, status: 'VERIFIED' as const } : updated,
+    )
   }
 }

@@ -45,7 +45,11 @@ describe('PrismaAdmissionVerificationRepository', () => {
   it('reports a missing payment as null and a missing application as null', async () => {
     const findFirst = jest
       .fn()
-      .mockResolvedValueOnce({ status: 'SUBMITTED', documents: [], payment: null })
+      .mockResolvedValueOnce({
+        status: 'SUBMITTED',
+        documents: [],
+        payment: null,
+      })
       .mockResolvedValueOnce(null)
     const repository = new PrismaAdmissionVerificationRepository({
       admissionApplication: { findFirst },
@@ -95,8 +99,6 @@ describe('PrismaAdmissionVerificationRepository', () => {
       },
     } as never)
 
-    await expect(
-      repository.markVerified('app1', null, []),
-    ).resolves.toBe(false)
+    await expect(repository.markVerified('app1', null, [])).resolves.toBe(false)
   })
 })

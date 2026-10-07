@@ -11,10 +11,16 @@ import { GetMyApplicationUseCase } from './application/use-cases/get-my-applicat
 import { RegisterApplicantUseCase } from './application/use-cases/register-applicant/register-applicant.use-case.js'
 import { SubmitApplicationUseCase } from './application/use-cases/submit-application/submit-application.use-case.js'
 import { UpdateMyApplicationUseCase } from './application/use-cases/update-my-application/update-my-application.use-case.js'
+import { VerificationModule } from '../verification/verification.module.js'
 import { BankAccountModule } from '../bank-account/bank-account.module.js'
 
 @Module({
-  imports: [UserModule, NotificationModule, BankAccountModule],
+  imports: [
+    UserModule,
+    NotificationModule,
+    BankAccountModule,
+    VerificationModule,
+  ],
   providers: [
     PrismaAdmissionApplicantReader,
     PrismaAdmissionApplicantWriter,

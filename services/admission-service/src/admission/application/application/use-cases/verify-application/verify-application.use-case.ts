@@ -10,6 +10,10 @@ import {
 import { serializeApplicationDetail } from '../../../domain/serializers/admission.serializers.js'
 import { IAdmissionApplicationRepository } from '../../../domain/repositories/admission-application-repository.js'
 import { AdmissionNotificationService } from '../../../../notification/index.js'
+import {
+  APPLICATION_VERIFIED_NOTIFICATION,
+  unapprovedRequiredTypeIds,
+} from '../../../../verification/index.js'
 
 @Injectable()
 export class VerifyApplicationUseCase {
@@ -38,12 +42,13 @@ export class VerifyApplicationUseCase {
 
     const requiredTypes =
       await this.admissionApplicationRepository.findRequiredActiveDocumentTypes()
-    const unapproved = requiredTypes.filter((type) => {
-      const doc = (application.documents ?? []).find(
-        (d) => d.documentTypeId === type.id,
-      )
-      return doc?.status !== 'APPROVED'
-    })
+    const missingIds = unapprovedRequiredTypeIds(
+      requiredTypes.map((type) => type.id),
+      application.documents ?? [],
+    )
+    const unapproved = requiredTypes.filter((type) =>
+      missingIds.includes(type.id),
+    )
     if (unapproved.length > 0) {
       throw new ConflictException(
         `All required documents must be approved first: ${unapproved
@@ -64,8 +69,8 @@ export class VerifyApplicationUseCase {
     await this.notifications.notify(
       application.id,
       'STATUS_CHANGE',
-      'Data pendaftaran terverifikasi',
-      'Data, berkas, dan pembayaran Anda telah diverifikasi panitia. Keputusan penerimaan akan diumumkan melalui akun ini.',
+      APPLICATION_VERIFIED_NOTIFICATION.title,
+      APPLICATION_VERIFIED_NOTIFICATION.message,
     )
 
     return serializeApplicationDetail(updated)

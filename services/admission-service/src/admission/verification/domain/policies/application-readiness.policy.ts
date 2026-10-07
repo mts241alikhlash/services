@@ -27,7 +27,7 @@ export function isReadyForVerification(input: ReadinessInput): boolean {
   return (
     input.status === 'SUBMITTED' &&
     input.paymentStatus === 'VERIFIED' &&
-    unapprovedRequiredTypeIds(input.requiredTypeIds, input.documents)
-      .length === 0
+    unapprovedRequiredTypeIds(input.requiredTypeIds, input.documents).length ===
+      0
   )
 }
