@@ -39,7 +39,7 @@ describe('AdmissionFileController', () => {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `inline; filename="kk.pdf"; filename*=UTF-8''kk.pdf`,
       'X-Content-Type-Options': 'nosniff',
-      'Cache-Control': 'private, max-age=300',
+      'Cache-Control': 'private, no-store',
     })
     expect(result).toBeInstanceOf(StreamableFile)
     expect(result.getStream()).toBe(stream)

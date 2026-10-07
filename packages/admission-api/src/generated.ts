@@ -3761,7 +3761,7 @@ export interface operations {
         parameters: {
             query?: {
                 /** @description 1 downloads the file instead of showing it inline */
-                download?: unknown;
+                download?: string;
             };
             header?: never;
             path: {
@@ -3777,14 +3777,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** Format: binary */
-                        data?: string;
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
+                    "application/octet-stream": string;
                 };
             };
             /** @description Berkas tidak ditemukan */

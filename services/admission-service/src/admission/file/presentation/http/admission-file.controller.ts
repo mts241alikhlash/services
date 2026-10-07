@@ -39,12 +39,17 @@ export class AdmissionFileController {
   @ApiQuery({
     name: 'download',
     required: false,
+    type: String,
     description: '1 downloads the file instead of showing it inline',
   })
   @ApiResponse({
     status: 200,
     description: 'The file bytes with their stored content type',
-    schema: { type: 'string', format: 'binary' },
+    content: {
+      'application/octet-stream': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
   })
   @ApiResponse({ status: 404, description: 'Berkas tidak ditemukan' })
   async stream(
@@ -60,7 +65,7 @@ export class AdmissionFileController {
         file.originalName,
       ),
       'X-Content-Type-Options': 'nosniff',
-      'Cache-Control': 'private, max-age=300',
+      'Cache-Control': 'private, no-store',
     })
     return new StreamableFile(stream)
   }

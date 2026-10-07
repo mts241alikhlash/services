@@ -3197,30 +3197,19 @@
             "required": false,
             "in": "query",
             "description": "1 downloads the file instead of showing it inline",
-            "schema": {}
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "The file bytes with their stored content type",
             "content": {
-              "application/json": {
+              "application/octet-stream": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Success"
-                    },
-                    "data": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  }
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
