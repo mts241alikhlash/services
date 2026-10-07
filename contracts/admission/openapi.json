@@ -3178,6 +3178,56 @@
           "Admission — Document types"
         ]
       }
+    },
+    "/admissions/files/{fileId}": {
+      "get": {
+        "operationId": "AdmissionFileController_stream",
+        "parameters": [
+          {
+            "name": "fileId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "download",
+            "required": false,
+            "in": "query",
+            "description": "1 downloads the file instead of showing it inline",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The file bytes with their stored content type",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Berkas tidak ditemukan"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Stream a file an admission record owns (document, proof, attachment)",
+        "tags": [
+          "Admission — Files"
+        ]
+      }
     }
   },
   "info": {

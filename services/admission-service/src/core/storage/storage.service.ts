@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
@@ -11,6 +12,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import type { Readable } from 'node:stream'
 
 @Injectable()
 export class StorageService {
@@ -108,5 +110,36 @@ export class StorageService {
     return getSignedUrl(this.signer, command, {
       expiresIn: this.signedUrlExpirySeconds,
     })
+  }
+
+  async getObject(filePath: string): Promise<{
+    stream: Readable
+    contentType?: string
+    contentLength?: number
+  }> {
+    try {
+      const response = await this.client.send(
+        new GetObjectCommand({ Bucket: this.bucket, Key: filePath }),
+      )
+      return {
+        stream: response.Body as Readable,
+        contentType: response.ContentType,
+        contentLength: response.ContentLength,
+      }
+    } catch (err) {
+      if (
+        err instanceof Error &&
+        ['NoSuchKey', 'NotFound'].includes(err.name)
+      ) {
+        throw new NotFoundException('Berkas tidak ditemukan di penyimpanan')
+      }
+      this.logger.error(
+        `Failed to read file ${filePath}`,
+        err instanceof Error ? err.stack : undefined,
+      )
+      throw new InternalServerErrorException(
+        `Failed to read file: ${String(err)}`,
+      )
+    }
   }
 }
