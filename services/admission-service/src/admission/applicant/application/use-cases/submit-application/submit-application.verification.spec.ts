@@ -58,6 +58,11 @@ function setup(application = completeApplication()) {
     submitApplication: jest
       .fn()
       .mockResolvedValue({ ...application, status: 'SUBMITTED' }),
+    findDetailById: jest.fn().mockResolvedValue({
+      ...application,
+      status: 'VERIFIED',
+      verifiedAt: new Date('2026-10-08T00:00:00Z'),
+    }),
   }
   const notifications = { notify: jest.fn().mockResolvedValue(undefined) }
   const referenceLookup = {
@@ -88,6 +93,16 @@ describe('SubmitApplicationUseCase automatic verification', () => {
       'Formulir berhasil dikirim',
       expect.any(String),
     )
+  })
+
+  it('answers with the stored application once it was verified', async () => {
+    const { useCase, applicants } = setup()
+
+    const result = await useCase.execute('user1')
+
+    expect(applicants.findDetailById).toHaveBeenCalledWith('app1')
+    expect(result.status).toBe('VERIFIED')
+    expect(result.verifiedAt).toEqual(new Date('2026-10-08T00:00:00Z'))
   })
 
   it('does not try when the form is incomplete', async () => {

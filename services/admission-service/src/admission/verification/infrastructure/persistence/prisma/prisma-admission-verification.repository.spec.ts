@@ -1,5 +1,19 @@
 import { PrismaAdmissionVerificationRepository } from './prisma-admission-verification.repository.js'
 
+function locking(updateMany: jest.Mock) {
+  const tx = {
+    $queryRaw: jest.fn().mockResolvedValue([]),
+    admissionApplication: { updateMany },
+  }
+  const prisma = {
+    $transaction: jest.fn((run: (client: unknown) => unknown) => run(tx)),
+  }
+  return {
+    repository: new PrismaAdmissionVerificationRepository(prisma as never),
+    tx,
+  }
+}
+
 describe('PrismaAdmissionVerificationRepository', () => {
   it('lists the active required document type ids', async () => {
     const findMany = jest.fn().mockResolvedValue([{ id: 'kk' }, { id: 'akta' }])
@@ -63,13 +77,13 @@ describe('PrismaAdmissionVerificationRepository', () => {
 
   it('verifies only while every condition still holds, in one statement', async () => {
     const updateMany = jest.fn().mockResolvedValue({ count: 1 })
-    const repository = new PrismaAdmissionVerificationRepository({
-      admissionApplication: { updateMany },
-    } as never)
+    const { repository, tx } = locking(updateMany)
 
     await expect(
       repository.markVerified('app1', 'admin1', ['kk', 'akta']),
     ).resolves.toBe(true)
+
+    expect(tx.$queryRaw).toHaveBeenCalledTimes(1)
 
     const call = updateMany.mock.calls[0][0] as {
       where: Record<string, unknown>
@@ -93,11 +107,7 @@ describe('PrismaAdmissionVerificationRepository', () => {
   })
 
   it('answers false when another request got there first', async () => {
-    const repository = new PrismaAdmissionVerificationRepository({
-      admissionApplication: {
-        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
-      },
-    } as never)
+    const { repository } = locking(jest.fn().mockResolvedValue({ count: 0 }))
 
     await expect(repository.markVerified('app1', null, [])).resolves.toBe(false)
   })

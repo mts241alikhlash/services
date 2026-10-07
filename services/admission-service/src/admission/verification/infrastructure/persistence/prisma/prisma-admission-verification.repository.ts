@@ -43,22 +43,25 @@ export class PrismaAdmissionVerificationRepository extends IAdmissionVerificatio
     verifiedById: string | null,
     requiredTypeIds: string[],
   ): Promise<boolean> {
-    const { count } = await this.prisma.admissionApplication.updateMany({
-      where: {
-        id: applicationId,
-        deletedAt: null,
-        status: 'SUBMITTED',
-        payment: { is: { status: 'VERIFIED' } },
-        AND: requiredTypeIds.map((documentTypeId) => ({
-          documents: { some: { documentTypeId, status: 'APPROVED' } },
-        })),
-      },
-      data: {
-        status: 'VERIFIED',
-        verifiedById,
-        verifiedAt: new Date(),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM admission_applications WHERE id = ${applicationId}::uuid FOR UPDATE`
+      const { count } = await tx.admissionApplication.updateMany({
+        where: {
+          id: applicationId,
+          deletedAt: null,
+          status: 'SUBMITTED',
+          payment: { is: { status: 'VERIFIED' } },
+          AND: requiredTypeIds.map((documentTypeId) => ({
+            documents: { some: { documentTypeId, status: 'APPROVED' } },
+          })),
+        },
+        data: {
+          status: 'VERIFIED',
+          verifiedById,
+          verifiedAt: new Date(),
+        },
+      })
+      return count === 1
     })
-    return count === 1
   }
 }

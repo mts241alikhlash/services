@@ -1,10 +1,10 @@
-import { VerifyApplicationWhenReadyUseCase } from '../../../../verification/index.js'
 import {
   BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
+import { VerifyApplicationWhenReadyUseCase } from '../../../../verification/index.js'
 import {
   AdmissionStatusTransitionError,
   assertTransition,
@@ -165,8 +165,10 @@ export class SubmitApplicationUseCase {
     )
 
     const verified = await this.verifyWhenReady.execute(application.id, null)
-    return serializeApplicationDetail(
-      verified ? { ...updated, status: 'VERIFIED' as const } : updated,
+    if (!verified) return serializeApplicationDetail(updated)
+    const stored = await this.admissionApplicantRepository.findDetailById(
+      application.id,
     )
+    return serializeApplicationDetail(stored ?? updated)
   }
 }

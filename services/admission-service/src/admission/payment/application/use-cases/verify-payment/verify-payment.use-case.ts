@@ -1,4 +1,3 @@
-import { VerifyApplicationWhenReadyUseCase } from '../../../../verification/index.js'
 import { AdmissionPaymentStatus } from '../../../../../shared/domain/enums/admission-payment-status.enum.js'
 import {
   BadRequestException,
@@ -6,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
+import { VerifyApplicationWhenReadyUseCase } from '../../../../verification/index.js'
 import { IAdmissionPaymentNotificationPort } from '../../../domain/repositories/admission-payment-notification.port.js'
 import { IAdmissionPaymentRepository } from '../../../domain/repositories/admission-payment-repository.js'
 import { serializePayment } from '../../serialize-payment.js'
