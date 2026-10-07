@@ -45,6 +45,21 @@ export type VerifyWithinQuotaResult =
       targetWave: { id: string; name: string; registrationFee: number } | null
     }
 
+export interface CancelVerificationInput {
+  applicationId: string
+  paymentId: string
+  note: string
+}
+
+export type CancelVerificationResult =
+  | { outcome: 'NOT_VERIFIED' }
+  | { outcome: 'DECIDED' }
+  | {
+      outcome: 'CANCELLED'
+      payment: AdmissionPaymentWithProof
+      applicationReopened: boolean
+    }
+
 export abstract class IAdmissionPaymentRepository {
   abstract findApplicationWithPayment(
     userId: string,
@@ -65,6 +80,9 @@ export abstract class IAdmissionPaymentRepository {
   abstract verifyWithinQuota(
     input: VerifyWithinQuotaInput,
   ): Promise<VerifyWithinQuotaResult>
+  abstract cancelVerification(
+    input: CancelVerificationInput,
+  ): Promise<CancelVerificationResult>
   abstract isWaveFull(waveId: string): Promise<boolean>
 }
 

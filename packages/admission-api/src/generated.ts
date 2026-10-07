@@ -573,6 +573,75 @@ export interface paths {
         patch: operations["AdmissionNotificationController_markAllRead"];
         trace?: never;
     };
+    "/admissions/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Payment queue by status, with tab counts */
+        get: operations["AdmissionPaymentAdminController_findAll"];
+        put?: never;
+        /** Add a verified payment for an applicant, proof required */
+        post: operations["AdmissionPaymentAdminController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/payments/{applicationId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a payment verification with a reason */
+        post: operations["AdmissionPaymentAdminController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/payments/{applicationId}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Verify or reject a payment proof */
+        patch: operations["AdmissionPaymentAdminController_verify"];
+        trace?: never;
+    };
+    "/admissions/payments/eligible-applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Applicants a payment can be added to */
+        get: operations["AdmissionPaymentAdminController_findEligible"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admissions/register": {
         parameters: {
             query?: never;
@@ -684,6 +753,18 @@ export interface components {
     schemas: {
         AcceptApplicationDto: {
             note?: string;
+        };
+        AddAdmissionPaymentDto: {
+            /** Format: uuid */
+            applicationId: string;
+            /** Format: uuid */
+            bankAccountId: string;
+            /** @example BSI */
+            bankName: string;
+            /** @example Ahmad Fauzi */
+            senderAccountName: string;
+            /** Format: date */
+            transferDate: string;
         };
         AdmissionAcceptedApplicationResponseAchievementsDto: {
             competitionFieldId: string | null;
@@ -1842,6 +1923,17 @@ export interface components {
             name: string;
             sortOrder: number;
         };
+        AdmissionEligibleApplicationListResponseDto: {
+            data: components["schemas"]["AdmissionEligibleApplicationResponseDto"][];
+        };
+        AdmissionEligibleApplicationResponseDto: {
+            amount: number;
+            applicantName: string;
+            applicationId: string;
+            applicationStatus: string;
+            registrationNumber: string;
+            waveName: string;
+        };
         AdmissionEnrolledApplicationResponseAchievementsDto: {
             competitionFieldId: string | null;
             competitionLevelId: string | null;
@@ -2129,6 +2221,69 @@ export interface components {
             bankName: string;
             id: string;
         };
+        AdmissionPaymentDecisionResponseDto: {
+            applicationId: string;
+            id: string;
+            note: string | null;
+            /** @enum {string} */
+            status: "UNPAID" | "PENDING" | "VERIFIED" | "REJECTED";
+            /** Format: date-time */
+            verifiedAt: string | null;
+            verifiedById: string | null;
+        };
+        AdmissionPaymentQueueBankAccountDto: {
+            accountHolder: string;
+            accountNumber: string;
+            bankName: string;
+            id: string;
+        };
+        AdmissionPaymentQueueCountsDto: {
+            pending: number;
+            rejected: number;
+            verified: number;
+        };
+        AdmissionPaymentQueueMetaDto: {
+            counts: components["schemas"]["AdmissionPaymentQueueCountsDto"];
+            limit: number;
+            page: number;
+            total: number;
+            totalPages: number;
+        };
+        AdmissionPaymentQueueProofFileDto: {
+            id: string;
+            mimeType: string;
+            originalName: string;
+            storageKey: string;
+        };
+        AdmissionPaymentQueueResponseDto: {
+            data: components["schemas"]["AdmissionPaymentQueueRowResponseDto"][];
+            meta: components["schemas"]["AdmissionPaymentQueueMetaDto"];
+        };
+        AdmissionPaymentQueueRowResponseDto: {
+            amount: number;
+            applicantName: string;
+            applicationId: string;
+            applicationStatus: string;
+            bankAccount: components["schemas"]["AdmissionPaymentQueueBankAccountDto"] | null;
+            bankName: string | null;
+            note: string | null;
+            paymentId: string;
+            proofFile: components["schemas"]["AdmissionPaymentQueueProofFileDto"] | null;
+            proofUploadedByStaff: boolean;
+            registrationNumber: string;
+            senderAccountName: string | null;
+            /** @enum {string} */
+            status: "UNPAID" | "PENDING" | "VERIFIED" | "REJECTED";
+            /** Format: date-time */
+            transferDate: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            verifiedAt: string | null;
+            verifiedById: string | null;
+            waveId: string;
+            waveName: string;
+        };
         AdmissionPaymentResponseDto: {
             amount: number;
             applicationId: string;
@@ -2247,6 +2402,10 @@ export interface components {
             startDate: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        CancelAdmissionPaymentDto: {
+            /** @example Nominal tidak sesuai mutasi bank */
+            note: string;
         };
         CreateAdmissionAnnouncementDto: {
             content: string;
@@ -4048,6 +4207,172 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["AdmissionNotificationsReadResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionPaymentAdminController_findAll: {
+        parameters: {
+            query?: {
+                limit?: number;
+                page?: number;
+                /** @description Search by applicant name or registration number */
+                search?: string;
+                status?: "PENDING" | "VERIFIED" | "REJECTED";
+                waveId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionPaymentQueueRowResponseDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: components["schemas"]["AdmissionPaymentQueueMetaDto"];
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionPaymentAdminController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["AddAdmissionPaymentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionPaymentDecisionResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Gelombang penuh */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionPaymentAdminController_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelAdmissionPaymentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionPaymentDecisionResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Pembayaran tidak bisa dibatalkan setelah pendaftaran diputuskan */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionPaymentAdminController_verify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyPaymentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionPaymentDecisionResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionPaymentAdminController_findEligible: {
+        parameters: {
+            query?: {
+                /** @description Search by applicant name or registration number */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionEligibleApplicationResponseDto"][];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */

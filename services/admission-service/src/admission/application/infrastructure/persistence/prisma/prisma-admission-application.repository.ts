@@ -55,6 +55,28 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
     super()
   }
 
+  private async lockForDecision(
+    tx: Pick<PrismaService, '$queryRaw' | 'admissionApplication'>,
+    id: string,
+    allowed: string[],
+    paymentMustBeVerified: boolean,
+  ): Promise<void> {
+    await tx.$queryRaw`SELECT id FROM admission_applications WHERE id = ${id}::uuid FOR UPDATE`
+    const current = await tx.admissionApplication.findUnique({
+      where: { id },
+      select: { status: true, payment: { select: { status: true } } },
+    })
+    if (
+      !current ||
+      !allowed.includes(current.status) ||
+      (paymentMustBeVerified && current.payment?.status !== 'VERIFIED')
+    ) {
+      throw new ConflictException(
+        'The application changed while you were working; reload and try again',
+      )
+    }
+  }
+
   private async attachAccountSummary<
     T extends {
       userId: string
@@ -303,14 +325,17 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
     id: string,
     adminId: string,
   ): Promise<ApplicationAdminDetail> {
-    const row = await this.prisma.admissionApplication.update({
-      where: { id },
-      data: {
-        status: 'VERIFIED',
-        verifiedById: adminId,
-        verifiedAt: new Date(),
-      },
-      include: applicationAdminDetailInclude,
+    const row = await this.prisma.$transaction(async (tx) => {
+      await this.lockForDecision(tx, id, ['SUBMITTED'], true)
+      return tx.admissionApplication.update({
+        where: { id },
+        data: {
+          status: 'VERIFIED',
+          verifiedById: adminId,
+          verifiedAt: new Date(),
+        },
+        include: applicationAdminDetailInclude,
+      })
     })
     return this.attachAccountSummary(row)
   }
@@ -318,15 +343,18 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
   async setAccepted(
     input: AcceptAdmissionApplicationInput,
   ): Promise<ApplicationAdminDetail> {
-    const row = await this.prisma.admissionApplication.update({
-      where: { id: input.id },
-      data: {
-        status: 'ACCEPTED',
-        decidedById: input.adminId,
-        decidedAt: new Date(),
-        decisionNote: input.note,
-      },
-      include: applicationAdminDetailInclude,
+    const row = await this.prisma.$transaction(async (tx) => {
+      await this.lockForDecision(tx, input.id, ['VERIFIED'], true)
+      return tx.admissionApplication.update({
+        where: { id: input.id },
+        data: {
+          status: 'ACCEPTED',
+          decidedById: input.adminId,
+          decidedAt: new Date(),
+          decisionNote: input.note,
+        },
+        include: applicationAdminDetailInclude,
+      })
     })
     return this.attachAccountSummary(row)
   }
@@ -334,15 +362,18 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
   async setRejected(
     input: RejectAdmissionApplicationInput,
   ): Promise<ApplicationAdminDetail> {
-    const row = await this.prisma.admissionApplication.update({
-      where: { id: input.id },
-      data: {
-        status: 'REJECTED',
-        decidedById: input.adminId,
-        decidedAt: new Date(),
-        decisionNote: input.reason,
-      },
-      include: applicationAdminDetailInclude,
+    const row = await this.prisma.$transaction(async (tx) => {
+      await this.lockForDecision(tx, input.id, ['SUBMITTED', 'VERIFIED'], false)
+      return tx.admissionApplication.update({
+        where: { id: input.id },
+        data: {
+          status: 'REJECTED',
+          decidedById: input.adminId,
+          decidedAt: new Date(),
+          decisionNote: input.reason,
+        },
+        include: applicationAdminDetailInclude,
+      })
     })
     return this.attachAccountSummary(row)
   }

@@ -215,6 +215,25 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
   },
 
   {
+    module: 'admission-payments',
+    action: 'create',
+    code: 'admission-payments.create',
+    description: 'Add a payment to an applicant on their behalf',
+  },
+  {
+    module: 'admission-payments',
+    action: 'read',
+    code: 'admission-payments.read',
+    description: 'Read the admission payment queue',
+  },
+  {
+    module: 'admission-payments',
+    action: 'verify',
+    code: 'admission-payments.verify',
+    description: 'Verify, reject or cancel admission payments',
+  },
+
+  {
     module: 'admission-waves',
     action: 'create',
     code: 'admission-waves.create',

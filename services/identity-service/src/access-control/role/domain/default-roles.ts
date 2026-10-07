@@ -288,6 +288,7 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         'admission-waves.read',
         'admission-bank-accounts.read',
         'admission-document-types.read',
+        'admission-payments.read',
       ],
     },
     { modules: ['admission-announcements'] },
@@ -362,13 +363,14 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         'payroll-components',
         'payroll-salaries',
         'admission-bank-accounts',
+        'admission-payments',
       ],
     },
     {
       codes: [
         'payroll-runs.approve',
         'presence-periods.close',
-        'admissions.verify',
+        'admission-waves.read',
       ],
     },
   ]),

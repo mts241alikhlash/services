@@ -2052,6 +2052,333 @@
         ]
       }
     },
+    "/admissions/payments": {
+      "get": {
+        "operationId": "AdmissionPaymentAdminController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "PENDING",
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "VERIFIED",
+                "REJECTED"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by applicant name or registration number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "waveId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionPaymentQueueRowResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/AdmissionPaymentQueueMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Payment queue by status, with tab counts",
+        "tags": [
+          "Admission — Payments"
+        ]
+      },
+      "post": {
+        "operationId": "AdmissionPaymentAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/AddAdmissionPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionPaymentDecisionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Gelombang penuh"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add a verified payment for an applicant, proof required",
+        "tags": [
+          "Admission — Payments"
+        ]
+      }
+    },
+    "/admissions/payments/eligible-applications": {
+      "get": {
+        "operationId": "AdmissionPaymentAdminController_findEligible",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by applicant name or registration number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionEligibleApplicationResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Applicants a payment can be added to",
+        "tags": [
+          "Admission — Payments"
+        ]
+      }
+    },
+    "/admissions/payments/{applicationId}/verify": {
+      "patch": {
+        "operationId": "AdmissionPaymentAdminController_verify",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionPaymentDecisionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Verify or reject a payment proof",
+        "tags": [
+          "Admission — Payments"
+        ]
+      }
+    },
+    "/admissions/payments/{applicationId}/cancel": {
+      "post": {
+        "operationId": "AdmissionPaymentAdminController_cancel",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelAdmissionPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionPaymentDecisionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Pembayaran tidak bisa dibatalkan setelah pendaftaran diputuskan"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a payment verification with a reason",
+        "tags": [
+          "Admission — Payments"
+        ]
+      }
+    },
     "/admissions/waves": {
       "get": {
         "operationId": "AdmissionWaveController_findAll",
@@ -10574,6 +10901,358 @@
             "type": "boolean"
           }
         }
+      },
+      "AdmissionPaymentQueueBankAccountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "bankName": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string"
+          },
+          "accountHolder": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "bankName",
+          "accountNumber",
+          "accountHolder"
+        ]
+      },
+      "AdmissionPaymentQueueProofFileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "storageKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "originalName",
+          "mimeType",
+          "storageKey"
+        ]
+      },
+      "AdmissionPaymentQueueRowResponseDto": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string"
+          },
+          "applicationId": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "applicationStatus": {
+            "type": "string"
+          },
+          "waveId": {
+            "type": "string"
+          },
+          "waveName": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "UNPAID",
+              "PENDING",
+              "VERIFIED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankName": {
+            "type": "string",
+            "nullable": true
+          },
+          "senderAccountName": {
+            "type": "string",
+            "nullable": true
+          },
+          "transferDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "bankAccount": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdmissionPaymentQueueBankAccountDto"
+              }
+            ]
+          },
+          "proofFile": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdmissionPaymentQueueProofFileDto"
+              }
+            ]
+          },
+          "proofUploadedByStaff": {
+            "type": "boolean"
+          },
+          "verifiedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "verifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "paymentId",
+          "applicationId",
+          "registrationNumber",
+          "applicantName",
+          "applicationStatus",
+          "waveId",
+          "waveName",
+          "amount",
+          "status",
+          "note",
+          "bankName",
+          "senderAccountName",
+          "transferDate",
+          "bankAccount",
+          "proofFile",
+          "proofUploadedByStaff",
+          "verifiedById",
+          "verifiedAt",
+          "updatedAt"
+        ]
+      },
+      "AdmissionPaymentQueueCountsDto": {
+        "type": "object",
+        "properties": {
+          "pending": {
+            "type": "number"
+          },
+          "verified": {
+            "type": "number"
+          },
+          "rejected": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "pending",
+          "verified",
+          "rejected"
+        ]
+      },
+      "AdmissionPaymentQueueMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/AdmissionPaymentQueueCountsDto"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages",
+          "counts"
+        ]
+      },
+      "AdmissionPaymentQueueResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionPaymentQueueRowResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AdmissionPaymentQueueMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "AdmissionEligibleApplicationResponseDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "applicationStatus": {
+            "type": "string"
+          },
+          "waveName": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "applicationId",
+          "registrationNumber",
+          "applicantName",
+          "applicationStatus",
+          "waveName",
+          "amount"
+        ]
+      },
+      "AdmissionEligibleApplicationListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionEligibleApplicationResponseDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "AddAdmissionPaymentDto": {
+        "type": "object",
+        "properties": {
+          "bankName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "BSI"
+          },
+          "bankAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "senderAccountName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ahmad Fauzi"
+          },
+          "transferDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "applicationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "bankName",
+          "bankAccountId",
+          "senderAccountName",
+          "transferDate",
+          "applicationId"
+        ]
+      },
+      "AdmissionPaymentDecisionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "applicationId": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "UNPAID",
+              "PENDING",
+              "VERIFIED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "verifiedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "verifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "applicationId",
+          "status",
+          "note",
+          "verifiedById",
+          "verifiedAt"
+        ]
+      },
+      "CancelAdmissionPaymentDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "example": "Nominal tidak sesuai mutasi bank"
+          }
+        },
+        "required": [
+          "note"
+        ]
       },
       "AdmissionWaveSummaryResponseAcademicYearDto": {
         "type": "object",

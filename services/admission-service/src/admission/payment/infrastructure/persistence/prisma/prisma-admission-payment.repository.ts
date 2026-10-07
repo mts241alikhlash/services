@@ -3,6 +3,8 @@ import { PrismaService } from '../../../../../core/database/prisma.service.js'
 import type { AdmissionPaymentWithProof } from '../../../domain/entities/admission-payment.entity.js'
 import {
   IAdmissionPaymentRepository,
+  type CancelVerificationInput,
+  type CancelVerificationResult,
   type SavePaymentProofInput,
   type UpdatePaymentStatusInput,
   type VerifyWithinQuotaInput,
@@ -16,6 +18,7 @@ import {
   pickTargetWave,
   withFilledCount,
 } from '../../../../wave/index.js'
+import { canCancelVerification } from '../../../domain/policies/payment-cancellation.policy.js'
 import { toNumericValue } from '../../../../../shared/domain/types/decimal.type.js'
 
 @Injectable()
@@ -193,6 +196,46 @@ export class PrismaAdmissionPaymentRepository extends IAdmissionPaymentRepositor
           registrationFee: toNumericValue(target.registrationFee),
         },
       }
+    })
+  }
+
+  async cancelVerification(
+    input: CancelVerificationInput,
+  ): Promise<CancelVerificationResult> {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM admission_applications WHERE id = ${input.applicationId}::uuid FOR UPDATE`
+
+      const current = await tx.admissionPayment.findFirst({
+        where: { id: input.paymentId, applicationId: input.applicationId },
+        select: { status: true, application: { select: { status: true } } },
+      })
+      if (current?.status !== 'VERIFIED') {
+        return { outcome: 'NOT_VERIFIED' as const }
+      }
+      if (!canCancelVerification(current.application.status)) {
+        return { outcome: 'DECIDED' as const }
+      }
+
+      const payment = await tx.admissionPayment.update({
+        where: { id: input.paymentId },
+        data: {
+          status: 'PENDING',
+          note: input.note,
+          verifiedById: null,
+          verifiedAt: null,
+        },
+        include: { proofFile: true, bankAccount: true },
+      })
+
+      const applicationReopened = current.application.status === 'VERIFIED'
+      if (applicationReopened) {
+        await tx.admissionApplication.update({
+          where: { id: input.applicationId },
+          data: { status: 'SUBMITTED', verifiedById: null, verifiedAt: null },
+        })
+      }
+
+      return { outcome: 'CANCELLED' as const, payment, applicationReopened }
     })
   }
 

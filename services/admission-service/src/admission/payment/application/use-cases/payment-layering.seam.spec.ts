@@ -21,6 +21,7 @@ function makePaymentRepository(
     findPayment: jest.fn(),
     updatePaymentStatus: jest.fn(),
     verifyWithinQuota: jest.fn(),
+    cancelVerification: jest.fn(),
     isWaveFull: jest.fn(),
     ...overrides,
   }
@@ -46,6 +47,33 @@ describe('Payment layering', () => {
         adminId: 'admin1',
       }),
     ).rejects.toThrow(BadRequestException)
+  })
+
+  it('refuses to reject a payment that is already verified', async () => {
+    const payments = makePaymentRepository({
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'VERIFIED',
+        proofFileId: 'file1',
+      }),
+    })
+    const notifications = { notify: jest.fn() }
+    const useCase = new VerifyPaymentUseCase(payments, notifications)
+
+    await expect(
+      useCase.execute({
+        applicationId: 'app1',
+        status: AdmissionPaymentStatus.REJECTED,
+        note: 'Salah',
+        adminId: 'admin1',
+      }),
+    ).rejects.toThrow(
+      new ConflictException(
+        'Pembayaran sudah diverifikasi, batalkan verifikasi terlebih dahulu',
+      ),
+    )
+    expect(payments.updatePaymentStatus).not.toHaveBeenCalled()
+    expect(notifications.notify).not.toHaveBeenCalled()
   })
 
   it('refuses to verify a payment whose proof was never uploaded', async () => {

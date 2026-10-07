@@ -122,4 +122,25 @@ describe('default roles', () => {
       )
     }
   })
+
+  it('lets the treasurer work payments but not documents, and staff only read them', () => {
+    for (const action of ['read', 'verify', 'create']) {
+      expect(codesOf('TREASURER')).toContain(`admission-payments.${action}`)
+      expect(codesOf('ADMISSION_ADMIN')).toContain(
+        `admission-payments.${action}`,
+      )
+      expect(codesOf('OPERATOR')).toContain(`admission-payments.${action}`)
+    }
+    expect(codesOf('TREASURER')).not.toContain('admissions.verify')
+    expect(codesOf('STUDENT_AFFAIRS_STAFF')).toContain(
+      'admission-payments.read',
+    )
+    expect(codesOf('STUDENT_AFFAIRS_STAFF')).not.toContain(
+      'admission-payments.verify',
+    )
+  })
+
+  it('lets the treasurer read waves for the payment queue filter', () => {
+    expect(codesOf('TREASURER')).toContain('admission-waves.read')
+  })
 })
