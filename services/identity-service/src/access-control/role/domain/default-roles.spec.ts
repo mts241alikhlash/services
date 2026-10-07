@@ -13,13 +13,13 @@ describe('default roles', () => {
     }
   })
 
-  it('defines the twenty-one default roles and three structural grants', () => {
+  it('defines the default roles and four structural grants', () => {
     expect(DEFAULT_ROLES.filter((role) => !role.structural)).toHaveLength(21)
     expect(
       DEFAULT_ROLES.filter((role) => role.structural)
         .map((role) => role.code)
         .sort(),
-    ).toEqual(['APPLICANT', 'STUDENT', 'TEACHER'])
+    ).toEqual(['APPLICANT', 'EMPLOYEE', 'STUDENT', 'TEACHER'])
   })
 
   it('uses unique English codes', () => {
@@ -34,6 +34,20 @@ describe('default roles', () => {
     expect(
       contains('VICE_PRINCIPAL_STUDENT_AFFAIRS', 'STUDENT_AFFAIRS_STAFF'),
     ).toBe(true)
+  })
+
+  it('limits EMPLOYEE to self-service permissions', () => {
+    expect(resolveGrants('EMPLOYEE')).toEqual([
+      'employees.read-own',
+      'leave-requests.create',
+      'leave-requests.read-own',
+      'payroll-payslips.read-own',
+      'presence-records.read-own',
+    ])
+  })
+
+  it('includes employee self-service grants in TEACHER defaults', () => {
+    expect(contains('TEACHER', 'EMPLOYEE')).toBe(true)
   })
 
   it('keeps the operator out of portal and payroll', () => {
@@ -85,6 +99,7 @@ describe('default roles', () => {
   it('keeps the structural list to roles the code depends on', () => {
     expect(STRUCTURAL_ROLES.map((r) => r.code).sort()).toEqual([
       'APPLICANT',
+      'EMPLOYEE',
       'STUDENT',
       'SUPER_ADMIN',
       'TEACHER',

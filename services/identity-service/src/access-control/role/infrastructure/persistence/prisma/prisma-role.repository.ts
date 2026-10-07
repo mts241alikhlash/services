@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { Prisma } from '../../../../../generated/prisma/client.js'
 import { PrismaService } from '../../../../../core/database/prisma.service.js'
 import {
@@ -116,6 +116,46 @@ export class PrismaRoleRepository extends IRoleRepository {
       where: { id },
       data: { isSystem: true },
     })
+  }
+
+  async ensureStructuralPermissions(
+    roleCode: string,
+    permissionCodes: string[],
+  ): Promise<number> {
+    const [role, permissions] = await Promise.all([
+      this.prisma.role.findUnique({ where: { code: roleCode } }),
+      this.prisma.permission.findMany({
+        where: { code: { in: permissionCodes } },
+        select: { id: true, code: true },
+      }),
+    ])
+    if (!role) {
+      throw new InternalServerErrorException(
+        `Structural role ${roleCode} was not created`,
+      )
+    }
+    if (permissions.length !== new Set(permissionCodes).size) {
+      const found = new Set(permissions.map((permission) => permission.code))
+      const missing = permissionCodes.filter((code) => !found.has(code))
+      throw new InternalServerErrorException(
+        `Structural role ${roleCode} permissions are missing: ${missing.join(', ')}`,
+      )
+    }
+    const held = await this.prisma.rolePermission.count({
+      where: {
+        roleId: role.id,
+        permissionId: { in: permissions.map((permission) => permission.id) },
+      },
+    })
+    if (held > 0) return 0
+    const assigned = await this.prisma.rolePermission.createMany({
+      data: permissions.map((permission) => ({
+        roleId: role.id,
+        permissionId: permission.id,
+      })),
+      skipDuplicates: true,
+    })
+    return assigned.count
   }
 
   async assignRoleToUser(userId: string, roleId: string) {

@@ -22,19 +22,20 @@ export class EnsureStructuralRolesUseCase {
           description: role.description,
         })
         created.push(role.code)
-        continue
-      }
-
-      if (!existing.isSystem) {
+      } else if (!existing.isSystem) {
         await this.roleRepository.markSystem(existing.id)
         protectedNow.push(role.code)
+      }
+
+      if (role.permissions) {
+        await this.roleRepository.ensureStructuralPermissions(role.code, [
+          ...role.permissions,
+        ])
       }
     }
 
     if (created.length > 0) {
-      this.logger.log(
-        `Created structural roles with no permissions — grant them on the role screen: ${created.join(', ')}`,
-      )
+      this.logger.log(`Created structural roles: ${created.join(', ')}`)
     }
     if (protectedNow.length > 0) {
       this.logger.log(

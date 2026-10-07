@@ -1,5 +1,6 @@
 import { SyncPermissionsUseCase } from './sync-permissions.use-case.js'
 import { PermissionModule } from '../../../permission.module.js'
+import { EnsureStructuralRolesUseCase } from '../../../../role/application/use-cases/ensure-structural-roles/ensure-structural-roles.use-case.js'
 import { SYSTEM_PERMISSIONS } from '../../../constants/permission-codes.constants.js'
 import type { IPermissionRepository } from '../../../domain/repositories/permission.repository.js'
 
@@ -36,11 +37,18 @@ describe('permission catalogue sync on bootstrap', () => {
 
   it('runs when the application boots', async () => {
     const { useCase, upsertPermission } = useCaseWithSpy()
-    const module = new PermissionModule(useCase)
+    const ensureStructuralRoles = {
+      execute: jest.fn().mockResolvedValue(undefined),
+    }
+    const module = new PermissionModule(
+      useCase,
+      ensureStructuralRoles as unknown as EnsureStructuralRolesUseCase,
+    )
 
     await module.onApplicationBootstrap()
 
     expect(upsertPermission).toHaveBeenCalled()
+    expect(ensureStructuralRoles.execute).toHaveBeenCalled()
   })
 
   it('carries the self-service codes', () => {
@@ -52,6 +60,11 @@ describe('permission catalogue sync on bootstrap', () => {
       'report-cards.read-own',
       'student-scores.read-own',
       'schedules.read-own',
+      'employees.read-own',
+      'leave-requests.create',
+      'leave-requests.read-own',
+      'payroll-payslips.read-own',
+      'presence-records.read-own',
     ]) {
       expect(codes).toContain(code)
     }

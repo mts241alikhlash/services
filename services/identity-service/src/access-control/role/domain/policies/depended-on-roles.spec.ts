@@ -119,6 +119,7 @@ describe('roles the code resolves by name are protected from deletion', () => {
       const SERVICES = [
         'academic-service',
         'admission-service',
+        'hr-service',
         'inventory-service',
         'portal-service',
         'presence-service',
@@ -129,6 +130,7 @@ describe('roles the code resolves by name are protected from deletion', () => {
       )
 
       expect(crossService.map((role) => role.code)).toEqual([
+        'EMPLOYEE',
         'TEACHER',
         'STUDENT',
         'APPLICANT',

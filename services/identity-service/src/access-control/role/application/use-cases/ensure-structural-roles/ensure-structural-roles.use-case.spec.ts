@@ -13,6 +13,7 @@ describe('structural roles', () => {
   ) {
     const createStructural = jest.fn().mockResolvedValue({ id: 'new' })
     const markSystem = jest.fn().mockResolvedValue({ id: 'x' })
+    const ensureStructuralPermissions = jest.fn().mockResolvedValue(0)
     const findByCode = jest
       .fn()
       .mockImplementation((code: string) =>
@@ -23,12 +24,14 @@ describe('structural roles', () => {
       findByCode,
       createStructural,
       markSystem,
+      ensureStructuralPermissions,
     } as unknown as IRoleRepository
 
     return {
       useCase: new EnsureStructuralRolesUseCase(repository),
       createStructural,
       markSystem,
+      ensureStructuralPermissions,
     }
   }
 
@@ -111,8 +114,36 @@ describe('structural roles', () => {
   })
 
   it('knows which codes are structural', () => {
+    expect(isStructuralRole('EMPLOYEE')).toBe(true)
     expect(isStructuralRole('TEACHER')).toBe(true)
     expect(isStructuralRole('APPLICANT')).toBe(true)
     expect(isStructuralRole('SARPRAS')).toBe(false)
+  })
+
+  it('ensures employee self-service grants for employee and teacher roles', async () => {
+    const { useCase, ensureStructuralPermissions } = repositoryWith({})
+
+    await useCase.execute()
+
+    expect(ensureStructuralPermissions).toHaveBeenCalledWith(
+      'EMPLOYEE',
+      expect.arrayContaining([
+        'employees.read-own',
+        'leave-requests.create',
+        'leave-requests.read-own',
+        'payroll-payslips.read-own',
+        'presence-records.read-own',
+      ]),
+    )
+    expect(ensureStructuralPermissions).toHaveBeenCalledWith(
+      'TEACHER',
+      expect.arrayContaining([
+        'employees.read-own',
+        'leave-requests.create',
+        'leave-requests.read-own',
+        'payroll-payslips.read-own',
+        'presence-records.read-own',
+      ]),
+    )
   })
 })
