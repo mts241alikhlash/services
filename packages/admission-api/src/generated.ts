@@ -349,6 +349,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admissions/files/{fileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream a file an admission record owns (document, proof, attachment) */
+        get: operations["AdmissionFileController_stream"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admissions/form-options": {
         parameters: {
             query?: never;
@@ -3733,6 +3750,45 @@ export interface operations {
             };
             /** @description Urutan jenis berkas tidak lengkap */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionFileController_stream: {
+        parameters: {
+            query?: {
+                /** @description 1 downloads the file instead of showing it inline */
+                download?: unknown;
+            };
+            header?: never;
+            path: {
+                fileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The file bytes with their stored content type */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: binary */
+                        data?: string;
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Berkas tidak ditemukan */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
