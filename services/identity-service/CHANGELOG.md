@@ -1,5 +1,11 @@
 # identity-service
 
+## 1.6.0
+
+### Minor Changes
+
+- 5bf6d00: Permissions `admission-decisions.read` and `admission-decisions.decide` for the admission decision queue. Kepala Madrasah, Wakamad Kurikulum and Wakamad Kesantrian may decide; Admin PPDB and Operator may only read the queue (`admission-decisions.decide` is explicit-only, like `admissions.apply`). Wakamad Kurikulum also gets `admissions.read` to open an applicant and a file.
+
 ## 1.5.0
 
 ### Minor Changes
