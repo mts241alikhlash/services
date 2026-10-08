@@ -190,6 +190,19 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
   },
 
   {
+    module: 'admission-decisions',
+    action: 'decide',
+    code: 'admission-decisions.decide',
+    description:
+      'Accept or reject verified applicants and cancel those decisions',
+  },
+  {
+    module: 'admission-decisions',
+    action: 'read',
+    code: 'admission-decisions.read',
+    description: 'Read the admission decision queue',
+  },
+  {
     module: 'admission-document-types',
     action: 'create',
     code: 'admission-document-types.create',

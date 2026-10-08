@@ -79,6 +79,7 @@ const MODULE_APP: Record<string, PermissionApp> = {
 
   'admission-announcements': 'admission',
   'admission-bank-accounts': 'admission',
+  'admission-decisions': 'admission',
   'admission-document-types': 'admission',
   'admission-documents': 'admission',
   'admission-payments': 'admission',
