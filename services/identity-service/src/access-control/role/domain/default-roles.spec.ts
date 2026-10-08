@@ -123,6 +123,18 @@ describe('default roles', () => {
     }
   })
 
+  it('lets admission staff review documents and keeps the treasurer out', () => {
+    for (const code of [
+      'admission-documents.read',
+      'admission-documents.verify',
+    ]) {
+      expect(codesOf('STUDENT_AFFAIRS_STAFF')).toContain(code)
+      expect(codesOf('ADMISSION_ADMIN')).toContain(code)
+      expect(codesOf('OPERATOR')).toContain(code)
+      expect(codesOf('TREASURER')).not.toContain(code)
+    }
+  })
+
   it('lets the treasurer work payments but not documents, and staff only read them', () => {
     for (const action of ['read', 'verify', 'create']) {
       expect(codesOf('TREASURER')).toContain(`admission-payments.${action}`)

@@ -11,6 +11,7 @@ import { IRegionLookupPort } from '../../../../platform/region-lookup/region-loo
 import { RegisterApplicantUseCase } from './register-applicant/register-applicant.use-case.js'
 import { SubmitApplicationUseCase } from './submit-application/submit-application.use-case.js'
 import { UpdateMyApplicationUseCase } from './update-my-application/update-my-application.use-case.js'
+import { VerifyApplicationWhenReadyUseCase } from '../../../verification/index.js'
 
 describe('Admission applicant use-cases', () => {
   const repo = {
@@ -47,6 +48,10 @@ describe('Admission applicant use-cases', () => {
         { provide: IReferenceLookupPort, useValue: referenceLookup },
         { provide: IRegionLookupPort, useValue: {} },
         { provide: AdmissionNotificationService, useValue: notifications },
+        {
+          provide: VerifyApplicationWhenReadyUseCase,
+          useValue: { execute: jest.fn().mockResolvedValue(false) },
+        },
       ],
     }).compile()
 

@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
+import { VerifyApplicationWhenReadyUseCase } from '../../../../verification/index.js'
 import { IAdmissionPaymentNotificationPort } from '../../../domain/repositories/admission-payment-notification.port.js'
 import { IAdmissionPaymentRepository } from '../../../domain/repositories/admission-payment-repository.js'
 import { serializePayment } from '../../serialize-payment.js'
@@ -15,6 +16,7 @@ export class VerifyPaymentUseCase {
   constructor(
     private readonly payments: IAdmissionPaymentRepository,
     private readonly notifications: IAdmissionPaymentNotificationPort,
+    private readonly verifyWhenReady: VerifyApplicationWhenReadyUseCase,
   ) {}
 
   async execute(input: VerifyPaymentInput) {
@@ -97,6 +99,8 @@ export class VerifyPaymentUseCase {
         )
       }
     }
+
+    await this.verifyWhenReady.execute(input.applicationId, input.adminId)
 
     return serializePayment(result.payment)
   }

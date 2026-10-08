@@ -3179,6 +3179,291 @@
         ]
       }
     },
+    "/admissions/document-reviews": {
+      "get": {
+        "operationId": "AdmissionDocumentReviewController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "tab",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "waiting",
+              "type": "string",
+              "enum": [
+                "waiting",
+                "revision",
+                "done"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by applicant name or registration number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "waveId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionDocumentReviewRowResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/AdmissionDocumentReviewMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Document review queue by tab, with tab counts",
+        "tags": [
+          "Admission — Document review"
+        ]
+      }
+    },
+    "/admissions/document-reviews/{applicationId}": {
+      "get": {
+        "operationId": "AdmissionDocumentReviewController_findOne",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDocumentReviewResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "An applicant with every active document type",
+        "tags": [
+          "Admission — Document review"
+        ]
+      }
+    },
+    "/admissions/document-reviews/{applicationId}/documents/{documentId}": {
+      "patch": {
+        "operationId": "AdmissionDocumentReviewController_decide",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveDocumentDecisionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDocumentReviewDocumentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Keputusan berkas hanya bisa diubah selama pendaftaran menunggu pemeriksaan"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Save an approve or reject decision without telling the applicant",
+        "tags": [
+          "Admission — Document review"
+        ]
+      }
+    },
+    "/admissions/document-reviews/{applicationId}/send": {
+      "post": {
+        "operationId": "AdmissionDocumentReviewController_send",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendDocumentReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDocumentReviewSendResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Masih ada berkas wajib yang belum diputuskan atau belum diunggah"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send the review result to the applicant, once",
+        "tags": [
+          "Admission — Document review"
+        ]
+      }
+    },
     "/admissions/files/{fileId}": {
       "get": {
         "operationId": "AdmissionFileController_stream",
@@ -11836,6 +12121,341 @@
             "type": "boolean"
           }
         }
+      },
+      "AdmissionDocumentReviewSummaryDto": {
+        "type": "object",
+        "properties": {
+          "approved": {
+            "type": "number"
+          },
+          "rejected": {
+            "type": "number"
+          },
+          "pending": {
+            "type": "number"
+          },
+          "missing": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "approved",
+          "rejected",
+          "pending",
+          "missing",
+          "total"
+        ]
+      },
+      "AdmissionDocumentReviewRowResponseDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "waveName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/AdmissionDocumentReviewSummaryDto"
+          }
+        },
+        "required": [
+          "applicationId",
+          "registrationNumber",
+          "applicantName",
+          "waveName",
+          "status",
+          "submittedAt",
+          "summary"
+        ]
+      },
+      "AdmissionDocumentReviewCountsDto": {
+        "type": "object",
+        "properties": {
+          "waiting": {
+            "type": "number"
+          },
+          "revision": {
+            "type": "number"
+          },
+          "done": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "waiting",
+          "revision",
+          "done"
+        ]
+      },
+      "AdmissionDocumentReviewMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/AdmissionDocumentReviewCountsDto"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages",
+          "counts"
+        ]
+      },
+      "AdmissionDocumentReviewQueueResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionDocumentReviewRowResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AdmissionDocumentReviewMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "AdmissionDocumentReviewFileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "storageKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "originalName",
+          "mimeType",
+          "storageKey"
+        ]
+      },
+      "AdmissionDocumentReviewDocumentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "documentTypeId": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "verifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "file": {
+            "$ref": "#/components/schemas/AdmissionDocumentReviewFileDto"
+          }
+        },
+        "required": [
+          "id",
+          "documentTypeId",
+          "status",
+          "note",
+          "verifiedAt",
+          "file"
+        ]
+      },
+      "AdmissionDocumentReviewSlotDto": {
+        "type": "object",
+        "properties": {
+          "documentTypeId": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "document": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdmissionDocumentReviewDocumentResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "documentTypeId",
+          "code",
+          "name",
+          "isRequired",
+          "document"
+        ]
+      },
+      "AdmissionDocumentReviewResponseDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "waveName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "revisionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "paymentStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "readOnly": {
+            "type": "boolean"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionDocumentReviewSlotDto"
+            }
+          }
+        },
+        "required": [
+          "applicationId",
+          "registrationNumber",
+          "applicantName",
+          "waveName",
+          "status",
+          "revisionNote",
+          "submittedAt",
+          "paymentStatus",
+          "readOnly",
+          "slots"
+        ]
+      },
+      "SaveDocumentDecisionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "APPROVED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Required when the decision is REJECTED"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "SendDocumentReviewDto": {
+        "type": "object",
+        "properties": {
+          "dataNote": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Free note about data that is wrong, or a document to upload; returns the form to the applicant"
+          }
+        }
+      },
+      "AdmissionDocumentReviewSendResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "SUBMITTED",
+              "REVISION_NEEDED",
+              "VERIFIED"
+            ],
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "APPROVED",
+              "REVISION_REQUESTED"
+            ],
+            "type": "string"
+          },
+          "verified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "outcome",
+          "verified"
+        ]
       }
     }
   }

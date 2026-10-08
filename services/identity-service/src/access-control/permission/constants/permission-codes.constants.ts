@@ -213,6 +213,18 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
     code: 'admission-document-types.update',
     description: 'Update and reorder the document types applicants upload',
   },
+  {
+    module: 'admission-documents',
+    action: 'read',
+    code: 'admission-documents.read',
+    description: 'Read the admission document review queue',
+  },
+  {
+    module: 'admission-documents',
+    action: 'verify',
+    code: 'admission-documents.verify',
+    description: 'Approve or reject applicant documents and send the result',
+  },
 
   {
     module: 'admission-payments',

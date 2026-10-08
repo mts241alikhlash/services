@@ -284,6 +284,8 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         'admissions.read',
         'admissions.create',
         'admissions.verify',
+        'admission-documents.read',
+        'admission-documents.verify',
         'admissions.enroll',
         'admission-waves.read',
         'admission-bank-accounts.read',
