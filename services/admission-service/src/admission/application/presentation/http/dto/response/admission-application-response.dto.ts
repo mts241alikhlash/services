@@ -1356,7 +1356,7 @@ export class AdmissionApplicationReviewResponseDto {
   @ApiPropertyOptional({ type: String, nullable: true })
   nisn?: string | null
 
-  @ApiPropertyOptional({ type: String, nullable: true })
+  @ApiPropertyOptional({ enum: ['NEW', 'TRANSFER'], nullable: true })
   admissionType?: 'NEW' | 'TRANSFER' | null
 
   @ApiPropertyOptional({ type: String, nullable: true })
