@@ -89,7 +89,7 @@ describe('SetPlacementUseCase', () => {
       isNisLocked: jest.fn().mockResolvedValue(locked),
       setPlacement: jest.fn().mockResolvedValue(undefined),
     }
-    const lookup = { listGrades: jest.fn().mockResolvedValue(grades) }
+    const lookup = { activeGrades: jest.fn().mockResolvedValue(grades) }
     return {
       repository,
       useCase: new SetPlacementUseCase(repository as never, lookup as never),
@@ -390,6 +390,76 @@ describe('ComposeNisUseCase', () => {
     )
   })
 
+  it('syncs enrolled students after the lock too, even when nothing new is numbered', async () => {
+    const { useCase, enrolment } = setup(
+      [
+        candidate('a', 'Ahmad', {
+          status: 'ENROLLED',
+          currentNis: '262707001',
+          studentId: 'sa',
+        }),
+      ],
+      true,
+    )
+
+    await useCase.execute({ ...run, expectedChanges: 0, syncStudents: true })
+
+    expect(enrolment.updateNis).toHaveBeenLastCalledWith(
+      'sa',
+      '262707001',
+      'tok',
+    )
+  })
+
+  it('finishes a student the service refused on a second run with sync', async () => {
+    const { useCase, enrolment } = setup([
+      candidate('a', 'Ahmad', {
+        status: 'ENROLLED',
+        currentNis: '262707001',
+        studentId: 'sa',
+      }),
+    ])
+    enrolment.updateNis.mockRejectedValue(new Error('refused'))
+
+    const first = await useCase.execute({
+      ...run,
+      expectedChanges: 0,
+      syncStudents: true,
+    })
+    expect(first.failed).toEqual([
+      { applicationId: 'a', reason: 'Gagal memperbarui NIS di data santri' },
+    ])
+
+    enrolment.updateNis.mockReset().mockResolvedValue(undefined)
+    const second = await useCase.execute({
+      ...run,
+      expectedChanges: 0,
+      syncStudents: true,
+    })
+
+    expect(second.failed).toEqual([])
+    expect(enrolment.updateNis).toHaveBeenLastCalledWith(
+      'sa',
+      '262707001',
+      'tok',
+    )
+  })
+
+  it('refuses while a held applicant would get a different number', async () => {
+    const { useCase, repository } = setup([
+      candidate('a', 'Ahmad', { status: 'ENROLLING', currentNis: '262707009' }),
+    ])
+
+    await expect(
+      useCase.execute({ ...run, expectedChanges: 1 }),
+    ).rejects.toThrow(
+      new ConflictException(
+        'Ada pendaftar Tertahan yang NIS-nya akan berubah, selesaikan dulu',
+      ),
+    )
+    expect(repository.writeNis).not.toHaveBeenCalled()
+  })
+
   it('does not touch students who are not enrolled', async () => {
     const { useCase, enrolment } = setup([candidate('a', 'Ahmad')])
 
@@ -425,7 +495,11 @@ describe('LockNisUseCase', () => {
         academicYearId: 'y1',
         lockedById: 'admin1',
       }),
-    ).resolves.toEqual({ academicYearId: 'y1', lockedAt })
+    ).resolves.toEqual({
+      academicYearId: 'y1',
+      lockedAt,
+      lockedById: 'admin1',
+    })
     expect(repository.lockNis).toHaveBeenCalledWith('y1', 'admin1')
   })
 
@@ -456,6 +530,7 @@ describe('ProcessEnrolmentsUseCase', () => {
       findProcessState: jest.fn((id: string) =>
         Promise.resolve(states[id] ?? null),
       ),
+      setNisn: jest.fn().mockResolvedValue(undefined),
     }
     const enroll = { execute: jest.fn().mockResolvedValue({ id: 'x' }) }
     return {
@@ -485,6 +560,55 @@ describe('ProcessEnrolmentsUseCase', () => {
     expect(result.results).toEqual([
       { applicationId: 'a', outcome: 'ENROLLED' },
       { applicationId: 'b', outcome: 'ENROLLED' },
+    ])
+  })
+
+  it('saves a typed NISN on the application before enrolling', async () => {
+    const { useCase, repository } = setup({ a: { ...ready, nisn: null } })
+
+    await useCase.execute({
+      applicationIds: ['a'],
+      nisn: [{ applicationId: 'a', nisn: '0099999999' }],
+      bearerToken: 'tok',
+    })
+
+    expect(repository.setNisn).toHaveBeenCalledWith('a', '0099999999')
+  })
+
+  it('keeps an existing NISN over a typed one', async () => {
+    const { useCase, enroll, repository } = setup({ a: ready })
+
+    await useCase.execute({
+      applicationIds: ['a'],
+      nisn: [{ applicationId: 'a', nisn: '0099999999' }],
+      bearerToken: 'tok',
+    })
+
+    expect(repository.setNisn).not.toHaveBeenCalled()
+    expect(enroll.execute).toHaveBeenCalledWith(
+      'a',
+      expect.objectContaining({ nisn: '0091234567' }),
+      'tok',
+    )
+  })
+
+  it('skips an applicant whose profile the enrolment refuses, leaving the status alone', async () => {
+    const { useCase, enroll } = setup({ a: ready })
+    enroll.execute.mockRejectedValueOnce(
+      new BadRequestException('Data diri belum lengkap'),
+    )
+
+    const result = await useCase.execute({
+      applicationIds: ['a'],
+      bearerToken: 'tok',
+    })
+
+    expect(result.results).toEqual([
+      {
+        applicationId: 'a',
+        outcome: 'SKIPPED',
+        reason: 'Data diri belum lengkap',
+      },
     ])
   })
 

@@ -26,7 +26,9 @@ export class SetPlacementUseCase {
     if (state.status === 'ENROLLING' || state.status === 'ENROLLED') {
       throw new ConflictException('Pendaftar sudah diproses menjadi santri')
     }
-    const [grade] = await this.lookup.listGrades([input.targetGradeId])
+    const grade = (await this.lookup.activeGrades()).find(
+      (candidate) => candidate.id === input.targetGradeId,
+    )
     if (!grade) throw new BadRequestException('Tingkat kelas tidak ditemukan')
 
     const levelChanges =

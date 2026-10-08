@@ -59,7 +59,7 @@ export class ProcessEnrolmentsUseCase {
         skip('Pendaftar belum berstatus diterima')
         continue
       }
-      const nisn = typed.get(applicationId) || state.nisn
+      const nisn = state.nisn || typed.get(applicationId)
       if (!state.nis) {
         skip('NIS belum disusun')
         continue
@@ -74,6 +74,9 @@ export class ProcessEnrolmentsUseCase {
       }
 
       try {
+        if (!state.nisn) {
+          await this.enrolments.setNisn(applicationId, nisn)
+        }
         await this.enroll.execute(
           applicationId,
           { nis: state.nis, nisn, gradeId: state.targetGradeId },
@@ -81,6 +84,10 @@ export class ProcessEnrolmentsUseCase {
         )
         results.push({ applicationId, outcome: 'ENROLLED' })
       } catch (error) {
+        if (error instanceof BadRequestException) {
+          skip(error.message)
+          continue
+        }
         this.logger.error(`Enrolling ${applicationId} failed: ${String(error)}`)
         results.push({
           applicationId,

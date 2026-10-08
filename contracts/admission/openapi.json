@@ -13629,7 +13629,12 @@
             "type": "string"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "ACCEPTED",
+              "ENROLLING",
+              "ENROLLED"
+            ]
           },
           "admissionType": {
             "nullable": true,
@@ -13955,11 +13960,15 @@
           "lockedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "lockedById": {
+            "type": "string"
           }
         },
         "required": [
           "academicYearId",
-          "lockedAt"
+          "lockedAt",
+          "lockedById"
         ]
       },
       "ProcessNisnDto": {

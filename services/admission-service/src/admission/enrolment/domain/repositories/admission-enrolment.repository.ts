@@ -26,5 +26,6 @@ export abstract class IAdmissionEnrolmentRepository {
     placement: Placement,
     clearNis: boolean,
   ): Promise<void>
+  abstract setNisn(applicationId: string, nisn: string): Promise<void>
   abstract findProcessState(applicationId: string): Promise<ProcessState | null>
 }

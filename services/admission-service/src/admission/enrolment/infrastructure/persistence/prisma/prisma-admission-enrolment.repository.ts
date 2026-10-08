@@ -206,6 +206,13 @@ export class PrismaAdmissionEnrolmentRepository extends IAdmissionEnrolmentRepos
     })
   }
 
+  async setNisn(applicationId: string, nisn: string): Promise<void> {
+    await this.prisma.admissionApplication.update({
+      where: { id: applicationId },
+      data: { nisn },
+    })
+  }
+
   findProcessState(applicationId: string): Promise<ProcessState | null> {
     return this.prisma.admissionApplication.findFirst({
       where: { id: applicationId, deletedAt: null },

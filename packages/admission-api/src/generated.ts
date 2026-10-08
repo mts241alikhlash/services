@@ -2650,7 +2650,8 @@ export interface components {
             nis: string | null;
             nisn: string | null;
             registrationNumber: string;
-            status: string;
+            /** @enum {string} */
+            status: "ACCEPTED" | "ENROLLING" | "ENROLLED";
             targetGradeLevel: number | null;
             waveName: string;
         };
@@ -2715,6 +2716,7 @@ export interface components {
             academicYearId: string;
             /** Format: date-time */
             lockedAt: string;
+            lockedById: string;
         };
         AdmissionNisPreviewResponseDto: {
             academicYearId: string;

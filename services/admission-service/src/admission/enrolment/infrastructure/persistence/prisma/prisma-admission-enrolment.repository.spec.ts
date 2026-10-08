@@ -307,3 +307,19 @@ describe('PrismaAdmissionEnrolmentRepository placement and processing', () => {
     })
   })
 })
+
+describe('PrismaAdmissionEnrolmentRepository.setNisn', () => {
+  it('stores the NISN of an application', async () => {
+    const update = jest.fn().mockResolvedValue({})
+    const repository = new PrismaAdmissionEnrolmentRepository({
+      admissionApplication: { update },
+    } as never)
+
+    await repository.setNisn('app1', '0099999999')
+
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'app1' },
+      data: { nisn: '0099999999' },
+    })
+  })
+})

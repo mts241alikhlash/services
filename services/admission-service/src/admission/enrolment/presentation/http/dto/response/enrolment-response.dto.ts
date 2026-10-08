@@ -6,7 +6,8 @@ export class AdmissionEnrolmentRowResponseDto {
   @ApiProperty({ type: String }) applicantName!: string
   @ApiProperty({ type: String }) waveName!: string
   @ApiProperty({ type: String }) academicYearId!: string
-  @ApiProperty({ type: String }) status!: string
+  @ApiProperty({ enum: ['ACCEPTED', 'ENROLLING', 'ENROLLED'] })
+  status!: string
   @ApiProperty({ enum: ['NEW', 'TRANSFER'], nullable: true }) admissionType!:
     'NEW' | 'TRANSFER' | null
   @ApiProperty({ type: Number, nullable: true }) targetGradeLevel!:
@@ -136,14 +137,17 @@ export class AdmissionNisComposeResponseDto {
 export class AdmissionNisLockResponseDto {
   @ApiProperty({ type: String }) academicYearId!: string
   @ApiProperty({ type: String, format: 'date-time' }) lockedAt!: string
+  @ApiProperty({ type: String }) lockedById!: string
 
   static fromDomain(domain: {
     academicYearId: string
     lockedAt: Date
+    lockedById: string
   }): AdmissionNisLockResponseDto {
     const dto = new AdmissionNisLockResponseDto()
     dto.academicYearId = domain.academicYearId
     dto.lockedAt = domain.lockedAt.toISOString()
+    dto.lockedById = domain.lockedById
     return dto
   }
 }

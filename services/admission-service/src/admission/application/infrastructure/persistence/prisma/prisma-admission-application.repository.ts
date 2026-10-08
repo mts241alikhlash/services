@@ -408,9 +408,15 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
     id: string,
     enrolledStudentId: string,
   ): Promise<ApplicationAdminDetail> {
-    const row = await this.prisma.admissionApplication.update({
-      where: { id },
+    const { count } = await this.prisma.admissionApplication.updateMany({
+      where: { id, status: 'ENROLLING' },
       data: { status: 'ENROLLED', enrolledStudentId },
+    })
+    if (count !== 1) {
+      throw new ConflictException(APPLICATION_CHANGED_MESSAGE)
+    }
+    const row = await this.prisma.admissionApplication.findUniqueOrThrow({
+      where: { id },
       include: applicationAdminDetailInclude,
     })
     return this.attachAccountSummary(row)

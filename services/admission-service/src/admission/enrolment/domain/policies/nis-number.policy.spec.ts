@@ -63,6 +63,35 @@ describe('planNis before the lock', () => {
     ])
   })
 
+  it('keeps the same name in two grade levels apart with its registration number', () => {
+    const plan = planNis({
+      yearCode: '2627',
+      locked: false,
+      candidates: [
+        candidate('x2', 'Budi', 8, null, 'G1-0002'),
+        candidate('x1', 'Budi', 7, null, 'G1-0001'),
+      ],
+    })
+
+    expect(plan.assignments).toEqual([
+      { applicationId: 'x1', nis: '262707001', previous: null },
+      { applicationId: 'x2', nis: '262708002', previous: null },
+    ])
+  })
+
+  it('treats an accent-only difference as a tie broken by registration number', () => {
+    const plan = planNis({
+      yearCode: '2627',
+      locked: false,
+      candidates: [
+        candidate('b', 'Eka', 7, null, 'G1-0002'),
+        candidate('a', 'Éka', 7, null, 'G1-0001'),
+      ],
+    })
+
+    expect(plan.assignments.map((a) => a.applicationId)).toEqual(['a', 'b'])
+  })
+
   it('uses Indonesian collation so accented names sort with their letter', () => {
     const plan = planNis({
       yearCode: '2627',

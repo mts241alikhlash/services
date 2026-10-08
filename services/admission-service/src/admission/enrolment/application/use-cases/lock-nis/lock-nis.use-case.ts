@@ -18,6 +18,10 @@ export class LockNisUseCase {
     if (!lock) {
       throw new ConflictException('NIS tahun ajaran ini sudah dikunci')
     }
-    return { academicYearId: input.academicYearId, lockedAt: lock.lockedAt }
+    return {
+      academicYearId: input.academicYearId,
+      lockedAt: lock.lockedAt,
+      lockedById: input.lockedById,
+    }
   }
 }

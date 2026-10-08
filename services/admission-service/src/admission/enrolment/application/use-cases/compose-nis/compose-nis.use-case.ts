@@ -35,6 +35,20 @@ export class ComposeNisUseCase {
       )
     }
 
+    const heldChanges = plan.assignments.some(
+      (assignment) =>
+        assignment.previous !== null &&
+        assignment.previous !== assignment.nis &&
+        candidates.find(
+          (candidate) => candidate.applicationId === assignment.applicationId,
+        )?.status === 'ENROLLING',
+    )
+    if (heldChanges) {
+      throw new ConflictException(
+        'Ada pendaftar Tertahan yang NIS-nya akan berubah, selesaikan dulu',
+      )
+    }
+
     const toWrite = plan.assignments.filter(
       (assignment) => assignment.previous !== assignment.nis,
     )
@@ -45,14 +59,19 @@ export class ComposeNisUseCase {
     const changedIds = new Set(
       toWrite.map((assignment) => assignment.applicationId),
     )
-    const targets = plan.assignments.flatMap((assignment) => {
-      const row = candidates.find(
-        (candidate) => candidate.applicationId === assignment.applicationId,
-      )
-      const enrolled = row?.status === 'ENROLLED' && row.studentId
-      return enrolled &&
-        (input.syncStudents || changedIds.has(assignment.applicationId))
-        ? [{ ...assignment, studentId: row.studentId! }]
+    const assigned = new Map(
+      plan.assignments.map((assignment) => [
+        assignment.applicationId,
+        assignment.nis,
+      ]),
+    )
+    const targets = candidates.flatMap((row) => {
+      const nis = assigned.get(row.applicationId) ?? row.currentNis
+      return row.status === 'ENROLLED' &&
+        row.studentId &&
+        nis &&
+        (input.syncStudents || changedIds.has(row.applicationId))
+        ? [{ applicationId: row.applicationId, nis, studentId: row.studentId }]
         : []
     })
 
