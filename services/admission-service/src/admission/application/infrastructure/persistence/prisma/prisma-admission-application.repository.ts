@@ -1,4 +1,5 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common'
+import { APPLICATION_CHANGED_MESSAGE } from '../../../domain/policies/admission-status.transitions.js'
 import {
   AdmissionApplication,
   AdmissionDocumentType,
@@ -71,9 +72,7 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
       !allowed.includes(current.status) ||
       (paymentMustBeVerified && current.payment?.status !== 'VERIFIED')
     ) {
-      throw new ConflictException(
-        'The application changed while you were working; reload and try again',
-      )
+      throw new ConflictException(APPLICATION_CHANGED_MESSAGE)
     }
   }
 
@@ -363,7 +362,12 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
     input: RejectAdmissionApplicationInput,
   ): Promise<ApplicationAdminDetail> {
     const row = await this.prisma.$transaction(async (tx) => {
-      await this.lockForDecision(tx, input.id, ['SUBMITTED', 'VERIFIED'], false)
+      await this.lockForDecision(
+        tx,
+        input.id,
+        input.onlyVerified ? ['VERIFIED'] : ['SUBMITTED', 'VERIFIED'],
+        false,
+      )
       return tx.admissionApplication.update({
         where: { id: input.id },
         data: {
@@ -384,9 +388,7 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
       data: { status: 'ENROLLING' },
     })
     if (count !== 1) {
-      throw new ConflictException(
-        'Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi',
-      )
+      throw new ConflictException(APPLICATION_CHANGED_MESSAGE)
     }
     const row = await this.prisma.admissionApplication.findUniqueOrThrow({
       where: { id },

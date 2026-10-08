@@ -32,6 +32,10 @@ export class RejectFromQueueUseCase {
         'Hanya pendaftar terverifikasi yang bisa diputuskan di sini',
       )
     }
-    return this.reject.execute(input.applicationId, { reason }, input.adminId)
+    return this.reject.execute(
+      input.applicationId,
+      { reason, onlyVerified: true },
+      input.adminId,
+    )
   }
 }

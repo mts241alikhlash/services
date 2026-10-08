@@ -20,6 +20,7 @@ import type { AuthenticatedUser } from '../../../../core/types/authenticated-use
 import { RequirePermissions } from '../../../../platform/access-control/permission/decorators/require-permissions.decorator.js'
 import { JwtAuthGuard } from '../../../../platform/auth/index.js'
 import { AcceptApplicationUseCase } from '../../../application/index.js'
+import { APPLICATION_CHANGED_MESSAGE } from '../../../application/domain/policies/admission-status.transitions.js'
 import { AcceptManyUseCase } from '../../application/use-cases/accept-many/accept-many.use-case.js'
 import { CancelAcceptanceUseCase } from '../../application/use-cases/cancel-acceptance/cancel-acceptance.use-case.js'
 import { CancelRejectionUseCase } from '../../application/use-cases/cancel-rejection/cancel-rejection.use-case.js'
@@ -73,7 +74,7 @@ export class AdmissionDecisionController {
     return AdmissionDecisionManyResponseDto.fromDomain(
       await this.acceptManyUseCase.execute({
         applicationIds: dto.applicationIds,
-        note: dto.note,
+        note: dto.note?.trim() || undefined,
         adminId: user.id,
       }),
     )
@@ -84,6 +85,7 @@ export class AdmissionDecisionController {
   @ApiOperation({ summary: 'Accept a verified applicant' })
   @ApiParam({ name: 'applicationId', format: 'uuid' })
   @ApiResponse({ status: 201, type: AdmissionDecisionResponseDto })
+  @ApiResponse({ status: 409, description: APPLICATION_CHANGED_MESSAGE })
   async accept(
     @CurrentUser() user: AuthenticatedUser,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
@@ -103,6 +105,7 @@ export class AdmissionDecisionController {
   @ApiOperation({ summary: 'Reject a verified applicant, reason required' })
   @ApiParam({ name: 'applicationId', format: 'uuid' })
   @ApiResponse({ status: 201, type: AdmissionDecisionResponseDto })
+  @ApiResponse({ status: 409, description: APPLICATION_CHANGED_MESSAGE })
   async reject(
     @CurrentUser() user: AuthenticatedUser,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
@@ -148,6 +151,7 @@ export class AdmissionDecisionController {
   })
   @ApiParam({ name: 'applicationId', format: 'uuid' })
   @ApiResponse({ status: 201, type: AdmissionDecisionResponseDto })
+  @ApiResponse({ status: 409, description: APPLICATION_CHANGED_MESSAGE })
   async cancelRejection(
     @CurrentUser() user: AuthenticatedUser,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,

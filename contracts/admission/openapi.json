@@ -1316,6 +1316,9 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi"
           }
         },
         "security": [
@@ -1376,6 +1379,9 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi"
           }
         },
         "security": [
@@ -3661,6 +3667,9 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi"
           }
         },
         "security": [
@@ -3721,6 +3730,9 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi"
           }
         },
         "security": [
@@ -3844,6 +3856,9 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi"
           }
         },
         "security": [

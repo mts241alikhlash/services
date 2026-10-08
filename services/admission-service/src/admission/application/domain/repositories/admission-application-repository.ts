@@ -63,6 +63,7 @@ export interface RejectAdmissionApplicationInput {
   id: string
   adminId: string
   reason: string
+  onlyVerified?: boolean
 }
 
 export interface EnrollApplicantRepositoryInput {

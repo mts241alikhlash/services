@@ -80,7 +80,7 @@ describe('RejectFromQueueUseCase', () => {
 
     expect(reject.execute).toHaveBeenCalledWith(
       'app1',
-      { reason: 'Kuota penuh' },
+      { reason: 'Kuota penuh', onlyVerified: true },
       'admin1',
     )
     expect(result).toEqual({ id: 'app1', status: 'REJECTED' })

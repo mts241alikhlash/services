@@ -3466,6 +3466,13 @@ export interface operations {
                     };
                 };
             };
+            /** @description Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     AdmissionAdminRegistrationController_uploadAttachment: {
@@ -3725,6 +3732,13 @@ export interface operations {
                         statusCode?: number;
                     };
                 };
+            };
+            /** @description Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -3987,6 +4001,13 @@ export interface operations {
                     };
                 };
             };
+            /** @description Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     AdmissionDecisionController_cancelAcceptance: {
@@ -4056,6 +4077,13 @@ export interface operations {
                     };
                 };
             };
+            /** @description Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     AdmissionDecisionController_reject: {
@@ -4086,6 +4114,13 @@ export interface operations {
                         statusCode?: number;
                     };
                 };
+            };
+            /** @description Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
