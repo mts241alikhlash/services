@@ -379,9 +379,17 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
   }
 
   async setEnrolling(id: string): Promise<ApplicationAdminDetail> {
-    const row = await this.prisma.admissionApplication.update({
-      where: { id },
+    const { count } = await this.prisma.admissionApplication.updateMany({
+      where: { id, status: 'ACCEPTED' },
       data: { status: 'ENROLLING' },
+    })
+    if (count !== 1) {
+      throw new ConflictException(
+        'Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi',
+      )
+    }
+    const row = await this.prisma.admissionApplication.findUniqueOrThrow({
+      where: { id },
       include: applicationAdminDetailInclude,
     })
     return this.attachAccountSummary(row)

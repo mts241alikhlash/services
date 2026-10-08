@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException, ConflictException } from '@nestjs/common'
 import { SubmitApplicationUseCase } from './submit-application.use-case.js'
 
 function parent(relation: string, nik: string, isPrimary: boolean) {
@@ -112,6 +112,18 @@ describe('SubmitApplicationUseCase automatic verification', () => {
 
     await expect(useCase.execute('user1')).rejects.toBeInstanceOf(
       BadRequestException,
+    )
+    expect(applicants.submitApplication).not.toHaveBeenCalled()
+    expect(verification.execute).not.toHaveBeenCalled()
+  })
+
+  it('never lets a rejected applicant back into review by submitting', async () => {
+    const { useCase, applicants, verification } = setup(
+      completeApplication({ status: 'REJECTED' }),
+    )
+
+    await expect(useCase.execute('user1')).rejects.toBeInstanceOf(
+      ConflictException,
     )
     expect(applicants.submitApplication).not.toHaveBeenCalled()
     expect(verification.execute).not.toHaveBeenCalled()
