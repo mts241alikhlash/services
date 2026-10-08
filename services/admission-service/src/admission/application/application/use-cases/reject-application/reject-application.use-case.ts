@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import {
+  APPLICATION_CHANGED_MESSAGE,
   assertTransition,
   AdmissionStatusTransitionError,
 } from '../../../domain/policies/admission-status.transitions.js'
@@ -27,14 +28,14 @@ export class RejectApplicationUseCase {
     const application =
       await this.admissionApplicationRepository.findActiveById(applicationId)
     if (!application) {
-      throw new NotFoundException('Application not found')
+      throw new NotFoundException('Pendaftar tidak ditemukan')
     }
 
     try {
       assertTransition(application.status, 'REJECTED')
     } catch (error) {
       if (error instanceof AdmissionStatusTransitionError) {
-        throw new ConflictException(error.message)
+        throw new ConflictException(APPLICATION_CHANGED_MESSAGE)
       }
       throw error
     }
@@ -43,6 +44,7 @@ export class RejectApplicationUseCase {
       id: application.id,
       adminId,
       reason: dto.reason,
+      ...(dto.onlyVerified && { onlyVerified: true }),
     })
 
     await this.notifications.notify(

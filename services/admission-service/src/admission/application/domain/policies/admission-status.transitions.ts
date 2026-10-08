@@ -2,6 +2,9 @@ import { AdmissionStatus as AdmissionStatusEnum } from '../../../../shared/domai
 
 export class AdmissionStatusTransitionError extends Error {}
 
+export const APPLICATION_CHANGED_MESSAGE =
+  'Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi'
+
 type AdmissionStatus = `${AdmissionStatusEnum}`
 
 const ALLOWED_TRANSITIONS: Record<AdmissionStatus, AdmissionStatus[]> = {
@@ -9,9 +12,9 @@ const ALLOWED_TRANSITIONS: Record<AdmissionStatus, AdmissionStatus[]> = {
   SUBMITTED: ['REVISION_NEEDED', 'VERIFIED', 'REJECTED'],
   REVISION_NEEDED: ['SUBMITTED'],
   VERIFIED: ['ACCEPTED', 'REJECTED'],
-  ACCEPTED: ['ENROLLING'],
+  ACCEPTED: ['ENROLLING', 'VERIFIED'],
   ENROLLING: ['ENROLLING', 'ENROLLED'],
-  REJECTED: [],
+  REJECTED: ['SUBMITTED'],
   ENROLLED: [],
 }
 

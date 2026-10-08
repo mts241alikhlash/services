@@ -123,6 +123,33 @@ describe('default roles', () => {
     }
   })
 
+  it('lets only the three leaders decide admissions, and staff read the queue', () => {
+    for (const leader of [
+      'PRINCIPAL',
+      'VICE_PRINCIPAL_CURRICULUM',
+      'VICE_PRINCIPAL_STUDENT_AFFAIRS',
+    ]) {
+      expect(codesOf(leader)).toContain('admission-decisions.read')
+      expect(codesOf(leader)).toContain('admission-decisions.decide')
+    }
+    for (const other of [
+      'ADMISSION_ADMIN',
+      'OPERATOR',
+      'TREASURER',
+      'STUDENT_AFFAIRS_STAFF',
+      'SYSTEM_ADMIN',
+    ]) {
+      expect(codesOf(other)).not.toContain('admission-decisions.decide')
+    }
+    expect(codesOf('ADMISSION_ADMIN')).toContain('admission-decisions.read')
+    expect(codesOf('OPERATOR')).toContain('admission-decisions.read')
+    expect(codesOf('TREASURER')).not.toContain('admission-decisions.read')
+  })
+
+  it('lets the curriculum deputy open an applicant and a file when deciding', () => {
+    expect(codesOf('VICE_PRINCIPAL_CURRICULUM')).toContain('admissions.read')
+  })
+
   it('lets admission staff review documents and keeps the treasurer out', () => {
     for (const code of [
       'admission-documents.read',

@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException } from '@nestjs/common'
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { IAdmissionApplicationRepository } from '../../domain/repositories/admission-application-repository.js'
 import { AdmissionNotificationService } from '../../../notification/index.js'
@@ -179,6 +183,77 @@ describe('Admission workflow use-cases', () => {
         reject.execute('app1', { reason: 'x' }, 'admin1'),
       ).rejects.toThrow(ConflictException)
       expect(repo.setRejected).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('minor decision hardening', () => {
+    const changed =
+      'Pendaftaran berubah saat Anda bekerja, muat ulang dan coba lagi'
+
+    it('tells a second leader accepting the same applicant in Indonesian', async () => {
+      repo.findActiveWithWave.mockResolvedValue({
+        id: 'app1',
+        status: 'ACCEPTED',
+        waveId: 'w1',
+        wave: { quota: 10 },
+      })
+
+      await expect(accept.execute('app1', {}, 'admin1')).rejects.toThrow(
+        new ConflictException(changed),
+      )
+    })
+
+    it('tells a leader rejecting an already decided applicant in Indonesian', async () => {
+      repo.findActiveById.mockResolvedValue({ id: 'app1', status: 'ACCEPTED' })
+
+      await expect(
+        reject.execute('app1', { reason: 'x' }, 'admin1'),
+      ).rejects.toThrow(new ConflictException(changed))
+    })
+
+    it('answers an unknown applicant in Indonesian', async () => {
+      repo.findActiveWithWave.mockResolvedValue(null)
+      repo.findActiveById.mockResolvedValue(null)
+
+      await expect(accept.execute('x', {}, 'admin1')).rejects.toThrow(
+        new NotFoundException('Pendaftar tidak ditemukan'),
+      )
+      await expect(
+        reject.execute('x', { reason: 'x' }, 'admin1'),
+      ).rejects.toThrow(new NotFoundException('Pendaftar tidak ditemukan'))
+    })
+
+    it('keeps an accepted applicant accepted when the notification fails', async () => {
+      repo.findActiveWithWave.mockResolvedValue({
+        id: 'app1',
+        status: 'VERIFIED',
+        waveId: 'w1',
+        wave: { quota: 10 },
+      })
+      repo.setAccepted.mockResolvedValue({ id: 'app1', status: 'ACCEPTED' })
+      notifications.notify.mockRejectedValueOnce(new Error('db down'))
+
+      await expect(accept.execute('app1', {}, 'admin1')).resolves.toMatchObject(
+        { status: 'ACCEPTED' },
+      )
+    })
+
+    it('passes the verified-only rule of the queue to the locked write', async () => {
+      repo.findActiveById.mockResolvedValue({ id: 'app1', status: 'VERIFIED' })
+      repo.setRejected.mockResolvedValue({ id: 'app1', status: 'REJECTED' })
+
+      await reject.execute(
+        'app1',
+        { reason: 'x', onlyVerified: true },
+        'admin1',
+      )
+
+      expect(repo.setRejected).toHaveBeenCalledWith({
+        id: 'app1',
+        adminId: 'admin1',
+        reason: 'x',
+        onlyVerified: true,
+      })
     })
   })
 

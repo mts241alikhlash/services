@@ -29,6 +29,7 @@ import {
 } from '@nestjs/swagger'
 import { CurrentUser } from '../../../../core/decorators/current-user.decorator.js'
 import type { AuthenticatedUser } from '../../../../core/types/authenticated-user.type.js'
+import { APPLICATION_CHANGED_MESSAGE } from '../../domain/policies/admission-status.transitions.js'
 import { RequirePermissions } from '../../../../platform/access-control/permission/decorators/require-permissions.decorator.js'
 import { JwtAuthGuard } from '../../../../platform/auth/index.js'
 import { AcceptApplicationDto } from './dto/request/accept-application.dto.js'
@@ -175,9 +176,10 @@ export class AdmissionAdminController {
   }
 
   @Post('applications/:id/accept')
-  @RequirePermissions('admissions.decide')
+  @RequirePermissions('admission-decisions.decide')
   @ApiOperation({ summary: 'Accept the application' })
   @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 409, description: APPLICATION_CHANGED_MESSAGE })
   async accept(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id', ParseUUIDPipe) id: string,
@@ -189,9 +191,10 @@ export class AdmissionAdminController {
   }
 
   @Post('applications/:id/reject')
-  @RequirePermissions('admissions.decide')
+  @RequirePermissions('admission-decisions.decide')
   @ApiOperation({ summary: 'Reject the application' })
   @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 409, description: APPLICATION_CHANGED_MESSAGE })
   async reject(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id', ParseUUIDPipe) id: string,

@@ -54,6 +54,23 @@ describe('decision writes after a concurrent payment cancel', () => {
     expect(tx.admissionApplication.update).not.toHaveBeenCalled()
   })
 
+  it('refuses a queue rejection of an application that fell back to submitted', async () => {
+    const { repo, tx } = setup({
+      status: 'SUBMITTED',
+      payment: { status: 'PENDING' },
+    })
+
+    await expect(
+      repo.setRejected({
+        id: 'app1',
+        adminId: 'a',
+        reason: 'x',
+        onlyVerified: true,
+      }),
+    ).rejects.toBeInstanceOf(ConflictException)
+    expect(tx.admissionApplication.update).not.toHaveBeenCalled()
+  })
+
   it('refuses to verify an application whose payment went back to pending', async () => {
     const { repo, tx } = setup({
       status: 'SUBMITTED',

@@ -5,7 +5,8 @@ import { SYSTEM_PERMISSIONS } from '../../permission/constants/permission-codes.
 const NEW_CODES = SYSTEM_PERMISSIONS.map((p) => p.code).filter(
   (code) =>
     code.startsWith('admission-document-types.') ||
-    code.startsWith('admission-documents.'),
+    code.startsWith('admission-documents.') ||
+    code.startsWith('admission-decisions.'),
 )
 
 function fakePrisma(existingCodes: string[], roleCodes: string[]) {
@@ -101,6 +102,20 @@ describe('syncPermissions grants brand-new codes to existing default roles', () 
       ]),
     )
     expect(verify).not.toContain('TREASURER')
+    const decide = grantedTo('admission-decisions.decide')
+    expect(decide).toEqual(
+      expect.arrayContaining([
+        'PRINCIPAL',
+        'VICE_PRINCIPAL_CURRICULUM',
+        'VICE_PRINCIPAL_STUDENT_AFFAIRS',
+        'SUPER_ADMIN',
+      ]),
+    )
+    expect(decide).not.toContain('ADMISSION_ADMIN')
+    expect(decide).not.toContain('OPERATOR')
+    expect(grantedTo('admission-decisions.read')).toEqual(
+      expect.arrayContaining(['ADMISSION_ADMIN', 'OPERATOR', 'PRINCIPAL']),
+    )
   })
 
   it('leaves existing roles alone once the code is already in the database', async () => {

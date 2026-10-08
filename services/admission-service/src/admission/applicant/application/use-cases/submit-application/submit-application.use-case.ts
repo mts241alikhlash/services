@@ -95,6 +95,11 @@ export class SubmitApplicationUseCase {
   }
 
   private async submit(application: ApplicationWithParentsAndUser) {
+    if (application.status === 'REJECTED') {
+      throw new ConflictException(
+        'Pendaftaran yang ditolak tidak bisa dikirim ulang',
+      )
+    }
     try {
       assertTransition(application.status, 'SUBMITTED')
     } catch (error) {

@@ -206,6 +206,7 @@ export const DEFAULT_ROLES: DefaultRole[] = [
           'inventory-approvals.update',
           'report-cards.publish',
           'admissions.decide',
+          'admission-decisions.decide',
         ],
       },
     ],
@@ -259,6 +260,9 @@ export const DEFAULT_ROLES: DefaultRole[] = [
           'report-cards.publish',
           'student-scores.read',
           'assessment-items.read',
+          'admissions.read',
+          'admission-decisions.read',
+          'admission-decisions.decide',
         ],
       },
     ],
@@ -313,7 +317,13 @@ export const DEFAULT_ROLES: DefaultRole[] = [
           ...STUDENT_LISTS,
         ],
       },
-      { codes: ['admissions.decide'] },
+      {
+        codes: [
+          'admissions.decide',
+          'admission-decisions.read',
+          'admission-decisions.decide',
+        ],
+      },
     ],
   ),
   role(
@@ -432,7 +442,10 @@ export const DEFAULT_ROLES: DefaultRole[] = [
   ),
 ]
 
-const EXPLICIT_ONLY = new Set(['admissions.apply'])
+const EXPLICIT_ONLY = new Set([
+  'admissions.apply',
+  'admission-decisions.decide',
+])
 
 function broad(catalogue: SystemPermission[]): SystemPermission[] {
   return catalogue.filter((p) => !EXPLICIT_ONLY.has(p.code))
