@@ -21,6 +21,7 @@ const application = (overrides: Record<string, unknown> = {}) => ({
 function setup(found = application()) {
   const repository = {
     findActiveWithParentsAndUser: jest.fn().mockResolvedValue(found),
+    setNis: jest.fn().mockResolvedValue(undefined),
     setEnrolling: jest.fn().mockResolvedValue(undefined),
     markEnrolled: jest
       .fn()
@@ -96,5 +97,31 @@ describe('EnrollApplicantUseCase fallbacks', () => {
     )
     expect(repository.setEnrolling).not.toHaveBeenCalled()
     expect(enrolment.enrol).not.toHaveBeenCalled()
+  })
+
+  it('stores a typed NIS on the application before enrolling, so compose never overwrites it', async () => {
+    const { useCase, repository } = setup()
+    const order: string[] = []
+    repository.setNis.mockImplementation(() => {
+      order.push('setNis')
+      return Promise.resolve()
+    })
+    repository.setEnrolling.mockImplementation(() => {
+      order.push('setEnrolling')
+      return Promise.resolve()
+    })
+
+    await useCase.execute('app1', { nis: '999' }, 'tok')
+
+    expect(repository.setNis).toHaveBeenCalledWith('app1', '999')
+    expect(order).toEqual(['setNis', 'setEnrolling'])
+  })
+
+  it('does not write the NIS when it equals the stored one', async () => {
+    const { useCase, repository } = setup()
+
+    await useCase.execute('app1', { nis: '262707001' }, 'tok')
+
+    expect(repository.setNis).not.toHaveBeenCalled()
   })
 })

@@ -115,6 +115,7 @@ export abstract class IAdmissionApplicationRepository {
   abstract findActiveWithParentsAndUser(
     id: string,
   ): Promise<ApplicationWithParentsAndUser | null>
+  abstract setNis(id: string, nis: string): Promise<void>
   abstract setEnrolling(id: string): Promise<ApplicationWithDocsAndPayment>
   abstract markEnrolled(
     id: string,

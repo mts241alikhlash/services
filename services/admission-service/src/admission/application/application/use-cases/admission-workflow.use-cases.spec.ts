@@ -25,6 +25,7 @@ describe('Admission workflow use-cases', () => {
     setVerified: jest.fn(),
     setAccepted: jest.fn(),
     setRejected: jest.fn(),
+    setNis: jest.fn(),
     setEnrolling: jest.fn(),
     markEnrolled: jest.fn(),
   }

@@ -75,6 +75,10 @@ export class EnrollApplicantUseCase {
       throw new BadRequestException('Tingkat kelas tujuan belum diisi')
     }
 
+    if (dto.nis && dto.nis !== application.nis) {
+      await this.admissionApplicationRepository.setNis(application.id, dto.nis)
+    }
+
     if (application.status === 'ACCEPTED') {
       await this.admissionApplicationRepository.setEnrolling(application.id)
     }

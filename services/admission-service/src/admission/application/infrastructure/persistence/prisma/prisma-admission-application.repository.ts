@@ -382,6 +382,13 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
     return this.attachAccountSummary(row)
   }
 
+  async setNis(id: string, nis: string): Promise<void> {
+    await this.prisma.admissionApplication.update({
+      where: { id },
+      data: { nis },
+    })
+  }
+
   async setEnrolling(id: string): Promise<ApplicationAdminDetail> {
     const { count } = await this.prisma.admissionApplication.updateMany({
       where: { id, status: 'ACCEPTED' },
