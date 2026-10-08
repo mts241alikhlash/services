@@ -553,6 +553,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admissions/grades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Active grades an applicant can choose */
+        get: operations["AdmissionPublicController_grades"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admissions/manage-announcements": {
         parameters: {
             query?: never;
@@ -1784,6 +1801,8 @@ export interface components {
         };
         AdmissionApplicationReviewResponseDto: {
             achievements?: components["schemas"]["AdmissionApplicationReviewResponseAchievementsDto"][];
+            /** @enum {string|null} */
+            admissionType?: "NEW" | "TRANSFER" | null;
             applicantId?: string;
             aspiration?: string | null;
             /** Format: date-time */
@@ -1816,6 +1835,7 @@ export interface components {
             id: string;
             nickname?: string | null;
             nik?: string | null;
+            nis?: string | null;
             nisn?: string | null;
             parents?: components["schemas"]["AdmissionApplicationReviewResponseParentsDto"][];
             payment?: components["schemas"]["AdmissionApplicationReviewResponsePaymentDto"] | null;
@@ -1842,6 +1862,8 @@ export interface components {
             studentResidenceId?: string | null;
             /** Format: date-time */
             submittedAt?: string | null;
+            targetGradeId?: string | null;
+            targetGradeLevel?: number | null;
             transportationId?: string | null;
             travelDistanceId?: string | null;
             travelTimeId?: string | null;
@@ -2521,6 +2543,14 @@ export interface components {
             travelDistances: components["schemas"]["AdmissionFormOptionResponseDto"][];
             travelTimes: components["schemas"]["AdmissionFormOptionResponseDto"][];
         };
+        AdmissionGradeListResponseDto: {
+            data: components["schemas"]["AdmissionGradeResponseDto"][];
+        };
+        AdmissionGradeResponseDto: {
+            id: string;
+            level: number;
+            name: string | null;
+        };
         AdmissionNotificationListMetaResponseDto: {
             unreadCount: number;
         };
@@ -3065,6 +3095,8 @@ export interface components {
             updatedAt: string;
         };
         PublicRegisterApplicantDto: {
+            /** @enum {string} */
+            admissionType?: "NEW" | "TRANSFER";
             /**
              * Format: email
              * @example ahmad@example.com
@@ -3076,8 +3108,12 @@ export interface components {
             passwordConfirm: string;
             /** @example 081234567890 */
             phone?: string;
+            /** Format: uuid */
+            targetGradeId?: string;
         };
         RegisterApplicantDto: {
+            /** @enum {string} */
+            admissionType?: "NEW" | "TRANSFER";
             /**
              * Format: email
              * @example ahmad@example.com
@@ -3089,6 +3125,8 @@ export interface components {
             passwordConfirm: string;
             /** @example 081234567890 */
             phone?: string;
+            /** Format: uuid */
+            targetGradeId?: string;
             /** Format: uuid */
             waveId: string;
         };
@@ -4499,6 +4537,31 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["AdmissionFormOptionsResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionPublicController_grades: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionGradeResponseDto"][];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */
