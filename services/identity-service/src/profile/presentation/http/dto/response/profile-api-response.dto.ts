@@ -196,6 +196,18 @@ export class ProfileAddressResponseDto {
   @ApiProperty({ type: String })
   province!: string
 
+  @ApiProperty({ type: String, nullable: true })
+  provinceCode!: string | null
+
+  @ApiProperty({ type: String, nullable: true })
+  regencyCode!: string | null
+
+  @ApiProperty({ type: String, nullable: true })
+  districtCode!: string | null
+
+  @ApiProperty({ type: String, nullable: true })
+  villageCode!: string | null
+
   @ApiProperty({ type: String })
   country!: string
 
@@ -221,6 +233,10 @@ export class ProfileAddressResponseDto {
     dto.district = domain.district
     dto.city = domain.city
     dto.province = domain.province
+    dto.provinceCode = domain.provinceCode
+    dto.regencyCode = domain.regencyCode
+    dto.districtCode = domain.districtCode
+    dto.villageCode = domain.villageCode
     dto.country = domain.country
     dto.postalCode = domain.postalCode
     dto.isPrimary = domain.isPrimary

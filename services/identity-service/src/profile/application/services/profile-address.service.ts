@@ -1,14 +1,41 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import {
   CreateProfileAddressRepositoryInput,
   IProfileAddressRepository,
   ProfileAddressEntity,
   UpdateProfileAddressRepositoryInput,
 } from '../../domain/repositories/profile-address.repository.js'
+import { IRegionRepository } from '../../../reference-data/region/domain/repositories/region.repository.js'
+
+const REGION_LEVELS = ['PROVINCE', 'REGENCY', 'DISTRICT', 'VILLAGE'] as const
+const CODE_FIELDS = [
+  'provinceCode',
+  'regencyCode',
+  'districtCode',
+  'villageCode',
+] as const
+const NAME_FIELDS = ['province', 'city', 'district', 'village'] as const
+const NO_CODES = {
+  provinceCode: null,
+  regencyCode: null,
+  districtCode: null,
+  villageCode: null,
+}
+
+type RegionInput = Partial<
+  Pick<CreateProfileAddressRepositoryInput, (typeof CODE_FIELDS)[number]>
+>
 
 @Injectable()
 export class ProfileAddressService {
-  constructor(private readonly addresses: IProfileAddressRepository) {}
+  constructor(
+    private readonly addresses: IProfileAddressRepository,
+    private readonly regions: IRegionRepository,
+  ) {}
 
   async list(userId: string): Promise<ProfileAddressEntity[]> {
     const profileId = await this.profileIdOf(userId)
@@ -20,12 +47,14 @@ export class ProfileAddressService {
     input: CreateProfileAddressRepositoryInput,
   ): Promise<ProfileAddressEntity> {
     const profileId = await this.profileIdOf(userId)
+    const region = await this.canonicalRegion(input)
+    const data = region ? { ...input, ...region } : { ...input, ...NO_CODES }
 
-    if (input.isPrimary) {
+    if (data.isPrimary) {
       await this.addresses.clearPrimary(profileId)
     }
 
-    return this.addresses.create(profileId, input)
+    return this.addresses.create(profileId, data)
   }
 
   async update(
@@ -34,13 +63,17 @@ export class ProfileAddressService {
     input: UpdateProfileAddressRepositoryInput,
   ): Promise<ProfileAddressEntity> {
     const profileId = await this.profileIdOf(userId)
-    await this.ownedOrFail(addressId, profileId)
+    const current = await this.ownedOrFail(addressId, profileId)
+    const region = await this.canonicalRegion(input)
+    const data = region
+      ? { ...input, ...region }
+      : this.withoutStaleCodes(input, current)
 
-    if (input.isPrimary) {
+    if (data.isPrimary) {
       await this.addresses.clearPrimary(profileId, addressId)
     }
 
-    return this.addresses.update(addressId, input)
+    return this.addresses.update(addressId, data)
   }
 
   async remove(userId: string, addressId: string): Promise<void> {
@@ -66,5 +99,66 @@ export class ProfileAddressService {
       throw new NotFoundException(`Address ${addressId} not found`)
     }
     return address
+  }
+
+  private async canonicalRegion(input: RegionInput) {
+    const codes = CODE_FIELDS.map((field) => input[field] || null)
+    const codeFieldsProvided = CODE_FIELDS.filter(
+      (field) => input[field] !== undefined,
+    ).length
+    const supplied = codes.filter((code): code is string => code !== null)
+    if (codeFieldsProvided > 0 && codeFieldsProvided < CODE_FIELDS.length) {
+      throw new BadRequestException(
+        'Kode wilayah harus lengkap: provinsi, kabupaten/kota, kecamatan, dan desa/kelurahan',
+      )
+    }
+    if (supplied.length === 0) return null
+    if (supplied.length !== CODE_FIELDS.length) {
+      throw new BadRequestException(
+        'Kode wilayah harus lengkap: provinsi, kabupaten/kota, kecamatan, dan desa/kelurahan',
+      )
+    }
+
+    const found = new Map(
+      (await this.regions.findByCodes(supplied)).map((region) => [
+        region.code,
+        region,
+      ]),
+    )
+    const chain = supplied.map((code, index) => {
+      const region = found.get(code)
+      const parent = index === 0 ? null : supplied[index - 1]
+      if (
+        region?.level !== REGION_LEVELS[index] ||
+        region?.parentCode !== parent
+      ) {
+        throw new BadRequestException(
+          'Kode wilayah tidak valid atau tidak berurutan',
+        )
+      }
+      return region
+    })
+
+    return {
+      provinceCode: supplied[0],
+      regencyCode: supplied[1],
+      districtCode: supplied[2],
+      villageCode: supplied[3],
+      province: chain[0].name,
+      city: chain[1].name,
+      district: chain[2].name,
+      village: chain[3].name,
+    }
+  }
+
+  private withoutStaleCodes(
+    input: UpdateProfileAddressRepositoryInput,
+    current: ProfileAddressEntity,
+  ) {
+    const renamed = NAME_FIELDS.some((field) => {
+      const next = input[field]
+      return next !== undefined && next.trim() !== current[field].trim()
+    })
+    return renamed ? { ...input, ...NO_CODES } : input
   }
 }

@@ -1262,6 +1262,7 @@ export interface components {
             country: string;
             /** @example Klojen */
             district: string;
+            districtCode: string | null;
             /** Format: uuid */
             id: string;
             /**
@@ -1277,6 +1278,8 @@ export interface components {
             postalCode: string;
             /** @example Jawa Timur */
             province: string;
+            provinceCode: string | null;
+            regencyCode: string | null;
             /** @example 001 */
             rt: string;
             /** @example 002 */
@@ -1285,6 +1288,7 @@ export interface components {
             street: string;
             /** @example Penanggungan */
             village: string;
+            villageCode: string | null;
         };
         AddressesForUserDto: {
             addresses: components["schemas"]["AddressDto"][];
@@ -1662,16 +1666,20 @@ export interface components {
             city: string;
             country: string;
             district: string;
+            districtCode: string | null;
             id: string;
             isPrimary: boolean;
             latitude: number | null;
             longitude: number | null;
             postalCode: string;
             province: string;
+            provinceCode: string | null;
+            regencyCode: string | null;
             rt: string;
             rw: string;
             street: string;
             village: string;
+            villageCode: string | null;
         };
         ProfileSummaryResponseDto: {
             /**
@@ -1811,6 +1819,8 @@ export interface components {
             country: string;
             /** @example Klojen */
             district: string;
+            /** @example 32.04.01 */
+            districtCode?: string | null;
             /**
              * @default false
              * @example false
@@ -1824,6 +1834,10 @@ export interface components {
             postalCode: string;
             /** @example Jawa Timur */
             province: string;
+            /** @example 32 */
+            provinceCode?: string | null;
+            /** @example 32.04 */
+            regencyCode?: string | null;
             /** @example 001 */
             rt: string;
             /** @example 002 */
@@ -1834,6 +1848,8 @@ export interface components {
             userId: string;
             /** @example Penanggungan */
             village: string;
+            /** @example 32.04.01.2001 */
+            villageCode?: string | null;
         };
         RegionCodesDto: {
             codes: string[];
