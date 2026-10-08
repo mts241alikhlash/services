@@ -8,25 +8,27 @@ import {
 } from 'class-validator'
 
 export class EnrollApplicantDto {
-  @ApiProperty({ example: '20260001' })
+  @ApiPropertyOptional({ example: '262707001' })
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
-  nis: string
+  nis?: string
 
-  @ApiProperty({ example: '0091234567' })
+  @ApiPropertyOptional({ example: '0091234567' })
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
-  nisn: string
+  nisn?: string
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     format: 'uuid',
-    description: 'Grade level of the student (required)',
+    description: 'Defaults to the grade the applicant chose',
   })
+  @IsOptional()
   @IsUUID()
-  @IsNotEmpty()
-  gradeId: string
+  gradeId?: string
 
   @ApiPropertyOptional({
     format: 'uuid',

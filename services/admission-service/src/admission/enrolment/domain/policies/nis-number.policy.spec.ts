@@ -56,17 +56,29 @@ describe('planNis before the lock', () => {
       ],
     })
 
-    expect(plan.assignments.map((a) => a.applicationId)).toEqual(['a', 'x1', 'x2'])
+    expect(plan.assignments.map((a) => a.applicationId)).toEqual([
+      'a',
+      'x1',
+      'x2',
+    ])
   })
 
   it('uses Indonesian collation so accented names sort with their letter', () => {
     const plan = planNis({
       yearCode: '2627',
       locked: false,
-      candidates: [candidate('z', 'Zaki'), candidate('e', 'Éka'), candidate('f', 'Fajar')],
+      candidates: [
+        candidate('z', 'Zaki'),
+        candidate('e', 'Éka'),
+        candidate('f', 'Fajar'),
+      ],
     })
 
-    expect(plan.assignments.map((a) => a.applicationId)).toEqual(['e', 'f', 'z'])
+    expect(plan.assignments.map((a) => a.applicationId)).toEqual([
+      'e',
+      'f',
+      'z',
+    ])
   })
 
   it('counts a number that changes and keeps one that does not', () => {
@@ -117,9 +129,9 @@ describe('planNis before the lock', () => {
       candidate(`s${index}`, `Santri ${String(index).padStart(4, '0')}`),
     )
 
-    expect(() => planNis({ yearCode: '2627', locked: false, candidates })).toThrow(
-      new NisPolicyError('Urutan NIS melebihi 999'),
-    )
+    expect(() =>
+      planNis({ yearCode: '2627', locked: false, candidates }),
+    ).toThrow(new NisPolicyError('Urutan NIS melebihi 999'))
   })
 })
 
@@ -151,7 +163,10 @@ describe('planNis after the lock', () => {
       candidates: [candidate('b', 'Budi', 9), candidate('a', 'Ahmad', 7)],
     })
 
-    expect(plan.assignments.map((a) => a.nis)).toEqual(['262707001', '262709002'])
+    expect(plan.assignments.map((a) => a.nis)).toEqual([
+      '262707001',
+      '262709002',
+    ])
   })
 
   it('refuses to run past 999 after the lock too', () => {
@@ -159,7 +174,10 @@ describe('planNis after the lock', () => {
       planNis({
         yearCode: '2627',
         locked: true,
-        candidates: [candidate('a', 'Ahmad', 7, '262707999'), candidate('b', 'Budi', 7)],
+        candidates: [
+          candidate('a', 'Ahmad', 7, '262707999'),
+          candidate('b', 'Budi', 7),
+        ],
       }),
     ).toThrow(new NisPolicyError('Urutan NIS melebihi 999'))
   })

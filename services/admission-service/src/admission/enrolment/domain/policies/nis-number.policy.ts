@@ -44,7 +44,11 @@ function sequenceOf(nis: string): number {
   return Number.isFinite(sequence) ? sequence : 0
 }
 
-function format(yearCode: string, gradeLevel: number, sequence: number): string {
+function format(
+  yearCode: string,
+  gradeLevel: number,
+  sequence: number,
+): string {
   if (sequence > MAX_SEQUENCE) {
     throw new NisPolicyError('Urutan NIS melebihi 999')
   }

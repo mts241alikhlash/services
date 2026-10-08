@@ -1,5 +1,6 @@
 export { ApplicationModule } from './application.module.js'
 export { IAdmissionApplicationRepository } from './domain/repositories/admission-application-repository.js'
+export { IStudentEnrolmentPort } from './infrastructure/integration/student-enrolment.port.js'
 export { AcceptApplicationUseCase } from './application/use-cases/accept-application/accept-application.use-case.js'
 export { EnrollApplicantUseCase } from './application/use-cases/enroll-applicant/enroll-applicant.use-case.js'
 export { GetAdmissionStatsUseCase } from './application/use-cases/get-admission-stats/get-admission-stats.use-case.js'

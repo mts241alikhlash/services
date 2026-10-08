@@ -52,4 +52,10 @@ export abstract class IStudentEnrolmentPort {
     input: EnrolStudentInput,
     bearerToken: string,
   ): Promise<EnrolStudentResult>
+
+  abstract updateNis(
+    studentId: string,
+    nis: string,
+    bearerToken: string,
+  ): Promise<void>
 }

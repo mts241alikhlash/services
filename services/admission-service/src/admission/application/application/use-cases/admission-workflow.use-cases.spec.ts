@@ -29,7 +29,7 @@ describe('Admission workflow use-cases', () => {
     markEnrolled: jest.fn(),
   }
   const notifications = { notify: jest.fn() }
-  const enrolment = { enrol: jest.fn() }
+  const enrolment = { enrol: jest.fn(), updateNis: jest.fn() }
 
   let accept: AcceptApplicationUseCase
   let reject: RejectApplicationUseCase
