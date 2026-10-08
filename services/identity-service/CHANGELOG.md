@@ -1,5 +1,11 @@
 # identity-service
 
+## 1.7.0
+
+### Minor Changes
+
+- 0754ace: Permissions `admission-enrolments.read`, `.process` and `.nis` for the admission enrolment queue. TU Kesantrian and Wakamad Kesantrian may enrol and number students; Admin PPDB and Operator may only read the queue (`.process` and `.nis` are explicit-only).
+
 ## 1.6.0
 
 ### Minor Changes
