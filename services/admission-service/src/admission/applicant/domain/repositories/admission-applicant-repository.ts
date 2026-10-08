@@ -77,6 +77,9 @@ export interface RegisterApplicantInput {
   passwordHash: string
   fullName: string
   phone?: string | null
+  admissionType?: 'NEW' | 'TRANSFER'
+  targetGradeId?: string
+  targetGradeLevel?: number
 }
 
 export interface EnsureApplicationInput {

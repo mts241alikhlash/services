@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -41,4 +42,14 @@ export class RegisterApplicantDto {
   @ApiProperty({ format: 'uuid' })
   @IsUUID()
   waveId: string
+
+  @ApiPropertyOptional({ enum: ['NEW', 'TRANSFER'] })
+  @IsOptional()
+  @IsIn(['NEW', 'TRANSFER'])
+  admissionType?: 'NEW' | 'TRANSFER'
+
+  @ApiPropertyOptional({ format: 'uuid' })
+  @IsOptional()
+  @IsUUID()
+  targetGradeId?: string
 }

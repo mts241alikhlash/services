@@ -50,4 +50,25 @@ describe('createDraftApplication', () => {
       }),
     )
   })
+
+  it('stores the admission type and the target grade', async () => {
+    const tx = makeTx(2, 1)
+
+    await createDraftApplication(tx as never, {
+      ...input,
+      admissionType: 'TRANSFER',
+      targetGradeId: 'g8',
+      targetGradeLevel: 8,
+    })
+
+    expect(tx.admissionApplication.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          admissionType: 'TRANSFER',
+          targetGradeId: 'g8',
+          targetGradeLevel: 8,
+        }),
+      }),
+    )
+  })
 })

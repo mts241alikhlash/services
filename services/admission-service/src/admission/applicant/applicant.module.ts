@@ -6,6 +6,7 @@ import { PrismaAdmissionApplicantReader } from './infrastructure/persistence/pri
 import { PrismaAdmissionApplicantWriter } from './infrastructure/persistence/prisma/prisma-admission-applicant.writer.js'
 import { IAdmissionApplicantRepository } from './domain/repositories/admission-applicant-repository.js'
 import { EnsureMyApplicationUseCase } from './application/use-cases/ensure-my-application/ensure-my-application.use-case.js'
+import { GetActiveGradesUseCase } from './application/use-cases/get-active-grades/get-active-grades.use-case.js'
 import { GetFormOptionsUseCase } from './application/use-cases/get-form-options/get-form-options.use-case.js'
 import { GetMyApplicationUseCase } from './application/use-cases/get-my-application/get-my-application.use-case.js'
 import { RegisterApplicantUseCase } from './application/use-cases/register-applicant/register-applicant.use-case.js'
@@ -29,6 +30,7 @@ import { BankAccountModule } from '../bank-account/bank-account.module.js'
       useClass: PrismaAdmissionApplicantRepository,
     },
     RegisterApplicantUseCase,
+    GetActiveGradesUseCase,
     GetMyApplicationUseCase,
     GetFormOptionsUseCase,
     EnsureMyApplicationUseCase,
@@ -38,6 +40,7 @@ import { BankAccountModule } from '../bank-account/bank-account.module.js'
   exports: [
     IAdmissionApplicantRepository,
     RegisterApplicantUseCase,
+    GetActiveGradesUseCase,
     GetMyApplicationUseCase,
     GetFormOptionsUseCase,
     EnsureMyApplicationUseCase,

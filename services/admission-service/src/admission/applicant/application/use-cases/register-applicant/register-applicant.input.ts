@@ -5,4 +5,6 @@ export interface RegisterApplicantInput {
   password: string
   passwordConfirm: string
   waveId?: string
+  admissionType?: 'NEW' | 'TRANSFER'
+  targetGradeId?: string
 }

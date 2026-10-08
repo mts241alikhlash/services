@@ -19,6 +19,9 @@ export async function createDraftApplication(
     fullName: string
     identifier: string
     phone?: string | null
+    admissionType?: 'NEW' | 'TRANSFER'
+    targetGradeId?: string
+    targetGradeLevel?: number
   },
 ): Promise<AdmissionApplication> {
   const updatedWave = await tx.admissionWave.update({
@@ -47,6 +50,9 @@ export async function createDraftApplication(
       fullName: input.fullName,
       email: input.identifier,
       phone: input.phone,
+      admissionType: input.admissionType,
+      targetGradeId: input.targetGradeId,
+      targetGradeLevel: input.targetGradeLevel,
     },
   })
 

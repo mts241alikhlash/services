@@ -109,6 +109,9 @@ export class PrismaAdmissionApplicantRepository extends IAdmissionApplicantRepos
           fullName: input.fullName,
           identifier: input.identifier,
           phone: input.phone,
+          admissionType: input.admissionType,
+          targetGradeId: input.targetGradeId,
+          targetGradeLevel: input.targetGradeLevel,
         }),
       )
     } catch (error) {
