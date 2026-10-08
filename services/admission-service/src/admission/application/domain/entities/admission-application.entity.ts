@@ -39,6 +39,10 @@ export interface AdmissionApplicationEntity {
   birthDate?: Date | null
   nik?: string | null
   nisn?: string | null
+  admissionType?: 'NEW' | 'TRANSFER' | null
+  targetGradeId?: string | null
+  targetGradeLevel?: number | null
+  nis?: string | null
   religionId?: string | null
   phone?: string | null
   email?: string | null

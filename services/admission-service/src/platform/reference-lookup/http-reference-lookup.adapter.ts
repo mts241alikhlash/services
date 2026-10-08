@@ -5,7 +5,11 @@ import {
   type OptionListKey,
   type OptionRef,
 } from './option-lists.js'
-import { IReferenceLookupPort, NamedRef } from './reference-lookup.port.js'
+import {
+  GradeRef,
+  IReferenceLookupPort,
+  NamedRef,
+} from './reference-lookup.port.js'
 
 const URL_KEY = 'ACADEMIC_SERVICE_URL'
 const IDENTITY_URL_KEY = 'IDENTITY_SERVICE_URL'
@@ -33,23 +37,35 @@ export class HttpReferenceLookupAdapter extends IReferenceLookupPort {
   }
 
   async activeReligions(): Promise<OptionRef[]> {
-    return this.active(IDENTITY_URL_KEY, '/religions/active')
+    return this.active(IDENTITY_URL_KEY, '/religions/active', toOptionRef)
+  }
+
+  async activeGrades(): Promise<GradeRef[]> {
+    return this.active(URL_KEY, '/grades/active', toGradeRef)
+  }
+
+  async listGrades(ids: string[]): Promise<GradeRef[]> {
+    return this.batch(ids, '/grades/by-ids', toGradeRef)
   }
 
   async activeOptions(key: OptionListKey): Promise<OptionRef[]> {
-    return this.active(URL_KEY, `/${OPTION_LISTS[key]}/active`)
+    return this.active(URL_KEY, `/${OPTION_LISTS[key]}/active`, toOptionRef)
   }
 
   async optionsByIds(key: OptionListKey, ids: string[]): Promise<OptionRef[]> {
     return this.batch(ids, `/${OPTION_LISTS[key]}/by-ids`, toOptionRef)
   }
 
-  private async active(urlKey: string, path: string): Promise<OptionRef[]> {
+  private async active<T>(
+    urlKey: string,
+    path: string,
+    parse: (row: unknown) => T | null,
+  ): Promise<T[]> {
     const data = await this.client.getData(urlKey, path)
     if (!Array.isArray(data)) return this.client.malformed(urlKey)
-    const rows: OptionRef[] = []
+    const rows: T[] = []
     for (const row of data) {
-      const parsed = toOptionRef(row)
+      const parsed = parse(row)
       if (!parsed) return this.client.malformed(urlKey)
       rows.push(parsed)
     }
@@ -86,6 +102,13 @@ function toNamedRef(row: unknown): NamedRef | null {
   if (!isRecord(row) || typeof row.id !== 'string') return null
   if (typeof row.name !== 'string') return null
   return { id: row.id, name: row.name }
+}
+
+function toGradeRef(row: unknown): GradeRef | null {
+  if (!isRecord(row)) return null
+  const { id, level, name } = row
+  if (typeof id !== 'string' || typeof level !== 'number') return null
+  return { id, level, name: typeof name === 'string' ? name : null }
 }
 
 function toOptionRef(row: unknown): OptionRef | null {

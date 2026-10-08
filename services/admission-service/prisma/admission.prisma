@@ -3,6 +3,11 @@ enum UserGender {
   FEMALE
 }
 
+enum AdmissionType {
+  NEW
+  TRANSFER
+}
+
 enum AdmissionStatus {
   DRAFT
   SUBMITTED
@@ -71,6 +76,10 @@ model AdmissionApplication {
   waveId             String          @map("wave_id") @db.Uuid
   registrationNumber String          @unique @map("registration_number") @db.VarChar(30)
   status             AdmissionStatus @default(DRAFT)
+  admissionType      AdmissionType?  @map("admission_type")
+  targetGradeId      String?         @map("target_grade_id") @db.Uuid
+  targetGradeLevel   Int?            @map("target_grade_level")
+  nis                String?         @unique @db.VarChar(20)
 
   fullName     String      @map("full_name") @db.VarChar(100)
   nickname     String?     @db.VarChar(50)
@@ -327,4 +336,13 @@ model AdmissionBankAccount {
   payments AdmissionPayment[]
 
   @@map("admission_bank_accounts")
+}
+
+model AdmissionNisLock {
+  id             String   @id @default(uuid()) @db.Uuid
+  academicYearId String   @unique @map("academic_year_id") @db.Uuid
+  lockedById     String   @map("locked_by_id") @db.Uuid
+  lockedAt       DateTime @default(now()) @map("locked_at")
+
+  @@map("admission_nis_locks")
 }
