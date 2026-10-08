@@ -9,6 +9,7 @@ import type {
   PlacementState,
   ProcessState,
 } from '../../../domain/entities/enrolment.entity.js'
+import { compareByName } from '../../../domain/policies/nis-number.policy.js'
 import { IAdmissionEnrolmentRepository } from '../../../domain/repositories/admission-enrolment.repository.js'
 
 const ENROLMENT_STATUSES = ['ACCEPTED', 'ENROLLING', 'ENROLLED'] as const
@@ -44,35 +45,47 @@ export class PrismaAdmissionEnrolmentRepository extends IAdmissionEnrolmentRepos
     }
     const within = (tab: EnrolmentTab) => ({ AND: [scope, tabWhere(tab)] })
 
-    const [records, yearRows, total, ready, held, done] = await Promise.all([
+    const [ordering, yearRows, ready, held, done] = await Promise.all([
       this.prisma.admissionApplication.findMany({
         where: within(query.tab),
-        orderBy: [{ fullName: 'asc' }, { registrationNumber: 'asc' }],
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
-        select: {
-          id: true,
-          registrationNumber: true,
-          fullName: true,
-          status: true,
-          admissionType: true,
-          targetGradeLevel: true,
-          nis: true,
-          nisn: true,
-          enrolledStudentId: true,
-          wave: { select: { name: true, academicYearId: true } },
-        },
+        select: { id: true, fullName: true, registrationNumber: true },
       }),
       this.prisma.admissionApplication.findMany({
         where: { deletedAt: null, status: { in: [...ENROLMENT_STATUSES] } },
         distinct: ['waveId'],
         select: { wave: { select: { academicYearId: true } } },
       }),
-      this.prisma.admissionApplication.count({ where: within(query.tab) }),
       this.prisma.admissionApplication.count({ where: within('ready') }),
       this.prisma.admissionApplication.count({ where: within('held') }),
       this.prisma.admissionApplication.count({ where: within('done') }),
     ])
+
+    const total = ordering.length
+    const pageIds = [...ordering]
+      .sort(compareByName)
+      .slice((query.page - 1) * query.limit, query.page * query.limit)
+      .map((row) => row.id)
+    const pageRows = pageIds.length
+      ? await this.prisma.admissionApplication.findMany({
+          where: { id: { in: pageIds } },
+          select: {
+            id: true,
+            registrationNumber: true,
+            fullName: true,
+            status: true,
+            admissionType: true,
+            targetGradeLevel: true,
+            nis: true,
+            nisn: true,
+            enrolledStudentId: true,
+            wave: { select: { name: true, academicYearId: true } },
+          },
+        })
+      : []
+    const records = pageIds.flatMap((id) => {
+      const row = pageRows.find((candidate) => candidate.id === id)
+      return row ? [row] : []
+    })
 
     const yearIds = [...new Set(yearRows.map((row) => row.wave.academicYearId))]
     const locks = await this.prisma.admissionNisLock.findMany({

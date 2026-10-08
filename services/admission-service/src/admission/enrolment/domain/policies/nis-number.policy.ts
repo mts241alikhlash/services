@@ -32,7 +32,10 @@ export function schoolYearCode(name: string): string {
   return `${years[0].slice(2)}${years[1].slice(2)}`
 }
 
-function byName(a: NisCandidate, b: NisCandidate): number {
+export function compareByName(
+  a: { fullName: string; registrationNumber: string },
+  b: { fullName: string; registrationNumber: string },
+): number {
   return (
     collator.compare(a.fullName.trim(), b.fullName.trim()) ||
     a.registrationNumber.localeCompare(b.registrationNumber)
@@ -83,11 +86,13 @@ export function planNis(input: {
       ) + 1
     : 1
 
-  const assignments = [...target].sort(byName).map((candidate, index) => ({
-    applicationId: candidate.applicationId,
-    nis: format(input.yearCode, candidate.gradeLevel, first + index),
-    previous: candidate.currentNis,
-  }))
+  const assignments = [...target]
+    .sort(compareByName)
+    .map((candidate, index) => ({
+      applicationId: candidate.applicationId,
+      nis: format(input.yearCode, candidate.gradeLevel, first + index),
+      previous: candidate.currentNis,
+    }))
 
   return {
     assignments,

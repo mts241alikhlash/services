@@ -2,10 +2,30 @@ import { PrismaAdmissionEnrolmentRepository } from './prisma-admission-enrolment
 
 const scope = { deletedAt: null }
 
-function queueRepository(counts = [3, 2, 1, 4]) {
-  const findMany = jest.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([])
+interface QueueFixture {
+  ordering?: { id: string; fullName: string; registrationNumber: string }[]
+  pageRows?: Record<string, unknown>[]
+  yearRows?: unknown[]
+  counts?: number[]
+}
+
+function queueRepository(fixture: QueueFixture = {}) {
+  const findMany = jest.fn((arg: Record<string, unknown>) => {
+    if (arg.distinct) return Promise.resolve(fixture.yearRows ?? [])
+    if ((arg.where as { id?: unknown }).id) {
+      const ids = (arg.where as { id: { in: string[] } }).id.in
+      return Promise.resolve(
+        (fixture.pageRows ?? []).filter((row) =>
+          ids.includes(row.id as string),
+        ),
+      )
+    }
+    return Promise.resolve(fixture.ordering ?? [])
+  })
   const count = jest.fn()
-  counts.forEach((value) => count.mockResolvedValueOnce(value))
+  ;(fixture.counts ?? [3, 2, 1]).forEach((value) =>
+    count.mockResolvedValueOnce(value),
+  )
   count.mockResolvedValue(0)
   const prisma = {
     admissionApplication: { findMany, count },
@@ -19,13 +39,33 @@ function queueRepository(counts = [3, 2, 1, 4]) {
   }
 }
 
+const orderingCalls = (findMany: jest.Mock) =>
+  findMany.mock.calls
+    .map(([arg]) => arg as { where: unknown; select: Record<string, unknown> })
+    .filter(
+      (arg) => !('distinct' in arg) && !(arg.where as { id?: unknown }).id,
+    )
+
+const pageRow = (id: string, fullName: string, registrationNumber: string) => ({
+  id,
+  registrationNumber,
+  fullName,
+  status: 'ACCEPTED',
+  admissionType: 'NEW',
+  targetGradeLevel: 7,
+  nis: null,
+  nisn: null,
+  enrolledStudentId: null,
+  wave: { name: 'Gelombang 1', academicYearId: 'y1' },
+})
+
 describe('PrismaAdmissionEnrolmentRepository.findQueue', () => {
   it('maps the tabs to statuses', async () => {
     const wheres: unknown[] = []
     for (const tab of ['ready', 'held', 'done'] as const) {
       const { repository, findMany } = queueRepository()
       await repository.findQueue({ tab, page: 1, limit: 20 })
-      wheres.push((findMany.mock.calls[0][0] as { where: unknown }).where)
+      wheres.push(orderingCalls(findMany)[0].where)
     }
 
     expect(wheres).toEqual([
@@ -35,16 +75,88 @@ describe('PrismaAdmissionEnrolmentRepository.findQueue', () => {
     ])
   })
 
-  it('orders ready applicants by name and pages them', async () => {
-    const { repository, findMany } = queueRepository()
-
-    await repository.findQueue({ tab: 'ready', page: 3, limit: 20 })
-
-    expect(findMany.mock.calls[0][0]).toMatchObject({
-      orderBy: [{ fullName: 'asc' }, { registrationNumber: 'asc' }],
-      skip: 40,
-      take: 20,
+  it('orders by name like the NIS does: without regard to case, ties by registration number', async () => {
+    const { repository } = queueRepository({
+      ordering: [
+        { id: 'd', fullName: 'Dewi', registrationNumber: 'G1-0004' },
+        { id: 'b', fullName: 'budi santoso', registrationNumber: 'G1-0002' },
+        { id: 'a2', fullName: 'Ahmad', registrationNumber: 'G1-0006' },
+        { id: 'a1', fullName: ' ahmad', registrationNumber: 'G1-0001' },
+        { id: 'c', fullName: 'Citra', registrationNumber: 'G1-0003' },
+      ],
+      pageRows: [
+        pageRow('d', 'Dewi', 'G1-0004'),
+        pageRow('b', 'budi santoso', 'G1-0002'),
+        pageRow('a2', 'Ahmad', 'G1-0006'),
+        pageRow('a1', ' ahmad', 'G1-0001'),
+        pageRow('c', 'Citra', 'G1-0003'),
+      ],
     })
+
+    const result = await repository.findQueue({
+      tab: 'ready',
+      page: 1,
+      limit: 20,
+    })
+
+    expect(result.records.map((record) => record.applicationId)).toEqual([
+      'a1',
+      'a2',
+      'b',
+      'c',
+      'd',
+    ])
+    expect(result.total).toBe(5)
+  })
+
+  it('pages the ordered list and reads only the rows of that page', async () => {
+    const ordering = ['e', 'a', 'd', 'c', 'b'].map((id) => ({
+      id,
+      fullName: `${id.toUpperCase()}nama`,
+      registrationNumber: `G1-${id}`,
+    }))
+    const { repository, findMany } = queueRepository({
+      ordering,
+      pageRows: ordering.map((row) =>
+        pageRow(row.id, row.fullName, row.registrationNumber),
+      ),
+    })
+
+    const second = await repository.findQueue({
+      tab: 'ready',
+      page: 2,
+      limit: 2,
+    })
+
+    expect(second.records.map((record) => record.applicationId)).toEqual([
+      'c',
+      'd',
+    ])
+    expect(second.total).toBe(5)
+    const pageQuery = findMany.mock.calls
+      .map(([arg]) => arg as { where: { id?: { in: string[] } } })
+      .find((arg) => arg.where.id)
+    expect(pageQuery?.where.id?.in).toEqual(['c', 'd'])
+  })
+
+  it('answers an empty page past the end without reading rows', async () => {
+    const { repository, findMany } = queueRepository({
+      ordering: [{ id: 'a', fullName: 'Ahmad', registrationNumber: 'G1-0001' }],
+    })
+
+    const result = await repository.findQueue({
+      tab: 'ready',
+      page: 3,
+      limit: 20,
+    })
+
+    expect(result.records).toEqual([])
+    expect(result.total).toBe(1)
+    expect(
+      findMany.mock.calls.some(
+        ([arg]) => (arg as { where: { id?: unknown } }).where.id,
+      ),
+    ).toBe(false)
   })
 
   it('filters by wave and a literal search', async () => {
@@ -58,8 +170,7 @@ describe('PrismaAdmissionEnrolmentRepository.findQueue', () => {
       limit: 20,
     })
 
-    const where = (findMany.mock.calls[0][0] as { where: { AND: unknown[] } })
-      .where
+    const where = orderingCalls(findMany)[0].where as { AND: unknown[] }
     expect(where.AND[0]).toEqual({
       deletedAt: null,
       waveId: 'w1',
@@ -73,27 +184,23 @@ describe('PrismaAdmissionEnrolmentRepository.findQueue', () => {
   })
 
   it('maps rows, counts the tabs and reports the lock of every year with accepted applicants', async () => {
-    const { repository, findMany, prisma } = queueRepository([5, 3, 1, 1])
-    findMany.mockReset()
-    findMany
-      .mockResolvedValueOnce([
+    const { repository, prisma } = queueRepository({
+      ordering: [
+        { id: 'app1', fullName: 'Ahmad', registrationNumber: 'G1-0001' },
+      ],
+      pageRows: [
         {
-          id: 'app1',
-          registrationNumber: 'G1-0001',
-          fullName: 'Ahmad',
-          status: 'ACCEPTED',
-          admissionType: 'NEW',
-          targetGradeLevel: 7,
+          ...pageRow('app1', 'Ahmad', 'G1-0001'),
           nis: '262707001',
           nisn: '0091234567',
-          enrolledStudentId: null,
-          wave: { name: 'Gelombang 1', academicYearId: 'y1' },
         },
-      ])
-      .mockResolvedValueOnce([
+      ],
+      yearRows: [
         { wave: { academicYearId: 'y1' } },
         { wave: { academicYearId: 'y1' } },
-      ])
+      ],
+      counts: [3, 1, 1],
+    })
     prisma.admissionNisLock.findMany.mockResolvedValue([
       { academicYearId: 'y1', lockedAt: new Date('2026-10-05T00:00:00Z') },
     ])
@@ -119,7 +226,7 @@ describe('PrismaAdmissionEnrolmentRepository.findQueue', () => {
         enrolledStudentId: null,
       },
     ])
-    expect(result.total).toBe(5)
+    expect(result.total).toBe(1)
     expect(result.counts).toEqual({ ready: 3, held: 1, done: 1 })
     expect(result.years).toEqual([
       { academicYearId: 'y1', lockedAt: new Date('2026-10-05T00:00:00Z') },
