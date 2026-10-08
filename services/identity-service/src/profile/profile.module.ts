@@ -12,8 +12,10 @@ import { ProfileAvatarUrlService } from './application/services/profile-avatar-u
 import { ProfileController } from './presentation/http/profile.controller.js'
 import { ProfileAddressController } from './presentation/http/profile-address.controller.js'
 import { AddressInternalController } from './presentation/http/address-internal.controller.js'
+import { RegionModule } from '../reference-data/region/region.module.js'
 
 @Module({
+  imports: [RegionModule],
   controllers: [
     AddressInternalController,
     ProfileController,

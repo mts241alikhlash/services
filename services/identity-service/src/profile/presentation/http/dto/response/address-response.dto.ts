@@ -9,6 +9,10 @@ export class AddressDto {
   @ApiProperty({ example: 'Klojen' }) district!: string
   @ApiProperty({ example: 'Kota Malang' }) city!: string
   @ApiProperty({ example: 'Jawa Timur' }) province!: string
+  @ApiProperty({ type: String, nullable: true }) provinceCode!: string | null
+  @ApiProperty({ type: String, nullable: true }) regencyCode!: string | null
+  @ApiProperty({ type: String, nullable: true }) districtCode!: string | null
+  @ApiProperty({ type: String, nullable: true }) villageCode!: string | null
   @ApiProperty({ example: 'Indonesia' }) country!: string
   @ApiProperty({ example: '65113' }) postalCode!: string
   @ApiProperty({

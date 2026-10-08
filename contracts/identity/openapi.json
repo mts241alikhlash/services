@@ -6081,6 +6081,22 @@
             "type": "string",
             "example": "Jawa Timur"
           },
+          "provinceCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "regencyCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "districtCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "villageCode": {
+            "type": "string",
+            "nullable": true
+          },
           "country": {
             "type": "string",
             "example": "Indonesia"
@@ -6114,6 +6130,10 @@
           "district",
           "city",
           "province",
+          "provinceCode",
+          "regencyCode",
+          "districtCode",
+          "villageCode",
           "country",
           "postalCode",
           "isPrimary",
@@ -6158,6 +6178,30 @@
       "RecordAddressDto": {
         "type": "object",
         "properties": {
+          "provinceCode": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 13,
+            "example": "32"
+          },
+          "regencyCode": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 13,
+            "example": "32.04"
+          },
+          "districtCode": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 13,
+            "example": "32.04.01"
+          },
+          "villageCode": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 13,
+            "example": "32.04.01.2001"
+          },
           "street": {
             "type": "string",
             "maxLength": 255,
@@ -6263,6 +6307,22 @@
           "province": {
             "type": "string"
           },
+          "provinceCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "regencyCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "districtCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "villageCode": {
+            "type": "string",
+            "nullable": true
+          },
           "country": {
             "type": "string"
           },
@@ -6290,6 +6350,10 @@
           "district",
           "city",
           "province",
+          "provinceCode",
+          "regencyCode",
+          "districtCode",
+          "villageCode",
           "country",
           "postalCode",
           "isPrimary",

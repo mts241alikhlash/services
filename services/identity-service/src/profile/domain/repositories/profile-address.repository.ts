@@ -7,6 +7,10 @@ export interface ProfileAddressEntity {
   district: string
   city: string
   province: string
+  provinceCode: string | null
+  regencyCode: string | null
+  districtCode: string | null
+  villageCode: string | null
   country: string
   postalCode: string
   isPrimary: boolean
@@ -27,6 +31,10 @@ export interface CreateProfileAddressRepositoryInput {
   district: string
   city: string
   province: string
+  provinceCode?: string | null
+  regencyCode?: string | null
+  districtCode?: string | null
+  villageCode?: string | null
   country?: string
   postalCode: string
   isPrimary?: boolean

@@ -10,6 +10,34 @@ import {
 } from 'class-validator'
 
 export class CreateAddressDto {
+  @ApiPropertyOptional({ type: String, nullable: true, example: '32' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(13)
+  provinceCode?: string | null
+
+  @ApiPropertyOptional({ type: String, nullable: true, example: '32.04' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(13)
+  regencyCode?: string | null
+
+  @ApiPropertyOptional({ type: String, nullable: true, example: '32.04.01' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(13)
+  districtCode?: string | null
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    example: '32.04.01.2001',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(13)
+  villageCode?: string | null
+
   @ApiProperty({ example: 'Jl. Veteran No. 1' })
   @IsString()
   @IsNotEmpty()
@@ -81,6 +109,34 @@ export class CreateAddressDto {
 }
 
 export class UpdateAddressDto {
+  @ApiPropertyOptional({ type: String, nullable: true, example: '32' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(13)
+  provinceCode?: string | null
+
+  @ApiPropertyOptional({ type: String, nullable: true, example: '32.04' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(13)
+  regencyCode?: string | null
+
+  @ApiPropertyOptional({ type: String, nullable: true, example: '32.04.01' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(13)
+  districtCode?: string | null
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    example: '32.04.01.2001',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(13)
+  villageCode?: string | null
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

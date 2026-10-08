@@ -1,6 +1,7 @@
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { IProfileAddressRepository } from '../../domain/repositories/profile-address.repository.js'
+import { IRegionRepository } from '../../../reference-data/region/domain/repositories/region.repository.js'
 import { ProfileAddressService } from './profile-address.service.js'
 
 describe('ProfileAddressService', () => {
@@ -15,6 +16,10 @@ describe('ProfileAddressService', () => {
     province: 'Jawa Timur',
     country: 'Indonesia',
     postalCode: '65113',
+    provinceCode: null,
+    regencyCode: null,
+    districtCode: null,
+    villageCode: null,
     isPrimary: false,
     latitude: null,
     longitude: null,
@@ -30,6 +35,7 @@ describe('ProfileAddressService', () => {
     softDelete: jest.fn(),
     clearPrimary: jest.fn(),
   }
+  const regions = { findByCodes: jest.fn() }
 
   let service: ProfileAddressService
 
@@ -38,6 +44,7 @@ describe('ProfileAddressService', () => {
       providers: [
         ProfileAddressService,
         { provide: IProfileAddressRepository, useValue: repository },
+        { provide: IRegionRepository, useValue: regions },
       ],
     }).compile()
 
@@ -110,5 +117,192 @@ describe('ProfileAddressService', () => {
     await service.remove('user-1', 'addr-1')
 
     expect(repository.softDelete).toHaveBeenCalledWith('addr-1')
+  })
+
+  describe('region codes', () => {
+    const chain = [
+      { code: '32', name: 'JAWA BARAT', level: 'PROVINCE', parentCode: null },
+      {
+        code: '32.04',
+        name: 'KABUPATEN BANDUNG',
+        level: 'REGENCY',
+        parentCode: '32',
+      },
+      {
+        code: '32.04.01',
+        name: 'CILEUNYI',
+        level: 'DISTRICT',
+        parentCode: '32.04',
+      },
+      {
+        code: '32.04.01.2001',
+        name: 'CIBIRU HILIR',
+        level: 'VILLAGE',
+        parentCode: '32.04.01',
+      },
+    ]
+    const codes = {
+      provinceCode: '32',
+      regencyCode: '32.04',
+      districtCode: '32.04.01',
+      villageCode: '32.04.01.2001',
+    }
+    const submitted = {
+      street: 'Jl. Veteran No. 1',
+      rt: '001',
+      rw: '002',
+      village: 'typed by the client',
+      district: 'typed by the client',
+      city: 'typed by the client',
+      province: 'typed by the client',
+      postalCode: '65113',
+    }
+
+    beforeEach(() => {
+      regions.findByCodes.mockResolvedValue(chain)
+    })
+
+    it('stores official names and codes for a valid chain', async () => {
+      await service.add('user-1', { ...submitted, ...codes })
+
+      expect(regions.findByCodes).toHaveBeenCalledTimes(1)
+      expect(regions.findByCodes).toHaveBeenCalledWith([
+        '32',
+        '32.04',
+        '32.04.01',
+        '32.04.01.2001',
+      ])
+      expect(repository.create).toHaveBeenCalledWith(
+        'profile-1',
+        expect.objectContaining({
+          province: 'JAWA BARAT',
+          city: 'KABUPATEN BANDUNG',
+          district: 'CILEUNYI',
+          village: 'CIBIRU HILIR',
+          ...codes,
+        }),
+      )
+    })
+
+    it('keeps a name-only address and stores null codes', async () => {
+      await service.add('user-1', submitted)
+
+      expect(regions.findByCodes).not.toHaveBeenCalled()
+      expect(repository.create).toHaveBeenCalledWith('profile-1', {
+        ...submitted,
+        provinceCode: null,
+        regencyCode: null,
+        districtCode: null,
+        villageCode: null,
+      })
+    })
+
+    it.each([
+      ['one code only', { provinceCode: '32' }],
+      ['one explicit null code', { provinceCode: null }],
+      [
+        'three codes',
+        {
+          provinceCode: '32',
+          regencyCode: '32.04',
+          districtCode: '32.04.01',
+        },
+      ],
+    ])(
+      'refuses an incomplete chain (%s) without writing',
+      async (_label, partial) => {
+        await expect(
+          service.add('user-1', { ...submitted, ...partial, isPrimary: true }),
+        ).rejects.toBeInstanceOf(BadRequestException)
+
+        expect(repository.create).not.toHaveBeenCalled()
+        expect(repository.clearPrimary).not.toHaveBeenCalled()
+      },
+    )
+
+    it.each([
+      ['an unknown code', chain.slice(0, 3)],
+      [
+        'a record of the wrong level',
+        [chain[0], chain[1], { ...chain[2], level: 'REGENCY' }, chain[3]],
+      ],
+      [
+        'a child of another parent',
+        [chain[0], chain[1], chain[2], { ...chain[3], parentCode: '32.04.99' }],
+      ],
+      [
+        'a province that has a parent',
+        [{ ...chain[0], parentCode: '99' }, chain[1], chain[2], chain[3]],
+      ],
+    ])('refuses %s without writing', async (_label, found) => {
+      regions.findByCodes.mockResolvedValue(found)
+
+      await expect(
+        service.add('user-1', { ...submitted, ...codes }),
+      ).rejects.toBeInstanceOf(BadRequestException)
+
+      expect(repository.create).not.toHaveBeenCalled()
+    })
+
+    describe('update', () => {
+      beforeEach(() => {
+        repository.findByIdForProfile.mockResolvedValue({
+          ...address,
+          ...codes,
+          province: 'JAWA BARAT',
+          city: 'KABUPATEN BANDUNG',
+          district: 'CILEUNYI',
+          village: 'CIBIRU HILIR',
+        })
+      })
+
+      it('canonicalises a complete chain', async () => {
+        await service.update('user-1', 'addr-1', { ...submitted, ...codes })
+
+        expect(repository.update).toHaveBeenCalledWith(
+          'addr-1',
+          expect.objectContaining({ village: 'CIBIRU HILIR', ...codes }),
+        )
+      })
+
+      it('refuses a partial chain without writing', async () => {
+        await expect(
+          service.update('user-1', 'addr-1', {
+            villageCode: '32.04.01.2001',
+          }),
+        ).rejects.toBeInstanceOf(BadRequestException)
+        expect(repository.update).not.toHaveBeenCalled()
+      })
+
+      it('clears every stored code when a region name changes without codes', async () => {
+        await service.update('user-1', 'addr-1', { city: 'Kota Bandung' })
+
+        expect(repository.update).toHaveBeenCalledWith('addr-1', {
+          city: 'Kota Bandung',
+          provinceCode: null,
+          regencyCode: null,
+          districtCode: null,
+          villageCode: null,
+        })
+      })
+
+      it('keeps the codes when only whitespace around a region name changes', async () => {
+        await service.update('user-1', 'addr-1', {
+          city: '  KABUPATEN BANDUNG ',
+        })
+
+        expect(repository.update).toHaveBeenCalledWith('addr-1', {
+          city: '  KABUPATEN BANDUNG ',
+        })
+      })
+
+      it('leaves the codes alone when no region field is sent', async () => {
+        await service.update('user-1', 'addr-1', { street: 'Jl. Baru 2' })
+
+        expect(repository.update).toHaveBeenCalledWith('addr-1', {
+          street: 'Jl. Baru 2',
+        })
+      })
+    })
   })
 })
