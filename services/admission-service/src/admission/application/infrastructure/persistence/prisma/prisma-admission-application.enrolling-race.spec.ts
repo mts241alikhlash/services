@@ -40,3 +40,24 @@ describe('setEnrolling after a concurrent cancelled acceptance', () => {
     )
   })
 })
+
+describe('markEnrolled after a concurrent retry', () => {
+  it('moves only an application that is still enrolling', async () => {
+    const { repo, admissionApplication } = setup(1)
+
+    await repo.markEnrolled('app1', 's1')
+
+    expect(admissionApplication.updateMany).toHaveBeenCalledWith({
+      where: { id: 'app1', status: 'ENROLLING' },
+      data: { status: 'ENROLLED', enrolledStudentId: 's1' },
+    })
+  })
+
+  it('refuses when another run finished first, so nobody is notified twice', async () => {
+    const { repo } = setup(0)
+
+    await expect(repo.markEnrolled('app1', 's1')).rejects.toBeInstanceOf(
+      ConflictException,
+    )
+  })
+})

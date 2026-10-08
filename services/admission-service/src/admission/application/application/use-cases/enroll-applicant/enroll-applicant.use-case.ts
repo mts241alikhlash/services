@@ -66,6 +66,19 @@ export class EnrollApplicantUseCase {
       )
     }
 
+    const nis = dto.nis ?? application.nis
+    const nisn = dto.nisn ?? application.nisn
+    const gradeId = dto.gradeId ?? application.targetGradeId
+    if (!nis) throw new BadRequestException('NIS belum disusun')
+    if (!nisn) throw new BadRequestException('NISN belum diisi')
+    if (!gradeId) {
+      throw new BadRequestException('Tingkat kelas tujuan belum diisi')
+    }
+
+    if (dto.nis && dto.nis !== application.nis) {
+      await this.admissionApplicationRepository.setNis(application.id, dto.nis)
+    }
+
     if (application.status === 'ACCEPTED') {
       await this.admissionApplicationRepository.setEnrolling(application.id)
     }
@@ -74,9 +87,9 @@ export class EnrollApplicantUseCase {
       {
         applicationId: application.id,
         userId: application.userId,
-        nis: dto.nis,
-        nisn: dto.nisn,
-        gradeId: dto.gradeId,
+        nis,
+        nisn,
+        gradeId,
         classroomId: dto.classroomId,
         profile: {
           name: application.fullName ?? '',
@@ -126,11 +139,11 @@ export class EnrollApplicantUseCase {
       application.id,
       'STATUS_CHANGE',
       'Selamat bergabung sebagai santri',
-      `Anda telah resmi terdaftar sebagai santri dengan NIS ${dto.nis}. Akun ini kini dapat digunakan untuk mengakses aplikasi akademik.`,
+      `Anda telah resmi terdaftar sebagai santri dengan NIS ${nis}. Akun ini kini dapat digunakan untuk mengakses aplikasi akademik.`,
     )
 
     this.logger.log(
-      `Applicant ${application.registrationNumber} enrolled as student ${enrolled.studentId} (NIS ${dto.nis})`,
+      `Applicant ${application.registrationNumber} enrolled as student ${enrolled.studentId} (NIS ${nis})`,
     )
 
     return {

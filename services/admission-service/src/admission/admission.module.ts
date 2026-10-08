@@ -17,6 +17,7 @@ import { NotificationModule } from './notification/index.js'
 import { BankAccountModule } from './bank-account/index.js'
 import { DocumentTypeModule } from './document-type/index.js'
 import { DecisionModule } from './decision/index.js'
+import { EnrolmentModule } from './enrolment/index.js'
 import { DocumentReviewModule } from './document-review/index.js'
 import { FileModule } from './file/index.js'
 
@@ -35,6 +36,7 @@ import { FileModule } from './file/index.js'
     DocumentTypeModule,
     DocumentReviewModule,
     DecisionModule,
+    EnrolmentModule,
     FileModule,
   ],
   controllers: [AdmissionPublicController, AdmissionApplicantController],

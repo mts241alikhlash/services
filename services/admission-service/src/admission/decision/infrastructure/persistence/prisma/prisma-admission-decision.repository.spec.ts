@@ -168,6 +168,7 @@ describe('PrismaAdmissionDecisionRepository decisions', () => {
         decidedById: null,
         decidedAt: null,
         decisionNote: null,
+        nis: null,
       },
     })
   })

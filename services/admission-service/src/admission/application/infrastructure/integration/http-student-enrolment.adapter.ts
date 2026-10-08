@@ -67,4 +67,49 @@ export class HttpStudentEnrolmentAdapter implements IStudentEnrolmentPort {
 
     return body.data
   }
+
+  async updateNis(
+    studentId: string,
+    nis: string,
+    bearerToken: string,
+  ): Promise<void> {
+    const base = this.config.get<string>('STUDENT_SERVICE_URL')
+    if (!base) {
+      throw new InternalServerErrorException(
+        'STUDENT_SERVICE_URL is not configured, so the NIS of a student cannot be changed.',
+      )
+    }
+
+    let response: Response
+    try {
+      response = await fetch(
+        `${base.replace(/\/+$/, '')}/students/${studentId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'content-type': 'application/json',
+            authorization: `Bearer ${bearerToken}`,
+          },
+          body: JSON.stringify({ nis }),
+        },
+      )
+    } catch (cause) {
+      this.logger.error(
+        `student-service unreachable at ${base}: ${String(cause)}`,
+      )
+      throw new InternalServerErrorException(
+        'The student service could not be reached. The NIS has not been changed there; try again.',
+      )
+    }
+
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as {
+        message?: string | string[]
+      } | null
+      const message = Array.isArray(body?.message)
+        ? body.message.join('; ')
+        : (body?.message ?? 'The student service refused the NIS change.')
+      throw new HttpException(message, response.status)
+    }
+  }
 }

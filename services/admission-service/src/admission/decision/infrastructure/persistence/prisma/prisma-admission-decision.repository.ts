@@ -116,7 +116,7 @@ export class PrismaAdmissionDecisionRepository extends IAdmissionDecisionReposit
   async cancelAcceptance(applicationId: string): Promise<boolean> {
     const { count } = await this.prisma.admissionApplication.updateMany({
       where: { id: applicationId, deletedAt: null, status: 'ACCEPTED' },
-      data: { status: 'VERIFIED', ...CLEARED_DECISION },
+      data: { status: 'VERIFIED', ...CLEARED_DECISION, nis: null },
     })
     return count === 1
   }

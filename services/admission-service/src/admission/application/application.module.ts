@@ -45,6 +45,7 @@ import { VerifyApplicationUseCase } from './application/use-cases/verify-applica
     GetAdmissionStatsUseCase,
   ],
   exports: [
+    IntegrationModule,
     IAdmissionApplicationRepository,
     AcceptApplicationUseCase,
     EnrollApplicantUseCase,

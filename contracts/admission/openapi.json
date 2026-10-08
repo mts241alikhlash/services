@@ -3910,6 +3910,369 @@
         ]
       }
     },
+    "/admissions/enrolments": {
+      "get": {
+        "operationId": "AdmissionEnrolmentController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "tab",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "ready",
+              "type": "string",
+              "enum": [
+                "ready",
+                "held",
+                "done"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by applicant name or registration number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "waveId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionEnrolmentRowResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/AdmissionEnrolmentMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Enrolment queue by tab, with tab counts and school years",
+        "tags": [
+          "Admission — Enrolments"
+        ]
+      }
+    },
+    "/admissions/enrolments/nis-preview": {
+      "get": {
+        "operationId": "AdmissionEnrolmentController_preview",
+        "parameters": [
+          {
+            "name": "academicYearId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionNisPreviewResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The NIS that composing a school year would give",
+        "tags": [
+          "Admission — Enrolments"
+        ]
+      }
+    },
+    "/admissions/enrolments/nis": {
+      "post": {
+        "operationId": "AdmissionEnrolmentController_compose",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComposeNisDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionNisComposeResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Hasil susun NIS berubah, lihat pratinjau lagi"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Compose the NIS of a school year",
+        "tags": [
+          "Admission — Enrolments"
+        ]
+      }
+    },
+    "/admissions/enrolments/nis-lock": {
+      "post": {
+        "operationId": "AdmissionEnrolmentController_lock",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LockNisDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionNisLockResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lock the NIS of a school year for good",
+        "tags": [
+          "Admission — Enrolments"
+        ]
+      }
+    },
+    "/admissions/enrolments/process": {
+      "post": {
+        "operationId": "AdmissionEnrolmentController_process",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcessEnrolmentsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionEnrolmentProcessResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Enrol up to 50 accepted applicants as students",
+        "tags": [
+          "Admission — Enrolments"
+        ]
+      }
+    },
+    "/admissions/enrolments/{applicationId}/placement": {
+      "patch": {
+        "operationId": "AdmissionEnrolmentController_setPlacement",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPlacementDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionPlacementResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set the admission type and the target grade",
+        "tags": [
+          "Admission — Enrolments"
+        ]
+      }
+    },
     "/admissions/files/{fileId}": {
       "get": {
         "operationId": "AdmissionFileController_stream",
@@ -10555,7 +10918,7 @@
           "nis": {
             "type": "string",
             "maxLength": 20,
-            "example": "20260001"
+            "example": "262707001"
           },
           "nisn": {
             "type": "string",
@@ -10565,19 +10928,14 @@
           "gradeId": {
             "type": "string",
             "format": "uuid",
-            "description": "Grade level of the student (required)"
+            "description": "Defaults to the grade the applicant chose"
           },
           "classroomId": {
             "type": "string",
             "format": "uuid",
             "description": "When set, the student is enrolled into this classroom for the active semester"
           }
-        },
-        "required": [
-          "nis",
-          "nisn",
-          "gradeId"
-        ]
+        }
       },
       "AdmissionEnrolledApplicationResponseStudentDto": {
         "type": "object",
@@ -13250,6 +13608,495 @@
         },
         "required": [
           "reason"
+        ]
+      },
+      "AdmissionEnrolmentRowResponseDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "waveName": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACCEPTED",
+              "ENROLLING",
+              "ENROLLED"
+            ]
+          },
+          "admissionType": {
+            "nullable": true,
+            "enum": [
+              "NEW",
+              "TRANSFER"
+            ],
+            "type": "string"
+          },
+          "targetGradeLevel": {
+            "type": "number",
+            "nullable": true
+          },
+          "nis": {
+            "type": "string",
+            "nullable": true
+          },
+          "nisn": {
+            "type": "string",
+            "nullable": true
+          },
+          "enrolledStudentId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "applicationId",
+          "registrationNumber",
+          "applicantName",
+          "waveName",
+          "academicYearId",
+          "status",
+          "admissionType",
+          "targetGradeLevel",
+          "nis",
+          "nisn",
+          "enrolledStudentId"
+        ]
+      },
+      "AdmissionEnrolmentCountsDto": {
+        "type": "object",
+        "properties": {
+          "ready": {
+            "type": "number"
+          },
+          "held": {
+            "type": "number"
+          },
+          "done": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "ready",
+          "held",
+          "done"
+        ]
+      },
+      "AdmissionEnrolmentYearDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string",
+            "nullable": true
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "lockedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "academicYearName",
+          "locked",
+          "lockedAt"
+        ]
+      },
+      "AdmissionEnrolmentMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/AdmissionEnrolmentCountsDto"
+          },
+          "years": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionEnrolmentYearDto"
+            }
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages",
+          "counts",
+          "years"
+        ]
+      },
+      "AdmissionEnrolmentQueueResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionEnrolmentRowResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AdmissionEnrolmentMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "AdmissionNisRowDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "gradeLevel": {
+            "type": "number"
+          },
+          "previous": {
+            "type": "string",
+            "nullable": true
+          },
+          "nis": {
+            "type": "string"
+          },
+          "changed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "applicationId",
+          "applicantName",
+          "registrationNumber",
+          "gradeLevel",
+          "previous",
+          "nis",
+          "changed"
+        ]
+      },
+      "AdmissionNisSkippedDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "applicationId",
+          "applicantName",
+          "registrationNumber",
+          "reason"
+        ]
+      },
+      "AdmissionNisPreviewResponseDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "changes": {
+            "type": "number"
+          },
+          "created": {
+            "type": "number"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionNisRowDto"
+            }
+          },
+          "skipped": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionNisSkippedDto"
+            }
+          }
+        },
+        "required": [
+          "academicYearId",
+          "academicYearName",
+          "locked",
+          "changes",
+          "created",
+          "rows",
+          "skipped"
+        ]
+      },
+      "ComposeNisDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedChanges": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The number of existing NIS the preview said would change"
+          },
+          "syncStudents": {
+            "type": "boolean",
+            "description": "Push the NIS of every enrolled student again"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "expectedChanges"
+        ]
+      },
+      "AdmissionNisFailureDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "applicationId",
+          "reason"
+        ]
+      },
+      "AdmissionNisComposeResponseDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "written": {
+            "type": "number"
+          },
+          "created": {
+            "type": "number"
+          },
+          "changed": {
+            "type": "number"
+          },
+          "failed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionNisFailureDto"
+            }
+          }
+        },
+        "required": [
+          "academicYearId",
+          "written",
+          "created",
+          "changed",
+          "failed"
+        ]
+      },
+      "LockNisDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "academicYearId"
+        ]
+      },
+      "AdmissionNisLockResponseDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "lockedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lockedById": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "lockedAt",
+          "lockedById"
+        ]
+      },
+      "ProcessNisnDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nisn": {
+            "type": "string",
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "applicationId",
+          "nisn"
+        ]
+      },
+      "ProcessEnrolmentsDto": {
+        "type": "object",
+        "properties": {
+          "applicationIds": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "nisn": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProcessNisnDto"
+            }
+          }
+        },
+        "required": [
+          "applicationIds"
+        ]
+      },
+      "AdmissionEnrolmentResultDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "ENROLLED",
+              "SKIPPED",
+              "FAILED"
+            ],
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "applicationId",
+          "outcome"
+        ]
+      },
+      "AdmissionEnrolmentProcessResponseDto": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionEnrolmentResultDto"
+            }
+          }
+        },
+        "required": [
+          "results"
+        ]
+      },
+      "SetPlacementDto": {
+        "type": "object",
+        "properties": {
+          "admissionType": {
+            "enum": [
+              "NEW",
+              "TRANSFER"
+            ],
+            "type": "string"
+          },
+          "targetGradeId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "admissionType",
+          "targetGradeId"
+        ]
+      },
+      "AdmissionPlacementResponseDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "admissionType": {
+            "enum": [
+              "NEW",
+              "TRANSFER"
+            ],
+            "type": "string"
+          },
+          "targetGradeId": {
+            "type": "string"
+          },
+          "targetGradeLevel": {
+            "type": "number"
+          },
+          "nisCleared": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "applicationId",
+          "admissionType",
+          "targetGradeId",
+          "targetGradeLevel",
+          "nisCleared"
         ]
       }
     }
