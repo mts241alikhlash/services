@@ -28,6 +28,6 @@ describe('decision permissions', () => {
     const admin = AdmissionAdminController.prototype
     expect(required(admin, 'accept')).toEqual(['admission-decisions.decide'])
     expect(required(admin, 'reject')).toEqual(['admission-decisions.decide'])
-    expect(required(admin, 'enroll')).toEqual(['admissions.enroll'])
+    expect(required(admin, 'enroll')).toEqual(['admission-enrolments.process'])
   })
 })

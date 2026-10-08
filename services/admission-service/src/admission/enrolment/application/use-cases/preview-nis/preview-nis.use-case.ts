@@ -29,7 +29,7 @@ export class PreviewNisUseCase {
           applicationId: assignment.applicationId,
           applicantName: row.fullName,
           registrationNumber: row.registrationNumber,
-          gradeLevel: row.gradeLevel as number,
+          gradeLevel: row.gradeLevel!,
           previous: assignment.previous,
           nis: assignment.nis,
           changed:

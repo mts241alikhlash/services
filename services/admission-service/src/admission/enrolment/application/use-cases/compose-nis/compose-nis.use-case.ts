@@ -52,7 +52,7 @@ export class ComposeNisUseCase {
       const enrolled = row?.status === 'ENROLLED' && row.studentId
       return enrolled &&
         (input.syncStudents || changedIds.has(assignment.applicationId))
-        ? [{ ...assignment, studentId: row.studentId as string }]
+        ? [{ ...assignment, studentId: row.studentId! }]
         : []
     })
 
