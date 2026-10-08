@@ -26,7 +26,10 @@ describe('PrismaAdmissionDecisionRepository.findQueue', () => {
 
     await repository.findQueue({ tab: 'waiting', page: 1, limit: 20 })
 
-    const call = findMany.mock.calls[0][0] as { where: unknown; orderBy: unknown }
+    const call = findMany.mock.calls[0][0] as {
+      where: unknown
+      orderBy: unknown
+    }
     expect(call.where).toEqual({
       AND: [scope, { status: 'VERIFIED' }],
     })
@@ -38,7 +41,10 @@ describe('PrismaAdmissionDecisionRepository.findQueue', () => {
 
     await repository.findQueue({ tab: 'accepted', page: 1, limit: 20 })
 
-    const call = findMany.mock.calls[0][0] as { where: unknown; orderBy: unknown }
+    const call = findMany.mock.calls[0][0] as {
+      where: unknown
+      orderBy: unknown
+    }
     expect(call.where).toEqual({
       AND: [scope, { status: { in: ['ACCEPTED', 'ENROLLING', 'ENROLLED'] } }],
     })
@@ -50,9 +56,9 @@ describe('PrismaAdmissionDecisionRepository.findQueue', () => {
 
     await repository.findQueue({ tab: 'rejected', page: 1, limit: 20 })
 
-    expect(
-      (findMany.mock.calls[0][0] as { where: unknown }).where,
-    ).toEqual({ AND: [scope, { status: 'REJECTED' }] })
+    expect((findMany.mock.calls[0][0] as { where: unknown }).where).toEqual({
+      AND: [scope, { status: 'REJECTED' }],
+    })
   })
 
   it('filters by wave and a literal search and never lists a draft', async () => {
