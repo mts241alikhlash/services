@@ -29,7 +29,9 @@ export class RegisterApplicantUseCase {
       )
     }
     const grade = input.targetGradeId
-      ? (await this.lookup.listGrades([input.targetGradeId]))[0]
+      ? (await this.lookup.activeGrades()).find(
+          (candidate) => candidate.id === input.targetGradeId,
+        )
       : undefined
     if (input.targetGradeId && !grade) {
       throw new BadRequestException('Tingkat kelas tidak ditemukan')

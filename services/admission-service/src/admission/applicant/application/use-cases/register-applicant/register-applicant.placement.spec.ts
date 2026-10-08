@@ -19,7 +19,7 @@ function setup(
       .fn()
       .mockResolvedValue({ id: 'app1', registrationNumber: 'G1-0001' }),
   }
-  const lookup = { listGrades: jest.fn().mockResolvedValue(grades) }
+  const lookup = { activeGrades: jest.fn().mockResolvedValue(grades) }
   return {
     repository,
     lookup,
@@ -40,7 +40,7 @@ describe('RegisterApplicantUseCase placement', () => {
 
     await useCase.execute(base)
 
-    expect(lookup.listGrades).not.toHaveBeenCalled()
+    expect(lookup.activeGrades).not.toHaveBeenCalled()
     expect(repository.registerApplicant).toHaveBeenCalledWith(
       expect.not.objectContaining({ targetGradeId: expect.anything() }),
     )
@@ -57,7 +57,7 @@ describe('RegisterApplicantUseCase placement', () => {
       targetGradeId: 'g8',
     })
 
-    expect(lookup.listGrades).toHaveBeenCalledWith(['g8'])
+    expect(lookup.activeGrades).toHaveBeenCalled()
     expect(repository.registerApplicant).toHaveBeenCalledWith(
       expect.objectContaining({
         admissionType: 'TRANSFER',
@@ -92,6 +92,17 @@ describe('RegisterApplicantUseCase placement', () => {
         admissionType: 'NEW',
         targetGradeId: 'gone',
       }),
+    ).rejects.toThrow(new BadRequestException('Tingkat kelas tidak ditemukan'))
+    expect(repository.registerApplicant).not.toHaveBeenCalled()
+  })
+
+  it('refuses a grade missing from the active list', async () => {
+    const { useCase, repository } = setup([
+      { id: 'g7', level: 7, name: 'Kelas 7' },
+    ])
+
+    await expect(
+      useCase.execute({ ...base, admissionType: 'NEW', targetGradeId: 'g8' }),
     ).rejects.toThrow(new BadRequestException('Tingkat kelas tidak ditemukan'))
     expect(repository.registerApplicant).not.toHaveBeenCalled()
   })
