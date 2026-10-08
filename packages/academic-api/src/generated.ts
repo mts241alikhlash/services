@@ -1263,6 +1263,23 @@ export interface paths {
         patch: operations["GradesController_update"];
         trace?: never;
     };
+    "/grades/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Active grades with their ids, for the admission sign-up */
+        get: operations["GradeInternalController_active"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/grades/by-ids": {
         parameters: {
             query?: never;
@@ -10590,6 +10607,38 @@ export interface operations {
             };
             /** @description Duplicate level or name */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GradeInternalController_active: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["GradeSummaryDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Missing or invalid provisioning token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

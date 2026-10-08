@@ -1356,6 +1356,18 @@ export class AdmissionApplicationReviewResponseDto {
   @ApiPropertyOptional({ type: String, nullable: true })
   nisn?: string | null
 
+  @ApiPropertyOptional({ enum: ['NEW', 'TRANSFER'], nullable: true })
+  admissionType?: 'NEW' | 'TRANSFER' | null
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  targetGradeId?: string | null
+
+  @ApiPropertyOptional({ type: Number, nullable: true })
+  targetGradeLevel?: number | null
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  nis?: string | null
+
   @ApiPropertyOptional({ type: String, nullable: true })
   email?: string | null
 
@@ -1583,6 +1595,10 @@ export class AdmissionApplicationReviewResponseDto {
           ? domain.birthDate
           : domain.birthDate.toISOString()
     dto.nisn = domain.nisn
+    dto.admissionType = domain.admissionType
+    dto.targetGradeId = domain.targetGradeId
+    dto.targetGradeLevel = domain.targetGradeLevel
+    dto.nis = domain.nis
     dto.email = domain.email
     dto.phone = domain.phone
     dto.religionId = domain.religionId

@@ -291,6 +291,9 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         'admission-documents.read',
         'admission-documents.verify',
         'admissions.enroll',
+        'admission-enrolments.read',
+        'admission-enrolments.process',
+        'admission-enrolments.nis',
         'admission-waves.read',
         'admission-bank-accounts.read',
         'admission-document-types.read',
@@ -445,6 +448,8 @@ export const DEFAULT_ROLES: DefaultRole[] = [
 const EXPLICIT_ONLY = new Set([
   'admissions.apply',
   'admission-decisions.decide',
+  'admission-enrolments.process',
+  'admission-enrolments.nis',
 ])
 
 function broad(catalogue: SystemPermission[]): SystemPermission[] {

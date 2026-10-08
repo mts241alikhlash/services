@@ -7,8 +7,12 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
 import { Public } from '../../../../core/decorators/public.decorator.js'
 import { PublicRegisterApplicantDto } from './dto/request/public-register-applicant.dto.js'
+import { AdmissionGradeListResponseDto } from './dto/response/admission-grade-response.dto.js'
 import { GetActiveWavesUseCase } from '../../../wave/index.js'
-import { RegisterApplicantUseCase } from '../../index.js'
+import {
+  GetActiveGradesUseCase,
+  RegisterApplicantUseCase,
+} from '../../index.js'
 
 @ApiTags('Admission — Public')
 @Controller('admissions')
@@ -16,7 +20,18 @@ export class AdmissionPublicController {
   constructor(
     private readonly getActiveWavesService: GetActiveWavesUseCase,
     private readonly registerApplicantService: RegisterApplicantUseCase,
+    private readonly getActiveGrades: GetActiveGradesUseCase,
   ) {}
+
+  @Get('grades')
+  @Public()
+  @ApiOperation({ summary: 'Active grades an applicant can choose' })
+  @ApiResponse({ status: 200, type: AdmissionGradeListResponseDto })
+  async grades(): Promise<AdmissionGradeListResponseDto> {
+    return AdmissionGradeListResponseDto.fromDomain({
+      data: await this.getActiveGrades.execute(),
+    })
+  }
 
   @Get('waves/active')
   @Public()
@@ -55,6 +70,8 @@ export class AdmissionPublicController {
         phone: dto.phone,
         password: dto.password,
         passwordConfirm: dto.passwordConfirm,
+        admissionType: dto.admissionType,
+        targetGradeId: dto.targetGradeId,
       }),
     )
   }

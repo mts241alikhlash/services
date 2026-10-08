@@ -82,6 +82,8 @@ export class AdmissionAdminRegistrationController {
         password: dto.password,
         passwordConfirm: dto.passwordConfirm,
         waveId: dto.waveId,
+        admissionType: dto.admissionType,
+        targetGradeId: dto.targetGradeId,
       }),
     )
   }

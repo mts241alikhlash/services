@@ -203,6 +203,24 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
     description: 'Read the admission decision queue',
   },
   {
+    module: 'admission-enrolments',
+    action: 'nis',
+    code: 'admission-enrolments.nis',
+    description: 'Compose, preview and lock the NIS of an admission year',
+  },
+  {
+    module: 'admission-enrolments',
+    action: 'process',
+    code: 'admission-enrolments.process',
+    description: 'Enrol accepted applicants as students, one or many',
+  },
+  {
+    module: 'admission-enrolments',
+    action: 'read',
+    code: 'admission-enrolments.read',
+    description: 'Read the admission enrolment queue',
+  },
+  {
     module: 'admission-document-types',
     action: 'create',
     code: 'admission-document-types.create',

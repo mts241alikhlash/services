@@ -59,6 +59,32 @@ export class GradeLevelsResponseDto {
 export class GradeInternalController {
   constructor(private readonly gradeRepository: IGradeRepository) {}
 
+  @Get('active')
+  @ApiOperation({
+    summary: 'Active grades with their ids, for the admission sign-up',
+  })
+  @ApiResponse({ status: 200, type: GradeSummaryListResponseDto })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing or invalid provisioning token',
+  })
+  async active(): Promise<GradeSummaryListResponseDto> {
+    const { data } = await this.gradeRepository.findAll({
+      page: 1,
+      limit: 200,
+      isActive: true,
+    })
+    return {
+      data: [...data]
+        .sort((a, b) => a.level - b.level)
+        .map((grade) => ({
+          id: grade.id,
+          level: grade.level,
+          name: grade.name ?? null,
+        })),
+    }
+  }
+
   @Get('levels')
   @ApiOperation({ summary: 'Active grade levels, for bulk-import validation' })
   @ApiResponse({ status: 200, type: GradeLevelsResponseDto })

@@ -251,6 +251,44 @@
         ]
       }
     },
+    "/admissions/grades": {
+      "get": {
+        "operationId": "AdmissionPublicController_grades",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionGradeResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Active grades an applicant can choose",
+        "tags": [
+          "Admission — Public"
+        ]
+      }
+    },
     "/admissions/waves/active": {
       "get": {
         "operationId": "AdmissionPublicController_getActiveWaves",
@@ -3940,6 +3978,40 @@
       }
     },
     "schemas": {
+      "AdmissionGradeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "name"
+        ]
+      },
+      "AdmissionGradeListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionGradeResponseDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
       "AdmissionActiveWavesResponseWavesDto": {
         "type": "object",
         "properties": {
@@ -4069,6 +4141,17 @@
           },
           "passwordConfirm": {
             "type": "string"
+          },
+          "admissionType": {
+            "enum": [
+              "NEW",
+              "TRANSFER"
+            ],
+            "type": "string"
+          },
+          "targetGradeId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
@@ -8315,6 +8398,26 @@
             "type": "string",
             "nullable": true
           },
+          "admissionType": {
+            "nullable": true,
+            "enum": [
+              "NEW",
+              "TRANSFER"
+            ],
+            "type": "string"
+          },
+          "targetGradeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetGradeLevel": {
+            "type": "number",
+            "nullable": true
+          },
+          "nis": {
+            "type": "string",
+            "nullable": true
+          },
           "email": {
             "type": "string",
             "nullable": true
@@ -11434,6 +11537,17 @@
             "type": "string"
           },
           "waveId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "admissionType": {
+            "enum": [
+              "NEW",
+              "TRANSFER"
+            ],
+            "type": "string"
+          },
+          "targetGradeId": {
             "type": "string",
             "format": "uuid"
           }

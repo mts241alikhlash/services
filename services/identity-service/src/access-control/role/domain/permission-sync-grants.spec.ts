@@ -6,7 +6,8 @@ const NEW_CODES = SYSTEM_PERMISSIONS.map((p) => p.code).filter(
   (code) =>
     code.startsWith('admission-document-types.') ||
     code.startsWith('admission-documents.') ||
-    code.startsWith('admission-decisions.'),
+    code.startsWith('admission-decisions.') ||
+    code.startsWith('admission-enrolments.'),
 )
 
 function fakePrisma(existingCodes: string[], roleCodes: string[]) {
@@ -115,6 +116,23 @@ describe('syncPermissions grants brand-new codes to existing default roles', () 
     expect(decide).not.toContain('OPERATOR')
     expect(grantedTo('admission-decisions.read')).toEqual(
       expect.arrayContaining(['ADMISSION_ADMIN', 'OPERATOR', 'PRINCIPAL']),
+    )
+    const process = grantedTo('admission-enrolments.process')
+    expect(process).toEqual(
+      expect.arrayContaining([
+        'STUDENT_AFFAIRS_STAFF',
+        'VICE_PRINCIPAL_STUDENT_AFFAIRS',
+        'SUPER_ADMIN',
+      ]),
+    )
+    expect(process).not.toContain('ADMISSION_ADMIN')
+    expect(process).not.toContain('OPERATOR')
+    expect(grantedTo('admission-enrolments.read')).toEqual(
+      expect.arrayContaining([
+        'ADMISSION_ADMIN',
+        'OPERATOR',
+        'STUDENT_AFFAIRS_STAFF',
+      ]),
     )
   })
 

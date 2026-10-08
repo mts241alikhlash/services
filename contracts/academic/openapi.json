@@ -4846,6 +4846,47 @@
         ]
       }
     },
+    "/grades/active": {
+      "get": {
+        "operationId": "GradeInternalController_active",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GradeSummaryDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid provisioning token"
+          }
+        },
+        "summary": "Active grades with their ids, for the admission sign-up",
+        "tags": [
+          "Grades"
+        ]
+      }
+    },
     "/grades/levels": {
       "get": {
         "operationId": "GradeInternalController_levels",
@@ -19851,35 +19892,6 @@
           "schedules"
         ]
       },
-      "GradeLevelsResponseDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "description": "Active grade levels, ascending",
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          }
-        },
-        "required": [
-          "data"
-        ]
-      },
-      "GradeIdsDto": {
-        "type": "object",
-        "properties": {
-          "ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "ids"
-        ]
-      },
       "GradeSummaryDto": {
         "type": "object",
         "properties": {
@@ -19912,6 +19924,35 @@
         },
         "required": [
           "data"
+        ]
+      },
+      "GradeLevelsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Active grade levels, ascending",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "GradeIdsDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
         ]
       },
       "GradeSummaryResponseDto": {

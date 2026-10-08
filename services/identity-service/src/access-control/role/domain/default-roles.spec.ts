@@ -66,6 +66,28 @@ describe('default roles', () => {
     expect(codesOf('PRINCIPAL').has('payroll-runs.approve')).toBe(true)
   })
 
+  it('lets TU Kesantrian and the deputy for student affairs enrol and number students, and others only read the queue', () => {
+    for (const role of [
+      'STUDENT_AFFAIRS_STAFF',
+      'VICE_PRINCIPAL_STUDENT_AFFAIRS',
+    ]) {
+      for (const action of ['read', 'process', 'nis']) {
+        expect(codesOf(role)).toContain(`admission-enrolments.${action}`)
+      }
+    }
+    for (const role of ['ADMISSION_ADMIN', 'OPERATOR']) {
+      expect(codesOf(role)).toContain('admission-enrolments.read')
+      expect(codesOf(role)).not.toContain('admission-enrolments.process')
+      expect(codesOf(role)).not.toContain('admission-enrolments.nis')
+    }
+    for (const role of ['TREASURER', 'VICE_PRINCIPAL_CURRICULUM']) {
+      expect(codesOf(role)).not.toContain('admission-enrolments.process')
+      expect(codesOf(role)).not.toContain('admission-enrolments.nis')
+    }
+    expect(codesOf('PRINCIPAL')).toContain('admission-enrolments.read')
+    expect(codesOf('PRINCIPAL')).not.toContain('admission-enrolments.process')
+  })
+
   it('lets applicants apply and nothing else', () => {
     expect(resolveGrants('APPLICANT')).toEqual(['admissions.apply'])
   })
