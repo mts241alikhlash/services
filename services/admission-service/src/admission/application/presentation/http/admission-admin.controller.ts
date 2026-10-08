@@ -175,7 +175,7 @@ export class AdmissionAdminController {
   }
 
   @Post('applications/:id/accept')
-  @RequirePermissions('admissions.decide')
+  @RequirePermissions('admission-decisions.decide')
   @ApiOperation({ summary: 'Accept the application' })
   @ApiParam({ name: 'id', format: 'uuid' })
   async accept(
@@ -189,7 +189,7 @@ export class AdmissionAdminController {
   }
 
   @Post('applications/:id/reject')
-  @RequirePermissions('admissions.decide')
+  @RequirePermissions('admission-decisions.decide')
   @ApiOperation({ summary: 'Reject the application' })
   @ApiParam({ name: 'id', format: 'uuid' })
   async reject(
