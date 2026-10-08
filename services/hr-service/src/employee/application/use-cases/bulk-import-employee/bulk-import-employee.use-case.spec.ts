@@ -65,10 +65,6 @@ describe('BulkImportEmployeesUseCase', () => {
     mockRepo.resolveEmploymentTypeId.mockResolvedValue('employment-type-id')
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   describe('execute', () => {
     it('should throw BadRequestException when file is empty', async () => {
       const emptyBuffer = await makeExcelBuffer([])

@@ -53,10 +53,6 @@ describe('PositionController', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined()
-  })
-
   describe('findAll', () => {
     it('should delegate to GetPositionsUseCase with query', async () => {
       const query: PositionQueryDto = { page: 1, limit: 10 }

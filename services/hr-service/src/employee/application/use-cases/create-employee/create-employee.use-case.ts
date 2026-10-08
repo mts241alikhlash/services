@@ -10,9 +10,9 @@ export class CreateEmployeeUseCase {
   constructor(private readonly employeeRepository: IEmployeeRepository) {}
 
   async execute(input: CreateEmployeeInput) {
-    const fallback = input.nip ?? input.nuptk ?? input.nik
-    input.identifier ??= fallback
-    input.password ??= fallback
+    const fallback = input.nip || input.nuptk || input.nik
+    input.identifier ||= fallback
+    input.password ||= fallback
 
     const [existingUsername, existingNik, existingNip, existingNuptk] =
       await Promise.all([

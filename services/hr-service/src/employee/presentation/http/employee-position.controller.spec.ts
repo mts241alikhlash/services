@@ -57,10 +57,6 @@ describe('EmployeePositionsController', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined()
-  })
-
   describe('findAll', () => {
     it('should delegate to EmployeePositionUseCase.findAll with employeeId', async () => {
       const id = 'emp-1'

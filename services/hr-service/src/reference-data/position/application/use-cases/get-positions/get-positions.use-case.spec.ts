@@ -22,10 +22,6 @@ describe('GetPositionsUseCase', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   describe('execute', () => {
     const input: ListPositionsInput = { page: 1, limit: 10 }
 

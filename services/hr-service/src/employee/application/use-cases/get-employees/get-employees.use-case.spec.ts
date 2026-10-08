@@ -22,10 +22,6 @@ describe('GetEmployeesUseCase', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   describe('execute', () => {
     const query: GetEmployeesInput = { page: 1, limit: 10 }
 

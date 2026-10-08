@@ -34,10 +34,6 @@ describe('CreateEmployeeUseCase', () => {
     ;(hashPassword as jest.Mock).mockResolvedValue('hashed-password')
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   describe('execute', () => {
     const input: CreateEmployeeInput = {
       identifier: 'guru001',
@@ -80,6 +76,41 @@ describe('CreateEmployeeUseCase', () => {
       )
       expect(result).toEqual(mockEmployee)
     })
+
+    it.each([
+      [{ nip: 'nip-1', nuptk: 'nuptk-1' }, 'nip-1'],
+      [{ nuptk: 'nuptk-1' }, 'nuptk-1'],
+      [{ nip: '', nuptk: 'nuptk-1' }, 'nuptk-1'],
+      [{ nip: '', nuptk: '' }, '3578010101700001'],
+      [{ identifier: '', password: '', nip: 'nip-1' }, 'nip-1'],
+      [{}, '3578010101700001'],
+    ])(
+      'uses the available staff number as account fallback',
+      async (identifiers, expected) => {
+        const withoutAccount = {
+          ...input,
+          identifier: undefined,
+          password: undefined,
+          ...identifiers,
+        }
+        mockRepository.findUserByIdentifier.mockResolvedValue(null)
+        mockRepository.findProfileByNik.mockResolvedValue(null)
+        mockRepository.findByNip.mockResolvedValue(null)
+        mockRepository.findByNuptk.mockResolvedValue(null)
+        mockRepository.create.mockResolvedValue(mockEmployee)
+
+        await useCase.execute(withoutAccount)
+
+        expect(mockRepository.findUserByIdentifier).toHaveBeenCalledWith(
+          expected,
+        )
+        expect(hashPassword).toHaveBeenCalledWith(expected)
+        expect(mockRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({ identifier: expected }),
+          'hashed-password',
+        )
+      },
+    )
 
     it('should throw ConflictException when identifier is already taken', async () => {
       mockRepository.findUserByIdentifier.mockResolvedValue({

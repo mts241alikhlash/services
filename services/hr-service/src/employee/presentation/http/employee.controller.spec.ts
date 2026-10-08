@@ -139,11 +139,6 @@ describe('EmployeeController & EmployeeImportExportController', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined()
-    expect(importExportController).toBeDefined()
-  })
-
   describe('findAll', () => {
     it('should delegate to GetEmployeesUseCase with query', async () => {
       const query: EmployeeQueryDto = { page: 1, limit: 10 }

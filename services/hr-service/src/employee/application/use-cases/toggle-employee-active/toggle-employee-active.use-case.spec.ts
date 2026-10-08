@@ -25,10 +25,6 @@ describe('ToggleEmployeeActiveUseCase', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   describe('execute', () => {
     const mockEmployee = { id: 'e-1', user: { id: 'u-1', isActive: true } }
 
