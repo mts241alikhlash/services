@@ -296,6 +296,108 @@ export interface paths {
         patch: operations["AdmissionBankAccountController_update"];
         trace?: never;
     };
+    "/admissions/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Decision queue by tab, with tab counts */
+        get: operations["AdmissionDecisionController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/decisions/{applicationId}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept a verified applicant */
+        post: operations["AdmissionDecisionController_accept"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/decisions/{applicationId}/cancel-acceptance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel an acceptance until enrolment starts */
+        post: operations["AdmissionDecisionController_cancelAcceptance"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/decisions/{applicationId}/cancel-rejection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a rejection and send the applicant back to review */
+        post: operations["AdmissionDecisionController_cancelRejection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/decisions/{applicationId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a verified applicant, reason required */
+        post: operations["AdmissionDecisionController_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/decisions/accept-many": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept up to 50 verified applicants at once */
+        post: operations["AdmissionDecisionController_acceptMany"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admissions/document-reviews": {
         parameters: {
             query?: never;
@@ -837,6 +939,15 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         AcceptApplicationDto: {
+            note?: string;
+        };
+        AcceptDecisionDto: {
+            /** @description Shown to the applicant */
+            note?: string;
+        };
+        AcceptManyDto: {
+            applicationIds: string[];
+            /** @description Shown to every accepted applicant */
             note?: string;
         };
         AddAdmissionPaymentDto: {
@@ -1966,6 +2077,62 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
+        AdmissionDecisionCountsDto: {
+            accepted: number;
+            rejected: number;
+            waiting: number;
+        };
+        AdmissionDecisionManyResponseDto: {
+            results: components["schemas"]["AdmissionDecisionManyResultDto"][];
+        };
+        AdmissionDecisionManyResultDto: {
+            applicationId: string;
+            /** @enum {string} */
+            outcome: "ACCEPTED" | "SKIPPED";
+            reason?: string;
+        };
+        AdmissionDecisionMetaDto: {
+            counts: components["schemas"]["AdmissionDecisionCountsDto"];
+            limit: number;
+            page: number;
+            total: number;
+            totalPages: number;
+        };
+        AdmissionDecisionQueueResponseDto: {
+            data: components["schemas"]["AdmissionDecisionRowResponseDto"][];
+            meta: components["schemas"]["AdmissionDecisionMetaDto"];
+        };
+        AdmissionDecisionResponseDto: {
+            applicationId: string;
+            /** Format: date-time */
+            decidedAt: string | null;
+            decisionNote: string | null;
+            status: string;
+            verified?: boolean;
+        };
+        AdmissionDecisionRowResponseDto: {
+            applicantName: string;
+            applicationId: string;
+            /** Format: date-time */
+            decidedAt: string | null;
+            decisionNote: string | null;
+            paymentStatus: string | null;
+            registrationNumber: string;
+            status: string;
+            /** Format: date-time */
+            submittedAt: string | null;
+            summary: components["schemas"]["AdmissionDecisionSummaryDto"];
+            /** Format: date-time */
+            verifiedAt: string | null;
+            waveName: string;
+        };
+        AdmissionDecisionSummaryDto: {
+            approved: number;
+            missing: number;
+            pending: number;
+            rejected: number;
+            total: number;
+        };
         AdmissionDocumentResponseDocumentTypeDto: {
             code: string;
             id: string;
@@ -2568,6 +2735,10 @@ export interface components {
             /** @example Nominal tidak sesuai mutasi bank */
             note: string;
         };
+        CancelDecisionDto: {
+            /** @description Shown to the applicant */
+            reason: string;
+        };
         CreateAdmissionAnnouncementDto: {
             content: string;
             /** @default false */
@@ -2923,6 +3094,10 @@ export interface components {
         };
         RejectApplicationDto: {
             /** @description Alasan penolakan */
+            reason: string;
+        };
+        RejectDecisionDto: {
+            /** @description Shown to the applicant */
             reason: string;
         };
         ReorderAdmissionDocumentTypesDto: {
@@ -3741,6 +3916,199 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["AdmissionBankAccountResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDecisionController_findAll: {
+        parameters: {
+            query?: {
+                limit?: number;
+                page?: number;
+                /** @description Search by applicant name or registration number */
+                search?: string;
+                tab?: "waiting" | "accepted" | "rejected";
+                waveId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDecisionRowResponseDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: components["schemas"]["AdmissionDecisionMetaDto"];
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDecisionController_accept: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptDecisionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDecisionResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDecisionController_cancelAcceptance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelDecisionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDecisionResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Penerimaan tidak bisa dibatalkan setelah proses daftar ulang dimulai */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDecisionController_cancelRejection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelDecisionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDecisionResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDecisionController_reject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectDecisionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDecisionResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDecisionController_acceptMany: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptManyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDecisionManyResponseDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */

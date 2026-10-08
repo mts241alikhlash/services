@@ -3464,6 +3464,399 @@
         ]
       }
     },
+    "/admissions/decisions": {
+      "get": {
+        "operationId": "AdmissionDecisionController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "tab",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "waiting",
+              "type": "string",
+              "enum": [
+                "waiting",
+                "accepted",
+                "rejected"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by applicant name or registration number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "waveId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionDecisionRowResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/AdmissionDecisionMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Decision queue by tab, with tab counts",
+        "tags": [
+          "Admission — Decisions"
+        ]
+      }
+    },
+    "/admissions/decisions/accept-many": {
+      "post": {
+        "operationId": "AdmissionDecisionController_acceptMany",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptManyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDecisionManyResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Accept up to 50 verified applicants at once",
+        "tags": [
+          "Admission — Decisions"
+        ]
+      }
+    },
+    "/admissions/decisions/{applicationId}/accept": {
+      "post": {
+        "operationId": "AdmissionDecisionController_accept",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptDecisionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDecisionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Accept a verified applicant",
+        "tags": [
+          "Admission — Decisions"
+        ]
+      }
+    },
+    "/admissions/decisions/{applicationId}/reject": {
+      "post": {
+        "operationId": "AdmissionDecisionController_reject",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectDecisionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDecisionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reject a verified applicant, reason required",
+        "tags": [
+          "Admission — Decisions"
+        ]
+      }
+    },
+    "/admissions/decisions/{applicationId}/cancel-acceptance": {
+      "post": {
+        "operationId": "AdmissionDecisionController_cancelAcceptance",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelDecisionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDecisionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Penerimaan tidak bisa dibatalkan setelah proses daftar ulang dimulai"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel an acceptance until enrolment starts",
+        "tags": [
+          "Admission — Decisions"
+        ]
+      }
+    },
+    "/admissions/decisions/{applicationId}/cancel-rejection": {
+      "post": {
+        "operationId": "AdmissionDecisionController_cancelRejection",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelDecisionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDecisionResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a rejection and send the applicant back to review",
+        "tags": [
+          "Admission — Decisions"
+        ]
+      }
+    },
     "/admissions/files/{fileId}": {
       "get": {
         "operationId": "AdmissionFileController_stream",
@@ -12455,6 +12848,279 @@
           "status",
           "outcome",
           "verified"
+        ]
+      },
+      "AdmissionDecisionSummaryDto": {
+        "type": "object",
+        "properties": {
+          "approved": {
+            "type": "number"
+          },
+          "rejected": {
+            "type": "number"
+          },
+          "pending": {
+            "type": "number"
+          },
+          "missing": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "approved",
+          "rejected",
+          "pending",
+          "missing",
+          "total"
+        ]
+      },
+      "AdmissionDecisionRowResponseDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "waveName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "decidedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "decisionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "paymentStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "$ref": "#/components/schemas/AdmissionDecisionSummaryDto"
+          }
+        },
+        "required": [
+          "applicationId",
+          "registrationNumber",
+          "applicantName",
+          "waveName",
+          "status",
+          "submittedAt",
+          "verifiedAt",
+          "decidedAt",
+          "decisionNote",
+          "paymentStatus",
+          "summary"
+        ]
+      },
+      "AdmissionDecisionCountsDto": {
+        "type": "object",
+        "properties": {
+          "waiting": {
+            "type": "number"
+          },
+          "accepted": {
+            "type": "number"
+          },
+          "rejected": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "waiting",
+          "accepted",
+          "rejected"
+        ]
+      },
+      "AdmissionDecisionMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/AdmissionDecisionCountsDto"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages",
+          "counts"
+        ]
+      },
+      "AdmissionDecisionQueueResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionDecisionRowResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AdmissionDecisionMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "AcceptManyDto": {
+        "type": "object",
+        "properties": {
+          "applicationIds": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Shown to every accepted applicant"
+          }
+        },
+        "required": [
+          "applicationIds"
+        ]
+      },
+      "AdmissionDecisionManyResultDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "ACCEPTED",
+              "SKIPPED"
+            ],
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "applicationId",
+          "outcome"
+        ]
+      },
+      "AdmissionDecisionManyResponseDto": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionDecisionManyResultDto"
+            }
+          }
+        },
+        "required": [
+          "results"
+        ]
+      },
+      "AcceptDecisionDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Shown to the applicant"
+          }
+        }
+      },
+      "AdmissionDecisionResponseDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "decidedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "decisionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "verified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "applicationId",
+          "status",
+          "decidedAt",
+          "decisionNote"
+        ]
+      },
+      "RejectDecisionDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Shown to the applicant"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "CancelDecisionDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Shown to the applicant"
+          }
+        },
+        "required": [
+          "reason"
         ]
       }
     }
