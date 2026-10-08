@@ -5099,7 +5099,7 @@
   "info": {
     "title": "Identity Service API",
     "description": "Identity Service",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "contact": {}
   },
   "tags": [],
