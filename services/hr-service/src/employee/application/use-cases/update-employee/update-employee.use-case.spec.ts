@@ -26,10 +26,6 @@ describe('UpdateEmployeeUseCase', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   describe('execute', () => {
     const id = 'emp-1'
     const currentEmployee = {

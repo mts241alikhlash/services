@@ -23,10 +23,6 @@ describe('ResponseInterceptor', () => {
     handle: () => of(data),
   })
 
-  it('should be defined', () => {
-    expect(interceptor).toBeDefined()
-  })
-
   it('should wrap plain data in envelope', (done) => {
     const context = createMockContext(200)
     const handler = createMockHandler({ id: 1, name: 'Test' })

@@ -49,10 +49,6 @@ describe('HttpExceptionFilter', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(filter).toBeDefined()
-  })
-
   describe('HttpException handling', () => {
     it('should handle 400 BadRequestException', () => {
       const exception = new BadRequestException('Validation failed')

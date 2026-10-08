@@ -66,10 +66,6 @@ describe('ResolveBulkImportConflictsUseCase (employee)', () => {
     mockRepo.resolveEmploymentTypeId.mockResolvedValue('employment-type-id')
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   describe('execute', () => {
     it('skips conflicts marked as skip', async () => {
       const dto: ResolveBulkImportConflictsInput = {

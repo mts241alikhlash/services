@@ -24,10 +24,6 @@ describe('CreatePositionUseCase', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   describe('execute', () => {
     const input: CreatePositionInput = {
       name: 'Kepala Sekolah',

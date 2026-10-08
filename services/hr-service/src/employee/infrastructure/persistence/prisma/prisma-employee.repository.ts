@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, ServiceUnavailableException } from '@nestjs/common'
 import { Employee } from '../../../../generated/prisma/client.js'
 import { PrismaService } from '../../../../core/database/prisma.service.js'
 import { IAccountProvisioningPort } from '../../../../platform/user/index.js'
@@ -265,13 +265,24 @@ export class PrismaEmployeeRepository extends IEmployeeRepository {
     })
 
     try {
+      const [withUser] = await this.attachUserRefs([{ userId: user.id }])
+      if (!withUser?.user) {
+        throw new ServiceUnavailableException('Account profile unavailable')
+      }
       const row = await this.prisma.$transaction((tx) =>
         createEmployeeInTx(tx, user.id, dto),
       )
-      const [withUser] = await this.attachUserRefs([row])
-      return withUser
+      return { ...row, user: withUser.user }
     } catch (error) {
-      await this.accountProvisioning.deprovision(user.id)
+      try {
+        await this.accountProvisioning.deprovision(user.id)
+      } catch (cleanupError) {
+        throw new AggregateError(
+          [error, cleanupError],
+          'Employee creation and account cleanup failed',
+          { cause: cleanupError },
+        )
+      }
       throw error
     }
   }

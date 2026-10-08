@@ -45,10 +45,6 @@ describe('EmployeePositionUseCase', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   const employeeId = 'emp-1'
   const linkId = 'link-1'
   const mockEmployee = { id: 'emp-1', user: { id: 'u-1' } }

@@ -44,10 +44,6 @@ describe('ExportEmployeesUseCase', () => {
     jest.clearAllMocks()
   })
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined()
-  })
-
   describe('execute', () => {
     it('should return a Buffer', async () => {
       mockRepo.findAllForExport.mockResolvedValue([mockEmployee])

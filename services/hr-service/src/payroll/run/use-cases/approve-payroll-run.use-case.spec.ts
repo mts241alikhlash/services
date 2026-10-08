@@ -94,6 +94,7 @@ describe('Payroll run approval', () => {
       await expect(approve.execute('run-1', KEPALA)).rejects.toThrow(
         ConflictException,
       )
+      expect(runs.transition).not.toHaveBeenCalled()
     })
 
     it('404s on a run that does not exist', async () => {
@@ -102,6 +103,7 @@ describe('Payroll run approval', () => {
       await expect(approve.execute('run-1', KEPALA)).rejects.toThrow(
         NotFoundException,
       )
+      expect(runs.transition).not.toHaveBeenCalled()
     })
   })
 
@@ -125,19 +127,17 @@ describe('Payroll run approval', () => {
       await expect(approve.execute('run-1', KEPALA)).rejects.toThrow(
         /adjustment/i,
       )
+      expect(runs.transition).not.toHaveBeenCalled()
     })
 
     it('refuses re-submission', async () => {
       await expect(submit.execute('run-1', TU)).rejects.toThrow(/adjustment/i)
+      expect(runs.transition).not.toHaveBeenCalled()
     })
 
     it('refuses recalculation', async () => {
       await expect(recalculate.execute('run-1')).rejects.toThrow(/adjustment/i)
       expect(runs.replacePayslips).not.toHaveBeenCalled()
-    })
-
-    it('never writes on any of them', () => {
-      expect(runs.transition).not.toHaveBeenCalled()
     })
   })
 })

@@ -72,7 +72,7 @@ export class UpdateSalaryComponentUseCase {
 
     assertDriverCoherent(
       dto.type ?? existing.type,
-      dto.driver ?? existing.driver,
+      dto.driver === null ? null : (dto.driver ?? existing.driver),
     )
 
     return this.repository.update(id, dto)
