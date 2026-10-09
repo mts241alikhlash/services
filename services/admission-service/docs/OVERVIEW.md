@@ -270,6 +270,17 @@ Parents store `income_range_id`, one of the fixed ids in academic-service's
 mapped back by `legacyIncomeFor`, until student-service takes the new ids
 (sub-project 3).
 
+## Download files
+
+`src/admission/download/` publishes PDF files (brosur, blank forms) on the PPDB landing page. Staff
+manage them under `admissions/downloads` with `admission-downloads.read|create|update|delete`; visitors
+use two public routes, `GET admissions/downloads/active` and `GET admissions/downloads/:id/file`. The
+bytes live in the S3 bucket under `admission-downloads/<uuid>.pdf` and are streamed through the
+service (no signed URL), cached for five minutes by `Cache-Control: public`. Only PDFs up to
+`MAX_UPLOAD_BYTES` (5 MB) are accepted and the `%PDF-` header is checked, not the extension or the
+declared type. A replacement uploads under a new key and deletes the old object after the row
+points at the new one; an object that cannot be deleted is logged and left behind.
+
 ## Commands
 
 ```bash

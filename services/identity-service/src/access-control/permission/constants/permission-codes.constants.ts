@@ -245,6 +245,32 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
     description: 'Update and reorder the document types applicants upload',
   },
   {
+    module: 'admission-downloads',
+    action: 'create',
+    code: 'admission-downloads.create',
+    description: 'Add the files visitors download from the PPDB landing page',
+  },
+  {
+    module: 'admission-downloads',
+    action: 'delete',
+    code: 'admission-downloads.delete',
+    description:
+      'Delete the files visitors download from the PPDB landing page',
+  },
+  {
+    module: 'admission-downloads',
+    action: 'read',
+    code: 'admission-downloads.read',
+    description: 'Read the files visitors download from the PPDB landing page',
+  },
+  {
+    module: 'admission-downloads',
+    action: 'update',
+    code: 'admission-downloads.update',
+    description:
+      'Update, replace and reorder the files visitors download from the PPDB landing page',
+  },
+  {
     module: 'admission-documents',
     action: 'read',
     code: 'admission-documents.read',
