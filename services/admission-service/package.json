@@ -5,7 +5,11 @@
   "author": "mhrmnvl",
   "private": true,
   "license": "UNLICENSED",
-  "files": ["dist", "prisma", "prisma.config.ts"],
+  "files": [
+    "dist",
+    "prisma",
+    "prisma.config.ts"
+  ],
   "engines": {
     "node": ">=24.21.0 <25",
     "pnpm": ">=11.25.0 <12"
@@ -64,6 +68,7 @@
     "prisma": "7.10.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "sharp": "^0.35.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {
