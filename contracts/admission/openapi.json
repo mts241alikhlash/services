@@ -3223,6 +3223,367 @@
         ]
       }
     },
+    "/admissions/downloads": {
+      "get": {
+        "operationId": "AdmissionDownloadController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionDownloadResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List every download file, inactive included",
+        "tags": [
+          "Admission — Downloads"
+        ]
+      },
+      "post": {
+        "operationId": "AdmissionDownloadController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDownloadResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Berkas harus PDF dan maksimal 5 MB"
+          },
+          "409": {
+            "description": "Judul berkas sudah ada"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add a PDF at the end of the list",
+        "tags": [
+          "Admission — Downloads"
+        ]
+      }
+    },
+    "/admissions/downloads/order": {
+      "put": {
+        "operationId": "AdmissionDownloadController_reorder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderAdmissionDownloadsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionDownloadResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Urutan berkas tidak lengkap"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reorder every download file",
+        "tags": [
+          "Admission — Downloads"
+        ]
+      }
+    },
+    "/admissions/downloads/{id}": {
+      "patch": {
+        "operationId": "AdmissionDownloadController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionDownloadResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Berkas harus PDF dan maksimal 5 MB"
+          },
+          "404": {
+            "description": "Berkas tidak ditemukan"
+          },
+          "409": {
+            "description": "Judul berkas sudah ada"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Rename, describe, (de)activate or replace the PDF",
+        "tags": [
+          "Admission — Downloads"
+        ]
+      },
+      "delete": {
+        "operationId": "AdmissionDownloadController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
+            "description": "Berkas tidak ditemukan"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a download file and its stored PDF",
+        "tags": [
+          "Admission — Downloads"
+        ]
+      }
+    },
+    "/admissions/downloads/active": {
+      "get": {
+        "operationId": "AdmissionDownloadPublicController_findActive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionActiveDownloadResponseDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Active download files (landing page)",
+        "tags": [
+          "Admission — Public"
+        ]
+      }
+    },
+    "/admissions/downloads/{id}/file": {
+      "get": {
+        "operationId": "AdmissionDownloadPublicController_file",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The PDF bytes as an attachment",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Berkas tidak ditemukan"
+          }
+        },
+        "summary": "Download the PDF of an active file",
+        "tags": [
+          "Admission — Public"
+        ]
+      }
+    },
     "/admissions/document-reviews": {
       "get": {
         "operationId": "AdmissionDocumentReviewController_findAll",
@@ -13001,6 +13362,124 @@
             "type": "boolean"
           }
         }
+      },
+      "AdmissionDownloadResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "sizeBytes": {
+            "type": "number"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "fileName",
+          "sizeBytes",
+          "sortOrder",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AdmissionDownloadListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionDownloadResponseDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ReorderAdmissionDownloadsDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "AdmissionActiveDownloadResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "sizeBytes": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "fileName",
+          "sizeBytes"
+        ]
+      },
+      "AdmissionActiveDownloadListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionActiveDownloadResponseDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
       },
       "AdmissionDocumentReviewSummaryDto": {
         "type": "object",

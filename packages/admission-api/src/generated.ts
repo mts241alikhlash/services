@@ -519,6 +519,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admissions/downloads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List every download file, inactive included */
+        get: operations["AdmissionDownloadController_findAll"];
+        put?: never;
+        /** Add a PDF at the end of the list */
+        post: operations["AdmissionDownloadController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/downloads/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a download file and its stored PDF */
+        delete: operations["AdmissionDownloadController_remove"];
+        options?: never;
+        head?: never;
+        /** Rename, describe, (de)activate or replace the PDF */
+        patch: operations["AdmissionDownloadController_update"];
+        trace?: never;
+    };
+    "/admissions/downloads/{id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the PDF of an active file */
+        get: operations["AdmissionDownloadPublicController_file"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/downloads/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Active download files (landing page) */
+        get: operations["AdmissionDownloadPublicController_findActive"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/downloads/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reorder every download file */
+        put: operations["AdmissionDownloadController_reorder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admissions/enrolments": {
         parameters: {
             query?: never;
@@ -1301,6 +1388,16 @@ export interface components {
             startDate: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        AdmissionActiveDownloadListResponseDto: {
+            data: components["schemas"]["AdmissionActiveDownloadResponseDto"][];
+        };
+        AdmissionActiveDownloadResponseDto: {
+            description: string | null;
+            fileName: string;
+            id: string;
+            sizeBytes: number;
+            title: string;
         };
         AdmissionActiveWavesResponseDocumentTypesDto: {
             code: string;
@@ -2375,6 +2472,22 @@ export interface components {
             name: string;
             sortOrder: number;
         };
+        AdmissionDownloadListResponseDto: {
+            data: components["schemas"]["AdmissionDownloadResponseDto"][];
+        };
+        AdmissionDownloadResponseDto: {
+            /** Format: date-time */
+            createdAt: string;
+            description: string | null;
+            fileName: string;
+            id: string;
+            isActive: boolean;
+            sizeBytes: number;
+            sortOrder: number;
+            title: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         AdmissionEligibleApplicationListResponseDto: {
             data: components["schemas"]["AdmissionEligibleApplicationResponseDto"][];
         };
@@ -3359,6 +3472,9 @@ export interface components {
             reason: string;
         };
         ReorderAdmissionDocumentTypesDto: {
+            ids: string[];
+        };
+        ReorderAdmissionDownloadsDto: {
             ids: string[];
         };
         RequestRevisionDto: {
@@ -4707,6 +4823,254 @@ export interface operations {
                 };
             };
             /** @description Urutan jenis berkas tidak lengkap */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDownloadController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDownloadResponseDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDownloadController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    description?: string;
+                    /** Format: binary */
+                    file?: string;
+                    isActive?: boolean;
+                    title?: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDownloadResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Berkas harus PDF dan maksimal 5 MB */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Judul berkas sudah ada */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDownloadController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berkas tidak ditemukan */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDownloadController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    description?: string;
+                    /** Format: binary */
+                    file?: string;
+                    isActive?: boolean;
+                    title?: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDownloadResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Berkas harus PDF dan maksimal 5 MB */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Berkas tidak ditemukan */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Judul berkas sudah ada */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDownloadPublicController_file: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The PDF bytes as an attachment */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+            /** @description Berkas tidak ditemukan */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionDownloadPublicController_findActive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionActiveDownloadResponseDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionDownloadController_reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderAdmissionDownloadsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionDownloadResponseDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Urutan berkas tidak lengkap */
             400: {
                 headers: {
                     [name: string]: unknown;
