@@ -165,6 +165,22 @@ describe('default roles', () => {
     }
   })
 
+  it('lets admission staff read the landing settings and admins edit and publish them', () => {
+    expect(codesOf('STUDENT_AFFAIRS_STAFF')).toContain('admission-landing.read')
+    for (const action of ['update', 'publish']) {
+      expect(codesOf('STUDENT_AFFAIRS_STAFF')).not.toContain(
+        `admission-landing.${action}`,
+      )
+      expect(codesOf('TREASURER')).not.toContain(`admission-landing.${action}`)
+    }
+    for (const action of ['read', 'update', 'publish']) {
+      expect(codesOf('OPERATOR')).toContain(`admission-landing.${action}`)
+      expect(codesOf('ADMISSION_ADMIN')).toContain(
+        `admission-landing.${action}`,
+      )
+    }
+  })
+
   it('lets only the three leaders decide admissions, and staff read the queue', () => {
     for (const leader of [
       'PRINCIPAL',

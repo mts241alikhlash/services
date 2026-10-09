@@ -271,6 +271,24 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
       'Update, replace and reorder the files visitors download from the PPDB landing page',
   },
   {
+    module: 'admission-landing',
+    action: 'publish',
+    code: 'admission-landing.publish',
+    description: 'Publish the PPDB landing page content',
+  },
+  {
+    module: 'admission-landing',
+    action: 'read',
+    code: 'admission-landing.read',
+    description: 'Read the PPDB landing page settings and drafts',
+  },
+  {
+    module: 'admission-landing',
+    action: 'update',
+    code: 'admission-landing.update',
+    description: 'Edit the PPDB landing page drafts and upload its images',
+  },
+  {
     module: 'admission-documents',
     action: 'read',
     code: 'admission-documents.read',
