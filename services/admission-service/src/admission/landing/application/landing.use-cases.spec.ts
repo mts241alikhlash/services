@@ -127,7 +127,7 @@ function seedImage(repo: FakeRepository, id: string, ageMs: number) {
 function setup() {
   const repo = new FakeRepository()
   const store = storage()
-  const gc = new LandingImageGarbageCollector(repo as never, store as never)
+  const gc = new LandingImageGarbageCollector(repo, store)
   return { repo, store, gc }
 }
 
@@ -141,7 +141,7 @@ describe('GetLandingUseCase', () => {
       publishedAt: null,
     })
 
-    const published = await new GetLandingUseCase(repo as never).published()
+    const published = await new GetLandingUseCase(repo).published()
 
     expect(published.closing).toEqual(closing())
     expect(published.hero).toBeNull()
@@ -165,7 +165,7 @@ describe('GetLandingUseCase', () => {
       publishedAt: null,
     })
 
-    const overview = await new GetLandingUseCase(repo as never).draft()
+    const overview = await new GetLandingUseCase(repo).draft()
 
     expect((overview.sections.closing as { title: string }).title).toBe('Baru')
     expect(overview.hasUnpublishedChanges).toBe(true)
@@ -175,10 +175,11 @@ describe('GetLandingUseCase', () => {
 describe('SaveLandingSectionUseCase', () => {
   it('saves a valid draft, leaves published alone and returns the overview', async () => {
     const { repo, gc } = setup()
-    const overview = await new SaveLandingSectionUseCase(
-      repo as never,
-      gc,
-    ).execute('closing', closing(), USER)
+    const overview = await new SaveLandingSectionUseCase(repo, gc).execute(
+      'closing',
+      closing(),
+      USER,
+    )
 
     expect(repo.sections.get('closing')?.draft).toEqual(closing())
     expect(repo.sections.get('closing')?.published).toBeNull()
@@ -187,7 +188,7 @@ describe('SaveLandingSectionUseCase', () => {
 
   it('refuses an unknown section and a broken document, saving nothing', async () => {
     const { repo, gc } = setup()
-    const useCase = new SaveLandingSectionUseCase(repo as never, gc)
+    const useCase = new SaveLandingSectionUseCase(repo, gc)
 
     await expect(useCase.execute('footer', {}, USER)).rejects.toBeInstanceOf(
       BadRequestException,
@@ -213,7 +214,7 @@ describe('SaveLandingSectionUseCase', () => {
   it('accepts a draft that points at an uploaded image', async () => {
     const { repo, gc } = setup()
     seedImage(repo, IMG_A, 1000)
-    await new SaveLandingSectionUseCase(repo as never, gc).execute(
+    await new SaveLandingSectionUseCase(repo, gc).execute(
       'closing',
       closing(IMG_A),
       USER,
@@ -242,11 +243,7 @@ describe('UploadLandingImageUseCase', () => {
       repo,
       store,
       processor,
-      useCase: new UploadLandingImageUseCase(
-        repo as never,
-        processor as never,
-        store as never,
-      ),
+      useCase: new UploadLandingImageUseCase(repo, processor, store),
     }
   }
 
@@ -331,9 +328,7 @@ describe('PublishLandingUseCase and DiscardLandingUseCase', () => {
       publishedAt: null,
     })
 
-    const overview = await new PublishLandingUseCase(repo as never, gc).execute(
-      USER,
-    )
+    const overview = await new PublishLandingUseCase(repo, gc).execute(USER)
 
     expect(repo.sections.get('closing')?.published).toEqual(closing())
     expect(repo.sections.get('faq')?.published).toEqual({ title: 'x' })
@@ -360,10 +355,7 @@ describe('PublishLandingUseCase and DiscardLandingUseCase', () => {
       publishedAt: null,
     })
 
-    const overview = await new DiscardLandingUseCase(
-      repo as never,
-      gc,
-    ).execute()
+    const overview = await new DiscardLandingUseCase(repo, gc).execute()
 
     expect(repo.sections.get('closing')?.published).toEqual(closing())
     expect(repo.sections.get('closing')?.draft).toBeNull()
@@ -437,10 +429,7 @@ describe('GetLandingImageUseCase', () => {
     const { repo } = setup()
     seedImage(repo, IMG_A, 1000)
     const store = storage()
-    const result = await new GetLandingImageUseCase(
-      repo as never,
-      store as never,
-    ).execute(IMG_A)
+    const result = await new GetLandingImageUseCase(repo, store).execute(IMG_A)
     expect(store.read).toHaveBeenCalledWith(`admission-landing/${IMG_A}.webp`)
     expect(result.image.id).toBe(IMG_A)
     expect(result.stream).toBeInstanceOf(Readable)

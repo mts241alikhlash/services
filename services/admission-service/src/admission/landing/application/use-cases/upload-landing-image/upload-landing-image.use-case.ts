@@ -26,10 +26,7 @@ export class UploadLandingImageUseCase {
   async execute(input: UploadLandingImageInput): Promise<LandingImageEntity> {
     const buffer = input.file?.buffer
     assertLandingImage(buffer)
-    const processed = await this.processor.process(
-      buffer as Buffer,
-      input.purpose,
-    )
+    const processed = await this.processor.process(buffer!, input.purpose)
     const fileKey = `admission-landing/${randomUUID()}.webp`
     await this.storage.put(fileKey, processed.content)
     try {
