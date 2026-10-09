@@ -23,15 +23,18 @@ export class LandingImageGarbageCollector {
     ])
     const unused = findUnusedImages(images, documents, now)
     if (unused.length === 0) return
-    const removed = await this.repository.deleteImages(unused)
-    for (const image of removed) {
+    const removable = images.filter((image) => unused.includes(image.id))
+    const gone: string[] = []
+    for (const image of removable) {
       try {
         await this.storage.remove(image.fileKey)
+        gone.push(image.id)
       } catch (error) {
         this.logger.warn(
           `Could not remove ${image.fileKey}: ${error instanceof Error ? error.message : String(error)}`,
         )
       }
     }
+    if (gone.length > 0) await this.repository.deleteImages(gone)
   }
 }

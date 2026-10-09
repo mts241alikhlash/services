@@ -8,6 +8,9 @@ export interface LandingSectionRecord {
   published: unknown
   draft: unknown
   publishedAt: Date | null
+  publishedById: string | null
+  draftUpdatedAt: Date | null
+  draftUpdatedById: string | null
 }
 
 export interface LandingImageEntity {
@@ -17,6 +20,7 @@ export interface LandingImageEntity {
   height: number
   sizeBytes: number
   createdAt: Date
+  createdById: string
 }
 
 export interface LandingOverview {

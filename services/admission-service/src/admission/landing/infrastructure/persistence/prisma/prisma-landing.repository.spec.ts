@@ -7,10 +7,18 @@ function makePrisma() {
   const tx = {
     admissionLandingSection: {
       findMany: jest.fn().mockResolvedValue([
-        { key: 'closing', draft: { a: 1 } },
-        { key: 'faq', draft: { b: 2 } },
+        {
+          key: 'closing',
+          draft: { a: 1 },
+          draftUpdatedAt: new Date('2026-10-09T01:00:00Z'),
+        },
+        {
+          key: 'faq',
+          draft: { b: 2 },
+          draftUpdatedAt: new Date('2026-10-09T02:00:00Z'),
+        },
       ]),
-      update: jest.fn().mockResolvedValue({}),
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
     },
   }
   return {
@@ -76,18 +84,33 @@ describe('PrismaLandingRepository', () => {
     expect(prisma.tx.admissionLandingSection.findMany).toHaveBeenCalledWith({
       where: { NOT: { draft: { equals: Prisma.DbNull } } },
     })
-    expect(prisma.tx.admissionLandingSection.update).toHaveBeenNthCalledWith(
-      1,
-      {
-        where: { key: 'closing' },
-        data: {
-          published: { a: 1 },
-          draft: Prisma.DbNull,
-          publishedAt: expect.any(Date),
-          publishedById: USER,
-        },
+    expect(
+      prisma.tx.admissionLandingSection.updateMany,
+    ).toHaveBeenNthCalledWith(1, {
+      where: {
+        key: 'closing',
+        draftUpdatedAt: new Date('2026-10-09T01:00:00Z'),
       },
+      data: {
+        published: { a: 1 },
+        draft: Prisma.DbNull,
+        publishedAt: expect.any(Date),
+        publishedById: USER,
+      },
+    })
+  })
+
+  it('leaves a draft that was saved while publishing and counts only what it published', async () => {
+    const prisma = makePrisma()
+    prisma.tx.admissionLandingSection.updateMany
+      .mockResolvedValueOnce({ count: 0 })
+      .mockResolvedValueOnce({ count: 1 })
+
+    const count = await new PrismaLandingRepository(prisma as never).publishAll(
+      USER,
     )
+
+    expect(count).toBe(1)
   })
 
   it('clears every draft on discard', async () => {
