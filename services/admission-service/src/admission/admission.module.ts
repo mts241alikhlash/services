@@ -16,6 +16,7 @@ import { PaymentModule } from './payment/index.js'
 import { NotificationModule } from './notification/index.js'
 import { BankAccountModule } from './bank-account/index.js'
 import { DocumentTypeModule } from './document-type/index.js'
+import { DownloadModule } from './download/index.js'
 import { DecisionModule } from './decision/index.js'
 import { EnrolmentModule } from './enrolment/index.js'
 import { DocumentReviewModule } from './document-review/index.js'
@@ -34,6 +35,7 @@ import { FileModule } from './file/index.js'
     NotificationModule,
     BankAccountModule,
     DocumentTypeModule,
+    DownloadModule,
     DocumentReviewModule,
     DecisionModule,
     EnrolmentModule,
