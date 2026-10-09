@@ -10,12 +10,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
-
-const toBoolean = ({ value }: { value: unknown }) => {
-  if (value === 'true' || value === true) return true
-  if (value === 'false' || value === false) return false
-  return value
-}
+import { toBooleanFromTransform } from '../../../../../../shared/validators/boolean.transformer.js'
 
 export class CreateAdmissionDownloadDto {
   @ApiProperty({ example: 'Brosur PPDB 2026/2027' })
@@ -32,7 +27,7 @@ export class CreateAdmissionDownloadDto {
 
   @ApiPropertyOptional({ type: Boolean })
   @IsOptional()
-  @Transform(toBoolean)
+  @Transform(toBooleanFromTransform)
   @IsBoolean()
   isActive?: boolean
 }
@@ -53,7 +48,7 @@ export class UpdateAdmissionDownloadDto {
 
   @ApiPropertyOptional({ type: Boolean })
   @IsOptional()
-  @Transform(toBoolean)
+  @Transform(toBooleanFromTransform)
   @IsBoolean()
   isActive?: boolean
 }
