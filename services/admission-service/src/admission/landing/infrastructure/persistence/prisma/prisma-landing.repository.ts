@@ -48,9 +48,10 @@ export class PrismaLandingRepository extends ILandingRepository {
         where: { NOT: { draft: { equals: Prisma.DbNull } } },
       })
       const publishedAt = new Date()
+      let published = 0
       for (const row of rows) {
-        await tx.admissionLandingSection.update({
-          where: { key: row.key },
+        const result = await tx.admissionLandingSection.updateMany({
+          where: { key: row.key, draftUpdatedAt: row.draftUpdatedAt },
           data: {
             published: row.draft as Prisma.InputJsonValue,
             draft: Prisma.DbNull,
@@ -58,8 +59,9 @@ export class PrismaLandingRepository extends ILandingRepository {
             publishedById: userId,
           },
         })
+        published += result.count
       }
-      return rows.length
+      return published
     })
   }
 

@@ -32,13 +32,25 @@ const closing = (imageId?: string) => ({
   },
 })
 
+type SpecSection = Pick<
+  LandingSectionRecord,
+  'key' | 'published' | 'draft' | 'publishedAt'
+>
+
 class FakeRepository {
-  sections = new Map<string, LandingSectionRecord & { draft: unknown }>()
+  sections = new Map<string, SpecSection>()
   images = new Map<string, LandingImageEntity>()
   private counter = 0
 
   findAllSections() {
-    return Promise.resolve([...this.sections.values()])
+    return Promise.resolve(
+      [...this.sections.values()].map((record) => ({
+        publishedById: null,
+        draftUpdatedAt: null,
+        draftUpdatedById: null,
+        ...record,
+      })),
+    )
   }
 
   saveDraft(key: string, document: unknown) {
@@ -92,6 +104,7 @@ class FakeRepository {
     const image = {
       id: `00000000-0000-4000-8000-00000000000${this.counter}`,
       createdAt: new Date(),
+      createdById: USER,
       ...input,
     }
     this.images.set(image.id, image)
@@ -121,6 +134,7 @@ function seedImage(repo: FakeRepository, id: string, ageMs: number) {
     height: 10,
     sizeBytes: 5,
     createdAt: new Date(Date.now() - ageMs),
+    createdById: USER,
   })
 }
 
@@ -407,12 +421,39 @@ describe('LandingImageGarbageCollector', () => {
     expect(repo.images.has(IMG_A)).toBe(true)
   })
 
-  it('does not fail when an object cannot be removed', async () => {
+  it('keeps the row for the next check when its object cannot be removed', async () => {
     const { repo, store, gc } = setup()
     seedImage(repo, IMG_A, 2 * DAY)
-    store.remove.mockRejectedValue(new Error('s3 down'))
+    seedImage(repo, IMG_B, 2 * DAY)
+    store.remove.mockImplementation((key: string) =>
+      key.includes(IMG_A)
+        ? Promise.reject(new Error('s3 down'))
+        : Promise.resolve(),
+    )
+
     await expect(gc.run()).resolves.toBeUndefined()
-    expect(repo.images.has(IMG_A)).toBe(false)
+
+    expect(repo.images.has(IMG_A)).toBe(true)
+    expect(repo.images.has(IMG_B)).toBe(false)
+  })
+
+  it('removes the object before the row, so a failed row delete never orphans an object', async () => {
+    const { repo, store, gc } = setup()
+    seedImage(repo, IMG_A, 2 * DAY)
+    const order: string[] = []
+    store.remove.mockImplementation(() => {
+      order.push('object')
+      return Promise.resolve()
+    })
+    const original = repo.deleteImages.bind(repo)
+    repo.deleteImages = (ids: string[]) => {
+      order.push('row')
+      return original(ids)
+    }
+
+    await gc.run()
+
+    expect(order).toEqual(['object', 'row'])
   })
 
   it('does nothing when nothing is unused', async () => {
