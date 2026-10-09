@@ -1,5 +1,11 @@
 # identity-service
 
+## 1.9.0
+
+### Minor Changes
+
+- 1c0084a: Adds the permissions `admission-downloads.read`, `.create`, `.update` and `.delete` for the PPDB download files. Admin PPDB and Operator receive all four, TU Kesantrian receives `read`. Roles edited by hand need the codes in admin-web.
+
 ## 1.8.0
 
 ### Minor Changes
