@@ -346,3 +346,18 @@ model AdmissionNisLock {
 
   @@map("admission_nis_locks")
 }
+
+model AdmissionDownload {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String   @db.VarChar(100)
+  description String?  @db.VarChar(255)
+  fileKey     String   @map("file_key") @db.VarChar(255)
+  fileName    String   @map("file_name") @db.VarChar(255)
+  sizeBytes   Int      @map("size_bytes")
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("admission_downloads")
+}
