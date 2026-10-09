@@ -3584,6 +3584,333 @@
         ]
       }
     },
+    "/admissions/landing/draft": {
+      "get": {
+        "operationId": "AdmissionLandingController_draft",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionLandingDraftResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The landing content as staff see it: draft over published",
+        "tags": [
+          "Admission — Landing"
+        ]
+      }
+    },
+    "/admissions/landing/sections/{key}": {
+      "put": {
+        "operationId": "AdmissionLandingController_saveSection",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "hero",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveAdmissionLandingSectionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionLandingDraftResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Isi tidak valid"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Save the draft of one section",
+        "tags": [
+          "Admission — Landing"
+        ]
+      }
+    },
+    "/admissions/landing/images": {
+      "post": {
+        "operationId": "AdmissionLandingController_uploadImage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "purpose"
+                ],
+                "properties": {
+                  "purpose": {
+                    "type": "string",
+                    "enum": [
+                      "poster",
+                      "photo"
+                    ]
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionLandingImageResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Berkas harus gambar JPG, PNG, atau WebP dan maksimal 5 MB"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload an image; it is converted to WebP",
+        "tags": [
+          "Admission — Landing"
+        ]
+      }
+    },
+    "/admissions/landing/publish": {
+      "post": {
+        "operationId": "AdmissionLandingController_publish",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionLandingDraftResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Tidak ada perubahan untuk diterbitkan"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publish every draft at once",
+        "tags": [
+          "Admission — Landing"
+        ]
+      }
+    },
+    "/admissions/landing/discard": {
+      "post": {
+        "operationId": "AdmissionLandingController_discard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionLandingDraftResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Discard every draft",
+        "tags": [
+          "Admission — Landing"
+        ]
+      }
+    },
+    "/admissions/landing": {
+      "get": {
+        "operationId": "AdmissionLandingPublicController_published",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionLandingPublishedResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Published landing page content (null = built-in content)",
+        "tags": [
+          "Admission — Public"
+        ]
+      }
+    },
+    "/admissions/landing/images/{id}": {
+      "get": {
+        "operationId": "AdmissionLandingPublicController_image",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The WebP bytes",
+            "content": {
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Gambar tidak ditemukan"
+          }
+        },
+        "summary": "A landing image as WebP",
+        "tags": [
+          "Admission — Public"
+        ]
+      }
+    },
     "/admissions/document-reviews": {
       "get": {
         "operationId": "AdmissionDocumentReviewController_findAll",
@@ -13479,6 +13806,161 @@
         },
         "required": [
           "data"
+        ]
+      },
+      "AdmissionLandingDraftSectionsDto": {
+        "type": "object",
+        "properties": {
+          "hero": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "life": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "info": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "steps": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "faq": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "stories": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "closing": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          }
+        },
+        "required": [
+          "hero",
+          "life",
+          "info",
+          "steps",
+          "faq",
+          "stories",
+          "closing"
+        ]
+      },
+      "AdmissionLandingDraftResponseDto": {
+        "type": "object",
+        "properties": {
+          "sections": {
+            "$ref": "#/components/schemas/AdmissionLandingDraftSectionsDto"
+          },
+          "hasUnpublishedChanges": {
+            "type": "boolean"
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "sections",
+          "hasUnpublishedChanges",
+          "publishedAt"
+        ]
+      },
+      "SaveAdmissionLandingSectionDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The section document; its fields are checked per section"
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "AdmissionLandingImageResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "sizeBytes": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "width",
+          "height",
+          "sizeBytes"
+        ]
+      },
+      "AdmissionLandingPublishedResponseDto": {
+        "type": "object",
+        "properties": {
+          "hero": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "life": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "info": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "steps": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "faq": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "stories": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "closing": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          }
+        },
+        "required": [
+          "hero",
+          "life",
+          "info",
+          "steps",
+          "faq",
+          "stories",
+          "closing"
         ]
       },
       "AdmissionDocumentReviewSummaryDto": {

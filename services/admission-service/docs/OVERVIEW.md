@@ -281,6 +281,18 @@ service (no signed URL), cached for five minutes by `Cache-Control: public`. Onl
 declared type. A replacement uploads under a new key and deletes the old object after the row
 points at the new one; an object that cannot be deleted is logged and left behind.
 
+## Landing content
+
+`src/admission/landing/` stores the landing page content: one row per section (`hero`, `life`, `info`,
+`steps`, `faq`, `stories`, `closing`) with a `published` and a `draft` JSON document, validated by the
+zod schemas in `domain/policies/landing-content.schema.ts`. Staff save drafts per section and publish
+every draft in one transaction; the public `GET admissions/landing` returns only published documents
+(null means the web uses its built-in content). Uploaded images go through `sharp` (EXIF rotation,
+fit inside 1080 × 1920 for posters or 1600 × 1600 for photos, WebP quality 82, metadata dropped, 40
+megapixel input cap) and are streamed publicly by id. An image is deleted when no published or draft
+document references it and it is older than a day. Documents are typed loosely in the OpenAPI
+contract; the web keeps its own types.
+
 ## Commands
 
 ```bash

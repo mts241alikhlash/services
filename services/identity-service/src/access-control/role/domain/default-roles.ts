@@ -298,6 +298,7 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         'admission-bank-accounts.read',
         'admission-document-types.read',
         'admission-downloads.read',
+        'admission-landing.read',
         'admission-payments.read',
       ],
     },

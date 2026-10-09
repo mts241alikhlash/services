@@ -8,6 +8,7 @@ const NEW_CODES = SYSTEM_PERMISSIONS.map((p) => p.code).filter(
     code.startsWith('admission-documents.') ||
     code.startsWith('admission-decisions.') ||
     code.startsWith('admission-downloads.') ||
+    code.startsWith('admission-landing.') ||
     code.startsWith('admission-enrolments.'),
 )
 
@@ -91,6 +92,24 @@ describe('syncPermissions grants brand-new codes to existing default roles', () 
     )
     expect(grantedTo('admission-downloads.read')).not.toContain('TREASURER')
     expect(grantedTo('admission-downloads.delete')).not.toContain(
+      'STUDENT_AFFAIRS_STAFF',
+    )
+  })
+
+  it('gives the landing codes to admins, operators and read to staff', async () => {
+    const { prisma, grantedTo } = fakePrisma(before, allRoles)
+    await syncPermissions(prisma as never)
+
+    expect(grantedTo('admission-landing.read')).toEqual(
+      expect.arrayContaining([
+        'ADMISSION_ADMIN',
+        'OPERATOR',
+        'STUDENT_AFFAIRS_STAFF',
+        'SUPER_ADMIN',
+      ]),
+    )
+    expect(grantedTo('admission-landing.read')).not.toContain('TREASURER')
+    expect(grantedTo('admission-landing.publish')).not.toContain(
       'STUDENT_AFFAIRS_STAFF',
     )
   })

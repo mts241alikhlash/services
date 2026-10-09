@@ -759,6 +759,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admissions/landing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Published landing page content (null = built-in content) */
+        get: operations["AdmissionLandingPublicController_published"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/landing/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Discard every draft */
+        post: operations["AdmissionLandingController_discard"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/landing/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The landing content as staff see it: draft over published */
+        get: operations["AdmissionLandingController_draft"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/landing/images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload an image; it is converted to WebP */
+        post: operations["AdmissionLandingController_uploadImage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/landing/images/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A landing image as WebP */
+        get: operations["AdmissionLandingPublicController_image"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/landing/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish every draft at once */
+        post: operations["AdmissionLandingController_publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/landing/sections/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save the draft of one section */
+        put: operations["AdmissionLandingController_saveSection"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admissions/manage-announcements": {
         parameters: {
             query?: never;
@@ -2814,6 +2933,64 @@ export interface components {
             level: number;
             name: string | null;
         };
+        AdmissionLandingDraftResponseDto: {
+            hasUnpublishedChanges: boolean;
+            /** Format: date-time */
+            publishedAt: string | null;
+            sections: components["schemas"]["AdmissionLandingDraftSectionsDto"];
+        };
+        AdmissionLandingDraftSectionsDto: {
+            closing: {
+                [key: string]: unknown;
+            } | null;
+            faq: {
+                [key: string]: unknown;
+            } | null;
+            hero: {
+                [key: string]: unknown;
+            } | null;
+            info: {
+                [key: string]: unknown;
+            } | null;
+            life: {
+                [key: string]: unknown;
+            } | null;
+            steps: {
+                [key: string]: unknown;
+            } | null;
+            stories: {
+                [key: string]: unknown;
+            } | null;
+        };
+        AdmissionLandingImageResponseDto: {
+            height: number;
+            id: string;
+            sizeBytes: number;
+            width: number;
+        };
+        AdmissionLandingPublishedResponseDto: {
+            closing: {
+                [key: string]: unknown;
+            } | null;
+            faq: {
+                [key: string]: unknown;
+            } | null;
+            hero: {
+                [key: string]: unknown;
+            } | null;
+            info: {
+                [key: string]: unknown;
+            } | null;
+            life: {
+                [key: string]: unknown;
+            } | null;
+            steps: {
+                [key: string]: unknown;
+            } | null;
+            stories: {
+                [key: string]: unknown;
+            } | null;
+        };
         AdmissionNisComposeResponseDto: {
             academicYearId: string;
             changed: number;
@@ -3480,6 +3657,12 @@ export interface components {
         RequestRevisionDto: {
             /** @description Revision note shown to the applicant */
             note: string;
+        };
+        SaveAdmissionLandingSectionDto: {
+            /** @description The section document; its fields are checked per section */
+            content: {
+                [key: string]: unknown;
+            };
         };
         SaveDocumentDecisionDto: {
             /** @description Required when the decision is REJECTED */
@@ -5343,6 +5526,221 @@ export interface operations {
                         statusCode?: number;
                     };
                 };
+            };
+        };
+    };
+    AdmissionLandingPublicController_published: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionLandingPublishedResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionLandingController_discard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionLandingDraftResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionLandingController_draft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionLandingDraftResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionLandingController_uploadImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    /** @enum {string} */
+                    purpose: "poster" | "photo";
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionLandingImageResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Berkas harus gambar JPG, PNG, atau WebP dan maksimal 5 MB */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionLandingPublicController_image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The WebP bytes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/webp": string;
+                };
+            };
+            /** @description Gambar tidak ditemukan */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionLandingController_publish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionLandingDraftResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Tidak ada perubahan untuk diterbitkan */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionLandingController_saveSection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveAdmissionLandingSectionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionLandingDraftResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Isi tidak valid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
