@@ -145,6 +145,26 @@ describe('default roles', () => {
     }
   })
 
+  it('lets admission staff read downloads and admins manage them', () => {
+    expect(codesOf('STUDENT_AFFAIRS_STAFF')).toContain(
+      'admission-downloads.read',
+    )
+    for (const action of ['create', 'update', 'delete']) {
+      expect(codesOf('STUDENT_AFFAIRS_STAFF')).not.toContain(
+        `admission-downloads.${action}`,
+      )
+      expect(codesOf('TREASURER')).not.toContain(
+        `admission-downloads.${action}`,
+      )
+    }
+    for (const action of ['read', 'create', 'update', 'delete']) {
+      expect(codesOf('OPERATOR')).toContain(`admission-downloads.${action}`)
+      expect(codesOf('ADMISSION_ADMIN')).toContain(
+        `admission-downloads.${action}`,
+      )
+    }
+  })
+
   it('lets only the three leaders decide admissions, and staff read the queue', () => {
     for (const leader of [
       'PRINCIPAL',

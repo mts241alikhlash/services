@@ -7,6 +7,7 @@ const NEW_CODES = SYSTEM_PERMISSIONS.map((p) => p.code).filter(
     code.startsWith('admission-document-types.') ||
     code.startsWith('admission-documents.') ||
     code.startsWith('admission-decisions.') ||
+    code.startsWith('admission-downloads.') ||
     code.startsWith('admission-enrolments.'),
 )
 
@@ -75,6 +76,24 @@ describe('syncPermissions grants brand-new codes to existing default roles', () 
   const catalogue = SYSTEM_PERMISSIONS.map((p) => p.code)
   const allRoles = DEFAULT_ROLES.map((r) => r.code)
   const before = catalogue.filter((code) => !NEW_CODES.includes(code))
+
+  it('gives the download codes to admins, operators and read to staff', async () => {
+    const { prisma, grantedTo } = fakePrisma(before, allRoles)
+    await syncPermissions(prisma as never)
+
+    expect(grantedTo('admission-downloads.read')).toEqual(
+      expect.arrayContaining([
+        'ADMISSION_ADMIN',
+        'OPERATOR',
+        'STUDENT_AFFAIRS_STAFF',
+        'SUPER_ADMIN',
+      ]),
+    )
+    expect(grantedTo('admission-downloads.read')).not.toContain('TREASURER')
+    expect(grantedTo('admission-downloads.delete')).not.toContain(
+      'STUDENT_AFFAIRS_STAFF',
+    )
+  })
 
   it('gives a new code to the default roles that define it', async () => {
     const { prisma, grantedTo } = fakePrisma(before, allRoles)
