@@ -31,15 +31,33 @@ describe('UpdateAdmissionDocumentTypeDto', () => {
   })
 })
 
+describe('requirement fields', () => {
+  it.each(['REQUIRED', 'LATER', 'OPTIONAL'])(
+    'accepts %s',
+    async (requirement) => {
+      await expect(errorsFor({ requirement })).resolves.toEqual([])
+    },
+  )
+
+  it.each([
+    [{ requirement: 'SOMETIMES' }, 'requirement'],
+    [{ lateDueMonths: 0 }, 'lateDueMonths'],
+    [{ lateDueMonths: 13 }, 'lateDueMonths'],
+    [{ lateDueMonths: 1.5 }, 'lateDueMonths'],
+  ])('refuses %j', async (body, property) => {
+    await expect(errorsFor(body)).resolves.toContain(property)
+  })
+
+  it('accepts a null limit', async () => {
+    await expect(errorsFor({ lateDueMonths: null })).resolves.toEqual([])
+  })
+})
+
 describe('CreateAdmissionDocumentTypeDto', () => {
   it('requires every field', async () => {
     const errors = await validate(
       plainToInstance(CreateAdmissionDocumentTypeDto, {}),
     )
-    expect(errors.map((e) => e.property).sort()).toEqual([
-      'isActive',
-      'isRequired',
-      'name',
-    ])
+    expect(errors.map((e) => e.property).sort()).toEqual(['isActive', 'name'])
   })
 })

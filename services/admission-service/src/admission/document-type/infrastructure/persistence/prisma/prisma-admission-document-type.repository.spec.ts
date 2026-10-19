@@ -7,6 +7,8 @@ const row = {
   code: 'FAMILY_CARD',
   name: 'Kartu Keluarga',
   isRequired: true,
+  requirement: 'REQUIRED',
+  lateDueMonths: null,
   isActive: true,
   sortOrder: 1,
   _count: { documents: 3 },
@@ -53,6 +55,8 @@ describe('PrismaAdmissionDocumentTypeRepository', () => {
         code: 'FAMILY_CARD',
         name: 'Kartu Keluarga',
         isRequired: true,
+        requirement: 'REQUIRED',
+        lateDueMonths: null,
         isActive: true,
         sortOrder: 1,
         documentCount: 3,
@@ -115,7 +119,8 @@ describe('PrismaAdmissionDocumentTypeRepository', () => {
       repo.create({
         name: 'Photo',
         code: 'PHOTO_2',
-        isRequired: true,
+        requirement: 'REQUIRED',
+        lateDueMonths: null,
         isActive: true,
         sortOrder: 8,
       }),
@@ -139,5 +144,49 @@ describe('PrismaAdmissionDocumentTypeRepository', () => {
     const repo = new PrismaAdmissionDocumentTypeRepository(prisma as never)
 
     await expect(repo.delete('t1')).rejects.toBe(failure)
+  })
+
+  it.each([
+    ['REQUIRED', true],
+    ['LATER', false],
+    ['OPTIONAL', false],
+  ] as const)(
+    'writes isRequired in step with the requirement %s',
+    async (requirement, isRequired) => {
+      const prisma = makePrisma()
+      const repo = new PrismaAdmissionDocumentTypeRepository(prisma as never)
+
+      await repo.create({
+        name: 'Ijazah',
+        code: 'IJAZAH',
+        requirement,
+        lateDueMonths: requirement === 'LATER' ? 2 : null,
+        isActive: true,
+        sortOrder: 9,
+      })
+      await repo.update('t1', { requirement, lateDueMonths: null })
+
+      expect(prisma.admissionDocumentType.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ requirement, isRequired }),
+        }),
+      )
+      expect(prisma.admissionDocumentType.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ requirement, isRequired }),
+        }),
+      )
+    },
+  )
+
+  it('leaves isRequired alone when an update does not touch the requirement', async () => {
+    const prisma = makePrisma()
+    const repo = new PrismaAdmissionDocumentTypeRepository(prisma as never)
+
+    await repo.update('t1', { name: 'Kartu Keluarga 2' })
+
+    expect(prisma.admissionDocumentType.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { name: 'Kartu Keluarga 2' } }),
+    )
   })
 })

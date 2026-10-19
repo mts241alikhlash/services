@@ -3,22 +3,25 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common'
+import type { AdmissionDocumentTypeEntity } from '../../domain/entities/admission-document-type.entity.js'
 import { GetDocumentTypesUseCase } from './get-document-types/get-document-types.use-case.js'
 import { SaveDocumentTypeUseCase } from './save-document-type/save-document-type.use-case.js'
 import { ReorderDocumentTypesUseCase } from './reorder-document-types/reorder-document-types.use-case.js'
 import { DeleteDocumentTypeUseCase } from './delete-document-type/delete-document-type.use-case.js'
 
-const type = {
+const type: AdmissionDocumentTypeEntity = {
   id: 't1',
   code: 'FAMILY_CARD',
   name: 'Kartu Keluarga',
   isRequired: true,
+  requirement: 'REQUIRED',
+  lateDueMonths: null,
   isActive: true,
   sortOrder: 1,
   documentCount: 0,
 }
 
-function repository(found: typeof type | null = type) {
+function repository(found: AdmissionDocumentTypeEntity | null = type) {
   return {
     findAll: jest.fn().mockResolvedValue([type]),
     findById: jest.fn().mockResolvedValue(found),
@@ -52,7 +55,8 @@ describe('SaveDocumentTypeUseCase', () => {
     expect(repo.nameTaken).toHaveBeenCalledWith('Photo', undefined)
     expect(repo.create).toHaveBeenCalledWith({
       name: 'Photo',
-      isRequired: false,
+      requirement: 'OPTIONAL',
+      lateDueMonths: null,
       isActive: true,
       code: 'PHOTO_2',
       sortOrder: 8,
@@ -101,7 +105,8 @@ describe('SaveDocumentTypeUseCase', () => {
     expect(repo.nameTaken).toHaveBeenCalledWith('Kartu Keluarga', 't1')
     expect(repo.update).toHaveBeenCalledWith('t1', {
       name: 'Kartu Keluarga',
-      isRequired: false,
+      requirement: 'OPTIONAL',
+      lateDueMonths: null,
     })
   })
 
@@ -123,6 +128,112 @@ describe('SaveDocumentTypeUseCase', () => {
         isActive: false,
       }),
     ).rejects.toThrow(new NotFoundException('Jenis berkas tidak ditemukan'))
+  })
+})
+
+describe('SaveDocumentTypeUseCase requirement', () => {
+  it('creates a LATER type with its limit in months', async () => {
+    const repo = repository()
+    await new SaveDocumentTypeUseCase(repo).create({
+      name: 'Ijazah SD',
+      requirement: 'LATER',
+      lateDueMonths: 2,
+      isActive: true,
+    })
+    expect(repo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ requirement: 'LATER', lateDueMonths: 2 }),
+    )
+  })
+
+  it.each([undefined, null, 0, 13])(
+    'refuses LATER with the limit %j',
+    async (lateDueMonths) => {
+      const repo = repository()
+      await expect(
+        new SaveDocumentTypeUseCase(repo).create({
+          name: 'Ijazah SD',
+          requirement: 'LATER',
+          lateDueMonths,
+          isActive: true,
+        }),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Batas berkas susulan wajib diisi 1 sampai 12 bulan',
+        ),
+      )
+      expect(repo.create).not.toHaveBeenCalled()
+    },
+  )
+
+  it('refuses a limit on a type that is not LATER', async () => {
+    const repo = repository()
+    await expect(
+      new SaveDocumentTypeUseCase(repo).create({
+        name: 'Akta',
+        requirement: 'REQUIRED',
+        lateDueMonths: 2,
+        isActive: true,
+      }),
+    ).rejects.toThrow(
+      new BadRequestException('Batas hanya berlaku untuk berkas susulan'),
+    )
+  })
+
+  it.each([
+    [true, 'REQUIRED'],
+    [false, 'OPTIONAL'],
+  ])('maps the old isRequired %j to %s', async (isRequired, requirement) => {
+    const repo = repository()
+    await new SaveDocumentTypeUseCase(repo).create({
+      name: 'Photo',
+      isRequired,
+      isActive: true,
+    })
+    expect(repo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ requirement, lateDueMonths: null }),
+    )
+  })
+
+  it('refuses a create that names neither requirement nor isRequired', async () => {
+    const repo = repository()
+    await expect(
+      new SaveDocumentTypeUseCase(repo).create({
+        name: 'Photo',
+        isActive: true,
+      }),
+    ).rejects.toThrow(new BadRequestException('Sifat berkas wajib dipilih'))
+  })
+
+  it('clears the limit when a LATER type becomes REQUIRED', async () => {
+    const repo = repository({ ...type, requirement: 'LATER', lateDueMonths: 2 })
+    await new SaveDocumentTypeUseCase(repo).update('t1', {
+      requirement: 'REQUIRED',
+    })
+    expect(repo.update).toHaveBeenCalledWith(
+      't1',
+      expect.objectContaining({ requirement: 'REQUIRED', lateDueMonths: null }),
+    )
+  })
+
+  it('needs a limit when an existing type becomes LATER', async () => {
+    const repo = repository()
+    await expect(
+      new SaveDocumentTypeUseCase(repo).update('t1', { requirement: 'LATER' }),
+    ).rejects.toThrow(BadRequestException)
+    await new SaveDocumentTypeUseCase(repo).update('t1', {
+      requirement: 'LATER',
+      lateDueMonths: 3,
+    })
+    expect(repo.update).toHaveBeenCalledWith(
+      't1',
+      expect.objectContaining({ requirement: 'LATER', lateDueMonths: 3 }),
+    )
+  })
+
+  it('keeps the requirement and the limit when only the name changes', async () => {
+    const repo = repository({ ...type, requirement: 'LATER', lateDueMonths: 2 })
+    await new SaveDocumentTypeUseCase(repo).update('t1', { name: 'Ijazah' })
+    expect(repo.update).toHaveBeenCalledWith('t1', { name: 'Ijazah' })
   })
 })
 

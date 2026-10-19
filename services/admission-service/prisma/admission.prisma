@@ -19,6 +19,12 @@ enum AdmissionStatus {
   ENROLLED
 }
 
+enum AdmissionDocumentRequirement {
+  REQUIRED
+  LATER
+  OPTIONAL
+}
+
 enum AdmissionDocumentStatus {
   PENDING
   APPROVED
@@ -234,12 +240,14 @@ model AdmissionScholarship {
 }
 
 model AdmissionDocumentType {
-  id         String  @id @default(uuid()) @db.Uuid
-  code       String  @unique @db.VarChar(30)
-  name       String  @db.VarChar(100)
-  isRequired Boolean @default(true) @map("is_required")
-  sortOrder  Int     @default(0) @map("sort_order")
-  isActive   Boolean @default(true) @map("is_active")
+  id            String                       @id @default(uuid()) @db.Uuid
+  code          String                       @unique @db.VarChar(30)
+  name          String                       @db.VarChar(100)
+  isRequired    Boolean                      @default(true) @map("is_required")
+  requirement   AdmissionDocumentRequirement @default(REQUIRED)
+  lateDueMonths Int?                         @map("late_due_months")
+  sortOrder     Int                          @default(0) @map("sort_order")
+  isActive      Boolean                      @default(true) @map("is_active")
 
   documents AdmissionDocument[]
 

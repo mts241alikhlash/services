@@ -2589,7 +2589,10 @@ export interface components {
             id: string;
             isActive: boolean;
             isRequired: boolean;
+            lateDueMonths: number | null;
             name: string;
+            /** @enum {string} */
+            requirement: "REQUIRED" | "LATER" | "OPTIONAL";
             sortOrder: number;
         };
         AdmissionDownloadListResponseDto: {
@@ -3291,9 +3294,14 @@ export interface components {
         };
         CreateAdmissionDocumentTypeDto: {
             isActive: boolean;
-            isRequired: boolean;
+            /** @description Deprecated: use requirement. true is REQUIRED, false OPTIONAL. */
+            isRequired?: boolean;
+            /** @description Months after the start of the school year; LATER only */
+            lateDueMonths?: number | null;
             /** @example Surat Keterangan Sehat */
             name: string;
+            /** @enum {string} */
+            requirement?: "REQUIRED" | "LATER" | "OPTIONAL";
         };
         CreateAdmissionWaveDto: {
             /** Format: uuid */
@@ -3705,9 +3713,14 @@ export interface components {
         };
         UpdateAdmissionDocumentTypeDto: {
             isActive?: boolean;
+            /** @description Deprecated: use requirement. true is REQUIRED, false OPTIONAL. */
             isRequired?: boolean;
+            /** @description Months after the start of the school year; LATER only */
+            lateDueMonths?: number | null;
             /** @example Surat Keterangan Sehat */
             name?: string;
+            /** @enum {string} */
+            requirement?: "REQUIRED" | "LATER" | "OPTIONAL";
         };
         UpdateAdmissionWaveDto: {
             /** Format: uuid */

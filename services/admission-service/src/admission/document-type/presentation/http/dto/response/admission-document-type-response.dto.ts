@@ -14,6 +14,12 @@ export class AdmissionDocumentTypeResponseDto {
   @ApiProperty({ type: Boolean })
   isRequired!: boolean
 
+  @ApiProperty({ enum: ['REQUIRED', 'LATER', 'OPTIONAL'] })
+  requirement!: 'REQUIRED' | 'LATER' | 'OPTIONAL'
+
+  @ApiProperty({ type: Number, nullable: true })
+  lateDueMonths!: number | null
+
   @ApiProperty({ type: Boolean })
   isActive!: boolean
 
@@ -31,6 +37,8 @@ export class AdmissionDocumentTypeResponseDto {
     dto.code = domain.code
     dto.name = domain.name
     dto.isRequired = domain.isRequired
+    dto.requirement = domain.requirement
+    dto.lateDueMonths = domain.lateDueMonths
     dto.isActive = domain.isActive
     dto.sortOrder = domain.sortOrder
     dto.documentCount = domain.documentCount

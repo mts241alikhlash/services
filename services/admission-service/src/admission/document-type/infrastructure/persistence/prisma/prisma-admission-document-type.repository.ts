@@ -5,14 +5,15 @@ import type { AdmissionDocumentTypeEntity } from '../../../domain/entities/admis
 import {
   IAdmissionDocumentTypeRepository,
   type CreateDocumentTypeRecord,
-  type UpdateDocumentTypeInput,
+  type UpdateDocumentTypeRecord,
 } from '../../../domain/repositories/admission-document-type-repository.js'
 
 const SELECT = {
   id: true,
   code: true,
   name: true,
-  isRequired: true,
+  requirement: true,
+  lateDueMonths: true,
   isActive: true,
   sortOrder: true,
   _count: { select: { documents: true } },
@@ -22,13 +23,18 @@ function toEntity(row: {
   id: string
   code: string
   name: string
-  isRequired: boolean
+  requirement: AdmissionDocumentTypeEntity['requirement']
+  lateDueMonths: number | null
   isActive: boolean
   sortOrder: number
   _count: { documents: number }
 }): AdmissionDocumentTypeEntity {
   const { _count, ...rest } = row
-  return { ...rest, documentCount: _count.documents }
+  return {
+    ...rest,
+    isRequired: row.requirement === 'REQUIRED',
+    documentCount: _count.documents,
+  }
 }
 
 function isKnownError(error: unknown, code: string) {
@@ -90,7 +96,7 @@ export class PrismaAdmissionDocumentTypeRepository extends IAdmissionDocumentTyp
     try {
       return toEntity(
         await this.prisma.admissionDocumentType.create({
-          data: input,
+          data: { ...input, isRequired: input.requirement === 'REQUIRED' },
           select: SELECT,
         }),
       )
@@ -104,12 +110,17 @@ export class PrismaAdmissionDocumentTypeRepository extends IAdmissionDocumentTyp
 
   async update(
     id: string,
-    input: UpdateDocumentTypeInput,
+    input: UpdateDocumentTypeRecord,
   ): Promise<AdmissionDocumentTypeEntity> {
     return toEntity(
       await this.prisma.admissionDocumentType.update({
         where: { id },
-        data: input,
+        data: {
+          ...input,
+          ...(input.requirement !== undefined && {
+            isRequired: input.requirement === 'REQUIRED',
+          }),
+        },
         select: SELECT,
       }),
     )
