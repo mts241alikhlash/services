@@ -74,7 +74,7 @@ export abstract class IMyDashboardRepository {
     day: DayEnum,
   ): Promise<LessonRow[]>
 
-  abstract summariseAttendance(enrollmentId: string): Promise<AttendanceRecap>
+  abstract summarizeAttendance(enrollmentId: string): Promise<AttendanceRecap>
 
   abstract findLatestScores(
     enrollmentId: string,
@@ -90,7 +90,7 @@ export abstract class IMyDashboardRepository {
     day: DayEnum,
   ): Promise<LessonRow[]>
 
-  abstract summariseTeachingLoad(
+  abstract summarizeTeachingLoad(
     employeeId: string,
     semesterId: string,
   ): Promise<TeachingLoad>

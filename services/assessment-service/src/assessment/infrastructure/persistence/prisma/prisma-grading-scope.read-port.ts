@@ -34,13 +34,13 @@ export class PrismaGradingScopeReadPort extends IGradingScopeReadPort {
     employeeId: string,
     enrollmentId: string,
   ): Promise<boolean> {
-    const enrolment = await this.enrollmentLookup.findSummary(enrollmentId)
-    if (!enrolment) return false
+    const enrollment = await this.enrollmentLookup.findSummary(enrollmentId)
+    if (!enrollment) return false
 
     return this.academicLookup.supervisesClassroom(
       employeeId,
-      enrolment.classroomId,
-      enrolment.semesterId,
+      enrollment.classroomId,
+      enrollment.semesterId,
     )
   }
 }

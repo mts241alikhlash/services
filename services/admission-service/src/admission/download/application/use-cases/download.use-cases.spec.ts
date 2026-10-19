@@ -88,7 +88,7 @@ describe('SaveDownloadUseCase.create', () => {
     })
   })
 
-  it('stores a blank description as null and honours isActive false', async () => {
+  it('stores a blank description as null and honors isActive false', async () => {
     const repo = repository()
     await new SaveDownloadUseCase(repo, storage()).create({
       title: 'Formulir',

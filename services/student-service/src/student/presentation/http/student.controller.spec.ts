@@ -15,7 +15,7 @@ import { GetMyClassroomUseCase } from '../../application/use-cases/get-my-classr
 import { GetStudentsUseCase } from '../../application/use-cases/get-students/get-students.use-case.js'
 import { ResolveBulkImportConflictsUseCase } from '../../application/use-cases/resolve-bulk-import-conflicts/resolve-bulk-import-conflicts.use-case.js'
 import { ToggleStudentActiveUseCase } from '../../application/use-cases/toggle-student-active/toggle-student-active.use-case.js'
-import { EnrolExistingAccountUseCase } from '../../application/use-cases/enrol-existing-account/enrol-existing-account.use-case.js'
+import { EnrollExistingAccountUseCase } from '../../application/use-cases/enroll-existing-account/enroll-existing-account.use-case.js'
 import { UpdateStudentUseCase } from '../../application/use-cases/update-student/update-student.use-case.js'
 import { StudentController } from './student.controller.js'
 import { StudentImportExportController } from './student-import-export.controller.js'
@@ -73,7 +73,7 @@ describe('StudentController & StudentImportExportController', () => {
           useValue: mockToggleStudentActiveService,
         },
         {
-          provide: EnrolExistingAccountUseCase,
+          provide: EnrollExistingAccountUseCase,
           useValue: { execute: jest.fn() },
         },
         {

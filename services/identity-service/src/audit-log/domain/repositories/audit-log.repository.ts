@@ -28,7 +28,7 @@ export interface AuditLogSummary {
 }
 
 export abstract class IAuditLogRepository {
-  abstract summarise(since: Date): Promise<AuditLogSummary>
+  abstract summarize(since: Date): Promise<AuditLogSummary>
   abstract findAll(
     query: AuditLogQueryInput,
   ): Promise<PaginatedResult<AuditLogEntity>>

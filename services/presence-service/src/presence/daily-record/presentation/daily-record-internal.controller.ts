@@ -132,7 +132,7 @@ export class DailyRecordInternalController {
     @Body() dto: MonthlySummaryQueryDto,
   ): Promise<MonthlyPresenceSummaryListResponseDto> {
     return {
-      data: await this.readPort.summariseMonth(
+      data: await this.readPort.summarizeMonth(
         dto.userIds,
         dto.year,
         dto.month,

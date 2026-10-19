@@ -24,7 +24,7 @@ against the earlier design.
 | `POST /auth/login`, `/refresh`, `/logout`, `/forgot-password`, `/reset-password` | identity-service | Nothing — no controller |
 | Token verification (`GET` on every authenticated route) | Both | `JwtStrategy` + `ValidateTokenUseCase` here verify the signature and check the session is live |
 | `GET/POST/PATCH/DELETE /users` | identity-service | Nothing — this repo has neither `teacher` nor `student` since the 2026-09-03 extraction; `hr-service`/`student-service` provision the account by calling identity-service's `POST /accounts` over HTTP, not by writing the table |
-| Role & permission CRUD, the permission-catalogue sync | identity-service | `PermissionGuard` only — reads, never writes |
+| Role & permission CRUD, the permission-catalog sync | identity-service | `PermissionGuard` only — reads, never writes |
 | `auth_sessions`, `users`, `user_roles`, `roles`, `role_permissions`, `permissions` tables | identity-service's database | Nothing. Every service has its own database as of 2026-09-09, and no service reads identity's tables through Prisma any more — every answer arrives over HTTP through `src/platform/identity/` |
 
 If you are in identity-service reading this, the left column is yours in full.
@@ -176,12 +176,12 @@ them; nothing about their shape has changed.
 ## Default roles
 
 Two kinds of role exist. A structural role (`SUPER_ADMIN`, `EMPLOYEE`,
-`TEACHER`, `STUDENT`, `APPLICANT`) is `isSystem`: code assigns or recognises it,
+`TEACHER`, `STUDENT`, `APPLICANT`) is `isSystem`: code assigns or recognizes it,
 so it cannot be edited or deleted. A default role is ordinary data a school may edit
 or delete. `PARENT` has no code path and is a default role with no permissions.
 
 `seed:permissions` creates every default role that is missing, with the grants
-`src/access-control/role/domain/default-roles.ts` resolves from the catalogue.
+`src/access-control/role/domain/default-roles.ts` resolves from the catalog.
 It never resets a role that exists: a school's edits survive every release.
 A structural role other than `SUPER_ADMIN` receives its grants only while it has
 none. A permission added in a later release reaches `SUPER_ADMIN` and every
@@ -214,7 +214,7 @@ applicant fill in and submit their own PPDB application; admission-service's
 | `SYSTEM_ADMIN` | Admin Sistem | users, roles, settings, school units, audit logs, sessions |
 | `OPERATOR` | Operator | everything except portal and payroll (the former `ADMIN`) |
 | `PRINCIPAL` | Kepala Madrasah | every read, plus approvals; changes no data |
-| `CURRICULUM_STAFF` | TU Administrasi | classes, enrolments, calendar entries |
+| `CURRICULUM_STAFF` | TU Administrasi | classes, enrollments, calendar entries |
 | `VICE_PRINCIPAL_CURRICULUM` | Wakamad Kurikulum | `CURRICULUM_STAFF` plus curriculum, schedules, report-card publishing |
 | `STUDENT_AFFAIRS_STAFF` | TU Kesantrian | student and parent data, PPDB handling |
 | `VICE_PRINCIPAL_STUDENT_AFFAIRS` | Wakamad Kesantrian | `STUDENT_AFFAIRS_STAFF` plus graduation and PPDB decisions |

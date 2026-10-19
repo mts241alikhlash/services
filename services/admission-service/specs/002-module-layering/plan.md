@@ -48,7 +48,7 @@ Layer notification reads/updates and notification service. Define public notific
 
 ### Task 7: Layer `application`
 
-Layer application last. Move `admission-status.transitions.ts` to `domain/policies/`, keep enrolment rules in domain policies, add plain inputs, isolate integration ports, and preserve current enrolment behavior. Saga changes belong only to Package 3. Run workflow/stats tests and all gates.
+Layer application last. Move `admission-status.transitions.ts` to `domain/policies/`, keep enrollment rules in domain policies, add plain inputs, isolate integration ports, and preserve current enrollment behavior. Saga changes belong only to Package 3. Run workflow/stats tests and all gates.
 
 ### Task 8: Final layering verification
 

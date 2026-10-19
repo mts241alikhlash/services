@@ -12,7 +12,7 @@
 - [x] T010 Run payment tests and all slice gates; write `payment-layering-checkpoint.md`.
 - [x] T011 Layer `src/admission/notification/` into the four target layers; expose only required notification public API.
 - [x] T012 Run notification tests and all slice gates; write `notification-layering-checkpoint.md`.
-- [x] T013 Layer `src/admission/application/` last; move status policy to `domain/policies/`, use cases to application, adapters to infrastructure, HTTP code to presentation, and keep current enrolment behavior.
+- [x] T013 Layer `src/admission/application/` last; move status policy to `domain/policies/`, use cases to application, adapters to infrastructure, HTTP code to presentation, and keep current enrollment behavior.
 - [x] T014 Run workflow/stats/rules tests and all slice gates; write `application-layering-checkpoint.md`.
 - [x] T015 Search all seven contexts for forbidden dependency directions, stale paths, direct repository presentation imports, DTO application imports, and Prisma leaks. Fresh scans leave only seven classified intentional direct imports documented in `application-layering-checkpoint.md`.
 - [x] T016 Run `pnpm run format:check`, `pnpm run lint`, `pnpm run typecheck`, `pnpm run lint:strict`, `pnpm test`, `pnpm run build`, and `pnpm run validate`; write `final-verification.md`.

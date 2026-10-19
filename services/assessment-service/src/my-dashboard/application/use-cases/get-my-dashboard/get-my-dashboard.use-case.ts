@@ -55,16 +55,16 @@ export class GetMyDashboardUseCase {
   ): Promise<MyDashboardResult['student']> {
     if (!studentId) return null
 
-    const enrolment = semesterId
+    const enrollment = semesterId
       ? await this.repository.findEnrolledClassroom(studentId, semesterId)
       : null
 
     const [lessons, attendance, latestScores, reportCard] = await Promise.all([
-      enrolment && day
-        ? this.repository.findClassroomLessons(enrolment.classroom.id, day)
+      enrollment && day
+        ? this.repository.findClassroomLessons(enrollment.classroom.id, day)
         : Promise.resolve<LessonRow[]>([]),
-      enrolment
-        ? this.repository.summariseAttendance(enrolment.enrollmentId)
+      enrollment
+        ? this.repository.summarizeAttendance(enrollment.enrollmentId)
         : Promise.resolve({
             present: 0,
             absent: 0,
@@ -72,9 +72,9 @@ export class GetMyDashboardUseCase {
             excused: 0,
             sick: 0,
           }),
-      enrolment
+      enrollment
         ? this.repository.findLatestScores(
-            enrolment.enrollmentId,
+            enrollment.enrollmentId,
             LATEST_SCORE_LIMIT,
           )
         : Promise.resolve([]),
@@ -82,7 +82,7 @@ export class GetMyDashboardUseCase {
     ])
 
     return {
-      classroom: enrolment?.classroom ?? null,
+      classroom: enrollment?.classroom ?? null,
       todayLessons: lessons,
       attendance,
       latestScores,
@@ -102,7 +102,7 @@ export class GetMyDashboardUseCase {
         ? this.repository.findTeachingLessons(employeeId, day)
         : Promise.resolve<LessonRow[]>([]),
       semesterId
-        ? this.repository.summariseTeachingLoad(employeeId, semesterId)
+        ? this.repository.summarizeTeachingLoad(employeeId, semesterId)
         : Promise.resolve({ classroomCount: 0, subjectCount: 0 }),
       semesterId
         ? this.repository.findSupervisedClassrooms(employeeId, semesterId)

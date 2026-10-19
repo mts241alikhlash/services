@@ -44,19 +44,19 @@ export class PrismaMyDashboardRepository extends IMyDashboardRepository {
     studentId: string,
     semesterId: string,
   ): Promise<{ enrollmentId: string; classroom: ClassroomRef } | null> {
-    const enrolment = await this.enrollmentLookup.findActiveByStudent(
+    const enrollment = await this.enrollmentLookup.findActiveByStudent(
       studentId,
       semesterId,
     )
-    if (!enrolment) return null
+    if (!enrollment) return null
 
     const [classroom] = await this.academicLookup.listClassrooms([
-      enrolment.classroomId,
+      enrollment.classroomId,
     ])
     if (!classroom) return null
 
     return {
-      enrollmentId: enrolment.id,
+      enrollmentId: enrollment.id,
       classroom: {
         id: classroom.id,
         code: classroom.code ?? '',
@@ -109,7 +109,7 @@ export class PrismaMyDashboardRepository extends IMyDashboardRepository {
     }))
   }
 
-  async summariseAttendance(enrollmentId: string): Promise<AttendanceRecap> {
+  async summarizeAttendance(enrollmentId: string): Promise<AttendanceRecap> {
     const grouped = await this.prisma.attendance.groupBy({
       by: ['status'],
       where: { enrollmentId, deletedAt: null },
@@ -186,28 +186,28 @@ export class PrismaMyDashboardRepository extends IMyDashboardRepository {
       where: {
         isPublished: true,
         deletedAt: null,
-        enrollmentId: { in: enrollments.map((enrolment) => enrolment.id) },
+        enrollmentId: { in: enrollments.map((enrollment) => enrollment.id) },
       },
       select: { id: true, enrollmentId: true },
       orderBy: { updatedAt: 'desc' },
     })
     if (!card) return null
 
-    const enrolment = enrollments.find((row) => row.id === card.enrollmentId)
-    if (!enrolment) return { id: card.id, semesterName: '' }
+    const enrollment = enrollments.find((row) => row.id === card.enrollmentId)
+    if (!enrollment) return { id: card.id, semesterName: '' }
 
     const [semester] = await this.academicLookup.listSemesters([
-      enrolment.semesterId,
+      enrollment.semesterId,
     ])
 
     return { id: card.id, semesterName: semester?.typeName ?? '' }
   }
 
-  async summariseTeachingLoad(
+  async summarizeTeachingLoad(
     employeeId: string,
     semesterId: string,
   ): Promise<TeachingLoad> {
-    return this.academicLookup.summariseTeachingLoad(employeeId, semesterId)
+    return this.academicLookup.summarizeTeachingLoad(employeeId, semesterId)
   }
 
   async findSupervisedClassrooms(

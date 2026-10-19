@@ -59,16 +59,16 @@ export class PrismaAttendanceRepository extends IAttendanceRepository {
   async findAll(query: AttendanceQueryInput) {
     const { page = 1, limit = 10, semesterId, classroomId, studentId } = query
 
-    const scopesEnrolment = Boolean(classroomId ?? studentId ?? semesterId)
+    const scopesEnrollment = Boolean(classroomId ?? studentId ?? semesterId)
     const scopedEnrollmentIds =
-      scopesEnrolment && !query.enrollmentId
+      scopesEnrollment && !query.enrollmentId
         ? (
             await this.enrollmentLookup.search({
               classroomId,
               studentId,
               semesterId: semesterId ?? undefined,
             })
-          ).map((enrolment) => enrolment.id)
+          ).map((enrollment) => enrollment.id)
         : null
 
     const where = buildAttendanceListWhere(query, scopedEnrollmentIds, null)

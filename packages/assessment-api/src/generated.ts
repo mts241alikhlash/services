@@ -335,7 +335,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Generate report cards for every active enrolment in a classroom
+         * Generate report cards for every active enrollment in a classroom
          * @description Published cards are left untouched and reported as skipped, so one issued report does not block the rest of the class.
          */
         post: operations["ReportCardController_bulkGenerate"];
@@ -389,8 +389,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Report-card averages for a batch of enrolments
-         * @description Read by student-service on the promotion screen, which colours each row by whether the average clears the passing score. Enrolments with no report card are simply absent from the response.
+         * Report-card averages for a batch of enrollments
+         * @description Read by student-service on the promotion screen, which colors each row by whether the average clears the passing score. Enrollments with no report card are simply absent from the response.
          */
         post: operations["ReportCardInternalController_averages"];
         delete?: never;
@@ -689,7 +689,7 @@ export interface components {
         BulkGenerateReportCardDto: {
             /**
              * Format: uuid
-             * @description Classroom whose active enrolments are graded
+             * @description Classroom whose active enrollments are graded
              */
             classroomId: string;
             /**
@@ -701,11 +701,11 @@ export interface components {
         BulkGenerateReportCardResponseDto: {
             /** @description Report cards generated or regenerated */
             generated: number;
-            /** @description Enrolments left alone because their card is published */
+            /** @description Enrollments left alone because their card is published */
             skipped: number;
-            /** @description Enrolment ids whose card was left published and untouched */
+            /** @description Enrollment ids whose card was left published and untouched */
             skippedEnrollmentIds: string[];
-            /** @description Active enrolments considered */
+            /** @description Active enrollments considered */
             total: number;
         };
         BulkStudentScoreRecordDto: {
@@ -917,7 +917,7 @@ export interface components {
         };
         MyStudentDashboardResponseDto: {
             attendance: components["schemas"]["DashboardAttendanceRecapResponseDto"];
-            /** @description Null between years, when no enrolment exists for the active semester. */
+            /** @description Null between years, when no enrollment exists for the active semester. */
             classroom: components["schemas"]["DashboardClassroomResponseDto"] | null;
             /** @description The most recent published report card. An unpublished one is a draft the school has not handed over, and is never returned here. */
             latestReportCard: components["schemas"]["DashboardReportCardResponseDto"] | null;

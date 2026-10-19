@@ -94,7 +94,7 @@ export abstract class IAcademicLookupPort {
     employeeId: string,
     semesterId: string,
   ): Promise<TeachingAssignmentDetail[]>
-  abstract summariseTeachingLoad(
+  abstract summarizeTeachingLoad(
     employeeId: string,
     semesterId: string,
   ): Promise<TeachingLoad>

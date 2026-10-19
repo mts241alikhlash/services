@@ -58,7 +58,7 @@ describe('RegisterDeviceUseCase', () => {
     )
   })
 
-  it('normalises an absent location to null rather than undefined', async () => {
+  it('normalizes an absent location to null rather than undefined', async () => {
     await register.execute({ name: 'Gerbang Utama' })
 
     expect(repository.create).toHaveBeenCalledWith(

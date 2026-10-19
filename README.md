@@ -32,7 +32,7 @@ cd <service> && pnpm install && pnpm prisma:generate && pnpm prisma:deploy && pn
 ## Admission stack: local development and deployment
 
 The admission app uses `identity-service`, `academic-service`, and
-`admission-service`; enrolment also uses `student-service`. These four services
+`admission-service`; enrollment also uses `student-service`. These four services
 pin the Prisma CLI, Client, and PostgreSQL adapter to **7.10.0**. Prisma 8's
 release candidate is not part of this upgrade. Existing database schemas and
 migration SQL are unchanged.

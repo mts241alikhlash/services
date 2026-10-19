@@ -126,7 +126,7 @@ describe('GetHomepageUseCase', () => {
     expect(mockPosts.findLatestPublic).toHaveBeenCalled()
   })
 
-  it('resolves an unrecognised section key to an empty list', async () => {
+  it('resolves an unrecognized section key to an empty list', async () => {
     mockSections.findAllEnabled.mockResolvedValue([
       { key: 'unknown', itemCount: 3, displayOrder: 2 },
     ])

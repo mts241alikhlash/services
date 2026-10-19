@@ -62,7 +62,7 @@ describe('ClassroomCapacityService', () => {
     )
   })
 
-  it('treats capacity 0 as unlimited, as the enrolment path always has', async () => {
+  it('treats capacity 0 as unlimited, as the enrollment path always has', async () => {
     const { service } = serviceWith(0, 500)
     await expect(assert(service, 100)).resolves.toBeUndefined()
   })

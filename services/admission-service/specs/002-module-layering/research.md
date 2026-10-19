@@ -9,7 +9,7 @@ context per slice, with public APIs for cross-context access.
 
 The service already has repository interfaces, Prisma adapters, controllers,
 DTOs, and use-case specs. Moving these seams is lower risk than redesigning
-them. The application context is deferred because its enrolment flow currently
+them. The application context is deferred because its enrollment flow currently
 crosses the student-service integration and local persistence.
 
 ## Special Cases

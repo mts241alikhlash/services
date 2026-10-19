@@ -32,7 +32,7 @@ export class PayslipComposerService {
     const unconfigured = this.resolver.unconfigured(byUser)
     if (unconfigured.length > 0) return { payslips: [], unconfigured }
 
-    const summaries = await this.presence.summariseMonth(userIds, year, month)
+    const summaries = await this.presence.summarizeMonth(userIds, year, month)
     const byUserSummary = new Map(summaries.map((s) => [s.userId, s]))
 
     const payslips = userIds.map((userId) => {

@@ -19,7 +19,7 @@ import { DocumentTypeModule } from './document-type/index.js'
 import { DownloadModule } from './download/index.js'
 import { LandingModule } from './landing/index.js'
 import { DecisionModule } from './decision/index.js'
-import { EnrolmentModule } from './enrolment/index.js'
+import { EnrollmentModule } from './enrollment/index.js'
 import { DocumentReviewModule } from './document-review/index.js'
 import { FileModule } from './file/index.js'
 
@@ -40,7 +40,7 @@ import { FileModule } from './file/index.js'
     LandingModule,
     DocumentReviewModule,
     DecisionModule,
-    EnrolmentModule,
+    EnrollmentModule,
     FileModule,
   ],
   controllers: [AdmissionPublicController, AdmissionApplicantController],

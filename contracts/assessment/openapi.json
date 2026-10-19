@@ -1914,7 +1914,7 @@
     },
     "/report-cards/averages": {
       "post": {
-        "description": "Read by student-service on the promotion screen, which colours each row by whether the average clears the passing score. Enrolments with no report card are simply absent from the response.",
+        "description": "Read by student-service on the promotion screen, which colors each row by whether the average clears the passing score. Enrollments with no report card are simply absent from the response.",
         "operationId": "ReportCardInternalController_averages",
         "parameters": [],
         "requestBody": {
@@ -1958,7 +1958,7 @@
             "description": "Missing or invalid provisioning token"
           }
         },
-        "summary": "Report-card averages for a batch of enrolments",
+        "summary": "Report-card averages for a batch of enrollments",
         "tags": [
           "Report Cards"
         ]
@@ -2527,7 +2527,7 @@
             "bearer": []
           }
         ],
-        "summary": "Generate report cards for every active enrolment in a classroom",
+        "summary": "Generate report cards for every active enrollment in a classroom",
         "tags": [
           "ReportCards"
         ]
@@ -4766,7 +4766,7 @@
           "classroomId": {
             "type": "string",
             "format": "uuid",
-            "description": "Classroom whose active enrolments are graded"
+            "description": "Classroom whose active enrollments are graded"
           },
           "semesterId": {
             "type": "string",
@@ -4784,7 +4784,7 @@
         "properties": {
           "total": {
             "type": "number",
-            "description": "Active enrolments considered"
+            "description": "Active enrollments considered"
           },
           "generated": {
             "type": "number",
@@ -4792,10 +4792,10 @@
           },
           "skipped": {
             "type": "number",
-            "description": "Enrolments left alone because their card is published"
+            "description": "Enrollments left alone because their card is published"
           },
           "skippedEnrollmentIds": {
-            "description": "Enrolment ids whose card was left published and untouched",
+            "description": "Enrollment ids whose card was left published and untouched",
             "type": "array",
             "items": {
               "type": "string"
@@ -5016,7 +5016,7 @@
         "properties": {
           "classroom": {
             "nullable": true,
-            "description": "Null between years, when no enrolment exists for the active semester.",
+            "description": "Null between years, when no enrollment exists for the active semester.",
             "type": "object",
             "allOf": [
               {

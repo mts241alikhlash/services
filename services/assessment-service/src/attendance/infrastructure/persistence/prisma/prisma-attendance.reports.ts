@@ -58,7 +58,7 @@ export async function buildAttendanceRecap(
     where: {
       deletedAt: null,
       ...(dateRange && { date: dateRange }),
-      enrollmentId: { in: enrollments.map((enrolment) => enrolment.id) },
+      enrollmentId: { in: enrollments.map((enrollment) => enrollment.id) },
     },
     select: { enrollmentId: true, status: true },
   })
@@ -79,11 +79,11 @@ export async function buildAttendanceRecap(
 
   for (const att of attendances) {
     if (!recapMap.has(att.enrollmentId)) {
-      const enrolment = enrollmentById.get(att.enrollmentId)
+      const enrollment = enrollmentById.get(att.enrollmentId)
       recapMap.set(att.enrollmentId, {
         enrollmentId: att.enrollmentId,
-        studentName: enrolment?.studentName ?? '-',
-        nis: enrolment?.studentNis ?? '',
+        studentName: enrollment?.studentName ?? '-',
+        nis: enrollment?.studentNis ?? '',
         PRESENT: 0,
         SICK: 0,
         EXCUSED: 0,
@@ -137,7 +137,7 @@ export async function buildAttendanceMonthlyTrend(
   const attendances = await prisma.attendance.findMany({
     where: {
       deletedAt: null,
-      enrollmentId: { in: enrollments.map((enrolment) => enrolment.id) },
+      enrollmentId: { in: enrollments.map((enrollment) => enrollment.id) },
     },
     select: { status: true, date: true },
   })

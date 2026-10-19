@@ -41,7 +41,7 @@ move rather than paid again:
 
 | The 2026-08-29 cost | Why it does not recur |
 |---|---|
-| A **verbatim copy** of `summariseMonth` in payroll's read port | `POST /daily-presences/monthly-summary` serves that arithmetic. assessment-service has consumed it since 2026-09-09; hr-service is the second consumer. There is one implementation. |
+| A **verbatim copy** of `summarizeMonth` in payroll's read port | `POST /daily-presences/monthly-summary` serves that arithmetic. assessment-service has consumed it since 2026-09-09; hr-service is the second consumer. There is one implementation. |
 | Three cross-service edges, two of them to presence | Two, both to presence. The roster edge disappeared entirely — payroll now sits beside the employment record it reads. |
 | Two independence guards cut in half | Zero. Both FR-055/FR-056 sweeps live in hr-service now, in one repository, where neither can be deleted without the other turning red. |
 | No frontend of its own | `hr-web` is hr-service's frontend, exactly. |

@@ -68,7 +68,7 @@ export class PromotionSemesterResolver {
     if (!target) {
       throw new BadRequestException(
         `Academic year ${await this.nameOf(targetAcademicYearId)} has no ` +
-          'semester to enrol students into. Create its first term before ' +
+          'semester to enroll students into. Create its first term before ' +
           'running the promotion.',
       )
     }

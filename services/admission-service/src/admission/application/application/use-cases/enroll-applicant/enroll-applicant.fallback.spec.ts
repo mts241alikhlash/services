@@ -28,8 +28,8 @@ function setup(found = application()) {
       .mockResolvedValue({ id: 'app1', status: 'ENROLLED' }),
   }
   const notifications = { notify: jest.fn().mockResolvedValue(undefined) }
-  const enrolment = {
-    enrol: jest.fn().mockResolvedValue({
+  const enrollment = {
+    enroll: jest.fn().mockResolvedValue({
       studentId: 's1',
       parentsLinked: 0,
       enrollmentCreated: false,
@@ -39,22 +39,22 @@ function setup(found = application()) {
   return {
     repository,
     notifications,
-    enrolment,
+    enrollment,
     useCase: new EnrollApplicantUseCase(
       repository as never,
       notifications as never,
-      enrolment as never,
+      enrollment as never,
     ),
   }
 }
 
 describe('EnrollApplicantUseCase fallbacks', () => {
   it('takes the NIS, NISN and grade from the application when the request omits them', async () => {
-    const { useCase, enrolment, notifications } = setup()
+    const { useCase, enrollment, notifications } = setup()
 
     await useCase.execute('app1', {}, 'tok')
 
-    expect(enrolment.enrol).toHaveBeenCalledWith(
+    expect(enrollment.enroll).toHaveBeenCalledWith(
       expect.objectContaining({
         nis: '262707001',
         nisn: '0091234567',
@@ -71,7 +71,7 @@ describe('EnrollApplicantUseCase fallbacks', () => {
   })
 
   it('lets the request override the application', async () => {
-    const { useCase, enrolment } = setup()
+    const { useCase, enrollment } = setup()
 
     await useCase.execute(
       'app1',
@@ -79,7 +79,7 @@ describe('EnrollApplicantUseCase fallbacks', () => {
       'tok',
     )
 
-    expect(enrolment.enrol).toHaveBeenCalledWith(
+    expect(enrollment.enroll).toHaveBeenCalledWith(
       expect.objectContaining({ nis: '999', nisn: '111', gradeId: 'g8' }),
       'tok',
     )
@@ -90,13 +90,13 @@ describe('EnrollApplicantUseCase fallbacks', () => {
     [{ nisn: null }, 'NISN belum diisi'],
     [{ targetGradeId: null }, 'Tingkat kelas tujuan belum diisi'],
   ])('refuses %j before touching the status', async (missing, message) => {
-    const { useCase, repository, enrolment } = setup(application(missing))
+    const { useCase, repository, enrollment } = setup(application(missing))
 
     await expect(useCase.execute('app1', {}, 'tok')).rejects.toThrow(
       new BadRequestException(message),
     )
     expect(repository.setEnrolling).not.toHaveBeenCalled()
-    expect(enrolment.enrol).not.toHaveBeenCalled()
+    expect(enrollment.enroll).not.toHaveBeenCalled()
   })
 
   it('stores a typed NIS on the application before enrolling, so compose never overwrites it', async () => {

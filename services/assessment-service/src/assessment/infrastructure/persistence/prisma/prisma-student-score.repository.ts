@@ -71,7 +71,7 @@ export class PrismaStudentScoreRepository extends IStudentScoreRepository {
       const assignment = refs.assignment(
         row.assessmentItem.teachingAssignmentId,
       )
-      const enrolment = refs.enrollment(row.enrollmentId)
+      const enrollment = refs.enrollment(row.enrollmentId)
 
       return {
         ...row,
@@ -81,7 +81,7 @@ export class PrismaStudentScoreRepository extends IStudentScoreRepository {
             ? toAssignmentRef(assignment, userRefs)
             : undefined,
         },
-        enrollment: enrolment ? toEnrollmentRef(enrolment) : undefined,
+        enrollment: enrollment ? toEnrollmentRef(enrollment) : undefined,
       }
     })
   }
@@ -106,7 +106,7 @@ export class PrismaStudentScoreRepository extends IStudentScoreRepository {
             semesterId,
             studentId,
           })
-        ).map((enrolment) => enrolment.id)
+        ).map((enrollment) => enrollment.id)
       : null
 
     const where: Prisma.StudentScoreWhereInput = {

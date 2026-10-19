@@ -52,7 +52,7 @@ enum AttendancePeriodStatus {
 }
 
 /// The card. Also the source of truth for whether a person was expected on a
-/// date — presence cannot read hire or enrolment dates without closing the
+/// date — presence cannot read hire or enrollment dates without closing the
 /// domain cycle, and card validity is closer to the truth anyway (ADR-0007).
 model PresenceCredential {
   id            String              @id @default(uuid()) @db.Uuid

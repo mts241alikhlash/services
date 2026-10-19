@@ -127,7 +127,7 @@ model Payslip {
   @@map("payslips")
 }
 
-/// Component code and name are denormalised so a payslip still reads correctly
+/// Component code and name are denormalized so a payslip still reads correctly
 /// after the component is renamed or retired.
 model PayslipLine {
   id            String              @id @default(uuid()) @db.Uuid

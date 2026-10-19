@@ -87,7 +87,7 @@ way is the point:
 | Here | What it may do | What was left behind |
 |---|---|---|
 | `platform/auth` | Verify a token, check the session is live | Login, refresh, logout, password reset, session cleanup — the whole controller, left in identity-service |
-| `platform/access-control/permission` | `PermissionGuard` asking whether the caller holds a permission | Eight use cases, the controller, and the bootstrap hook that syncs the catalogue, left in identity-service |
+| `platform/access-control/permission` | `PermissionGuard` asking whether the caller holds a permission | Eight use cases, the controller, and the bootstrap hook that syncs the catalog, left in identity-service |
 | `platform/teacher-identity` | One method: which teacher record a signed-in user owns | Everything else about `Employee` — CRUD, bulk import, positions — left in `hr-service` since 2026-09-03 |
 | `platform/student-identity` | One method: which student record a signed-in user owns | Everything else about `Student` — CRUD, bulk import, parents — left in `student-service` since 2026-09-03 |
 | `platform/teacher-lookup` | `POST /employees/by-ids` — id, `userId`, NIP for a batch | The employee record itself |
@@ -128,8 +128,8 @@ duplicate that table here; it drifts. The short version as of 2026-09-03:
    correctness one, because the tables are no longer reachable to join.
 
 Two things above are new since the modules that used to carry them moved out
-on 2026-09-03: `POST /students/enrol` (the transaction that wrote a student,
-profile, parents, address, grant, and enrolment together) does not exist in
+on 2026-09-03: `POST /students/enroll` (the transaction that wrote a student,
+profile, parents, address, grant, and enrollment together) does not exist in
 this repo any more — it now lives in `student-service`. Hiring a teacher or
 enrolling a student no longer writes an IAM account **here** at all; that
 provisioning call happens in whichever of the two new services owns the

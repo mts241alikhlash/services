@@ -9,7 +9,7 @@ import {
 
 @Injectable()
 export class PrismaAuditLogRepository extends IAuditLogRepository {
-  async summarise(since: Date) {
+  async summarize(since: Date) {
     const [total, recent] = await this.prisma.$transaction([
       this.prisma.auditLog.count(),
       this.prisma.auditLog.count({ where: { createdAt: { gte: since } } }),

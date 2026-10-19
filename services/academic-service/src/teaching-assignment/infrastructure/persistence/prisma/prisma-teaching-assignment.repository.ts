@@ -194,7 +194,7 @@ export class PrismaTeachingAssignmentRepository extends ITeachingAssignmentRepos
     return found !== null
   }
 
-  async summariseLoad(
+  async summarizeLoad(
     employeeId: string,
     semesterId: string,
   ): Promise<TeachingLoadSummary> {

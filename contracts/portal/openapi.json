@@ -1864,7 +1864,7 @@
             "bearer": []
           }
         ],
-        "summary": "Delete a tag — the posts it labelled are untouched",
+        "summary": "Delete a tag — the posts it labeled are untouched",
         "tags": [
           "Portal — Content"
         ]
@@ -4697,7 +4697,7 @@
           },
           "scheduledAt": {
             "type": "string",
-            "description": "Go live at this moment instead of now. Must be in the future. The item becomes public when this passes, whether or not the status-normalising job has run.",
+            "description": "Go live at this moment instead of now. Must be in the future. The item becomes public when this passes, whether or not the status-normalizing job has run.",
             "example": "2026-08-09T00:00:00.000Z"
           }
         },

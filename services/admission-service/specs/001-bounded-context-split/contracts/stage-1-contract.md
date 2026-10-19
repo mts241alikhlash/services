@@ -6,6 +6,6 @@ Stage 1 preserves these externally visible contracts:
 - Existing permission codes under `admissions.*`, `admission-waves.*`, and
   `admission-announcements.*`
 - Existing DTO validation and response envelope
-- Existing student enrolment integration request and response
+- Existing student enrollment integration request and response
 
 No endpoint or payload field is added, removed, or renamed by this package.

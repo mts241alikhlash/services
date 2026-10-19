@@ -458,7 +458,7 @@ export interface paths {
         put?: never;
         /**
          * Classrooms for a batch of ids
-         * @description Labels rows that reference a classroom by id — an enrolment list spans whichever years the rows happen to touch, so it cannot be answered by the per-year endpoint. Ids that match nothing are absent from the response rather than returned as null.
+         * @description Labels rows that reference a classroom by id — an enrollment list spans whichever years the rows happen to touch, so it cannot be answered by the per-year endpoint. Ids that match nothing are absent from the response rather than returned as null.
          */
         post: operations["ClassroomInternalController_byIds"];
         delete?: never;
@@ -544,7 +544,7 @@ export interface paths {
         };
         /**
          * Whether an employee is homeroom teacher of a classroom that term
-         * @description assessment-service asks this before letting a homeroom teacher edit a report card, which is the one authorisation it cannot answer from its own tables.
+         * @description assessment-service asks this before letting a homeroom teacher edit a report card, which is the one authorization it cannot answer from its own tables.
          */
         get: operations["ClassroomInternalController_supervises"];
         put?: never;

@@ -7,7 +7,7 @@
 - Application serializers moved to `domain/serializers/`.
 - Application use cases moved to `application/use-cases/<name>/` with plain input types.
 - Prisma repository and Prisma mapping helpers moved to `infrastructure/persistence/prisma/`.
-- Student enrolment port, HTTP adapter, and integration module moved to `infrastructure/integration/`.
+- Student enrollment port, HTTP adapter, and integration module moved to `infrastructure/integration/`.
 - Admin controller and request DTOs moved to `presentation/http/`.
 - `application.module.ts` and `index.ts` added as module and public API boundaries.
 - Root module and applicant, document, and payment consumers updated.

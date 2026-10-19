@@ -27,19 +27,19 @@ export async function decorateReportCards(
   const semesterById = new Map(semesters.map((row) => [row.id, row]))
 
   return rows.map((row) => {
-    const enrolment = enrollmentById.get(row.enrollmentId)
-    if (!enrolment) return { ...row, enrollment: null }
+    const enrollment = enrollmentById.get(row.enrollmentId)
+    if (!enrollment) return { ...row, enrollment: null }
 
-    const classroom = classroomById.get(enrolment.classroomId)
-    const semester = semesterById.get(enrolment.semesterId)
+    const classroom = classroomById.get(enrollment.classroomId)
+    const semester = semesterById.get(enrollment.semesterId)
 
     return {
       ...row,
       enrollment: {
-        id: enrolment.id,
+        id: enrollment.id,
         student: {
-          nis: enrolment.studentNis,
-          user: { profile: { name: enrolment.studentName } },
+          nis: enrollment.studentNis,
+          user: { profile: { name: enrollment.studentName } },
         },
         classroom: classroom
           ? { name: classroom.name, code: classroom.code }

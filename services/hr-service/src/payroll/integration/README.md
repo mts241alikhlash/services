@@ -8,7 +8,7 @@ the move: the roster became local, and the two presence reads became HTTP.
 | Port | One method | Answered by |
 |---|---|---|
 | `IPayrollRosterPort` | `listActiveEmployees()` | this service, in process |
-| `IDailyPresenceReadPort` | `summariseMonth()` | presence-service |
+| `IDailyPresenceReadPort` | `summarizeMonth()` | presence-service |
 | `IAttendancePeriodReadPort` | `isClosed()` | presence-service |
 
 ## The roster stopped being a call
@@ -30,12 +30,12 @@ computes:
 
 | Port | Endpoint |
 |---|---|
-| `summariseMonth()` | `POST /daily-presences/monthly-summary` |
+| `summarizeMonth()` | `POST /daily-presences/monthly-summary` |
 | `isClosed()` | `GET /presence/periods/:year/:month/closed` |
 
 **Neither adapter carries a copy of presence's arithmetic**, and that is the
 one thing to hold onto here. The 2026-08-29 payroll split shipped a verbatim
-copy of `summariseMonth` because an earlier rewrite had got four things wrong
+copy of `summarizeMonth` because an earlier rewrite had got four things wrong
 — `LATE` counting as a present day, `lateCount` keying on status rather than
 minutes, `lateMinutes` accumulating unconditionally, and the month bounded
 `lte` rather than `lt`. None would have failed a build; all four would have

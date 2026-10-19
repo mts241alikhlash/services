@@ -2,7 +2,7 @@
 
 ## Goal
 
-Make accepted-applicant enrolment retry-safe across admission-service and
+Make accepted-applicant enrollment retry-safe across admission-service and
 student-service when the remote student creation succeeds but the local
 application update fails.
 
@@ -21,14 +21,14 @@ second student.
 - The admission application status MUST support `ENROLLING`.
 - Only `ACCEPTED` may enter `ENROLLING`.
 - `ENROLLING` MUST be retryable.
-- `ENROLLED` MUST remain terminal for enrolment.
+- `ENROLLED` MUST remain terminal for enrollment.
 - Admission MUST persist `ENROLLING` before calling student-service.
 - Admission MUST persist `ENROLLED` only after student-service returns success.
 - Admission MUST persist the returned `studentId` with the enrolled state.
-- Student-service MUST make the enrolment operation idempotent for repeated
+- Student-service MUST make the enrollment operation idempotent for repeated
   requests for the same admission operation and user.
 - A retry after remote success and local failure MUST return the existing student
-  and MUST NOT create a second student, duplicate role, or duplicate enrolment.
+  and MUST NOT create a second student, duplicate role, or duplicate enrollment.
 - Student-service MUST preserve existing NIS/NISN conflict behavior.
 - Existing HTTP response fields remain compatible. Any new idempotency key is
   additive and documented in the cross-service contract.
@@ -37,9 +37,9 @@ second student.
 
 ## Acceptance Scenarios
 
-### Scenario 1: Begin enrolment
+### Scenario 1: Begin enrollment
 
-Given an application is `ACCEPTED`, when enrolment starts, then it becomes
+Given an application is `ACCEPTED`, when enrollment starts, then it becomes
 `ENROLLING` before the remote request is sent.
 
 ### Scenario 2: Remote failure
@@ -56,13 +56,13 @@ admission completes the local transition to `ENROLLED` without duplication.
 
 ### Scenario 4: Completed application
 
-Given an application is `ENROLLED`, when enrolment is requested again, then the
+Given an application is `ENROLLED`, when enrollment is requested again, then the
 operation does not create or mutate another student.
 
 ### Scenario 5: Concurrent retry
 
 Given two retries for one application arrive together, when both reach
-student-service, then at most one student and one active enrolment exist.
+student-service, then at most one student and one active enrollment exist.
 
 ## Success Criteria
 

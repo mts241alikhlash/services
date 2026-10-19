@@ -48,7 +48,7 @@ export class DeviceGuard implements CanActivate {
     )
 
     if (!device) {
-      throw new UnauthorizedException('Device token not recognised')
+      throw new UnauthorizedException('Device token not recognized')
     }
 
     if (!device.isActive) {

@@ -118,7 +118,7 @@ describe('SubmitLeaveRequestUseCase', () => {
     await expect(useCase.execute(dto(), REQUESTER)).rejects.toThrow(/not found/)
   })
 
-  it('normalises the dates to midnight so they match the day index', async () => {
+  it('normalizes the dates to midnight so they match the day index', async () => {
     await useCase.execute(
       dto({ startDate: '2026-09-01T13:45:00.000Z' }),
       REQUESTER,

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development with TDD and cross-service review.
 
-**Goal:** Make admission enrolment explicitly retryable and idempotent across admission-service and student-service.
+**Goal:** Make admission enrollment explicitly retryable and idempotent across admission-service and student-service.
 
 **Architecture:** Admission records `ENROLLING` before the awaited student-service call and records `ENROLLED` only after local persistence succeeds. Student-service accepts an additive operation identity and enforces idempotent repeated requests without weakening existing NIS/NISN rules.
 
@@ -31,7 +31,7 @@ Add `ENROLLING` to the admission enum and transition policy. Update repository i
 
 ### Task 3: Admission orchestration
 
-Change enrolment use case to persist `ENROLLING` before remote call, accept retry from `ENROLLING`, preserve validation, call student-service, persist `ENROLLED` with returned student ID, and notify after success. Add failure tests for remote failure and local mark failure.
+Change enrollment use case to persist `ENROLLING` before remote call, accept retry from `ENROLLING`, preserve validation, call student-service, persist `ENROLLED` with returned student ID, and notify after success. Add failure tests for remote failure and local mark failure.
 
 ### Task 4: Student contract
 
@@ -39,8 +39,8 @@ Add additive `applicationId` input only if preflight proves it is needed and saf
 
 ### Task 5: Student idempotency
 
-Implement atomic duplicate protection in student-service. Prefer existing unique `userId` behavior if concurrency tests prove it safe; otherwise add the smallest justified unique operation record/constraint and migration. Ensure repeated/concurrent requests return one student and do not duplicate role or enrolment.
+Implement atomic duplicate protection in student-service. Prefer existing unique `userId` behavior if concurrency tests prove it safe; otherwise add the smallest justified unique operation record/constraint and migration. Ensure repeated/concurrent requests return one student and do not duplicate role or enrollment.
 
 ### Task 6: Cross-service verification
 
-Run admission focused saga tests, student focused enrolment tests, full tests, typecheck, lint, strict lint, build, and validate in both services. Record environment failures separately from product failures.
+Run admission focused saga tests, student focused enrollment tests, full tests, typecheck, lint, strict lint, build, and validate in both services. Record environment failures separately from product failures.

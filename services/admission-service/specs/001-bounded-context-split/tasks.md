@@ -37,7 +37,7 @@
 
 ## Phase 8: Application
 
-- [X] T015 [US1] Create `src/admission/application/` and move application entities, parent entity, status policy, enrolment rules, repository port/adapter, workflow use cases/specs, DTOs, and controller imports without changing current enrolment state behavior.
+- [X] T015 [US1] Create `src/admission/application/` and move application entities, parent entity, status policy, enrollment rules, repository port/adapter, workflow use cases/specs, DTOs, and controller imports without changing current enrollment state behavior.
 - [X] T016 [US1] Run application workflow/stats tests, route tests, boot test, and `pnpm run typecheck`; write `application-checkpoint.md`.
 
 ## Phase 9: Final Verification

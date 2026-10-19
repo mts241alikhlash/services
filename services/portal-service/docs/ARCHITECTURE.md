@@ -319,7 +319,7 @@ identity-service.**
 | Here | May do | Left behind |
 | --- | --- | --- |
 | `platform/auth` | Verify a token, check the session is live | Login, refresh, logout, password reset, session cleanup |
-| `platform/access-control` | `PermissionGuard` asking if the caller holds a permission | The use cases, the controller, the catalogue-sync hook |
+| `platform/access-control` | `PermissionGuard` asking if the caller holds a permission | The use cases, the controller, the catalog-sync hook |
 | `platform/audit-log` | Write an audit entry for a content change | Reading and searching the audit log |
 | `platform/file` | Resolve and serve an uploaded file | File administration |
 

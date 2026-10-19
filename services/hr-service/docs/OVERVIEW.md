@@ -43,7 +43,7 @@ that already held the employment record, and presence stayed person-agnostic.
 |---|---|---|
 | Cross-service edges | 3, two of them to presence | 2, both to presence |
 | The roster | an HTTP call to employee-service | in process — the staff record is here |
-| `summariseMonth` | a **verbatim copy** of presence's arithmetic | `POST /daily-presences/monthly-summary`, served |
+| `summarizeMonth` | a **verbatim copy** of presence's arithmetic | `POST /daily-presences/monthly-summary`, served |
 | Guards cut in half | 2 | **0** — both now live in this repo |
 | Frontend of its own | none | 241 HR (`hr-web`) is exactly this service's frontend |
 

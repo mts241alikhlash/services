@@ -59,7 +59,7 @@ function context(overrides: Record<string, unknown> = {}) {
 }
 
 describe('GetDocumentReviewQueueUseCase', () => {
-  it('defaults to Menunggu, summarises the required documents and pages the meta', async () => {
+  it('defaults to Menunggu, summarizes the required documents and pages the meta', async () => {
     const findQueue = jest.fn().mockResolvedValue({
       records: [
         {

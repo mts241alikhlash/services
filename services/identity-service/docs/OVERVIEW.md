@@ -51,7 +51,7 @@ identity at all:
 | Module | What |
 |---|---|
 | `auth/` | Sign-in, refresh, `GET /auth/me`, password reset, `JwtAuthGuard`, nightly session cleanup |
-| `access-control/` | `role/` and `permission/`, the permission catalogue, `PermissionGuard` |
+| `access-control/` | `role/` and `permission/`, the permission catalog, `PermissionGuard` |
 | `user/` | Accounts, and provisioning an account together with its profile |
 | `session/` | Active sessions, revocation |
 | `audit-log/` | Who did what |
@@ -127,7 +127,7 @@ break-glass, inside `PermissionGuard` itself. That check must not be copied
 anywhere else, and `src/single-role-bypass.spec.ts` is the sweep that says so
 (ADR-0011). `ADMIN` bypassed too until 2026-08-15; it no longer does.
 
-The permission catalogue and `STRUCTURAL_ROLES` ship with the code and are
+The permission catalog and `STRUCTURAL_ROLES` ship with the code and are
 synced at bootstrap. Production is populated through the UI and never runs a
 seed, so a permission that exists in code but not in the database cannot be
 granted at all — it simply does not appear on the role screen, with nothing to

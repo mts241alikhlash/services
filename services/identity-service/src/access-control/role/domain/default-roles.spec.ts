@@ -7,7 +7,7 @@ const contains = (outer: string, inner: string) =>
   [...codesOf(inner)].every((code) => codesOf(outer).has(code))
 
 describe('default roles', () => {
-  it('resolves every role against the catalogue', () => {
+  it('resolves every role against the catalog', () => {
     for (const role of DEFAULT_ROLES) {
       expect(() => resolveGrants(role.code)).not.toThrow()
     }
@@ -66,26 +66,26 @@ describe('default roles', () => {
     expect(codesOf('PRINCIPAL').has('payroll-runs.approve')).toBe(true)
   })
 
-  it('lets TU Kesantrian and the deputy for student affairs enrol and number students, and others only read the queue', () => {
+  it('lets TU Kesantrian and the deputy for student affairs enroll and number students, and others only read the queue', () => {
     for (const role of [
       'STUDENT_AFFAIRS_STAFF',
       'VICE_PRINCIPAL_STUDENT_AFFAIRS',
     ]) {
       for (const action of ['read', 'process', 'nis']) {
-        expect(codesOf(role)).toContain(`admission-enrolments.${action}`)
+        expect(codesOf(role)).toContain(`admission-enrollments.${action}`)
       }
     }
     for (const role of ['ADMISSION_ADMIN', 'OPERATOR']) {
-      expect(codesOf(role)).toContain('admission-enrolments.read')
-      expect(codesOf(role)).not.toContain('admission-enrolments.process')
-      expect(codesOf(role)).not.toContain('admission-enrolments.nis')
+      expect(codesOf(role)).toContain('admission-enrollments.read')
+      expect(codesOf(role)).not.toContain('admission-enrollments.process')
+      expect(codesOf(role)).not.toContain('admission-enrollments.nis')
     }
     for (const role of ['TREASURER', 'VICE_PRINCIPAL_CURRICULUM']) {
-      expect(codesOf(role)).not.toContain('admission-enrolments.process')
-      expect(codesOf(role)).not.toContain('admission-enrolments.nis')
+      expect(codesOf(role)).not.toContain('admission-enrollments.process')
+      expect(codesOf(role)).not.toContain('admission-enrollments.nis')
     }
-    expect(codesOf('PRINCIPAL')).toContain('admission-enrolments.read')
-    expect(codesOf('PRINCIPAL')).not.toContain('admission-enrolments.process')
+    expect(codesOf('PRINCIPAL')).toContain('admission-enrollments.read')
+    expect(codesOf('PRINCIPAL')).not.toContain('admission-enrollments.process')
   })
 
   it('lets applicants apply and nothing else', () => {
@@ -105,7 +105,7 @@ describe('default roles', () => {
     expect(resolveGrants('PARENT')).toEqual([])
   })
 
-  it('refuses a code missing from the catalogue', () => {
+  it('refuses a code missing from the catalog', () => {
     const withoutApply = SYSTEM_PERMISSIONS.filter(
       (p) => p.code !== 'admissions.apply',
     )

@@ -339,7 +339,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Cancel an acceptance until enrolment starts */
+        /** Cancel an acceptance until enrollment starts */
         post: operations["AdmissionDecisionController_cancelAcceptance"];
         delete?: never;
         options?: never;
@@ -606,15 +606,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admissions/enrolments": {
+    "/admissions/enrollments": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Enrolment queue by tab, with tab counts and school years */
-        get: operations["AdmissionEnrolmentController_findAll"];
+        /** Enrollment queue by tab, with tab counts and school years */
+        get: operations["AdmissionEnrollmentController_findAll"];
         put?: never;
         post?: never;
         delete?: never;
@@ -623,7 +623,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admissions/enrolments/{applicationId}/placement": {
+    "/admissions/enrollments/{applicationId}/placement": {
         parameters: {
             query?: never;
             header?: never;
@@ -637,10 +637,10 @@ export interface paths {
         options?: never;
         head?: never;
         /** Set the admission type and the target grade */
-        patch: operations["AdmissionEnrolmentController_setPlacement"];
+        patch: operations["AdmissionEnrollmentController_setPlacement"];
         trace?: never;
     };
-    "/admissions/enrolments/nis": {
+    "/admissions/enrollments/nis": {
         parameters: {
             query?: never;
             header?: never;
@@ -650,14 +650,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Compose the NIS of a school year */
-        post: operations["AdmissionEnrolmentController_compose"];
+        post: operations["AdmissionEnrollmentController_compose"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/admissions/enrolments/nis-lock": {
+    "/admissions/enrollments/nis-lock": {
         parameters: {
             query?: never;
             header?: never;
@@ -667,14 +667,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Lock the NIS of a school year for good */
-        post: operations["AdmissionEnrolmentController_lock"];
+        post: operations["AdmissionEnrollmentController_lock"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/admissions/enrolments/nis-preview": {
+    "/admissions/enrollments/nis-preview": {
         parameters: {
             query?: never;
             header?: never;
@@ -682,7 +682,7 @@ export interface paths {
             cookie?: never;
         };
         /** The NIS that composing a school year would give */
-        get: operations["AdmissionEnrolmentController_preview"];
+        get: operations["AdmissionEnrollmentController_preview"];
         put?: never;
         post?: never;
         delete?: never;
@@ -691,7 +691,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admissions/enrolments/process": {
+    "/admissions/enrollments/process": {
         parameters: {
             query?: never;
             header?: never;
@@ -700,8 +700,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Enrol up to 50 accepted applicants as students */
-        post: operations["AdmissionEnrolmentController_process"];
+        /** Enroll up to 50 accepted applicants as students */
+        post: operations["AdmissionEnrollmentController_process"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2846,33 +2846,33 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
-        AdmissionEnrolmentCountsDto: {
+        AdmissionEnrollmentCountsDto: {
             done: number;
             held: number;
             ready: number;
         };
-        AdmissionEnrolmentMetaDto: {
-            counts: components["schemas"]["AdmissionEnrolmentCountsDto"];
+        AdmissionEnrollmentMetaDto: {
+            counts: components["schemas"]["AdmissionEnrollmentCountsDto"];
             limit: number;
             page: number;
             total: number;
             totalPages: number;
-            years: components["schemas"]["AdmissionEnrolmentYearDto"][];
+            years: components["schemas"]["AdmissionEnrollmentYearDto"][];
         };
-        AdmissionEnrolmentProcessResponseDto: {
-            results: components["schemas"]["AdmissionEnrolmentResultDto"][];
+        AdmissionEnrollmentProcessResponseDto: {
+            results: components["schemas"]["AdmissionEnrollmentResultDto"][];
         };
-        AdmissionEnrolmentQueueResponseDto: {
-            data: components["schemas"]["AdmissionEnrolmentRowResponseDto"][];
-            meta: components["schemas"]["AdmissionEnrolmentMetaDto"];
+        AdmissionEnrollmentQueueResponseDto: {
+            data: components["schemas"]["AdmissionEnrollmentRowResponseDto"][];
+            meta: components["schemas"]["AdmissionEnrollmentMetaDto"];
         };
-        AdmissionEnrolmentResultDto: {
+        AdmissionEnrollmentResultDto: {
             applicationId: string;
             /** @enum {string} */
             outcome: "ENROLLED" | "SKIPPED" | "FAILED";
             reason?: string;
         };
-        AdmissionEnrolmentRowResponseDto: {
+        AdmissionEnrollmentRowResponseDto: {
             academicYearId: string;
             /** @enum {string|null} */
             admissionType: "NEW" | "TRANSFER" | null;
@@ -2887,7 +2887,7 @@ export interface components {
             targetGradeLevel: number | null;
             waveName: string;
         };
-        AdmissionEnrolmentYearDto: {
+        AdmissionEnrollmentYearDto: {
             academicYearId: string;
             academicYearName: string | null;
             locked: boolean;
@@ -3595,7 +3595,7 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
-        ProcessEnrolmentsDto: {
+        ProcessEnrollmentsDto: {
             applicationIds: string[];
             nisn?: components["schemas"]["ProcessNisnDto"][];
         };
@@ -5262,7 +5262,7 @@ export interface operations {
             };
         };
     };
-    AdmissionEnrolmentController_findAll: {
+    AdmissionEnrollmentController_findAll: {
         parameters: {
             query?: {
                 limit?: number;
@@ -5284,10 +5284,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["AdmissionEnrolmentRowResponseDto"][];
+                        data?: components["schemas"]["AdmissionEnrollmentRowResponseDto"][];
                         /** @example Success */
                         message?: string;
-                        meta?: components["schemas"]["AdmissionEnrolmentMetaDto"];
+                        meta?: components["schemas"]["AdmissionEnrollmentMetaDto"];
                         /** @example 200 */
                         statusCode?: number;
                     };
@@ -5295,7 +5295,7 @@ export interface operations {
             };
         };
     };
-    AdmissionEnrolmentController_setPlacement: {
+    AdmissionEnrollmentController_setPlacement: {
         parameters: {
             query?: never;
             header?: never;
@@ -5326,7 +5326,7 @@ export interface operations {
             };
         };
     };
-    AdmissionEnrolmentController_compose: {
+    AdmissionEnrollmentController_compose: {
         parameters: {
             query?: never;
             header?: never;
@@ -5362,7 +5362,7 @@ export interface operations {
             };
         };
     };
-    AdmissionEnrolmentController_lock: {
+    AdmissionEnrollmentController_lock: {
         parameters: {
             query?: never;
             header?: never;
@@ -5391,7 +5391,7 @@ export interface operations {
             };
         };
     };
-    AdmissionEnrolmentController_preview: {
+    AdmissionEnrollmentController_preview: {
         parameters: {
             query: {
                 academicYearId: string;
@@ -5418,7 +5418,7 @@ export interface operations {
             };
         };
     };
-    AdmissionEnrolmentController_process: {
+    AdmissionEnrollmentController_process: {
         parameters: {
             query?: never;
             header?: never;
@@ -5427,7 +5427,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ProcessEnrolmentsDto"];
+                "application/json": components["schemas"]["ProcessEnrollmentsDto"];
             };
         };
         responses: {
@@ -5437,7 +5437,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["AdmissionEnrolmentProcessResponseDto"];
+                        data?: components["schemas"]["AdmissionEnrollmentProcessResponseDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */

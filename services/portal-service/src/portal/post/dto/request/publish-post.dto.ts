@@ -14,7 +14,7 @@ export class PublishPostDto {
 
   @ApiPropertyOptional({
     description:
-      'Go live at this moment instead of now. Must be in the future. The item becomes public when this passes, whether or not the status-normalising job has run.',
+      'Go live at this moment instead of now. Must be in the future. The item becomes public when this passes, whether or not the status-normalizing job has run.',
     example: '2026-08-09T00:00:00.000Z',
   })
   @IsOptional()

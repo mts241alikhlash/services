@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsUUID } from 'class-validator'
 
 export class BulkGenerateReportCardDto {
-  @ApiProperty({ description: 'Classroom whose active enrolments are graded' })
+  @ApiProperty({ description: 'Classroom whose active enrollments are graded' })
   @IsUUID()
   classroomId!: string
 

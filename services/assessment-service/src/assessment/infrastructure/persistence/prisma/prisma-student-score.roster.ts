@@ -22,18 +22,18 @@ export async function buildScoreRoster(
     where: {
       assessmentItemId,
       deletedAt: null,
-      enrollmentId: { in: enrollments.map((enrolment) => enrolment.id) },
+      enrollmentId: { in: enrollments.map((enrollment) => enrollment.id) },
     },
   })
   const scoreMap = new Map(scores.map((score) => [score.enrollmentId, score]))
 
   return enrollments
-    .map((enrolment) => {
-      const score = scoreMap.get(enrolment.id)
+    .map((enrollment) => {
+      const score = scoreMap.get(enrollment.id)
       return {
-        enrollmentId: enrolment.id,
-        nis: enrolment.studentNis ?? '',
-        studentName: enrolment.studentName ?? '-',
+        enrollmentId: enrollment.id,
+        nis: enrollment.studentNis ?? '',
+        studentName: enrollment.studentName ?? '-',
         scoreId: score?.id ?? null,
         score: score?.score ?? null,
         note: score?.note ?? null,

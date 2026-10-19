@@ -315,7 +315,7 @@ with it.
 | Here                                 | May do                                                                 | Left behind                                               |
 | ------------------------------------ | ---------------------------------------------------------------------- | --------------------------------------------------------- |
 | `platform/auth`                      | Verify a token, check the session is live                              | Login, refresh, logout, password reset, session cleanup   |
-| `platform/access-control/permission` | `PermissionGuard` asking if the caller holds a permission              | Eight use cases, the controller, the catalogue-sync hook  |
+| `platform/access-control/permission` | `PermissionGuard` asking if the caller holds a permission              | Eight use cases, the controller, the catalog-sync hook  |
 | `platform/user`                      | `AccountProvisioningService` — the account behind a teacher or student | `GET/POST/PATCH/DELETE /users` and their five use cases   |
 | `platform/profile-lookup`            | `POST /profiles/batch` — a roster's teacher/student names, cached      | Everything else about `Profile` — it is not identity-service's `user` module, just the one read a roster needs |
 
@@ -396,12 +396,12 @@ account and carries a password hash across the wire, which is a stronger
 operation that copying the open pattern onto without deciding on purpose
 would have been a gap, not a convention.
 
-Related: **enrolment happens here, not in admission-service.**
-`POST /students/enrol` took the transaction on 2026-08-30 — student, profile,
-parents, address, STUDENT grant, classroom enrolment — and admission marks its
+Related: **enrollment happens here, not in admission-service.**
+`POST /students/enroll` took the transaction on 2026-08-30 — student, profile,
+parents, address, STUDENT grant, classroom enrollment — and admission marks its
 application ENROLLED afterwards, separately. It is **idempotent on `userId`**,
 which is load-bearing: admission's second write can fail and the repair is to
-repeat the whole action. `enrol-existing-account.use-case.spec.ts` guards the
+repeat the whole action. `enroll-existing-account.use-case.spec.ts` guards the
 ordering because it was once wrong — uniqueness before idempotency — and a
 retry was rejected as a duplicate NIS by the very student it was confirming.
 
@@ -499,7 +499,7 @@ it.
 | ----------------------------------------- | --------------------------------------------------------------------------- |
 | `src/single-role-bypass.spec.ts`          | `SUPER_ADMIN` is checked in exactly one place, `PermissionGuard` (ADR-0011) |
 | `src/app.module.boots.spec.ts`            | The app boots — catches a provider injected without its module imported     |
-| `enrol-existing-account.use-case.spec.ts` | Idempotency is checked before uniqueness                                    |
+| `enroll-existing-account.use-case.spec.ts` | Idempotency is checked before uniqueness                                    |
 
 Authorization rule, binding: **permissions, never role names** —
 `@RequirePermissions('students.create')`, module segment plural.
@@ -532,7 +532,7 @@ chase real-time consistency with identity-service.
 # PITFALLS
 
 **Never `git add -A` or `git add .` without a path.** ~1000 files show as
-modified from CRLF/LF normalisation with zero content change, plus some
+modified from CRLF/LF normalization with zero content change, plus some
 unrelated pending deletions. Scope to the module, and read
 `git diff --cached --stat` before committing. To tell a real change from
 line-ending noise: `git diff --ignore-cr-at-eol -- <path>` — empty means no

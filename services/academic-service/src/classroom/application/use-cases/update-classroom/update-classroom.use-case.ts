@@ -34,7 +34,7 @@ export class UpdateClassroomUseCase {
 
       if (enrollments > 0 || assignments > 0) {
         throw new ConflictException(
-          `This classroom already has ${enrollments} enrolment(s) and ` +
+          `This classroom already has ${enrollments} enrollment(s) and ` +
             `${assignments} teaching assignment(s), so its academic year and ` +
             'grade can no longer be changed. Create a classroom in the target ' +
             'academic year instead.',

@@ -37,7 +37,7 @@ export async function decorateAttendance(
   const assignmentById = new Map(assignments.map((row) => [row.id, row]))
 
   return rows.map((row) => {
-    const enrolment = enrollmentById.get(row.enrollmentId)
+    const enrollment = enrollmentById.get(row.enrollmentId)
     const schedule = row.scheduleId ? scheduleById.get(row.scheduleId) : null
 
     return {
@@ -52,21 +52,21 @@ export async function decorateAttendance(
             ),
           }
         : null,
-      enrollment: enrolment
+      enrollment: enrollment
         ? {
-            id: enrolment.id,
-            studentId: enrolment.studentId,
-            classroomId: enrolment.classroomId,
-            semesterId: enrolment.semesterId,
+            id: enrollment.id,
+            studentId: enrollment.studentId,
+            classroomId: enrollment.classroomId,
+            semesterId: enrollment.semesterId,
             student: {
-              id: enrolment.studentId,
-              userId: enrolment.studentUserId ?? '',
-              user: enrolment.studentUserId
+              id: enrollment.studentId,
+              userId: enrollment.studentUserId ?? '',
+              user: enrollment.studentUserId
                 ? {
-                    id: enrolment.studentUserId,
-                    identifier: enrolment.studentNis ?? '',
+                    id: enrollment.studentUserId,
+                    identifier: enrollment.studentNis ?? '',
                     isActive: true,
-                    profile: { name: enrolment.studentName ?? '' },
+                    profile: { name: enrollment.studentName ?? '' },
                   }
                 : undefined,
             },

@@ -42,7 +42,7 @@ wave -> announcement -> applicant -> document -> payment -> notification -> appl
   codes, search semantics, ordering, persistence behavior, and integration
   contracts MUST remain unchanged.
 - The `application` context MUST be migrated last because it owns the status
-  machine, enrolment handover, and highest dependency count.
+  machine, enrollment handover, and highest dependency count.
 
 ## Acceptance Scenarios
 

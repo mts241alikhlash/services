@@ -374,7 +374,7 @@ is a defect.
 |---|---|
 | A person appears as a label | `PROFILE_NAME_SELECT` |
 | A person's picture is drawn | `PROFILE_DISPLAY_SELECT` |
-| Student, teacher or enrolment list | `PROFILE_ROSTER_SELECT` |
+| Student, teacher or enrollment list | `PROFILE_ROSTER_SELECT` |
 | A spreadsheet export or the profile screen | Its own explicit select, at the call site, with a comment |
 
 Each shape carries `satisfies Prisma.ProfileDefaultArgs`, so a field that does
@@ -685,7 +685,7 @@ When in doubt: no comment.
 The deployment is single-school. There is no `organizationId`, and
 `schoolUnitId` exists only on `Address` and a couple of platform models — the
 academic domain does not filter by it anywhere. Do not add a tenant filter that
-the schema cannot honour.
+the schema cannot honor.
 
 What every academic query MUST scope by instead:
 
@@ -702,7 +702,7 @@ it silently returns removed students, classes, and scores.
 
 2. Period, wherever the row belongs to one
 
-semesterId — enrolments, teaching assignments, supervisors
+semesterId — enrollments, teaching assignments, supervisors
 
 academicYearId — classrooms, curricula, semesters
 
@@ -857,7 +857,7 @@ Why (ADR-0002)
 
 `student.created` used to be emitted after creating a student with a classroom,
 with `EnrollmentModule` listening. `EventEmitter2.emit()` is never awaited, so a
-failed enrolment was only logged — the API had already answered "created". It
+failed enrollment was only logged — the API had already answered "created". It
 was replaced by an awaited call to `EnsureStudentEnrollmentUseCase`, and the
 event + listener were deleted.
 
@@ -1086,7 +1086,7 @@ One file per exception, under the owning module's `domain/exceptions/`, plus an
 Use a Prisma transaction when several writes inside ONE module must land
 together:
 
-Student promotion / semester rollover  (classrooms → enrolments → schedules)
+Student promotion / semester rollover  (classrooms → enrollments → schedules)
 
 Account provisioning  (User + Profile + Student/Teacher)
 
@@ -1208,7 +1208,7 @@ against a service boundary that isn't real yet.
 next to.** The transaction that used to make "create the student" and
 "create the account" atomic is gone once the second half is an HTTP call.
 Decide explicitly what happens on partial failure — an outbox, a
-compensating delete, or (per `enrol-existing-account.use-case.spec.ts`'s
+compensating delete, or (per `enroll-existing-account.use-case.spec.ts`'s
 precedent) an idempotent retry — before merging. "It probably won't fail" is
 not a decision.
 

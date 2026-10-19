@@ -69,7 +69,7 @@ describe('report card list scoping', () => {
     })
   })
 
-  it('filters by the enrolments the scope resolved to', async () => {
+  it('filters by the enrollments the scope resolved to', async () => {
     const { repository, findMany } = repositoryWithSpy(['enr-1', 'enr-2'])
 
     await repository.findAll({ page: 1, limit: 10, studentId: 'stu-1' })
@@ -79,7 +79,7 @@ describe('report card list scoping', () => {
     })
   })
 
-  it('matches nothing when a scope resolves to no enrolment', async () => {
+  it('matches nothing when a scope resolves to no enrollment', async () => {
     const { repository, findMany } = repositoryWithSpy([])
 
     await repository.findAll({ page: 1, limit: 10, studentId: 'stu-1' })
@@ -87,7 +87,7 @@ describe('report card list scoping', () => {
     expect(findMany.mock.calls[0][0].where.enrollmentId).toEqual({ in: [] })
   })
 
-  it('omits the enrolment filter entirely when nothing scopes it', async () => {
+  it('omits the enrollment filter entirely when nothing scopes it', async () => {
     const { repository, findMany, findActiveSemester, search } =
       repositoryWithSpy()
     findActiveSemester.mockResolvedValue(null)

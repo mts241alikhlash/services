@@ -8,6 +8,6 @@ export class GetAuditLogSummaryUseCase {
   constructor(private readonly auditLogRepository: IAuditLogRepository) {}
 
   async execute() {
-    return this.auditLogRepository.summarise(new Date(Date.now() - ONE_DAY_MS))
+    return this.auditLogRepository.summarize(new Date(Date.now() - ONE_DAY_MS))
   }
 }

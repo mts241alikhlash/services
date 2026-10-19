@@ -51,7 +51,7 @@ function summary(userId: string, overrides: Record<string, number> = {}) {
 describe('PayslipComposerService', () => {
   let composer: PayslipComposerService
   const resolver = { resolve: jest.fn(), unconfigured: jest.fn() }
-  const presence = { summariseMonth: jest.fn(), findByUsersAndDate: jest.fn() }
+  const presence = { summarizeMonth: jest.fn(), findByUsersAndDate: jest.fn() }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -73,7 +73,7 @@ describe('PayslipComposerService', () => {
     resolver.resolve.mockResolvedValue(
       new Map([[AHMAD, [base('3500000.00'), absenceDeduction('150000.00')]]]),
     )
-    presence.summariseMonth.mockResolvedValue([
+    presence.summarizeMonth.mockResolvedValue([
       summary(AHMAD, { absentDays: 2 }),
     ])
 
@@ -89,7 +89,7 @@ describe('PayslipComposerService', () => {
     resolver.resolve.mockResolvedValue(
       new Map([[AHMAD, [absenceDeduction('150000.00')]]]),
     )
-    presence.summariseMonth.mockResolvedValue([
+    presence.summarizeMonth.mockResolvedValue([
       summary(AHMAD, { absentDays: 1 }),
     ])
 
@@ -104,7 +104,7 @@ describe('PayslipComposerService', () => {
 
   it('carries no driver, count or rate on a fixed component', async () => {
     resolver.resolve.mockResolvedValue(new Map([[AHMAD, [base('3500000.00')]]]))
-    presence.summariseMonth.mockResolvedValue([summary(AHMAD)])
+    presence.summarizeMonth.mockResolvedValue([summary(AHMAD)])
 
     const { payslips } = await composer.compose([AHMAD], 2026, 7)
 
@@ -120,7 +120,7 @@ describe('PayslipComposerService', () => {
     resolver.resolve.mockResolvedValue(
       new Map([[SITI, [base('3000000.00'), absenceDeduction('150000.00')]]]),
     )
-    presence.summariseMonth.mockResolvedValue([])
+    presence.summarizeMonth.mockResolvedValue([])
 
     const { payslips } = await composer.compose([SITI], 2026, 7)
 
@@ -137,14 +137,14 @@ describe('PayslipComposerService', () => {
 
     expect(result.payslips).toEqual([])
     expect(result.unconfigured).toEqual([SITI])
-    expect(presence.summariseMonth).not.toHaveBeenCalled()
+    expect(presence.summarizeMonth).not.toHaveBeenCalled()
   })
 
   it('reconciles: gross − deductions = net, from the rounded lines', async () => {
     resolver.resolve.mockResolvedValue(
       new Map([[AHMAD, [base('3333333.33'), absenceDeduction('333333.33')]]]),
     )
-    presence.summariseMonth.mockResolvedValue([
+    presence.summarizeMonth.mockResolvedValue([
       summary(AHMAD, { absentDays: 1 }),
     ])
 

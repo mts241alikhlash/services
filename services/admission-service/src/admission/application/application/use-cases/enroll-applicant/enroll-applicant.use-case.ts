@@ -16,7 +16,7 @@ import {
 } from '../../../domain/policies/enroll-as-student.rules.js'
 import { IAdmissionApplicationRepository } from '../../../domain/repositories/admission-application-repository.js'
 import { AdmissionNotificationService } from '../../../../notification/index.js'
-import { IStudentEnrolmentPort } from '../../../infrastructure/integration/student-enrolment.port.js'
+import { IStudentEnrollmentPort } from '../../../infrastructure/integration/student-enrollment.port.js'
 import type { EnrollApplicantInput } from './enroll-applicant.input.js'
 
 @Injectable()
@@ -26,7 +26,7 @@ export class EnrollApplicantUseCase {
   constructor(
     private readonly admissionApplicationRepository: IAdmissionApplicationRepository,
     private readonly notifications: AdmissionNotificationService,
-    private readonly enrolment: IStudentEnrolmentPort,
+    private readonly enrollment: IStudentEnrollmentPort,
   ) {}
 
   async execute(
@@ -83,7 +83,7 @@ export class EnrollApplicantUseCase {
       await this.admissionApplicationRepository.setEnrolling(application.id)
     }
 
-    const enrolled = await this.enrolment.enrol(
+    const enrolled = await this.enrollment.enroll(
       {
         applicationId: application.id,
         userId: application.userId,

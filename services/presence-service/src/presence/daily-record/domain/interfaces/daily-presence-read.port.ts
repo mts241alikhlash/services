@@ -24,7 +24,7 @@ export abstract class IDailyPresenceReadPort {
     date: Date,
   ): Promise<GateSuggestion[]>
 
-  abstract summariseMonth(
+  abstract summarizeMonth(
     userIds: string[],
     year: number,
     month: number,

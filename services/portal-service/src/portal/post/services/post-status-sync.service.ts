@@ -13,13 +13,11 @@ export class PostStatusSyncService {
     try {
       const count = await this.postRepository.normalizeDueScheduled()
       if (count > 0) {
-        this.logger.log(
-          `Relabelled ${count} due scheduled post(s) as published`,
-        )
+        this.logger.log(`Relabeled ${count} due scheduled post(s) as published`)
       }
     } catch (error) {
       this.logger.warn(
-        `Status normalisation skipped: ${
+        `Status normalization skipped: ${
           error instanceof Error ? error.message : String(error)
         }`,
       )
