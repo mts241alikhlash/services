@@ -33,6 +33,7 @@ export class GetDocumentReviewQueueUseCase {
         applicantName: record.applicantName,
         waveName: record.waveName,
         status: record.status,
+        revisionNote: record.revisionNote ?? null,
         submittedAt: record.submittedAt,
         summary: summarizeDocuments(requiredTypeIds, record.documents),
       })),

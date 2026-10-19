@@ -108,6 +108,48 @@ describe('GetDocumentReviewQueueUseCase', () => {
   })
 })
 
+describe('GetDocumentReviewQueueUseCase revision note', () => {
+  const record = {
+    applicationId: 'app1',
+    registrationNumber: 'PPDB-001',
+    applicantName: 'Ahmad',
+    waveName: 'Gelombang 1',
+    status: 'REVISION_NEEDED',
+    submittedAt: null,
+    documents: [],
+  }
+
+  it('shows the note the staff sent with the revision request', async () => {
+    const findQueue = jest.fn().mockResolvedValue({
+      records: [{ ...record, revisionNote: 'Foto KK buram' }],
+      total: 1,
+      counts: { waiting: 0, revision: 1, done: 0 },
+      requiredTypeIds: [],
+    })
+
+    const result = await new GetDocumentReviewQueueUseCase({
+      findQueue,
+    } as never).execute({ tab: 'revision' })
+
+    expect(result.data[0].revisionNote).toBe('Foto KK buram')
+  })
+
+  it('answers null when the repository sends no note', async () => {
+    const findQueue = jest.fn().mockResolvedValue({
+      records: [record],
+      total: 1,
+      counts: { waiting: 0, revision: 1, done: 0 },
+      requiredTypeIds: [],
+    })
+
+    const result = await new GetDocumentReviewQueueUseCase({
+      findQueue,
+    } as never).execute({ tab: 'revision' })
+
+    expect(result.data[0].revisionNote).toBeNull()
+  })
+})
+
 describe('GetDocumentReviewUseCase', () => {
   it('returns the review page of a submitted application as editable', async () => {
     const repository = { findContext: jest.fn().mockResolvedValue(context()) }

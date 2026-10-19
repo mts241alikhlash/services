@@ -14008,6 +14008,10 @@
           "status": {
             "type": "string"
           },
+          "revisionNote": {
+            "type": "string",
+            "nullable": true
+          },
           "submittedAt": {
             "type": "string",
             "nullable": true,

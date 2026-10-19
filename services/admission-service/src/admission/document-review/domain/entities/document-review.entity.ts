@@ -14,6 +14,7 @@ export interface ReviewQueueRecord {
   applicantName: string
   waveName: string
   status: string
+  revisionNote?: string | null
   submittedAt: Date | null
   documents: { documentTypeId: string; status: string }[]
 }
