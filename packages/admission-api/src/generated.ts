@@ -2552,6 +2552,7 @@ export interface components {
             applicantName: string;
             applicationId: string;
             registrationNumber: string;
+            revisionNote?: string | null;
             status: string;
             /** Format: date-time */
             submittedAt: string | null;

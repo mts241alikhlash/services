@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import type { DocumentSummary } from '../../../../domain/policies/document-summary.policy.js'
 import type {
   ReviewDocument,
@@ -184,6 +184,9 @@ export class AdmissionDocumentReviewRowResponseDto {
   @ApiProperty({ type: String })
   status!: string
 
+  @ApiPropertyOptional({ type: String, nullable: true })
+  revisionNote?: string | null
+
   @ApiProperty({ type: String, format: 'date-time', nullable: true })
   submittedAt!: string | null
 
@@ -196,6 +199,7 @@ export class AdmissionDocumentReviewRowResponseDto {
     applicantName: string
     waveName: string
     status: string
+    revisionNote?: string | null
     submittedAt: Date | null
     summary: DocumentSummary
   }): AdmissionDocumentReviewRowResponseDto {
@@ -205,6 +209,7 @@ export class AdmissionDocumentReviewRowResponseDto {
     dto.applicantName = domain.applicantName
     dto.waveName = domain.waveName
     dto.status = domain.status
+    dto.revisionNote = domain.revisionNote ?? null
     dto.submittedAt = domain.submittedAt?.toISOString() ?? null
     dto.summary = domain.summary
     return dto

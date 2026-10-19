@@ -127,10 +127,7 @@ export class PrismaAdmissionDocumentReviewRepository extends IAdmissionDocumentR
     const [records, total, waiting, revision, done] = await Promise.all([
       this.prisma.admissionApplication.findMany({
         where: within(query.tab),
-        orderBy:
-          query.tab === 'waiting'
-            ? [{ submittedAt: 'asc' }, { id: 'asc' }]
-            : [{ updatedAt: 'desc' }, { id: 'asc' }],
+        orderBy: [{ registrationNumber: 'asc' }, { id: 'asc' }],
         skip: (query.page - 1) * query.limit,
         take: query.limit,
         select: {
@@ -138,6 +135,7 @@ export class PrismaAdmissionDocumentReviewRepository extends IAdmissionDocumentR
           registrationNumber: true,
           fullName: true,
           status: true,
+          revisionNote: true,
           submittedAt: true,
           wave: { select: { name: true } },
           documents: { select: { documentTypeId: true, status: true } },
@@ -156,6 +154,7 @@ export class PrismaAdmissionDocumentReviewRepository extends IAdmissionDocumentR
         applicantName: record.fullName,
         waveName: record.wave.name,
         status: record.status,
+        revisionNote: record.revisionNote,
         submittedAt: record.submittedAt,
         documents: record.documents,
       })),

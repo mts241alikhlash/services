@@ -44,10 +44,10 @@ describe('PrismaAdmissionDocumentReviewRepository.findQueue', () => {
         },
       ],
     })
-    expect(call.orderBy).toEqual([{ submittedAt: 'asc' }, { id: 'asc' }])
+    expect(call.orderBy).toEqual([{ registrationNumber: 'asc' }, { id: 'asc' }])
   })
 
-  it('puts a REVISION_NEEDED application in Perlu perbaikan, newest first', async () => {
+  it('puts a REVISION_NEEDED application in Perlu perbaikan, ordered by registration number', async () => {
     const { repository, findMany } = queueRepository()
 
     await repository.findQueue({ tab: 'revision', page: 1, limit: 20 })
@@ -59,7 +59,7 @@ describe('PrismaAdmissionDocumentReviewRepository.findQueue', () => {
     expect(call.where).toEqual({
       AND: [scope, { status: 'REVISION_NEEDED' }],
     })
-    expect(call.orderBy).toEqual([{ updatedAt: 'desc' }, { id: 'asc' }])
+    expect(call.orderBy).toEqual([{ registrationNumber: 'asc' }, { id: 'asc' }])
   })
 
   it('puts fully approved submitted applications and every later status in Selesai', async () => {
