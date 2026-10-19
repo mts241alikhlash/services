@@ -931,7 +931,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete a tag — the posts it labelled are untouched */
+        /** Delete a tag — the posts it labeled are untouched */
         delete: operations["TagController_remove"];
         options?: never;
         head?: never;
@@ -1641,7 +1641,7 @@ export interface components {
         };
         PublishPostDto: {
             /**
-             * @description Go live at this moment instead of now. Must be in the future. The item becomes public when this passes, whether or not the status-normalising job has run.
+             * @description Go live at this moment instead of now. Must be in the future. The item becomes public when this passes, whether or not the status-normalizing job has run.
              * @example 2026-08-09T00:00:00.000Z
              */
             scheduledAt?: string;

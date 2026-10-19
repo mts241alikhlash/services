@@ -64,7 +64,7 @@ export class PrismaSemesterRepository extends ISemesterRepository {
   ): Promise<SemesterWithDetails[]> {
     if (rows.length === 0) return []
 
-    const [enrolmentCounts, assignmentCounts] = await Promise.all([
+    const [enrollmentCounts, assignmentCounts] = await Promise.all([
       this.enrollmentLookup.countBySemesters(rows.map((row) => row.id)),
       this.prisma.teachingAssignment.groupBy({
         by: ['semesterId'],
@@ -83,7 +83,7 @@ export class PrismaSemesterRepository extends ISemesterRepository {
     return rows.map((row) => ({
       ...row,
       _count: {
-        enrollments: enrolmentCounts.get(row.id) ?? 0,
+        enrollments: enrollmentCounts.get(row.id) ?? 0,
         teachingAssignments: assignmentsBySemester.get(row.id) ?? 0,
       },
     }))
@@ -169,7 +169,7 @@ export class PrismaSemesterRepository extends ISemesterRepository {
 
   async findFirstDependent(id: string): Promise<string | null> {
     const checks: [string, () => Promise<number>][] = [
-      ['student enrolments', () => this.enrollmentLookup.countBySemester(id)],
+      ['student enrollments', () => this.enrollmentLookup.countBySemester(id)],
       [
         'teaching assignments',
         () =>

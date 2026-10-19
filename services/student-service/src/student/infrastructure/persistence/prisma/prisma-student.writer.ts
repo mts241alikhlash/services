@@ -3,8 +3,8 @@ import { Prisma, StudentStatus } from '../../../../generated/prisma/client.js'
 import type {
   CreateStudentRepositoryInput,
   CreateStudentWithRelationsRepositoryInput,
-  EnrolExistingAccountRepositoryInput,
-  EnrolExistingAccountResult,
+  EnrollExistingAccountRepositoryInput,
+  EnrollExistingAccountResult,
 } from '../../../domain/repositories/student.repository.js'
 import { STUDENT_INCLUDE, StudentRow } from './prisma-student.includes.js'
 
@@ -69,11 +69,11 @@ export async function createStudentWithRelationsInTx(
   })
 }
 
-export async function enrolExistingAccountInTx(
+export async function enrollExistingAccountInTx(
   tx: Prisma.TransactionClient,
-  input: EnrolExistingAccountRepositoryInput,
+  input: EnrollExistingAccountRepositoryInput,
   activeSemesterId: string | null,
-): Promise<EnrolExistingAccountResult> {
+): Promise<EnrollExistingAccountResult> {
   const existing = await tx.student.findUnique({
     where: { userId: input.userId },
     select: { id: true },
@@ -127,7 +127,7 @@ export async function enrolExistingAccountInTx(
   if (input.classroomId) {
     if (!activeSemesterId) {
       throw new ConflictException(
-        'No active semester is available for classroom enrolment',
+        'No active semester is available for classroom enrollment',
       )
     }
     await tx.studentEnrollment.create({

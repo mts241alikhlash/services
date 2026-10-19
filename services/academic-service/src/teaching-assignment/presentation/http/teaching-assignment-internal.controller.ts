@@ -184,7 +184,7 @@ export class TeachingAssignmentInternalController {
     @Query('semesterId', ParseUUIDPipe) semesterId: string,
   ): Promise<TeachingLoadResponseDto> {
     return {
-      data: await this.teachingAssignmentRepository.summariseLoad(
+      data: await this.teachingAssignmentRepository.summarizeLoad(
         employeeId,
         semesterId,
       ),

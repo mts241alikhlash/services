@@ -63,7 +63,7 @@ describe('inventory reference data exists for every code the source asks for', (
     expect(unshipped).toEqual([])
   })
 
-  it('recognises the shapes it is looking for', () => {
+  it('recognizes the shapes it is looking for', () => {
     expect(
       referenced(`where: { systemKey: 'LOAN_APPROVED' }`, STATUS_KEY),
     ).toEqual(['LOAN_APPROVED'])

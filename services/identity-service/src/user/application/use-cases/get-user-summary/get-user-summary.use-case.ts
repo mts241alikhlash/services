@@ -6,6 +6,6 @@ export class GetUserSummaryUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
   async execute() {
-    return this.userRepository.summarise()
+    return this.userRepository.summarize()
   }
 }

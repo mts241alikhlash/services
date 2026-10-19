@@ -6,7 +6,7 @@ The one reference for how this service is built. Two halves:
   is being migrated to, the submodules it needs to be split into first, and the
   procedure for converting one.
 - **Part 2 — between services.** What this service borrows from `identity-service`,
-  the enrolment handover to `academic-service`, and the shared database.
+  the enrollment handover to `academic-service`, and the shared database.
 
 They are independent: a module can be perfectly layered and still wrongly
 coupled, and the reverse.
@@ -280,7 +280,7 @@ git commit -m "refactor(<module>): migrate to Clean Architecture layering"
 **Suggested order:** `announcement` (six use cases, no cross-aggregate reads,
 already has a spec) → `wave` → `notification` → `document` → `payment` →
 `applicant` → `application` last, because it owns the state machine and the
-enrolment handover and every other submodule reads it.
+enrollment handover and every other submodule reads it.
 
 Done so far: none.
 
@@ -315,7 +315,7 @@ copy of identity-service.**
 | Here | May do | Left behind |
 | --- | --- | --- |
 | `platform/auth` | Verify a token, check the session is live | Login, refresh, logout, password reset, session cleanup |
-| `platform/access-control/permission` | `PermissionGuard` asking if the caller holds a permission | The eight use cases, the controller, the catalogue-sync hook |
+| `platform/access-control/permission` | `PermissionGuard` asking if the caller holds a permission | The eight use cases, the controller, the catalog-sync hook |
 | `platform/user` | Read the account behind an applicant | `GET/POST/PATCH/DELETE /users` and their use cases |
 
 > **The narrowing rule:** if a controller here would answer the same URL as one
@@ -325,31 +325,31 @@ Before adding anything under `platform/`: does it fail that rule? Is it a read,
 or a single write the admission flow cannot proceed without? Does it widen what
 this service may do to another service's tables?
 
-## The enrolment handover — the one real port
+## The enrollment handover — the one real port
 
 This is the most interesting boundary on the platform, and the pattern the other
 services should copy.
 
-Until 2026-08-30 admission ran enrolment itself:
+Until 2026-08-30 admission ran enrollment itself:
 `PrismaAdmissionApplicationRepository.enrollAsStudent()` opened one transaction
 and wrote `profiles`, `students`, `parents`, `student_parents`, `addresses`,
 `user_roles`, `student_enrollments` and `admission_applications` — **three
 services' tables in one commit**, the heaviest coupling the split produced.
 
 Six of those eight tables belong to `academic-service`. So the transaction moved
-there, behind `POST /students/enrol`, and what remains here is a port and one
+there, behind `POST /students/enroll`, and what remains here is a port and one
 write of admission's own:
 
 ```
 EnrollApplicantUseCase
-  └─> StudentEnrolmentPort                  src/admission/integration/student-enrolment.port.ts
-        └─> HttpStudentEnrolmentAdapter     src/admission/integration/http-student-enrolment.adapter.ts
-              └─> POST {ACADEMIC_SERVICE_URL}/students/enrol
+  └─> StudentEnrollmentPort                  src/admission/integration/student-enrollment.port.ts
+        └─> HttpStudentEnrollmentAdapter     src/admission/integration/http-student-enrollment.adapter.ts
+              └─> POST {ACADEMIC_SERVICE_URL}/students/enroll
 ```
 
 ### What it costs, stated plainly
 
-The operation is **no longer atomic**. academic enrols the student; admission
+The operation is **no longer atomic**. academic enrolls the student; admission
 then marks the application `ENROLLED`. If that second write fails, a student
 exists whose application still reads `ACCEPTED`.
 
@@ -358,13 +358,13 @@ a distributed transaction, for two reasons:
 
 - **It is visible.** The operator sees an application they just processed still
   sitting in the queue.
-- **It is repairable by repeating the action**, because `POST /students/enrol`
+- **It is repairable by repeating the action**, because `POST /students/enroll`
   is **idempotent on `userId`**. A retry returns the existing student rather
   than creating a second one.
 
 This is the **Saga pattern**'s compensating form — a sequence of local
 transactions instead of one distributed one. The idempotency is load-bearing:
-`academic-service`'s `enrol-existing-account.use-case.spec.ts` guards that
+`academic-service`'s `enroll-existing-account.use-case.spec.ts` guards that
 idempotency is checked *before* uniqueness, because it was once the other way
 round and a retry was rejected as a duplicate NIS by the very student it was
 confirming.
@@ -405,7 +405,7 @@ it.
 | # | Coupling | Status |
 | --- | --- | --- |
 | 1 | Authorization reads iam's tables | **Open.** `platform/auth` reads `auth_sessions` and `users` per request through Prisma |
-| 2 | Enrolment writes academic's tables | **Closed 2026-08-30.** Now `POST /students/enrol` behind a port |
+| 2 | Enrollment writes academic's tables | **Closed 2026-08-30.** Now `POST /students/enroll` behind a port |
 | 3 | Applicant rows join to `profiles` | **Open, deliberately.** While both tables sit in one database the join is the faster read |
 
 Coupling 1 is the next one to close, and the shape is already proven:
@@ -420,7 +420,7 @@ does `prisma migrate` belong to it.
 ## Naming the boundary correctly
 
 `integration/` is a **port and adapter** and, because it translates admission's
-applicant model into academic's `EnrolStudentInput`, it is a genuine
+applicant model into academic's `EnrollStudentInput`, it is a genuine
 **Anti-Corruption Layer**. Use that term for it.
 
 Do not call `platform/` an ACL. An ACL translates between two *different* domain
@@ -451,7 +451,7 @@ wanting one transaction across the handover, re-read Part 2.
 **Zero comments in business code.** Do not add explanatory comments, and when
 relocating a file, strip the comments it already carries in the same pass.
 Swagger `@ApiProperty({ description })` is API documentation and stays. The
-prose in `integration/student-enrolment.port.ts` is the sanctioned exception — a
+prose in `integration/student-enrollment.port.ts` is the sanctioned exception — a
 trade-off at a service boundary; see `CLEAN-CODE.md`, "comment rules".
 
 **`prisma-admission-applicant.repository.ts` is 408 lines.** It is the largest

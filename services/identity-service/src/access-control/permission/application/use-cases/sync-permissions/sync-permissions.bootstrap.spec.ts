@@ -4,7 +4,7 @@ import { EnsureStructuralRolesUseCase } from '../../../../role/application/use-c
 import { SYSTEM_PERMISSIONS } from '../../../constants/permission-codes.constants.js'
 import type { IPermissionRepository } from '../../../domain/repositories/permission.repository.js'
 
-describe('permission catalogue sync on bootstrap', () => {
+describe('permission catalog sync on bootstrap', () => {
   function useCaseWithSpy() {
     const upsertPermission = jest.fn().mockResolvedValue(undefined)
     const repository = { upsertPermission } as unknown as IPermissionRepository
@@ -14,7 +14,7 @@ describe('permission catalogue sync on bootstrap', () => {
     }
   }
 
-  it('upserts every code the catalogue declares', async () => {
+  it('upserts every code the catalog declares', async () => {
     const { useCase, upsertPermission } = useCaseWithSpy()
 
     await useCase.execute()

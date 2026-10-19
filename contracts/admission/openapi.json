@@ -4529,7 +4529,7 @@
             "bearer": []
           }
         ],
-        "summary": "Cancel an acceptance until enrolment starts",
+        "summary": "Cancel an acceptance until enrollment starts",
         "tags": [
           "Admission — Decisions"
         ]
@@ -4598,9 +4598,9 @@
         ]
       }
     },
-    "/admissions/enrolments": {
+    "/admissions/enrollments": {
       "get": {
-        "operationId": "AdmissionEnrolmentController_findAll",
+        "operationId": "AdmissionEnrollmentController_findAll",
         "parameters": [
           {
             "name": "page",
@@ -4675,11 +4675,11 @@
                     "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/AdmissionEnrolmentRowResponseDto"
+                        "$ref": "#/components/schemas/AdmissionEnrollmentRowResponseDto"
                       }
                     },
                     "meta": {
-                      "$ref": "#/components/schemas/AdmissionEnrolmentMetaDto"
+                      "$ref": "#/components/schemas/AdmissionEnrollmentMetaDto"
                     }
                   }
                 }
@@ -4692,15 +4692,15 @@
             "bearer": []
           }
         ],
-        "summary": "Enrolment queue by tab, with tab counts and school years",
+        "summary": "Enrollment queue by tab, with tab counts and school years",
         "tags": [
-          "Admission — Enrolments"
+          "Admission — Enrollments"
         ]
       }
     },
-    "/admissions/enrolments/nis-preview": {
+    "/admissions/enrollments/nis-preview": {
       "get": {
-        "operationId": "AdmissionEnrolmentController_preview",
+        "operationId": "AdmissionEnrollmentController_preview",
         "parameters": [
           {
             "name": "academicYearId",
@@ -4744,13 +4744,13 @@
         ],
         "summary": "The NIS that composing a school year would give",
         "tags": [
-          "Admission — Enrolments"
+          "Admission — Enrollments"
         ]
       }
     },
-    "/admissions/enrolments/nis": {
+    "/admissions/enrollments/nis": {
       "post": {
-        "operationId": "AdmissionEnrolmentController_compose",
+        "operationId": "AdmissionEnrollmentController_compose",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -4797,13 +4797,13 @@
         ],
         "summary": "Compose the NIS of a school year",
         "tags": [
-          "Admission — Enrolments"
+          "Admission — Enrollments"
         ]
       }
     },
-    "/admissions/enrolments/nis-lock": {
+    "/admissions/enrollments/nis-lock": {
       "post": {
-        "operationId": "AdmissionEnrolmentController_lock",
+        "operationId": "AdmissionEnrollmentController_lock",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -4847,20 +4847,20 @@
         ],
         "summary": "Lock the NIS of a school year for good",
         "tags": [
-          "Admission — Enrolments"
+          "Admission — Enrollments"
         ]
       }
     },
-    "/admissions/enrolments/process": {
+    "/admissions/enrollments/process": {
       "post": {
-        "operationId": "AdmissionEnrolmentController_process",
+        "operationId": "AdmissionEnrollmentController_process",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProcessEnrolmentsDto"
+                "$ref": "#/components/schemas/ProcessEnrollmentsDto"
               }
             }
           }
@@ -4882,7 +4882,7 @@
                       "example": "Success"
                     },
                     "data": {
-                      "$ref": "#/components/schemas/AdmissionEnrolmentProcessResponseDto"
+                      "$ref": "#/components/schemas/AdmissionEnrollmentProcessResponseDto"
                     }
                   }
                 }
@@ -4895,15 +4895,15 @@
             "bearer": []
           }
         ],
-        "summary": "Enrol up to 50 accepted applicants as students",
+        "summary": "Enroll up to 50 accepted applicants as students",
         "tags": [
-          "Admission — Enrolments"
+          "Admission — Enrollments"
         ]
       }
     },
-    "/admissions/enrolments/{applicationId}/placement": {
+    "/admissions/enrollments/{applicationId}/placement": {
       "patch": {
-        "operationId": "AdmissionEnrolmentController_setPlacement",
+        "operationId": "AdmissionEnrollmentController_setPlacement",
         "parameters": [
           {
             "name": "applicationId",
@@ -4957,7 +4957,7 @@
         ],
         "summary": "Set the admission type and the target grade",
         "tags": [
-          "Admission — Enrolments"
+          "Admission — Enrollments"
         ]
       }
     },
@@ -14571,7 +14571,7 @@
           "reason"
         ]
       },
-      "AdmissionEnrolmentRowResponseDto": {
+      "AdmissionEnrollmentRowResponseDto": {
         "type": "object",
         "properties": {
           "applicationId": {
@@ -14636,7 +14636,7 @@
           "enrolledStudentId"
         ]
       },
-      "AdmissionEnrolmentCountsDto": {
+      "AdmissionEnrollmentCountsDto": {
         "type": "object",
         "properties": {
           "ready": {
@@ -14655,7 +14655,7 @@
           "done"
         ]
       },
-      "AdmissionEnrolmentYearDto": {
+      "AdmissionEnrollmentYearDto": {
         "type": "object",
         "properties": {
           "academicYearId": {
@@ -14681,7 +14681,7 @@
           "lockedAt"
         ]
       },
-      "AdmissionEnrolmentMetaDto": {
+      "AdmissionEnrollmentMetaDto": {
         "type": "object",
         "properties": {
           "page": {
@@ -14697,12 +14697,12 @@
             "type": "number"
           },
           "counts": {
-            "$ref": "#/components/schemas/AdmissionEnrolmentCountsDto"
+            "$ref": "#/components/schemas/AdmissionEnrollmentCountsDto"
           },
           "years": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AdmissionEnrolmentYearDto"
+              "$ref": "#/components/schemas/AdmissionEnrollmentYearDto"
             }
           }
         },
@@ -14715,17 +14715,17 @@
           "years"
         ]
       },
-      "AdmissionEnrolmentQueueResponseDto": {
+      "AdmissionEnrollmentQueueResponseDto": {
         "type": "object",
         "properties": {
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AdmissionEnrolmentRowResponseDto"
+              "$ref": "#/components/schemas/AdmissionEnrollmentRowResponseDto"
             }
           },
           "meta": {
-            "$ref": "#/components/schemas/AdmissionEnrolmentMetaDto"
+            "$ref": "#/components/schemas/AdmissionEnrollmentMetaDto"
           }
         },
         "required": [
@@ -14949,7 +14949,7 @@
           "nisn"
         ]
       },
-      "ProcessEnrolmentsDto": {
+      "ProcessEnrollmentsDto": {
         "type": "object",
         "properties": {
           "applicationIds": {
@@ -14972,7 +14972,7 @@
           "applicationIds"
         ]
       },
-      "AdmissionEnrolmentResultDto": {
+      "AdmissionEnrollmentResultDto": {
         "type": "object",
         "properties": {
           "applicationId": {
@@ -14995,13 +14995,13 @@
           "outcome"
         ]
       },
-      "AdmissionEnrolmentProcessResponseDto": {
+      "AdmissionEnrollmentProcessResponseDto": {
         "type": "object",
         "properties": {
           "results": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AdmissionEnrolmentResultDto"
+              "$ref": "#/components/schemas/AdmissionEnrollmentResultDto"
             }
           }
         },

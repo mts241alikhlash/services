@@ -20,9 +20,9 @@ model CurriculumSubject {
   /// The minimum pass mark for this subject *under this curriculum*.
   ///
   /// It sits here rather than on Subject because a subject is master data — a
-  /// stable catalogue — while the pass mark is a curriculum decision that
+  /// stable catalog — while the pass mark is a curriculum decision that
   /// differs between curricula and between the grades each one covers.
-  /// Editing it must never disturb the catalogue.
+  /// Editing it must never disturb the catalog.
   ///
   /// It also fixes the whole predicate scale on the rapor: the D/C boundary is
   /// this value and the range above splits in three, so A/B/C/D can never

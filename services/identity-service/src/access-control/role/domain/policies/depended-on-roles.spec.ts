@@ -60,7 +60,7 @@ describe('roles the code resolves by name are protected from deletion', () => {
     expect(unprotected).toEqual([])
   })
 
-  it('recognises all three shapes it looks for', () => {
+  it('recognizes all three shapes it looks for', () => {
     expect(matches(`roleCode: 'TEACHER',`, ROLE_CODE_FIELD)).toEqual([
       'TEACHER',
     ])

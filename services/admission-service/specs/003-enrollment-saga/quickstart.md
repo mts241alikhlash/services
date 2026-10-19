@@ -12,7 +12,7 @@ Run student tests:
 
 ```bash
 cd student-service
-pnpm exec cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPatterns=enrol
+pnpm exec cross-env NODE_OPTIONS=--experimental-vm-modules jest --testPathPatterns=enroll
 pnpm run validate
 ```
 

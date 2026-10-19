@@ -162,13 +162,13 @@ export class PrismaEnrollmentRepository extends IEnrollmentRepository {
 
     await this.prisma.$transaction(
       async (tx) => {
-        for (const enrolment of source) {
-          const newClassroomId = classroomIdMap.get(enrolment.classroomId)
+        for (const enrollment of source) {
+          const newClassroomId = classroomIdMap.get(enrollment.classroomId)
           if (!newClassroomId) continue
 
           const existing = await tx.studentEnrollment.findFirst({
             where: {
-              studentId: enrolment.studentId,
+              studentId: enrollment.studentId,
               semesterId: targetSemesterId,
               deletedAt: null,
             },
@@ -182,7 +182,7 @@ export class PrismaEnrollmentRepository extends IEnrollmentRepository {
 
           await tx.studentEnrollment.create({
             data: {
-              studentId: enrolment.studentId,
+              studentId: enrollment.studentId,
               classroomId: newClassroomId,
               semesterId: targetSemesterId,
               status: EnrollmentStatus.ACTIVE,

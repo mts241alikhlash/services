@@ -38,7 +38,7 @@ describe('student score list scoping', () => {
     }
   }
 
-  it('reaches the student through the enrolment', async () => {
+  it('reaches the student through the enrollment', async () => {
     const { repository, findMany, search } = repositoryWithSpy()
 
     await repository.findAll({ page: 1, limit: 10, studentId: 'stu-1' })
@@ -53,7 +53,7 @@ describe('student score list scoping', () => {
     })
   })
 
-  it('keeps the student scope when the caller also names an enrolment', async () => {
+  it('keeps the student scope when the caller also names an enrollment', async () => {
     const { repository, findMany, search } = repositoryWithSpy()
 
     await repository.findAll({
@@ -71,7 +71,7 @@ describe('student score list scoping', () => {
     expect(findMany.mock.calls[0][0].where.enrollmentId).toEqual({ in: [] })
   })
 
-  it('narrows to the named enrolment when it is one of the student’s own', async () => {
+  it('narrows to the named enrollment when it is one of the student’s own', async () => {
     const { repository, findMany } = repositoryWithSpy()
 
     await repository.findAll({
@@ -84,7 +84,7 @@ describe('student score list scoping', () => {
     expect(findMany.mock.calls[0][0].where.enrollmentId).toBe('enr-2')
   })
 
-  it('honours classroom and semester, which it used to declare and drop', async () => {
+  it('honors classroom and semester, which it used to declare and drop', async () => {
     const { repository, search } = repositoryWithSpy()
 
     await repository.findAll({
@@ -101,7 +101,7 @@ describe('student score list scoping', () => {
     })
   })
 
-  it('adds no enrolment clause when nothing needs one', async () => {
+  it('adds no enrollment clause when nothing needs one', async () => {
     const { repository, findMany, search } = repositoryWithSpy()
 
     await repository.findAll({ page: 1, limit: 10 })

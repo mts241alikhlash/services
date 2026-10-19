@@ -24,7 +24,7 @@ against the earlier design.
 | `POST /auth/login`, `/refresh`, `/logout`, `/forgot-password`, `/reset-password` | identity-service | Nothing — no controller |
 | Token verification (`GET` on every authenticated route) | Both | `JwtStrategy` + `ValidateTokenUseCase` here verify the signature and check the session is live |
 | `GET/POST/PATCH/DELETE /users` | identity-service | Nothing — this repo has neither `teacher` nor `student` since the 2026-09-03 extraction; `hr-service`/`student-service` provision the account by calling identity-service's `POST /accounts` over HTTP, not by writing the table |
-| Role & permission CRUD, the permission-catalogue sync | identity-service | `PermissionGuard` only — reads, never writes |
+| Role & permission CRUD, the permission-catalog sync | identity-service | `PermissionGuard` only — reads, never writes |
 | `auth_sessions`, `users`, `user_roles`, `roles`, `role_permissions`, `permissions` tables | identity-service's database | Nothing. Every service has its own database as of 2026-09-09, and no service reads identity's tables through Prisma any more — every answer arrives over HTTP through `src/platform/identity/` |
 
 If you are in identity-service reading this, the left column is yours in full.

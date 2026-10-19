@@ -134,7 +134,7 @@ describe('calculateSubjectScore', () => {
     expect(score).toBe(80)
   })
 
-  it('renormalises over the types that have been assessed so far', () => {
+  it('renormalizes over the types that have been assessed so far', () => {
     const score = calculateSubjectScore(
       subject({
         assessments: [assessment('DAILY', 80), assessment('MIDTERM', 90)],

@@ -9,13 +9,13 @@ import {
 describe('permission applications', () => {
   const modules = [...new Set(SYSTEM_PERMISSIONS.map((p) => p.module))].sort()
 
-  it('classifies every module in the catalogue', () => {
+  it('classifies every module in the catalog', () => {
     const unclassified = modules.filter((m) => !isModuleClassified(m))
 
     expect(unclassified).toEqual([])
   })
 
-  it('classifies nothing that is not in the catalogue', () => {
+  it('classifies nothing that is not in the catalog', () => {
     const known = new Set(modules)
     const stale = classifiedModules().filter((m) => !known.has(m))
 
@@ -43,12 +43,12 @@ describe('permission applications', () => {
     expect(appForModule('a-module-nobody-classified')).toBe('platform')
   })
 
-  it('offers every app key as a labelled group', () => {
-    const labelled = new Set(PERMISSION_APPS.map((a) => a.key))
+  it('offers every app key as a labeled group', () => {
+    const labeled = new Set(PERMISSION_APPS.map((a) => a.key))
     const used = new Set(modules.map((m) => appForModule(m)))
 
     for (const app of used) {
-      expect(labelled).toContain(app)
+      expect(labeled).toContain(app)
     }
   })
 })

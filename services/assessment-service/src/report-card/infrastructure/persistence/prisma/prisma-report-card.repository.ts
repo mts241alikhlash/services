@@ -79,7 +79,7 @@ export class PrismaReportCardRepository extends IReportCardRepository {
             classroomId,
             semesterId: resolvedSemesterId,
           })
-        ).map((enrolment) => enrolment.id)
+        ).map((enrollment) => enrollment.id)
       : null
 
     const where: Prisma.ReportCardWhereInput = {
@@ -140,12 +140,12 @@ export class PrismaReportCardRepository extends IReportCardRepository {
     })
     if (!row) return null
 
-    const enrolment = await this.enrollmentLookup.findSummary(row.enrollmentId)
-    if (!enrolment) return null
+    const enrollment = await this.enrollmentLookup.findSummary(row.enrollmentId)
+    if (!enrollment) return null
 
     return {
       enrollmentId: row.enrollmentId,
-      studentId: enrolment.studentId,
+      studentId: enrollment.studentId,
     }
   }
 
@@ -252,7 +252,7 @@ export class PrismaReportCardRepository extends IReportCardRepository {
       where: {
         deletedAt: null,
         totalAverage: { not: null },
-        enrollmentId: { in: enrollments.map((enrolment) => enrolment.id) },
+        enrollmentId: { in: enrollments.map((enrollment) => enrollment.id) },
       },
       select: { id: true, enrollmentId: true, totalAverage: true },
       orderBy: { totalAverage: 'desc' },

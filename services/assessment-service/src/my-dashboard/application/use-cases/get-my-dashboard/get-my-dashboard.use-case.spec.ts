@@ -20,11 +20,11 @@ describe('GetMyDashboardUseCase', () => {
     findActiveSemester: jest.fn(),
     findEnrolledClassroom: jest.fn(),
     findClassroomLessons: jest.fn(),
-    summariseAttendance: jest.fn(),
+    summarizeAttendance: jest.fn(),
     findLatestScores: jest.fn(),
     findLatestPublishedReportCard: jest.fn(),
     findTeachingLessons: jest.fn(),
-    summariseTeachingLoad: jest.fn(),
+    summarizeTeachingLoad: jest.fn(),
     findSupervisedClassrooms: jest.fn(),
     findUngradedAssessments: jest.fn(),
   }
@@ -56,11 +56,11 @@ describe('GetMyDashboardUseCase', () => {
       classroom: { id: 'cls-1', code: 'VIII-A', name: null },
     })
     repo.findClassroomLessons.mockResolvedValue([])
-    repo.summariseAttendance.mockResolvedValue(emptyRecap)
+    repo.summarizeAttendance.mockResolvedValue(emptyRecap)
     repo.findLatestScores.mockResolvedValue([])
     repo.findLatestPublishedReportCard.mockResolvedValue(null)
     repo.findTeachingLessons.mockResolvedValue([])
-    repo.summariseTeachingLoad.mockResolvedValue({
+    repo.summarizeTeachingLoad.mockResolvedValue({
       classroomCount: 4,
       subjectCount: 2,
     })
@@ -78,7 +78,7 @@ describe('GetMyDashboardUseCase', () => {
     expect(result.student).toBeNull()
     expect(result.employee).toBeNull()
     expect(repo.findEnrolledClassroom).not.toHaveBeenCalled()
-    expect(repo.summariseTeachingLoad).not.toHaveBeenCalled()
+    expect(repo.summarizeTeachingLoad).not.toHaveBeenCalled()
   })
 
   it('answers only about the student when the caller only studies', async () => {
@@ -89,7 +89,7 @@ describe('GetMyDashboardUseCase', () => {
 
     expect(result.student?.classroom?.code).toBe('VIII-A')
     expect(result.employee).toBeNull()
-    expect(repo.summariseTeachingLoad).not.toHaveBeenCalled()
+    expect(repo.summarizeTeachingLoad).not.toHaveBeenCalled()
   })
 
   it('answers both halves for someone who teaches and also studies', async () => {
@@ -109,8 +109,8 @@ describe('GetMyDashboardUseCase', () => {
     await useCase.execute('user-both')
 
     expect(repo.findEnrolledClassroom).toHaveBeenCalledWith('stu-1', 'sem-1')
-    expect(repo.summariseTeachingLoad).toHaveBeenCalledWith('tch-1', 'sem-1')
-    expect(repo.summariseAttendance).toHaveBeenCalledWith('enr-1')
+    expect(repo.summarizeTeachingLoad).toHaveBeenCalledWith('tch-1', 'sem-1')
+    expect(repo.summarizeAttendance).toHaveBeenCalledWith('enr-1')
   })
 
   it('still answers between years, when no semester is active', async () => {

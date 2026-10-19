@@ -83,7 +83,7 @@ export class TagController {
   @RequirePermissions('portal-tags.delete')
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOperation({
-    summary: 'Delete a tag — the posts it labelled are untouched',
+    summary: 'Delete a tag — the posts it labeled are untouched',
   })
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     await this.deleteTagUseCase.execute(id)

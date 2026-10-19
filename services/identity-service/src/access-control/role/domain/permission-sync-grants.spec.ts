@@ -9,7 +9,7 @@ const NEW_CODES = SYSTEM_PERMISSIONS.map((p) => p.code).filter(
     code.startsWith('admission-decisions.') ||
     code.startsWith('admission-downloads.') ||
     code.startsWith('admission-landing.') ||
-    code.startsWith('admission-enrolments.'),
+    code.startsWith('admission-enrollments.'),
 )
 
 function fakePrisma(existingCodes: string[], roleCodes: string[]) {
@@ -74,9 +74,9 @@ function fakePrisma(existingCodes: string[], roleCodes: string[]) {
 }
 
 describe('syncPermissions grants brand-new codes to existing default roles', () => {
-  const catalogue = SYSTEM_PERMISSIONS.map((p) => p.code)
+  const catalog = SYSTEM_PERMISSIONS.map((p) => p.code)
   const allRoles = DEFAULT_ROLES.map((r) => r.code)
-  const before = catalogue.filter((code) => !NEW_CODES.includes(code))
+  const before = catalog.filter((code) => !NEW_CODES.includes(code))
 
   it('gives the download codes to admins, operators and read to staff', async () => {
     const { prisma, grantedTo } = fakePrisma(before, allRoles)
@@ -155,7 +155,7 @@ describe('syncPermissions grants brand-new codes to existing default roles', () 
     expect(grantedTo('admission-decisions.read')).toEqual(
       expect.arrayContaining(['ADMISSION_ADMIN', 'OPERATOR', 'PRINCIPAL']),
     )
-    const process = grantedTo('admission-enrolments.process')
+    const process = grantedTo('admission-enrollments.process')
     expect(process).toEqual(
       expect.arrayContaining([
         'STUDENT_AFFAIRS_STAFF',
@@ -165,7 +165,7 @@ describe('syncPermissions grants brand-new codes to existing default roles', () 
     )
     expect(process).not.toContain('ADMISSION_ADMIN')
     expect(process).not.toContain('OPERATOR')
-    expect(grantedTo('admission-enrolments.read')).toEqual(
+    expect(grantedTo('admission-enrollments.read')).toEqual(
       expect.arrayContaining([
         'ADMISSION_ADMIN',
         'OPERATOR',
@@ -175,7 +175,7 @@ describe('syncPermissions grants brand-new codes to existing default roles', () 
   })
 
   it('leaves existing roles alone once the code is already in the database', async () => {
-    const { prisma, grantedTo } = fakePrisma(catalogue, allRoles)
+    const { prisma, grantedTo } = fakePrisma(catalog, allRoles)
     await syncPermissions(prisma as never)
 
     expect(

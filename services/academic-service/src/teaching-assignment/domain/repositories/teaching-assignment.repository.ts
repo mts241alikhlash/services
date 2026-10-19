@@ -79,7 +79,7 @@ export abstract class ITeachingAssignmentRepository {
     academicYearId: string,
   ): Promise<string[]>
   abstract existsForEmployee(id: string, employeeId: string): Promise<boolean>
-  abstract summariseLoad(
+  abstract summarizeLoad(
     employeeId: string,
     semesterId: string,
   ): Promise<TeachingLoadSummary>

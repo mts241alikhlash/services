@@ -162,9 +162,9 @@ export class PrismaAcademicYearRepository extends IAcademicYearRepository {
 
     const semesterIds = semesters.map((semester) => semester.id)
 
-    const enrolmentCounts =
+    const enrollmentCounts =
       await this.enrollmentLookup.countBySemesters(semesterIds)
-    for (const count of enrolmentCounts.values()) {
+    for (const count of enrollmentCounts.values()) {
       if (count > 0) return true
     }
 

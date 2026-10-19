@@ -2,7 +2,7 @@
 
 ## Current Flow
 
-Admission calls `POST /students/enrol`, then writes its own application as
+Admission calls `POST /students/enroll`, then writes its own application as
 `ENROLLED`. Student-service already checks `findByUserId()` and returns an
 existing student, but concurrent retries are not represented by admission state
 and no explicit operation key crosses the boundary.

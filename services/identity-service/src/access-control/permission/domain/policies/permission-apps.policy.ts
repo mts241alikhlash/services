@@ -83,7 +83,7 @@ const MODULE_APP: Record<string, PermissionApp> = {
   'admission-document-types': 'admission',
   'admission-downloads': 'admission',
   'admission-landing': 'admission',
-  'admission-enrolments': 'admission',
+  'admission-enrollments': 'admission',
   'admission-documents': 'admission',
   'admission-payments': 'admission',
   'admission-waves': 'admission',

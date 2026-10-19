@@ -53,7 +53,7 @@ model StudentGraduation {
 /// graduates in 2027/2028, and both facts have to survive.
 ///
 /// It also has to exist at all. Before this, a held student was simply left out
-/// of the bulk payload — their enrolment stayed ACTIVE, nothing recorded the
+/// of the bulk payload — their enrollment stayed ACTIVE, nothing recorded the
 /// decision, and the reason the operator typed never left the browser.
 model StudentGraduationHold {
   id             String   @id @default(uuid()) @db.Uuid

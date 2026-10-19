@@ -24,7 +24,7 @@ export async function findByUsersAndDate(
   }))
 }
 
-export async function summariseMonth(
+export async function summarizeMonth(
   prisma: PrismaService,
   userIds: string[],
   year: number,

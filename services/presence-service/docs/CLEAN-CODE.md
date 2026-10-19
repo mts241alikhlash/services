@@ -29,7 +29,7 @@ logic beyond `@Body() dto: XxxDto`.
 
 **Repository — forbidden:** business logic, permission logic, validation logic.
 Allowed: `findById`, `findMany`, `create`, `update`, `delete`, and named query
-methods (`findByPeriod`, `summariseMonth`) — never a generic `query(sql)` escape
+methods (`findByPeriod`, `summarizeMonth`) — never a generic `query(sql)` escape
 hatch.
 
 **Naming:** `*UseCase`, never `*Service`. `services/` is reserved for stateless
@@ -329,7 +329,7 @@ rule, which is precisely the failure `payroll/integration/README.md` records.
 
 This service has one rule that outranks every style preference in this document.
 
-`summariseMonth` and the late/present rules have **exactly one implementation.**
+`summarizeMonth` and the late/present rules have **exactly one implementation.**
 When payroll and presence were briefly separate services, the adapter carried a
 copy, and the copy got four things wrong:
 

@@ -25,8 +25,8 @@ import type {
   CreateStudentRepositoryInput,
   UpdateStudentRepositoryInput,
   CreateStudentWithRelationsRepositoryInput,
-  EnrolExistingAccountRepositoryInput,
-  EnrolExistingAccountResult,
+  EnrollExistingAccountRepositoryInput,
+  EnrollExistingAccountResult,
   StudentExportWithDetails,
   StudentWithDetails,
 } from '../../../domain/repositories/student.repository.js'
@@ -43,7 +43,7 @@ import {
 import {
   createStudentInTx,
   createStudentWithRelationsInTx,
-  enrolExistingAccountInTx,
+  enrollExistingAccountInTx,
 } from './prisma-student.writer.js'
 import { resolveStudentAcademicRefs } from './prisma-student.refs.js'
 import {
@@ -310,17 +310,17 @@ export class PrismaStudentRepository extends IStudentRepository {
     }
   }
 
-  async enrolExistingAccount(
-    input: EnrolExistingAccountRepositoryInput,
-  ): Promise<EnrolExistingAccountResult> {
+  async enrollExistingAccount(
+    input: EnrollExistingAccountRepositoryInput,
+  ): Promise<EnrollExistingAccountResult> {
     const activeSemester = input.classroomId
       ? await this.academicLookup.findActiveSemester()
       : null
 
-    let result: EnrolExistingAccountResult
+    let result: EnrollExistingAccountResult
     try {
       result = await this.prisma.$transaction((tx) =>
-        enrolExistingAccountInTx(tx, input, activeSemester?.id ?? null),
+        enrollExistingAccountInTx(tx, input, activeSemester?.id ?? null),
       )
     } catch (error) {
       if (

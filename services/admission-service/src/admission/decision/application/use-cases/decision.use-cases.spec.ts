@@ -10,7 +10,7 @@ import { GetDecisionQueueUseCase } from './get-decision-queue/get-decision-queue
 import { RejectFromQueueUseCase } from './reject-from-queue/reject-from-queue.use-case.js'
 
 describe('GetDecisionQueueUseCase', () => {
-  it('defaults to Menunggu keputusan, summarises the documents and pages the meta', async () => {
+  it('defaults to Menunggu keputusan, summarizes the documents and pages the meta', async () => {
     const findQueue = jest.fn().mockResolvedValue({
       records: [
         {

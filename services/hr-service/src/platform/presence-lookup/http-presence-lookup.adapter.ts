@@ -47,7 +47,7 @@ export class HttpPresenceLookupAdapter extends IDailyPresenceReadPort {
     return rows
   }
 
-  async summariseMonth(
+  async summarizeMonth(
     userIds: string[],
     year: number,
     month: number,

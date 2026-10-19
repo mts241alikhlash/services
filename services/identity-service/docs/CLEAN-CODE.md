@@ -185,7 +185,7 @@ return items.slice(0, 1)
 ```
 
 `permission-codes.constants.ts` is the extreme case of doing this right: 1759
-lines of named permission codes, read as one catalogue by the sync bootstrap. It
+lines of named permission codes, read as one catalog by the sync bootstrap. It
 is a data file, and the file-size rule does not apply to it.
 
 ---

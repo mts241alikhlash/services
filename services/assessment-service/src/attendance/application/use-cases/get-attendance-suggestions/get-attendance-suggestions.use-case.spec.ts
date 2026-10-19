@@ -28,7 +28,7 @@ const INPUT = {
 describe('GetAttendanceSuggestionsUseCase', () => {
   let useCase: GetAttendanceSuggestionsUseCase
   const enrollments = { listByClassroom: jest.fn() }
-  const presence = { findByUsersAndDate: jest.fn(), summariseMonth: jest.fn() }
+  const presence = { findByUsersAndDate: jest.fn(), summarizeMonth: jest.fn() }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -62,7 +62,7 @@ describe('GetAttendanceSuggestionsUseCase', () => {
     ])
   })
 
-  it('maps the gate onto enrolments, which is what the class screen works in', async () => {
+  it('maps the gate onto enrollments, which is what the class screen works in', async () => {
     const result = await useCase.execute(INPUT)
 
     expect(result.suggestions).toEqual([
@@ -78,7 +78,7 @@ describe('GetAttendanceSuggestionsUseCase', () => {
     ])
   })
 
-  it('lists unscanned enrolments separately rather than marking them absent', async () => {
+  it('lists unscanned enrollments separately rather than marking them absent', async () => {
     const result = await useCase.execute(INPUT)
 
     expect(result.unscannedEnrollmentIds).toEqual(['enr-3'])
@@ -139,7 +139,7 @@ describe('GetAttendanceSuggestionsUseCase', () => {
 
     expect(Object.keys(presence)).toEqual([
       'findByUsersAndDate',
-      'summariseMonth',
+      'summarizeMonth',
     ])
   })
 
@@ -148,7 +148,7 @@ describe('GetAttendanceSuggestionsUseCase', () => {
       presence.findByUsersAndDate.mockRejectedValue(new Error('presence down'))
     })
 
-    it('returns every enrolment as needing a decision rather than throwing', async () => {
+    it('returns every enrollment as needing a decision rather than throwing', async () => {
       const result = await useCase.execute(INPUT)
 
       expect(result.suggestions).toEqual([])
@@ -168,7 +168,7 @@ describe('GetAttendanceSuggestionsUseCase', () => {
     )
   })
 
-  it('handles an enrolment with no linked user without crashing', async () => {
+  it('handles an enrollment with no linked user without crashing', async () => {
     enrollments.listByClassroom.mockResolvedValue([enrollment('enr-1', null)])
 
     const result = await useCase.execute(INPUT)

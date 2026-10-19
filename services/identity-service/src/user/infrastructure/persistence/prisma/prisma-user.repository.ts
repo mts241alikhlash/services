@@ -21,7 +21,7 @@ import { UserGender } from '../../../../shared/domain/enums/user-gender.enum.js'
 
 @Injectable()
 export class PrismaUserRepository extends IUserRepository {
-  async summarise() {
+  async summarize() {
     const [total, active] = await this.prisma.$transaction([
       this.prisma.user.count({ where: { deletedAt: null } }),
       this.prisma.user.count({ where: { deletedAt: null, isActive: true } }),

@@ -289,7 +289,7 @@ every academic query scopes by instead:
    students, classes, and scores. `prisma-academic-year.repository.ts`'s
    `findAll` shows the shape: `deletedAt: null` sits directly in the `where`,
    always, not behind a flag.
-2. **Period, wherever the row belongs to one** — `semesterId` for enrolments,
+2. **Period, wherever the row belongs to one** — `semesterId` for enrollments,
    teaching assignments, supervisors; `academicYearId` for classrooms,
    curricula, semesters. When the caller names neither, resolve the active
    period rather than reading across every year.

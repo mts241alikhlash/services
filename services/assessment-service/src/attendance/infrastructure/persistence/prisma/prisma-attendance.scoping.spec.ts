@@ -53,7 +53,7 @@ describe('attendance list scoping', () => {
     })
   })
 
-  it('filters by the enrolments the scope resolved to', async () => {
+  it('filters by the enrollments the scope resolved to', async () => {
     const { repository, findMany } = repositoryWithSpy(['enr-1', 'enr-2'])
 
     await repository.findAll({ page: 1, limit: 10, studentId: 'stu-1' })
@@ -63,7 +63,7 @@ describe('attendance list scoping', () => {
     })
   })
 
-  it('matches nothing when a scope resolves to no enrolment', async () => {
+  it('matches nothing when a scope resolves to no enrollment', async () => {
     const { repository, findMany } = repositoryWithSpy([])
 
     await repository.findAll({ page: 1, limit: 10, studentId: 'stu-1' })
@@ -71,7 +71,7 @@ describe('attendance list scoping', () => {
     expect(findMany.mock.calls[0][0].where.enrollmentId).toEqual({ in: [] })
   })
 
-  it('asks student-service nothing when one enrolment is already named', async () => {
+  it('asks student-service nothing when one enrollment is already named', async () => {
     const { repository, findMany, search } = repositoryWithSpy()
 
     await repository.findAll({ page: 1, limit: 10, enrollmentId: 'enr-7' })
@@ -97,7 +97,7 @@ describe('buildAttendanceListWhere', () => {
     ).toBeUndefined()
   })
 
-  it('prefers a named enrolment over a resolved list', () => {
+  it('prefers a named enrollment over a resolved list', () => {
     const where = buildAttendanceListWhere(
       { enrollmentId: 'enr-1' },
       ['enr-2'],

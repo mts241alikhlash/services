@@ -54,7 +54,7 @@ describe('no read takes every column of a User', () => {
     expect(offenders(sources, USER_TRUE)).toEqual([])
   })
 
-  it('recognises the shape it is looking for', () => {
+  it('recognizes the shape it is looking for', () => {
     const leaky = `{ user: { include: { profile: PROFILE_NAME_SELECT } } }`
     const safe = `{ user: { select: { id: true, profile: PROFILE_NAME_SELECT } } }`
 

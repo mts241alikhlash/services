@@ -73,9 +73,11 @@ export class PrismaPromotionRepository extends IPromotionRepository {
       select: { semesterId: true },
       distinct: ['semesterId'],
     })
-    const withEnrolments = new Set(enrolled.map((row) => row.semesterId))
+    const withEnrollments = new Set(enrolled.map((row) => row.semesterId))
 
-    const latest = semesters.find((semester) => withEnrolments.has(semester.id))
+    const latest = semesters.find((semester) =>
+      withEnrollments.has(semester.id),
+    )
     return latest ? toSemesterWithYear(latest) : null
   }
 

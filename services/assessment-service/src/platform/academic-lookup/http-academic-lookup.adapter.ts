@@ -115,7 +115,7 @@ export class HttpAcademicLookupAdapter extends IAcademicLookupPort {
     return this.parseList(data, toScheduleRef)
   }
 
-  async summariseTeachingLoad(
+  async summarizeTeachingLoad(
     employeeId: string,
     semesterId: string,
   ): Promise<TeachingLoad> {

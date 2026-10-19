@@ -346,7 +346,7 @@ fields. `constants/permission-apps.constants.ts` plus its spec became
 `domain/policies/permission-apps.policy.ts`: `appForModule` is a
 self-contained classification with its own consistency-checking spec, the
 same shape as `structural-roles.policy.ts`. `constants/permission-codes
-.constants.ts` (the 1759-line catalogue) stayed in `constants/` — pure data,
+.constants.ts` (the 1759-line catalog) stayed in `constants/` — pure data,
 no rule of its own, CLEAN-CODE.md's own exception to the file-size rule.
 `decorators/`, `guards/`, and `types/` all stayed at the module root too:
 none of the three is a Clean Architecture layer, the same reason `user`'s
@@ -585,7 +585,7 @@ sanctioned exception is a comment stating a **trade-off at a service boundary**
 — see `CLEAN-CODE.md`, "comment rules", for where that line sits.
 
 **`permission-codes.constants.ts` is 1759 lines and that is correct.** It is a
-catalogue, not logic. The file-size rule does not apply to it. Do not "split it
+catalog, not logic. The file-size rule does not apply to it. Do not "split it
 up" — the sync bootstrap reads it as one list.
 
 **Dead code found on the way** — a method on a Prisma repository not declared on

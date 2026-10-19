@@ -61,7 +61,7 @@ describe('report card management read is unchanged', () => {
     expect(findMany.mock.calls[0][0].where.isPublished).toBeUndefined()
   })
 
-  it('still pages, and still summarises the whole filtered set', async () => {
+  it('still pages, and still summarizes the whole filtered set', async () => {
     const { repository, findMany, count } = repositoryWithSpy()
 
     const result = await repository.findAll({ page: 3, limit: 20 })

@@ -1,6 +1,6 @@
 # student-service
 
-241 Academic — student lifecycle: students, parents, enrolment, graduation, promotion
+241 Academic — student lifecycle: students, parents, enrollment, graduation, promotion
 
 **[`docs/OVERVIEW.md`](docs/OVERVIEW.md) is the document to read first** — what
 this service owns, what it borrows, what it answers for others, and what is

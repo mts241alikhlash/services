@@ -50,10 +50,10 @@ export class ReportCardInternalController {
   @Post('averages')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Report-card averages for a batch of enrolments',
+    summary: 'Report-card averages for a batch of enrollments',
     description:
-      'Read by student-service on the promotion screen, which colours each ' +
-      'row by whether the average clears the passing score. Enrolments with ' +
+      'Read by student-service on the promotion screen, which colors each ' +
+      'row by whether the average clears the passing score. Enrollments with ' +
       'no report card are simply absent from the response.',
   })
   @ApiResponse({ status: 200, type: ReportCardAveragesResponseDto })

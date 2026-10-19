@@ -77,7 +77,7 @@ export interface CreateStudentWithRelationsRepositoryInput extends CreateStudent
   parents?: StudentParentSeedInput[]
 }
 
-export interface EnrolExistingAccountRepositoryInput {
+export interface EnrollExistingAccountRepositoryInput {
   applicationId?: string
   userId: string
   nis: string
@@ -88,7 +88,7 @@ export interface EnrolExistingAccountRepositoryInput {
   address?: CreateAddressRepositoryInput
 }
 
-export interface EnrolExistingAccountResult {
+export interface EnrollExistingAccountResult {
   studentId: string
   parentsLinked: number
   enrollmentCreated: boolean
@@ -96,9 +96,9 @@ export interface EnrolExistingAccountResult {
 }
 
 export abstract class IStudentRepository {
-  abstract enrolExistingAccount(
-    input: EnrolExistingAccountRepositoryInput,
-  ): Promise<EnrolExistingAccountResult>
+  abstract enrollExistingAccount(
+    input: EnrollExistingAccountRepositoryInput,
+  ): Promise<EnrollExistingAccountResult>
   abstract toggleUserActive(
     userId: string,
     isActive: boolean,

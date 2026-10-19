@@ -1,6 +1,6 @@
 # admission-service
 
-241 Admission — admission waves, applications, documents, payments, enrolment
+241 Admission — admission waves, applications, documents, payments, enrollment
 
 **[`docs/OVERVIEW.md`](docs/OVERVIEW.md) is the document to read first** — what
 this service owns, what it borrows, what it answers for others, and what is

@@ -1,7 +1,7 @@
 # admission-service
 
 PPDB 241 — admission waves, applications, documents, payments, announcements,
-and the enrolment that turns an accepted applicant into a student. NestJS +
+and the enrollment that turns an accepted applicant into a student. NestJS +
 Prisma + PostgreSQL, NodeNext ESM — relative imports carry the `.js` extension
 even though the source is `.ts`.
 
@@ -60,13 +60,13 @@ across three services' tables**:
 
 It is atomic, and it is **right** that it is atomic. A half-enrolled child — an
 account with no student record, or a student with no class — is worse than a
-failed enrolment, because the first is silent and the second is not. One process
+failed enrollment, because the first is silent and the second is not. One process
 gets that for free from one database.
 
 ### What replaced it
 
 The transaction moved to academic-service, which owns six of those eight tables,
-and this service calls `POST /students/enrol` through `IStudentEnrolmentPort` —
+and this service calls `POST /students/enroll` through `IStudentEnrollmentPort` —
 the platform's first genuine service-to-service call. Then it makes one write of
 its own: `markEnrolled`.
 
@@ -76,12 +76,12 @@ better than a distributed transaction, for two reasons that have to hold togethe
 
 - it is **visible** — the operator sees an application they just processed still
   sitting in their queue;
-- it is **repairable** by repeating the action, because the enrolment endpoint is
+- it is **repairable** by repeating the action, because the enrollment endpoint is
   idempotent on `userId` and returns the existing student rather than creating a
   second one.
 
 This is the first half of the saga rather than the whole of it. What is missing
-is an explicit "enrolment in progress" state; the retry is the compensation, and
+is an explicit "enrollment in progress" state; the retry is the compensation, and
 it depends on an operator noticing. `admission-workflow.use-cases.spec.ts` asserts
 the ordering that makes it safe: the local write happens only after the remote one
 succeeds.
@@ -116,7 +116,7 @@ is visible rather than folklore.
 
 ## Two roles resolved by name, and why that is not a bypass
 
-This service names `APPLICANT` at registration and `STUDENT` at enrolment. Both
+This service names `APPLICANT` at registration and `STUDENT` at enrollment. Both
 are structural roles that identity-service declares and protects from deletion, and
 both are named in order to **grant** a role — not to decide an authorization
 outcome. `src/single-role-bypass.spec.ts` is about the latter, and passes.
@@ -234,7 +234,7 @@ locked `Gelombang Pendaftaran` field without a second call.
 ## The form collects EMIS data
 
 The application form stores the student and parent data the EMIS print-out
-needs, so nobody types it again after enrolment.
+needs, so nobody types it again after enrollment.
 
 - **Student**: KIP number, hobby, aspiration, who finances the school,
   disability type, special need, residence status, travel distance, travel time
@@ -266,7 +266,7 @@ partial chain is accepted while the applicant is mid-way, but it must be a
 prefix. Submit requires all four codes.
 
 Parents store `income_range_id`, one of the fixed ids in academic-service's
-`income-range.ids.ts`. Enrolment still sends student-service the old enum value,
+`income-range.ids.ts`. Enrollment still sends student-service the old enum value,
 mapped back by `legacyIncomeFor`, until student-service takes the new ids
 (sub-project 3).
 

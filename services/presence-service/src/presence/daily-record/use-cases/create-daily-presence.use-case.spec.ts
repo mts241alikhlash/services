@@ -63,7 +63,7 @@ describe('CreateDailyPresenceUseCase', () => {
     )
   })
 
-  it('normalises the date to midnight so it matches the one-per-day index', async () => {
+  it('normalizes the date to midnight so it matches the one-per-day index', async () => {
     await useCase.execute(dto({ date: '2026-08-10T13:45:00.000Z' }), ACTOR_ID)
 
     const [input] = dailyPresence.createManual.mock.calls[0] as [{ date: Date }]

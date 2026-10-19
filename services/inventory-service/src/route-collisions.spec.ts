@@ -32,7 +32,7 @@ function concrete(path: string): string {
     .join('/')
 }
 
-function normalise(prefix: string, path: string): string {
+function normalize(prefix: string, path: string): string {
   return `/${prefix}/${path}`.replace(/\/+/g, '/').replace(/(.)\/$/, '$1')
 }
 
@@ -56,7 +56,7 @@ describe('no two controllers claim the same URL', () => {
         found.push({
           file: entry.replace(/\\/g, '/'),
           method: m[1].toUpperCase(),
-          path: normalise(prefix, m[2] ?? ''),
+          path: normalize(prefix, m[2] ?? ''),
         })
       }
     }
@@ -88,7 +88,7 @@ describe('no two controllers claim the same URL', () => {
     expect(collisions.sort()).toEqual([])
   })
 
-  it('recognises the shapes it looks for', () => {
+  it('recognizes the shapes it looks for', () => {
     expect(matcher('/students/:id').test('/students/a-value')).toBe(true)
     expect(matcher('/students/me').test('/students/a-value')).toBe(false)
     expect(routes.some((route) => route.path.includes(':'))).toBe(true)

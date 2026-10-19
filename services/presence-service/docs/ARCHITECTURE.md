@@ -97,7 +97,7 @@ worth. They share a process, not a model.
 That history is the most useful architectural fact in this repo, and
 `payroll/integration/README.md` records why: the split created an
 `IDailyPresenceReadPort` adapter carrying a *copy* of presence's
-`summariseMonth` arithmetic, and the copy got four things wrong — `LATE`
+`summarizeMonth` arithmetic, and the copy got four things wrong — `LATE`
 counting as a present day, `lateCount` keying on status rather than minutes,
 `lateMinutes` accumulating unconditionally, and the month bounded `lte` rather
 than `lt`. None would have failed a build. All four would have produced payslips
@@ -105,7 +105,7 @@ that were quietly, slightly wrong.
 
 The lesson, stated as a rule:
 
-> **Do not split payroll from presence again until `summariseMonth` has one
+> **Do not split payroll from presence again until `summarizeMonth` has one
 > implementation behind a contract that both sides test.** The seam is not the
 > module boundary; it is that arithmetic.
 
@@ -328,7 +328,7 @@ from `identity-service`, each narrowed to a read or a single write.
 | Here | May do | Left behind |
 | --- | --- | --- |
 | `platform/auth` | Verify a token, check the session is live | Login, refresh, logout, password reset, session cleanup |
-| `platform/access-control` | `PermissionGuard` asking if the caller holds a permission | The use cases, the controller, the catalogue-sync hook |
+| `platform/access-control` | `PermissionGuard` asking if the caller holds a permission | The use cases, the controller, the catalog-sync hook |
 | `platform/audit-log` | Write an audit entry for a correction or an approval | Reading and searching the audit log |
 
 > **The narrowing rule:** if a controller here would answer the same URL as one
@@ -344,7 +344,7 @@ files covering scan, corrections, credentials, work patterns and audit.
 That narrowing is a contract even though it is currently satisfied by a copy of
 the code rather than an HTTP call. Two rules follow:
 
-- **`summariseMonth` and the gate-suggestion read are public API.** Changing
+- **`summarizeMonth` and the gate-suggestion read are public API.** Changing
   either one's semantics changes `academic-service`'s report cards. The failed
   split proved this the expensive way.
 - **Do not delete or rename a `daily-record` port method** without checking
@@ -361,7 +361,7 @@ its adapter for an HTTP client and `payroll` stops reading the `teachers` table
 directly — that is the whole remaining distance for this coupling.
 
 Two ports that used to exist here are gone, and should not come back inside one
-process: `IAttendancePeriodGate.isClosed()` and `IDailyPresenceReadPort.summariseMonth()`
+process: `IAttendancePeriodGate.isClosed()` and `IDailyPresenceReadPort.summarizeMonth()`
 are now the real repositories from `presence/`, imported directly. See
 `payroll/integration/README.md`.
 
@@ -440,10 +440,10 @@ change.
 **Do not re-split payroll from presence.** It was tried on 2026-08-29 and
 reverted on 2026-08-30, and the reason is written down in
 `payroll/integration/README.md`. If it is attempted again, the precondition is
-one tested implementation of `summariseMonth` behind a contract — not a copied
+one tested implementation of `summarizeMonth` behind a contract — not a copied
 one.
 
-**Never duplicate presence arithmetic.** `summariseMonth` and the late/present
+**Never duplicate presence arithmetic.** `summarizeMonth` and the late/present
 rules have exactly one implementation. A second copy has already produced four
 silent errors, each of which would have shipped a slightly wrong payslip.
 

@@ -90,7 +90,7 @@ describe('no controller asks for a caller it ignores', () => {
     expect(offenders).toEqual([])
   })
 
-  it('recognises the shapes it looks for', () => {
+  it('recognizes the shapes it looks for', () => {
     const ignored = `
       async findAll(
         @CurrentUser() user: AuthenticatedUser,

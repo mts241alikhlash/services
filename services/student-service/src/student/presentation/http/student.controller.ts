@@ -50,9 +50,9 @@ import { ToggleStudentActiveUseCase } from '../../application/use-cases/toggle-s
 import { UpdateStudentUseCase } from '../../application/use-cases/update-student/update-student.use-case.js'
 import { StudentWithDetails } from '../../domain/repositories/student.repository.js'
 import { CreateStudentWithRelationsDto } from './dto/request/create-student-with-relations.dto.js'
-import { EnrolExistingAccountDto } from './dto/request/enrol-existing-account.dto.js'
-import { EnrolExistingAccountResponseDto } from './dto/response/enrol-existing-account-response.dto.js'
-import { EnrolExistingAccountUseCase } from '../../application/use-cases/enrol-existing-account/enrol-existing-account.use-case.js'
+import { EnrollExistingAccountDto } from './dto/request/enroll-existing-account.dto.js'
+import { EnrollExistingAccountResponseDto } from './dto/response/enroll-existing-account-response.dto.js'
+import { EnrollExistingAccountUseCase } from '../../application/use-cases/enroll-existing-account/enroll-existing-account.use-case.js'
 import { PaginatedResponse } from '../../../shared/domain/interfaces/repository.interface.js'
 
 @ApiTags('Students')
@@ -70,25 +70,25 @@ export class StudentController {
     private readonly updateStudentService: UpdateStudentUseCase,
     private readonly deleteStudentService: DeleteStudentUseCase,
     private readonly toggleStudentActiveService: ToggleStudentActiveUseCase,
-    private readonly enrolExistingAccountService: EnrolExistingAccountUseCase,
+    private readonly enrollExistingAccountService: EnrollExistingAccountUseCase,
   ) {}
 
-  @Post('enrol')
+  @Post('enroll')
   @RequirePermissions('students.create')
   @ApiOperation({
-    summary: 'Enrol an existing account as a student (admission handover)',
+    summary: 'Enroll an existing account as a student (admission handover)',
   })
   @ApiResponse({
     status: 201,
     description: 'The student, whether created now or already present',
-    type: EnrolExistingAccountResponseDto,
+    type: EnrollExistingAccountResponseDto,
   })
   @ApiResponse({ status: 409, description: 'NIS or NISN already in use' })
-  async enrol(
-    @Body() dto: EnrolExistingAccountDto,
-  ): Promise<EnrolExistingAccountResponseDto> {
-    return EnrolExistingAccountResponseDto.fromDomain(
-      await this.enrolExistingAccountService.execute(dto),
+  async enroll(
+    @Body() dto: EnrollExistingAccountDto,
+  ): Promise<EnrollExistingAccountResponseDto> {
+    return EnrollExistingAccountResponseDto.fromDomain(
+      await this.enrollExistingAccountService.execute(dto),
     )
   }
 
@@ -126,7 +126,8 @@ export class StudentController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Your classroom, or null when you have no enrolment this term',
+    description:
+      'Your classroom, or null when you have no enrollment this term',
     type: MyClassroomResponseDto,
   })
   async findMyClassroom(

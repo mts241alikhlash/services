@@ -31,7 +31,7 @@ import { GetStudentParentByIdUseCase } from './application/use-cases/get-student
 import { UpdateStudentParentUseCase } from './application/use-cases/update-student-parent/update-student-parent.use-case.js'
 import { DeleteStudentParentUseCase } from './application/use-cases/delete-student-parent/delete-student-parent.use-case.js'
 import { UpdateStudentProfileUseCase } from './application/use-cases/update-student-profile/update-student-profile.use-case.js'
-import { EnrolExistingAccountUseCase } from './application/use-cases/enrol-existing-account/enrol-existing-account.use-case.js'
+import { EnrollExistingAccountUseCase } from './application/use-cases/enroll-existing-account/enroll-existing-account.use-case.js'
 
 @Module({
   imports: [UserModule, forwardRef(() => EnrollmentModule)],
@@ -55,7 +55,7 @@ import { EnrolExistingAccountUseCase } from './application/use-cases/enrol-exist
     { provide: ExcelStudentParser, useClass: ExcelStudentParserConcrete },
     CreateStudentUseCase,
     CreateStudentWithRelationsUseCase,
-    EnrolExistingAccountUseCase,
+    EnrollExistingAccountUseCase,
     DeleteStudentUseCase,
     GetStudentByIdUseCase,
     GetMyStudentUseCase,

@@ -62,7 +62,7 @@ model SchoolUnitSocialMedia {
 
 /// One address row, owned by exactly one of the two: a school unit, or a
 /// person. A person's address lives here because it describes the person, not
-/// their employment or enrolment — hr-service and student-service read it,
+/// their employment or enrollment — hr-service and student-service read it,
 /// they do not write it.
 model Address {
   id           String  @id @default(uuid()) @db.Uuid

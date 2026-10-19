@@ -119,7 +119,7 @@ export class SemesterCountDto {
 export class SemesterCountListResponseDto {
   @ApiProperty({
     type: [SemesterCountDto],
-    description: 'Terms with no live enrolment are absent, not zero.',
+    description: 'Terms with no live enrollment are absent, not zero.',
   })
   data!: SemesterCountDto[]
 }
@@ -132,7 +132,7 @@ export class ClassroomCountDto {
 export class ClassroomCountListResponseDto {
   @ApiProperty({
     type: [ClassroomCountDto],
-    description: 'Classrooms with no active enrolment are absent, not zero.',
+    description: 'Classrooms with no active enrollment are absent, not zero.',
   })
   data!: ClassroomCountDto[]
 }
@@ -175,7 +175,7 @@ export class EnrollmentSummaryResponseDto {
 
 export class EnrollmentCountResponseDto {
   @ApiProperty({
-    description: 'Live enrolments. Soft-deleted excluded.',
+    description: 'Live enrollments. Soft-deleted excluded.',
     type: () => EnrollmentCountDataDto,
   })
   data!: EnrollmentCountDataDto
@@ -185,7 +185,7 @@ export class ActiveEnrollmentResponseDto {
   @ApiProperty({
     type: ActiveEnrollmentSummary,
     nullable: true,
-    description: 'null when the student has no active enrolment',
+    description: 'null when the student has no active enrollment',
   })
   data!: ActiveEnrollmentSummary | null
 }
@@ -200,7 +200,7 @@ export class EnrollmentInternalController {
   @Post('search')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Enrolments matching a student, classroom or term',
+    summary: 'Enrollments matching a student, classroom or term',
     description:
       'The primitive behind every "rows for this classroom in this term" ' +
       'read in another service. Callers used to reach these by joining ' +
@@ -236,7 +236,7 @@ export class EnrollmentInternalController {
   @Post('count-by-classrooms')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Active enrolment counts for a batch of classrooms in one term',
+    summary: 'Active enrollment counts for a batch of classrooms in one term',
   })
   @ApiResponse({ status: 200, type: ClassroomCountListResponseDto })
   @ApiResponse({
@@ -257,7 +257,7 @@ export class EnrollmentInternalController {
   @Post('count-by-semesters')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Live enrolment counts for a batch of terms',
+    summary: 'Live enrollment counts for a batch of terms',
     description:
       'academic-service asks this for its semester list, which offers a ' +
       'rollover only into a term that holds nothing yet. A term absent from ' +
@@ -279,9 +279,9 @@ export class EnrollmentInternalController {
 
   @Get('active/:studentId')
   @ApiOperation({
-    summary: "A student's active enrolment, as ids",
+    summary: "A student's active enrollment, as ids",
     description:
-      'With `semesterId`, the active enrolment in that term rather than ' +
+      'With `semesterId`, the active enrollment in that term rather than ' +
       'whichever one is current.',
   })
   @ApiResponse({ status: 200, type: ActiveEnrollmentResponseDto })
@@ -293,17 +293,17 @@ export class EnrollmentInternalController {
     @Param('studentId', ParseUUIDPipe) studentId: string,
     @Query('semesterId') semesterId?: string,
   ): Promise<ActiveEnrollmentResponseDto> {
-    const enrolment = await this.enrollmentRepository.findActiveEnrollment(
+    const enrollment = await this.enrollmentRepository.findActiveEnrollment(
       studentId,
       semesterId,
     )
-    if (!enrolment) return { data: null }
+    if (!enrollment) return { data: null }
 
-    return { data: toSummary(enrolment) }
+    return { data: toSummary(enrollment) }
   }
 
   @Get('summary/:id')
-  @ApiOperation({ summary: 'One enrolment, as ids' })
+  @ApiOperation({ summary: 'One enrollment, as ids' })
   @ApiResponse({ status: 200, type: EnrollmentSummaryResponseDto })
   @ApiResponse({
     status: 401,
@@ -312,12 +312,12 @@ export class EnrollmentInternalController {
   async summary(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<EnrollmentSummaryResponseDto> {
-    const enrolment = await this.enrollmentRepository.findById(id)
-    return { data: enrolment ? toSummary(enrolment) : null }
+    const enrollment = await this.enrollmentRepository.findById(id)
+    return { data: enrollment ? toSummary(enrollment) : null }
   }
 
   @Get('by-classroom/:classroomId')
-  @ApiOperation({ summary: 'Active enrolments in a classroom and semester' })
+  @ApiOperation({ summary: 'Active enrollments in a classroom and semester' })
   @ApiResponse({ status: 200, type: EnrollmentListResponseDto })
   @ApiResponse({
     status: 401,
@@ -340,7 +340,7 @@ export class EnrollmentInternalController {
 
   @Post('by-ids')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Enrolments for a batch of ids, as summaries' })
+  @ApiOperation({ summary: 'Enrollments for a batch of ids, as summaries' })
   @ApiResponse({ status: 200, type: EnrollmentListResponseDto })
   @ApiResponse({
     status: 401,
@@ -354,7 +354,7 @@ export class EnrollmentInternalController {
   @Post('rollover')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Carry active enrolments into the next semester',
+    summary: 'Carry active enrollments into the next semester',
     description:
       'academic-service copies the classrooms first and sends the resulting ' +
       'id map here. Idempotent per student: a student already enrolled in ' +
@@ -380,7 +380,7 @@ export class EnrollmentInternalController {
 
   @Post('count-active')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'How many of these enrolment ids are active' })
+  @ApiOperation({ summary: 'How many of these enrollment ids are active' })
   @ApiResponse({ status: 200, type: EnrollmentCountResponseDto })
   @ApiResponse({
     status: 401,
@@ -397,7 +397,7 @@ export class EnrollmentInternalController {
   }
 
   @Get('count-by-classroom/:classroomId')
-  @ApiOperation({ summary: 'Live enrolments in a classroom' })
+  @ApiOperation({ summary: 'Live enrollments in a classroom' })
   @ApiResponse({ status: 200, type: EnrollmentCountResponseDto })
   @ApiResponse({
     status: 401,
@@ -414,7 +414,7 @@ export class EnrollmentInternalController {
   }
 
   @Get('count-by-semester/:semesterId')
-  @ApiOperation({ summary: 'Live enrolments in a semester' })
+  @ApiOperation({ summary: 'Live enrollments in a semester' })
   @ApiResponse({ status: 200, type: EnrollmentCountResponseDto })
   @ApiResponse({
     status: 401,
@@ -431,7 +431,7 @@ export class EnrollmentInternalController {
   }
 }
 
-function toSummary(enrolment: {
+function toSummary(enrollment: {
   id: string
   studentId: string
   classroomId: string
@@ -444,13 +444,13 @@ function toSummary(enrolment: {
   } | null
 }): ActiveEnrollmentSummary {
   return {
-    id: enrolment.id,
-    studentId: enrolment.studentId,
-    classroomId: enrolment.classroomId,
-    semesterId: enrolment.semesterId,
-    status: enrolment.status ?? null,
-    studentUserId: enrolment.student?.userId ?? null,
-    studentNis: enrolment.student?.nis ?? null,
-    studentName: enrolment.student?.user?.profile?.name ?? null,
+    id: enrollment.id,
+    studentId: enrollment.studentId,
+    classroomId: enrollment.classroomId,
+    semesterId: enrollment.semesterId,
+    status: enrollment.status ?? null,
+    studentUserId: enrollment.student?.userId ?? null,
+    studentNis: enrollment.student?.nis ?? null,
+    studentName: enrollment.student?.user?.profile?.name ?? null,
   }
 }

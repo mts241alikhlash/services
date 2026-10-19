@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common'
-import { HttpStudentEnrolmentAdapter } from './http-student-enrolment.adapter.js'
-import { IStudentEnrolmentPort } from './student-enrolment.port.js'
+import { HttpStudentEnrollmentAdapter } from './http-student-enrollment.adapter.js'
+import { IStudentEnrollmentPort } from './student-enrollment.port.js'
 
 @Module({
   providers: [
-    { provide: IStudentEnrolmentPort, useClass: HttpStudentEnrolmentAdapter },
+    { provide: IStudentEnrollmentPort, useClass: HttpStudentEnrollmentAdapter },
   ],
-  exports: [IStudentEnrolmentPort],
+  exports: [IStudentEnrollmentPort],
 })
 export class IntegrationModule {}

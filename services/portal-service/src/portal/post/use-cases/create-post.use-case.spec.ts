@@ -120,7 +120,7 @@ describe('CreatePostUseCase', () => {
     )
   })
 
-  it('honours an editor-supplied slug', async () => {
+  it('honors an editor-supplied slug', async () => {
     await useCase.execute({ ...baseDto, slug: 'juara-olimpiade' }, AUTHOR_ID)
 
     expect(mockRepository.create.mock.calls[0][0].slug).toBe('juara-olimpiade')

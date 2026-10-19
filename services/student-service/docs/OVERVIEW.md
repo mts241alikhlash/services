@@ -1,6 +1,6 @@
 # student-service
 
-SIAKAD 241 — student lifecycle: students, parents, enrolment, graduation,
+SIAKAD 241 — student lifecycle: students, parents, enrollment, graduation,
 semester promotion, semester rollover. NestJS + Prisma + PostgreSQL, NodeNext
 ESM — relative imports carry the `.js` extension even though the source is
 `.ts`.
@@ -15,16 +15,16 @@ local read-ports it needs in their place, is a following step.
 ## What this service owns
 
 The "Student Lifecycle" bounded context: a student's whole journey from
-enrolment to graduation, plus their parents and the two process managers
+enrollment to graduation, plus their parents and the two process managers
 (promotion, rollover) that move a cohort between semesters. Modules sit
 directly under `src/`, not nested inside an `academic/` folder — that nesting
 was an artifact of academic-service, and this service is not that.
 
 `semester-rollover` **left on 2026-09-09.** Four of the five tables it wrote
 are academic-service's, so it runs there in one local transaction and then
-calls `POST /student-enrollments/rollover` here for the enrolments. That second
+calls `POST /student-enrollments/rollover` here for the enrollments. That second
 step is deliberately outside the transaction: if it fails, next semester's
-classrooms exist and the enrolments do not, which the operator can see and
+classrooms exist and the enrollments do not, which the operator can see and
 repairs by running it again — the endpoint skips a student already enrolled in
 the target semester.
 
@@ -43,7 +43,7 @@ their Prisma models.
 | Wanted | Now |
 |---|---|
 | Classroom by id, code, or academic year | `GET /classrooms/{:id/detail,by-code/:code,by-academic-year/:id}`, `POST /classrooms/by-ids` |
-| Capacity, for the enrolment guard | `capacity` on the classroom detail |
+| Capacity, for the enrollment guard | `capacity` on the classroom detail |
 | Grade by level or id | `GET /grades/by-level/:level`, `POST /grades/by-ids` |
 | The active term, or a year's terms | `GET /semesters/{active,by-academic-year/:id}`, `POST /semesters/by-ids` |
 | Academic year by id | `GET /academic-years/{active,:id/summary}`, `POST /academic-years/by-ids` |
@@ -51,7 +51,7 @@ their Prisma models.
 | Occupation, for a parent | `GET /occupations/:id/summary`, `POST /occupations/by-ids` |
 
 The batch endpoints exist because the row-labelling reads are lists: an
-enrolment page spans whichever classrooms and terms its rows happen to name, so
+enrollment page spans whichever classrooms and terms its rows happen to name, so
 it cannot be answered by a per-year endpoint without fetching a year to find
 three classrooms. Each list read costs one call per entity type per page, not
 one per row.
@@ -59,13 +59,13 @@ one per row.
 `platform/academic-lookup` fails closed the same way `platform/identity` does:
 academic-service being down is a 503, never an empty list. A row whose
 classroom or term is missing from the response keeps its ids and loses only the
-label — the enrolment is this service's record and stays listed whatever
+label — the enrollment is this service's record and stays listed whatever
 academic-service knows about it.
 
 ## A person's address is not here
 
 `Address` was deleted on 2026-09-11. It had two real writers —
-`createStudentWithRelations` and `enrolExistingAccount` — and both now hand the
+`createStudentWithRelations` and `enrollExistingAccount` — and both now hand the
 address to identity-service, which owns the person: the first through
 `POST /accounts`, where the profile and its address are written in one
 transaction, and the second through `POST /addresses`, because that account

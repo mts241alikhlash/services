@@ -16,7 +16,7 @@ cannot provide repository evidence.
 Commands ran from `D:\Project\241 Apps\admission-service`:
 
 ```text
-pnpm exec cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand --runTestsByPath src/admission/application/domain/policies/enroll-as-student.rules.spec.ts src/admission/application/application/use-cases/admission-workflow.use-cases.spec.ts src/admission/application/infrastructure/integration/http-student-enrolment.adapter.spec.ts
+pnpm exec cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand --runTestsByPath src/admission/application/domain/policies/enroll-as-student.rules.spec.ts src/admission/application/application/use-cases/admission-workflow.use-cases.spec.ts src/admission/application/infrastructure/integration/http-student-enrollment.adapter.spec.ts
 ```
 
 Result: 3 suites passed, 31 tests passed, 0 failed, 0 snapshots.
@@ -32,7 +32,7 @@ passed with exit code 0.
 Commands ran from `D:\Project\241 Apps\student-service`:
 
 ```text
-pnpm exec cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand --runTestsByPath src/student/application/use-cases/enrol-existing-account/enrol-existing-account.use-case.spec.ts src/student/infrastructure/persistence/prisma/prisma-student.repository.enrol.spec.ts
+pnpm exec cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand --runTestsByPath src/student/application/use-cases/enroll-existing-account/enroll-existing-account.use-case.spec.ts src/student/infrastructure/persistence/prisma/prisma-student.repository.enroll.spec.ts
 ```
 
 Result: 2 suites passed, 7 tests passed, 0 failed, 0 snapshots.
@@ -65,7 +65,7 @@ ordering, retryable remote failure, local post-remote failure, terminal
 
 ## Contract
 
-- Admission forwards optional `applicationId` in `POST /students/enrol`.
+- Admission forwards optional `applicationId` in `POST /students/enroll`.
 - Student validates optional `applicationId` as UUID.
 - Existing request fields remain: `userId`, NIS, NISN, profile, parents,
   address, grade, and classroom.
@@ -83,7 +83,7 @@ DTO inspection matched the contract.
 - Concurrent student creation uses the database unique `user_id` constraint;
   the losing `P2002` path re-reads the committed winner and returns it.
 - `P2002` is discriminated by `user_id` target before treating it as a
-  concurrent enrolment race.
+  concurrent enrollment race.
 - NIS and NISN pre-checks remain before profile, role, and student writes.
 - NIS and NISN unique indexes remain the final race-safe guards.
 - Active enrollment remains unique per student and semester.

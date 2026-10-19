@@ -8,7 +8,7 @@ import { IAdmissionApplicationRepository } from '../../domain/repositories/admis
 import { AdmissionNotificationService } from '../../../notification/index.js'
 import { AcceptApplicationUseCase } from './accept-application/accept-application.use-case.js'
 import { EnrollApplicantUseCase } from './enroll-applicant/enroll-applicant.use-case.js'
-import { IStudentEnrolmentPort } from '../../infrastructure/integration/student-enrolment.port.js'
+import { IStudentEnrollmentPort } from '../../infrastructure/integration/student-enrollment.port.js'
 import { RejectApplicationUseCase } from './reject-application/reject-application.use-case.js'
 import { RequestRevisionUseCase } from './request-revision/request-revision.use-case.js'
 import { VerifyApplicationUseCase } from './verify-application/verify-application.use-case.js'
@@ -30,7 +30,7 @@ describe('Admission workflow use-cases', () => {
     markEnrolled: jest.fn(),
   }
   const notifications = { notify: jest.fn() }
-  const enrolment = { enrol: jest.fn(), updateNis: jest.fn() }
+  const enrollment = { enroll: jest.fn(), updateNis: jest.fn() }
 
   let accept: AcceptApplicationUseCase
   let reject: RejectApplicationUseCase
@@ -48,7 +48,7 @@ describe('Admission workflow use-cases', () => {
         RequestRevisionUseCase,
         { provide: IAdmissionApplicationRepository, useValue: repo },
         { provide: AdmissionNotificationService, useValue: notifications },
-        { provide: IStudentEnrolmentPort, useValue: enrolment },
+        { provide: IStudentEnrollmentPort, useValue: enrollment },
       ],
     }).compile()
 
@@ -308,7 +308,7 @@ describe('Admission workflow use-cases', () => {
 
     it('does not mark the application enrolled when academic refuses', async () => {
       repo.findActiveWithParentsAndUser.mockResolvedValue(acceptedApplication)
-      enrolment.enrol.mockRejectedValue(
+      enrollment.enroll.mockRejectedValue(
         new ConflictException('NIS 1 is already in use'),
       )
 
@@ -322,9 +322,9 @@ describe('Admission workflow use-cases', () => {
       expect(repo.markEnrolled).not.toHaveBeenCalled()
     })
 
-    it('enrols through academic, then marks the application', async () => {
+    it('enrolls through academic, then marks the application', async () => {
       repo.findActiveWithParentsAndUser.mockResolvedValue(acceptedApplication)
-      enrolment.enrol.mockResolvedValue({
+      enrollment.enroll.mockResolvedValue({
         studentId: 's1',
         parentsLinked: 0,
         enrollmentCreated: false,
@@ -335,7 +335,7 @@ describe('Admission workflow use-cases', () => {
       const dto = { nis: '1', nisn: '2', gradeId: 'grade-1' }
       const result = await enroll.execute('app1', dto, 'operator-token')
 
-      expect(enrolment.enrol).toHaveBeenCalledWith(
+      expect(enrollment.enroll).toHaveBeenCalledWith(
         expect.objectContaining({
           applicationId: 'app1',
           userId: 'u1',
@@ -358,7 +358,7 @@ describe('Admission workflow use-cases', () => {
         ...acceptedApplication,
         status: 'ENROLLING',
       })
-      enrolment.enrol
+      enrollment.enroll
         .mockResolvedValueOnce({
           studentId: 's1',
           parentsLinked: 0,
@@ -389,8 +389,8 @@ describe('Admission workflow use-cases', () => {
         'operator-token',
       )
 
-      expect(enrolment.enrol).toHaveBeenCalledTimes(2)
-      expect(enrolment.enrol).toHaveBeenNthCalledWith(
+      expect(enrollment.enroll).toHaveBeenCalledTimes(2)
+      expect(enrollment.enroll).toHaveBeenNthCalledWith(
         2,
         expect.objectContaining({ applicationId: 'app1', userId: 'u1' }),
         'operator-token',
@@ -406,7 +406,7 @@ describe('Admission workflow use-cases', () => {
         ...acceptedApplication,
         status: 'ENROLLING',
       })
-      enrolment.enrol.mockResolvedValue({
+      enrollment.enroll.mockResolvedValue({
         studentId: 's1',
         parentsLinked: 0,
         enrollmentCreated: false,
@@ -422,7 +422,7 @@ describe('Admission workflow use-cases', () => {
 
       expect(repo.setEnrolling).toHaveBeenCalledWith('app1')
       expect(repo.setEnrolling.mock.invocationCallOrder[0]).toBeLessThan(
-        enrolment.enrol.mock.invocationCallOrder[0],
+        enrollment.enroll.mock.invocationCallOrder[0],
       )
     })
 
@@ -431,7 +431,7 @@ describe('Admission workflow use-cases', () => {
         ...acceptedApplication,
         status: 'ENROLLING',
       })
-      enrolment.enrol.mockResolvedValue({
+      enrollment.enroll.mockResolvedValue({
         studentId: 's1',
         parentsLinked: 0,
         enrollmentCreated: false,
@@ -445,7 +445,7 @@ describe('Admission workflow use-cases', () => {
         'operator-token',
       )
 
-      expect(enrolment.enrol).toHaveBeenCalled()
+      expect(enrollment.enroll).toHaveBeenCalled()
       expect(repo.markEnrolled).toHaveBeenCalledWith('app1', 's1')
       expect(result.student.id).toBe('s1')
     })
@@ -455,7 +455,7 @@ describe('Admission workflow use-cases', () => {
         ...acceptedApplication,
         status: 'ENROLLING',
       })
-      enrolment.enrol.mockRejectedValue(
+      enrollment.enroll.mockRejectedValue(
         new ConflictException('student unavailable'),
       )
 
@@ -483,7 +483,7 @@ describe('Admission workflow use-cases', () => {
           'operator-token',
         ),
       ).rejects.toThrow(ConflictException)
-      expect(enrolment.enrol).not.toHaveBeenCalled()
+      expect(enrollment.enroll).not.toHaveBeenCalled()
       expect(repo.markEnrolled).not.toHaveBeenCalled()
     })
   })

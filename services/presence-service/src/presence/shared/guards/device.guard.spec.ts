@@ -93,11 +93,11 @@ describe('DeviceGuard', () => {
       )
     })
 
-    it('refuses an unrecognised token', async () => {
+    it('refuses an unrecognized token', async () => {
       repository.findByTokenHash.mockResolvedValue(null)
       const { context } = contextWith('Bearer wrong')
 
-      await expect(guard.canActivate(context)).rejects.toThrow(/not recognised/)
+      await expect(guard.canActivate(context)).rejects.toThrow(/not recognized/)
     })
 
     it('refuses a deactivated device even with a valid token', async () => {

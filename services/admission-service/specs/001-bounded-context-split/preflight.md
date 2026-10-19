@@ -9,12 +9,12 @@ Current `src/admission/` count: 85 TypeScript files.
 
 | Current path | Files | Source count | Planned context ownership |
 |---|---|---:|---|
-| `domain/` | status transitions, serializers, enrolment rules and spec | 4 | `application` |
+| `domain/` | status transitions, serializers, enrollment rules and spec | 4 | `application` |
 | `domain/entities/` | 8 entities: applicant, application, application parent, wave, announcement, document, file, payment | 8 | `applicant`, `application`, `wave`, `announcement`, `document`, `payment` |
 | `domain/interfaces/` | 4 repository interfaces | 4 | `applicant`, `application`, `wave`, `announcement` |
 | `dto/request/` | 17 request DTOs | 17 | DTOs listed file-by-file in the seven-context mapping below |
 | `infrastructure/persistence/` | 6 Prisma adapters/includes/reference helpers | 6 | `applicant`, `application`, `wave`, `announcement`; shared repository reads remain explicit until Stage 2 |
-| `integration/` | `student-enrolment.port.ts`, HTTP adapter, module | 3 | `application` |
+| `integration/` | `student-enrollment.port.ts`, HTTP adapter, module | 3 | `application` |
 | `presentation/` | 5 audience controllers | 5 | Controllers remain intact; imports change to context paths |
 | `services/` | `admission-notification.service.ts` | 1 | `notification` |
 | `use-cases/` | 30 use-case implementations and 5 use-case specs | 35 | Use cases listed file-by-file in the seven-context mapping below |
@@ -56,7 +56,7 @@ Totals reconcile to current source: 30 use-case implementation files and 17 DTO 
 - Controllers directly import their request DTOs and injected use cases. Controller files stay in `src/admission/presentation/`; only relative targets change during slices.
 - Use cases directly import repository ports, domain rules/serializers, request DTOs, storage services, and `AdmissionNotificationService` where currently used.
 - Persistence adapters directly import `PrismaService`, shared repository/reference types, platform account/reference ports, local repository interfaces, and local Prisma include/reference helpers.
-- `integration.module.ts` directly binds `IStudentEnrolmentPort` to `HttpStudentEnrolmentAdapter`; `EnrollApplicantUseCase` consumes that port through the existing module.
+- `integration.module.ts` directly binds `IStudentEnrollmentPort` to `HttpStudentEnrollmentAdapter`; `EnrollApplicantUseCase` consumes that port through the existing module.
 - No source file outside `src/admission/` imports an internal admission domain, DTO, persistence, presentation, service, or use-case path.
 
 ## Route Contract Baseline
@@ -85,7 +85,7 @@ Global bootstrap contract: `ValidationPipe({ whitelist: true, forbidNonWhitelist
 | POST | `/admissions/applications/:id/verify` | admin application verification | JWT, `admissions.verify`, UUID parameter |
 | POST | `/admissions/applications/:id/accept` | admin accept application | JWT, `admissions.decide`, UUID parameter |
 | POST | `/admissions/applications/:id/reject` | admin reject application | JWT, `admissions.decide`, UUID parameter |
-| POST | `/admissions/applications/:id/enroll` | admin enrol accepted applicant | JWT, `admissions.enroll`, UUID parameter |
+| POST | `/admissions/applications/:id/enroll` | admin enroll accepted applicant | JWT, `admissions.enroll`, UUID parameter |
 | GET | `/admissions/waves` | wave list | JWT, `admission-waves.read` |
 | GET | `/admissions/waves/:id` | wave detail | JWT, `admission-waves.read`, UUID parameter |
 | POST | `/admissions/waves` | wave create | JWT, `admission-waves.create` |

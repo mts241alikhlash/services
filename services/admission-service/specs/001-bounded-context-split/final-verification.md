@@ -169,7 +169,7 @@ No production source changed during T017-T019. Existing contract tests passed:
 - Full suite passed: 19 suites, 135 tests.
 - DTO imports now resolve to context paths; no DTO decorators or request-shape source changes were made.
 - Status policy still contains `ACCEPTED: ['ENROLLED']`; `ENROLLING` is absent from the transition policy and from all 182 scanned source TypeScript files.
-- `applicationId` remains existing application/document/payment/notification linkage. Source scan found 60 existing token occurrences; no source changes, new saga state, or applicationId workflow change occurred. `EnrollApplicantUseCase` still validates the `ACCEPTED -> ENROLLED` transition, calls the existing student enrolment port, marks enrolled, then notifies.
+- `applicationId` remains existing application/document/payment/notification linkage. Source scan found 60 existing token occurrences; no source changes, new saga state, or applicationId workflow change occurred. `EnrollApplicantUseCase` still validates the `ACCEPTED -> ENROLLED` transition, calls the existing student enrollment port, marks enrolled, then notifies.
 - Repository, storage, notification, student-service integration, response, and status behavior remain covered by existing workflow tests and unchanged source.
 
 ## Git Metadata Limitation

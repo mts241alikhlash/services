@@ -84,7 +84,7 @@ describe('UpdateSemesterUseCase', () => {
     it('should refuse to move academicYearId when the semester has dependents', async () => {
       mockSemesterRepository.findById.mockResolvedValue(currentSemester)
       mockSemesterRepository.findFirstDependent.mockResolvedValue(
-        'student enrolments',
+        'student enrollments',
       )
 
       await expect(
@@ -158,7 +158,7 @@ describe('UpdateSemesterUseCase', () => {
     it('should not be tripped by resubmitting the current academicYearId and typeId', async () => {
       mockSemesterRepository.findById.mockResolvedValue(currentSemester)
       mockSemesterRepository.findFirstDependent.mockResolvedValue(
-        'student enrolments',
+        'student enrollments',
       )
       mockSemesterRepository.findTypeById.mockResolvedValue({
         id: 'type-1',

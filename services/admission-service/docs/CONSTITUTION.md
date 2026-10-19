@@ -29,7 +29,7 @@ wins** and the other is to be corrected. Where it is silent, they govern.
 ### I. Layered Dependency Flow (NON-NEGOTIABLE)
 
 Dependencies point one way, from the outside in. No layer may reach past its
-neighbour.
+neighbor.
 
 ```
 presentation ──> application ──> domain
@@ -112,7 +112,7 @@ Every query is scoped and every action is permission-controlled.
   forbidden** in controllers, use cases, and repositories.
 - Exactly one role bypasses the permission check: `SUPER_ADMIN`, as break-glass,
   so the school can recover when a grant configuration has locked everybody out.
-  Every other role, `ADMIN` included, is authorised by the permissions it holds
+  Every other role, `ADMIN` included, is authorized by the permissions it holds
   and by nothing else.
 - The bypass is checked in exactly one place, `PermissionGuard`, and **MUST NOT
   be copied elsewhere.** A copy of a rule does not move when the original does,
@@ -160,7 +160,7 @@ Each boundary has its own shape, and crossing one means mapping, not forwarding.
 - **Domain events are not used.** `@nestjs/event-emitter` is not a dependency in
   any service. A 1:1 must-succeed consequence MUST be a direct awaited call. An
   in-process emitter is fire-and-forget, so a failed consequence is logged
-  instead of reaching the caller; decoupling that hides a failed enrolment is
+  instead of reaching the caller; decoupling that hides a failed enrollment is
   not decoupling. Revisit only if a real broker is introduced, and record it as
   an ADR.
 - **A cross-service response contract is append-only.** Removing or renaming a
@@ -291,7 +291,7 @@ each failure mode gets a decided answer rather than a default.
   failure mode that is invisible is worse than one that is merely inconvenient.
 - **Business arithmetic has exactly one implementation.** A rule copied across a
   service boundary does not move when the original does. Splitting payroll from
-  presence produced a copied `summariseMonth` with four defects — `LATE`
+  presence produced a copied `summarizeMonth` with four defects — `LATE`
   counting as a present day, `lateCount` keying on status rather than minutes,
   `lateMinutes` accumulating unconditionally, and the month bounded `lte`
   rather than `lt`. None failed a build; all four would have shipped payslips
@@ -301,7 +301,7 @@ each failure mode gets a decided answer rather than a default.
 
 Rationale: a single process fails loudly — an exception, a rolled-back
 transaction. A distributed system fails quietly: a stale grant, a half-completed
-enrolment, a payslip that is off by one day. Each of these rules converts a
+enrollment, a payslip that is off by one day. Each of these rules converts a
 quiet failure into a loud one.
 
 ---
@@ -443,18 +443,18 @@ documents, payments, and applicant notifications. `src/admission/` is currently
 (`platform/auth`, `platform/access-control/permission`, `platform/user`), each
 narrowed to a read or a single write.
 
-**What it calls:** `POST {ACADEMIC_SERVICE_URL}/students/enrol` through
-`integration/student-enrolment.port.ts` and its HTTP adapter — the platform's
+**What it calls:** `POST {ACADEMIC_SERVICE_URL}/students/enroll` through
+`integration/student-enrollment.port.ts` and its HTTP adapter — the platform's
 reference **Anti-Corruption Layer**, because it translates admission's applicant
-model into academic's `EnrolStudentInput`.
+model into academic's `EnrollStudentInput`.
 
-**The saga, and its accepted cost — Principle VIII.** Enrolment used to write
+**The saga, and its accepted cost — Principle VIII.** Enrollment used to write
 three services' tables in one transaction. Six of the eight tables belong to
-`academic-service`, so the transaction moved there and this service now enrols,
+`academic-service`, so the transaction moved there and this service now enrolls,
 then marks its own application `ENROLLED`. **The operation is no longer atomic.**
 If the second write fails, a student exists whose application still reads
 `ACCEPTED`. That state is visible to the operator and repairable by repeating
-the action, because the enrol endpoint is idempotent. Do not restore
+the action, because the enroll endpoint is idempotent. Do not restore
 `enrollAsStudent()`.
 
 **Database posture — Principle VII, satisfied by owning the database.**

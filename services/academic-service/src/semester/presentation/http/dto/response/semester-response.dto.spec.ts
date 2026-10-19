@@ -1,7 +1,7 @@
 import { SemesterResponseDto } from './semester-response.dto.js'
 
 describe('SemesterResponseDto', () => {
-  it('keeps the enrolment count the rollover suggestion reads', () => {
+  it('keeps the enrollment count the rollover suggestion reads', () => {
     const dto = SemesterResponseDto.fromDomain({
       id: 'sem-1',
       academicYearId: 'ay-1',

@@ -237,8 +237,8 @@ The fix is a spec asserting `serializeWave({ registrationFee: new Decimal('15000
 yields a `number`, and a one-line reference in the function name
 (`toPlainMoneyFields` says more than `serializeWave`). Then the comment goes.
 
-**`integration/student-enrolment.port.ts`** carries thirty lines of prose about
-what the enrolment handover replaced and what its non-atomicity costs. **That
+**`integration/student-enrollment.port.ts`** carries thirty lines of prose about
+what the enrollment handover replaced and what its non-atomicity costs. **That
 stays.** It is the sanctioned exception: a trade-off at a service boundary, not
 a description of the code. A reader cannot recover "this was deliberately made
 non-atomic, and idempotency is why that is safe" from the type signature, and

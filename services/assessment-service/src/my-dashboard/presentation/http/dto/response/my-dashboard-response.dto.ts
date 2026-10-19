@@ -148,7 +148,7 @@ export class MyStudentDashboardResponseDto {
     type: () => DashboardClassroomResponseDto,
     nullable: true,
     description:
-      'Null between years, when no enrolment exists for the active semester.',
+      'Null between years, when no enrollment exists for the active semester.',
   })
   classroom!: DashboardClassroomResponseDto | null
 

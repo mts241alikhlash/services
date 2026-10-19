@@ -148,7 +148,7 @@ export class ReportCardController {
   @Post('generate/bulk')
   @RequirePermissions('report-cards.create')
   @ApiOperation({
-    summary: 'Generate report cards for every active enrolment in a classroom',
+    summary: 'Generate report cards for every active enrollment in a classroom',
     description:
       'Published cards are left untouched and reported as skipped, so one issued report does not block the rest of the class.',
   })

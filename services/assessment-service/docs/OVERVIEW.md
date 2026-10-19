@@ -38,7 +38,7 @@ Five platform pieces, copied wholesale:
 | Borrowed, wholesale | Why |
 |---|---|
 | `platform/auth` | Session liveness, `JwtAuthGuard` |
-| `platform/access-control/permission` | `PermissionGuard`, the permission catalogue |
+| `platform/access-control/permission` | `PermissionGuard`, the permission catalog |
 | `platform/teacher-identity` | "which teacher record does this signed-in user own" — every `/me` route |
 | `platform/student-identity` | "which student record does this signed-in user own" — every `/me` route |
 | `platform/school-unit-identity` | Report card PDF header (school name, address, contact) |
@@ -56,8 +56,8 @@ directly. Everything they answered now arrives over HTTP:
 | May this teacher grade this item? | `GET /teaching-assignments/:id/exists?employeeId=` |
 | Is this teacher the homeroom teacher? | `GET /classrooms/supervises` |
 | Which classes is this teacher homeroom of? | `GET /classrooms/supervised` |
-| The enrolment a score, mark or card belongs to | `POST /student-enrollments/by-ids` → student |
-| Which enrolments match this class / term / student? | `POST /student-enrollments/search` |
+| The enrollment a score, mark or card belongs to | `POST /student-enrollments/by-ids` → student |
+| Which enrollments match this class / term / student? | `POST /student-enrollments/search` |
 | How many students are in these classes? | `POST /student-enrollments/count-by-classrooms` |
 | A day of a timetable | `GET /schedules/lessons` |
 | The period an attendance record was taken in | `POST /schedules/by-ids` |

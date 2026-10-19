@@ -63,7 +63,7 @@ Create `src/admission/notification/`. Move notification service/use cases and no
 
 ### Task 8: Move `application`
 
-Create `src/admission/application/`. Move application entities, parent entity, status policy, enrolment rules, repository port/adapter, workflow use cases/specs, and DTO references. Preserve current `ACCEPTED -> ENROLLED` behavior for this package; Package 3 changes it. Run application workflow and stats specs, typecheck, route tests, boot test. Record checkpoint.
+Create `src/admission/application/`. Move application entities, parent entity, status policy, enrollment rules, repository port/adapter, workflow use cases/specs, and DTO references. Preserve current `ACCEPTED -> ENROLLED` behavior for this package; Package 3 changes it. Run application workflow and stats specs, typecheck, route tests, boot test. Record checkpoint.
 
 ### Task 9: Stage 1 final sweep
 

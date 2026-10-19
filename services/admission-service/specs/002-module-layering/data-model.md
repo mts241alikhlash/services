@@ -6,5 +6,5 @@ boundaries add no tables, fields, migrations, or cross-service payload changes.
 The application aggregate is special:
 
 - status policy remains in `domain/policies/admission-status.transitions.ts`
-- enrolment integration remains behind an integration port
+- enrollment integration remains behind an integration port
 - local application status writes remain behind the application repository port

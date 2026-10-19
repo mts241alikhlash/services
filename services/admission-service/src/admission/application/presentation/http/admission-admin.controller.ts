@@ -206,7 +206,7 @@ export class AdmissionAdminController {
   }
 
   @Post('applications/:id/enroll')
-  @RequirePermissions('admission-enrolments.process')
+  @RequirePermissions('admission-enrollments.process')
   @ApiOperation({ summary: 'Provision the accepted applicant as a student' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiResponse({ status: 409, description: 'NIS/NISN/NIK conflict' })

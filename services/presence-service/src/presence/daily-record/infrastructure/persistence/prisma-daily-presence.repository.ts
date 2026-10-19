@@ -159,11 +159,11 @@ export class PrismaDailyPresenceRepository
     return readPort.findByUsersAndDate(this.prisma, userIds, date)
   }
 
-  async summariseMonth(
+  async summarizeMonth(
     userIds: string[],
     year: number,
     month: number,
   ): Promise<MonthlyPresenceSummary[]> {
-    return readPort.summariseMonth(this.prisma, userIds, year, month)
+    return readPort.summarizeMonth(this.prisma, userIds, year, month)
   }
 }

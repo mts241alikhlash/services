@@ -19,7 +19,7 @@ import {
 import { UpdateDailyPresenceDto } from '../dto/request/update-daily-presence.dto.js'
 import { PresenceAuditService } from '../services/presence-audit.service.js'
 
-function serialise(value: Date | string | null | undefined): string | null {
+function serialize(value: Date | string | null | undefined): string | null {
   if (value === null || value === undefined) return null
   return value instanceof Date ? value.toISOString() : value
 }
@@ -101,14 +101,14 @@ export class UpdateDailyPresenceUseCase {
     }[] = [
       {
         field: 'checkInAt',
-        previous: serialise(existing.checkInAt),
-        next: serialise(dto.checkInAt),
+        previous: serialize(existing.checkInAt),
+        next: serialize(dto.checkInAt),
         sent: dto.checkInAt !== undefined,
       },
       {
         field: 'checkOutAt',
-        previous: serialise(existing.checkOutAt),
-        next: serialise(dto.checkOutAt),
+        previous: serialize(existing.checkOutAt),
+        next: serialize(dto.checkOutAt),
         sent: dto.checkOutAt !== undefined,
       },
       {

@@ -154,8 +154,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * A student's active enrolment, as ids
-         * @description With `semesterId`, the active enrolment in that term rather than whichever one is current.
+         * A student's active enrollment, as ids
+         * @description With `semesterId`, the active enrollment in that term rather than whichever one is current.
          */
         get: operations["EnrollmentInternalController_active"];
         put?: never;
@@ -207,7 +207,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Active enrolments in a classroom and semester */
+        /** Active enrollments in a classroom and semester */
         get: operations["EnrollmentInternalController_byClassroom"];
         put?: never;
         post?: never;
@@ -226,7 +226,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Enrolments for a batch of ids, as summaries */
+        /** Enrollments for a batch of ids, as summaries */
         post: operations["EnrollmentInternalController_byIds"];
         delete?: never;
         options?: never;
@@ -243,7 +243,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** How many of these enrolment ids are active */
+        /** How many of these enrollment ids are active */
         post: operations["EnrollmentInternalController_countActive"];
         delete?: never;
         options?: never;
@@ -258,7 +258,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Live enrolments in a classroom */
+        /** Live enrollments in a classroom */
         get: operations["EnrollmentInternalController_countByClassroom"];
         put?: never;
         post?: never;
@@ -277,7 +277,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Active enrolment counts for a batch of classrooms in one term */
+        /** Active enrollment counts for a batch of classrooms in one term */
         post: operations["EnrollmentInternalController_countByClassrooms"];
         delete?: never;
         options?: never;
@@ -292,7 +292,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Live enrolments in a semester */
+        /** Live enrollments in a semester */
         get: operations["EnrollmentInternalController_countBySemester"];
         put?: never;
         post?: never;
@@ -312,7 +312,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Live enrolment counts for a batch of terms
+         * Live enrollment counts for a batch of terms
          * @description academic-service asks this for its semester list, which offers a rollover only into a term that holds nothing yet. A term absent from the response holds nothing; a term the caller never asked about is a different thing entirely, and must not be read as empty.
          */
         post: operations["EnrollmentInternalController_countBySemesters"];
@@ -332,7 +332,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Carry active enrolments into the next semester
+         * Carry active enrollments into the next semester
          * @description academic-service copies the classrooms first and sends the resulting id map here. Idempotent per student: a student already enrolled in the target semester is skipped, so a failed run is repaired by repeating it.
          */
         post: operations["EnrollmentInternalController_rollover"];
@@ -352,7 +352,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Enrolments matching a student, classroom or term
+         * Enrollments matching a student, classroom or term
          * @description The primitive behind every "rows for this classroom in this term" read in another service. Callers used to reach these by joining `student_enrollments` from their own tables; they resolve ids here and filter on their own foreign key instead. At least one filter is required — an unfiltered search is a whole-table read, not a query.
          */
         post: operations["EnrollmentInternalController_search"];
@@ -369,7 +369,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** One enrolment, as ids */
+        /** One enrollment, as ids */
         get: operations["EnrollmentInternalController_summary"];
         put?: never;
         post?: never;
@@ -680,7 +680,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/students/enrol": {
+    "/students/enroll": {
         parameters: {
             query?: never;
             header?: never;
@@ -689,8 +689,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Enrol an existing account as a student (admission handover) */
-        post: operations["StudentController_enrol"];
+        /** Enroll an existing account as a student (admission handover) */
+        post: operations["StudentController_enroll"];
         delete?: never;
         options?: never;
         head?: never;
@@ -787,7 +787,7 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         ActiveEnrollmentResponseDto: {
-            /** @description null when the student has no active enrolment */
+            /** @description null when the student has no active enrollment */
             data: components["schemas"]["ActiveEnrollmentSummary"] | null;
         };
         ActiveEnrollmentSummary: {
@@ -906,7 +906,7 @@ export interface components {
             count: number;
         };
         ClassroomCountListResponseDto: {
-            /** @description Classrooms with no active enrolment are absent, not zero. */
+            /** @description Classrooms with no active enrollment are absent, not zero. */
             data: components["schemas"]["ClassroomCountDto"][];
         };
         CountActiveDto: {
@@ -1132,7 +1132,7 @@ export interface components {
             /** @description Reason for dropping the enrollment */
             note?: string;
         };
-        EnrolAddressDto: {
+        EnrollAddressDto: {
             city: string;
             country?: string;
             district: string;
@@ -1143,8 +1143,8 @@ export interface components {
             street: string;
             village: string;
         };
-        EnrolExistingAccountDto: {
-            address?: components["schemas"]["EnrolAddressDto"];
+        EnrollExistingAccountDto: {
+            address?: components["schemas"]["EnrollAddressDto"];
             /**
              * Format: uuid
              * @description Admission operation identifier
@@ -1152,7 +1152,7 @@ export interface components {
             applicationId?: string;
             /**
              * Format: uuid
-             * @description Enrols into the active semester
+             * @description Enrolls into the active semester
              */
             classroomId?: string;
             /** Format: uuid */
@@ -1161,15 +1161,15 @@ export interface components {
             nis: string;
             /** @example 0101234567 */
             nisn: string;
-            parents?: components["schemas"]["EnrolParentDto"][];
-            profile: components["schemas"]["EnrolProfileDto"];
+            parents?: components["schemas"]["EnrollParentDto"][];
+            profile: components["schemas"]["EnrollProfileDto"];
             /**
              * Format: uuid
-             * @description Existing user account to enrol
+             * @description Existing user account to enroll
              */
             userId: string;
         };
-        EnrolExistingAccountResponseDto: {
+        EnrollExistingAccountResponseDto: {
             alreadyEnrolled: boolean;
             enrollmentCreated: boolean;
             parentsLinked: number;
@@ -1194,7 +1194,7 @@ export interface components {
             count: number;
         };
         EnrollmentCountResponseDto: {
-            /** @description Live enrolments. Soft-deleted excluded. */
+            /** @description Live enrollments. Soft-deleted excluded. */
             data: components["schemas"]["EnrollmentCountDataDto"];
         };
         EnrollmentListResponseDto: {
@@ -1203,7 +1203,7 @@ export interface components {
         EnrollmentSummaryResponseDto: {
             data: components["schemas"]["ActiveEnrollmentSummary"] | null;
         };
-        EnrolParentDto: {
+        EnrollParentDto: {
             /** @example 1980-01-01 */
             birthDate: string;
             /** @example Bandung */
@@ -1225,7 +1225,7 @@ export interface components {
              */
             relation: "FATHER" | "MOTHER" | "GUARDIAN";
         };
-        EnrolProfileDto: {
+        EnrollProfileDto: {
             /** @example 2010-04-05 */
             birthDate: string;
             /** @example Bandung */
@@ -1912,7 +1912,7 @@ export interface components {
             semesterId: string;
         };
         SemesterCountListResponseDto: {
-            /** @description Terms with no live enrolment are absent, not zero. */
+            /** @description Terms with no live enrollment are absent, not zero. */
             data: components["schemas"]["SemesterCountDto"][];
         };
         SemesterIdsDto: {
@@ -3092,7 +3092,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @description null when the student has no active enrolment */
+                        /** @description null when the student has no active enrollment */
                         data?: components["schemas"]["ActiveEnrollmentSummary"] | null;
                         /** @example Success */
                         message?: string;
@@ -3261,7 +3261,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @description Live enrolments. Soft-deleted excluded. */
+                        /** @description Live enrollments. Soft-deleted excluded. */
                         data?: components["schemas"]["EnrollmentCountDataDto"];
                         /** @example Success */
                         message?: string;
@@ -3296,7 +3296,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @description Live enrolments. Soft-deleted excluded. */
+                        /** @description Live enrollments. Soft-deleted excluded. */
                         data?: components["schemas"]["EnrollmentCountDataDto"];
                         /** @example Success */
                         message?: string;
@@ -3333,7 +3333,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @description Classrooms with no active enrolment are absent, not zero. */
+                        /** @description Classrooms with no active enrollment are absent, not zero. */
                         data?: components["schemas"]["ClassroomCountDto"][];
                         /** @example Success */
                         message?: string;
@@ -3368,7 +3368,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @description Live enrolments. Soft-deleted excluded. */
+                        /** @description Live enrollments. Soft-deleted excluded. */
                         data?: components["schemas"]["EnrollmentCountDataDto"];
                         /** @example Success */
                         message?: string;
@@ -3405,7 +3405,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @description Terms with no live enrolment are absent, not zero. */
+                        /** @description Terms with no live enrollment are absent, not zero. */
                         data?: components["schemas"]["SemesterCountDto"][];
                         /** @example Success */
                         message?: string;
@@ -4493,7 +4493,7 @@ export interface operations {
             };
         };
     };
-    StudentController_enrol: {
+    StudentController_enroll: {
         parameters: {
             query?: never;
             header?: never;
@@ -4502,7 +4502,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EnrolExistingAccountDto"];
+                "application/json": components["schemas"]["EnrollExistingAccountDto"];
             };
         };
         responses: {
@@ -4513,7 +4513,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["EnrolExistingAccountResponseDto"];
+                        data?: components["schemas"]["EnrollExistingAccountResponseDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */
@@ -4618,7 +4618,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Your classroom, or null when you have no enrolment this term */
+            /** @description Your classroom, or null when you have no enrollment this term */
             200: {
                 headers: {
                     [name: string]: unknown;

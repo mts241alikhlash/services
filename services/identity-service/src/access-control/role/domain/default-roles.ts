@@ -291,9 +291,9 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         'admission-documents.read',
         'admission-documents.verify',
         'admissions.enroll',
-        'admission-enrolments.read',
-        'admission-enrolments.process',
-        'admission-enrolments.nis',
+        'admission-enrollments.read',
+        'admission-enrollments.process',
+        'admission-enrollments.nis',
         'admission-waves.read',
         'admission-bank-accounts.read',
         'admission-document-types.read',
@@ -450,23 +450,23 @@ export const DEFAULT_ROLES: DefaultRole[] = [
 const EXPLICIT_ONLY = new Set([
   'admissions.apply',
   'admission-decisions.decide',
-  'admission-enrolments.process',
-  'admission-enrolments.nis',
+  'admission-enrollments.process',
+  'admission-enrollments.nis',
 ])
 
-function broad(catalogue: SystemPermission[]): SystemPermission[] {
-  return catalogue.filter((p) => !EXPLICIT_ONLY.has(p.code))
+function broad(catalog: SystemPermission[]): SystemPermission[] {
+  return catalog.filter((p) => !EXPLICIT_ONLY.has(p.code))
 }
 
-function selected(grant: Grant, catalogue: SystemPermission[]): string[] {
+function selected(grant: Grant, catalog: SystemPermission[]): string[] {
   if ('app' in grant) {
-    return broad(catalogue)
+    return broad(catalog)
       .filter((p) => appForModule(p.module) === grant.app)
       .map((p) => p.code)
   }
   if ('modules' in grant) {
     return grant.modules.flatMap((module) => {
-      const codes = broad(catalogue)
+      const codes = broad(catalog)
         .filter((p) => p.module === module)
         .map((p) => p.code)
       if (codes.length === 0) throw new Error(`Unknown module ${module}`)
@@ -474,17 +474,17 @@ function selected(grant: Grant, catalogue: SystemPermission[]): string[] {
     })
   }
   if ('codes' in grant) {
-    const known = new Set(catalogue.map((p) => p.code))
+    const known = new Set(catalog.map((p) => p.code))
     for (const code of grant.codes) {
       if (!known.has(code)) throw new Error(`Unknown permission ${code}`)
     }
     return grant.codes
   }
-  if ('includes' in grant) return resolveGrants(grant.includes, catalogue)
+  if ('includes' in grant) return resolveGrants(grant.includes, catalog)
   if ('everyRead' in grant) {
-    return catalogue.filter((p) => p.action === 'read').map((p) => p.code)
+    return catalog.filter((p) => p.action === 'read').map((p) => p.code)
   }
-  return broad(catalogue)
+  return broad(catalog)
     .filter(
       (p) =>
         !grant.exceptModulePrefixes.some((prefix) =>
@@ -496,12 +496,12 @@ function selected(grant: Grant, catalogue: SystemPermission[]): string[] {
 
 export function resolveGrants(
   code: string,
-  catalogue: SystemPermission[] = SYSTEM_PERMISSIONS,
+  catalog: SystemPermission[] = SYSTEM_PERMISSIONS,
 ): string[] {
   const role = DEFAULT_ROLES.find((candidate) => candidate.code === code)
   if (!role) throw new Error(`Unknown default role ${code}`)
   return [
-    ...new Set(role.grants.flatMap((grant) => selected(grant, catalogue))),
+    ...new Set(role.grants.flatMap((grant) => selected(grant, catalog))),
   ].sort()
 }
 

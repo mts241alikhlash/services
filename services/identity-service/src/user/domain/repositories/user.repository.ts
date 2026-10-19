@@ -99,7 +99,7 @@ export interface UserSummary {
 }
 
 export abstract class IUserRepository {
-  abstract summarise(): Promise<UserSummary>
+  abstract summarize(): Promise<UserSummary>
   abstract findAll(query: UserQueryInput): Promise<PaginatedResult<UserPublic>>
 
   abstract findById(id: string): Promise<UserPublic | null>

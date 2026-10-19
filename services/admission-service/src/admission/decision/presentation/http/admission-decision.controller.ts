@@ -122,7 +122,7 @@ export class AdmissionDecisionController {
 
   @Post(':applicationId/cancel-acceptance')
   @RequirePermissions('admission-decisions.decide')
-  @ApiOperation({ summary: 'Cancel an acceptance until enrolment starts' })
+  @ApiOperation({ summary: 'Cancel an acceptance until enrollment starts' })
   @ApiParam({ name: 'applicationId', format: 'uuid' })
   @ApiResponse({ status: 201, type: AdmissionDecisionResponseDto })
   @ApiResponse({
