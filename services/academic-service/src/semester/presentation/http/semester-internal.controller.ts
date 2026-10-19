@@ -34,6 +34,12 @@ export class SemesterContextDto {
   @ApiProperty({ nullable: true }) typeName!: string | null
   @ApiProperty() isActive!: boolean
 
+  @ApiProperty({ type: String, nullable: true, example: '2026-07-13' })
+  startDate!: string | null
+
+  @ApiProperty({ type: String, nullable: true, example: '2026-12-19' })
+  endDate!: string | null
+
   @ApiProperty({
     description:
       'Term order within the year. Callers pick the first or last term by ' +
@@ -166,6 +172,8 @@ function toContext(semester: {
   id: string
   academicYearId: string
   isActive?: boolean
+  startDate?: Date | null
+  endDate?: Date | null
   academicYear?: { name?: string | null } | null
   type?: {
     id?: string | null
@@ -180,6 +188,8 @@ function toContext(semester: {
     typeId: semester.type?.id ?? null,
     typeName: semester.type?.name ?? null,
     isActive: semester.isActive ?? false,
+    startDate: semester.startDate?.toISOString().slice(0, 10) ?? null,
+    endDate: semester.endDate?.toISOString().slice(0, 10) ?? null,
     sequence: semester.type?.sequence ?? 0,
   }
 }

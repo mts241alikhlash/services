@@ -5174,10 +5174,14 @@ export interface components {
         SemesterContextDto: {
             academicYearId: string;
             academicYearName: Record<string, never> | null;
+            /** @example 2026-12-19 */
+            endDate: string | null;
             id: string;
             isActive: boolean;
             /** @description Term order within the year. Callers pick the first or last term by this rather than by relying on the response order. */
             sequence: number;
+            /** @example 2026-07-13 */
+            startDate: string | null;
             typeId: Record<string, never> | null;
             typeName: Record<string, never> | null;
         };

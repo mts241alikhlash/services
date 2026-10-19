@@ -15472,6 +15472,16 @@
           "isActive": {
             "type": "boolean"
           },
+          "startDate": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-07-13"
+          },
+          "endDate": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-12-19"
+          },
           "sequence": {
             "type": "number",
             "description": "Term order within the year. Callers pick the first or last term by this rather than by relying on the response order."
@@ -15484,6 +15494,8 @@
           "typeId",
           "typeName",
           "isActive",
+          "startDate",
+          "endDate",
           "sequence"
         ]
       },
