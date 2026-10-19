@@ -14,7 +14,7 @@ const TYPE_SELECT = {
   lateDueMonths: true,
 } as const
 
-type ApplicationRow = {
+interface ApplicationRow {
   id: string
   registrationNumber: string
   fullName: string
