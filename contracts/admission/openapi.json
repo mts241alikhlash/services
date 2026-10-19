@@ -5666,6 +5666,23 @@
           "isRequired": {
             "type": "boolean"
           },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "LATER",
+              "OPTIONAL"
+            ],
+            "type": "string"
+          },
+          "lateDueMonths": {
+            "type": "number",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
           "sortOrder": {
             "type": "number"
           },
@@ -5678,6 +5695,9 @@
           "code",
           "name",
           "isRequired",
+          "requirement",
+          "lateDueMonths",
+          "dueDate",
           "sortOrder",
           "isActive"
         ]

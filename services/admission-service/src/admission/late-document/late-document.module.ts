@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { AuthModule } from '../../platform/auth/auth.module.js'
+import { ReferenceLookupModule } from '../../platform/reference-lookup/reference-lookup.module.js'
 import { DocumentModule } from '../document/document.module.js'
 import { DecideLateDocumentUseCase } from './application/use-cases/decide-late-document/decide-late-document.use-case.js'
 import { GetLateDocumentsUseCase } from './application/use-cases/get-late-documents/get-late-documents.use-case.js'
@@ -9,7 +10,7 @@ import { PrismaLateDocumentRepository } from './infrastructure/persistence/prism
 import { AdmissionLateDocumentController } from './presentation/http/admission-late-document.controller.js'
 
 @Module({
-  imports: [AuthModule, DocumentModule],
+  imports: [AuthModule, DocumentModule, ReferenceLookupModule],
   controllers: [AdmissionLateDocumentController],
   providers: [
     {

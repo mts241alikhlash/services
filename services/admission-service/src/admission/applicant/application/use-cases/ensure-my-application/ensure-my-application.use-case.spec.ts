@@ -1,5 +1,6 @@
 import { ConflictException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { IReferenceLookupPort } from '../../../../../platform/reference-lookup/reference-lookup.port.js'
 import { IAdmissionApplicantRepository } from '../../../domain/repositories/admission-applicant-repository.js'
 import { EnsureMyApplicationUseCase } from './ensure-my-application.use-case.js'
 
@@ -19,6 +20,10 @@ describe('EnsureMyApplicationUseCase', () => {
       providers: [
         EnsureMyApplicationUseCase,
         { provide: IAdmissionApplicantRepository, useValue: repo },
+        {
+          provide: IReferenceLookupPort,
+          useValue: { firstSemesterOf: jest.fn().mockResolvedValue(null) },
+        },
       ],
     }).compile()
 
