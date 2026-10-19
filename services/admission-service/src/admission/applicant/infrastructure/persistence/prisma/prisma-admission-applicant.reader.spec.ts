@@ -35,3 +35,19 @@ describe('PrismaAdmissionApplicantReader.findActiveWave', () => {
     expect(await makeReader({ w1: 2, w2: 2 }).findActiveWave()).toBeNull()
   })
 })
+
+describe('PrismaAdmissionApplicantReader.findRequiredActiveDocumentTypes', () => {
+  it('asks only for active REQUIRED types', async () => {
+    const findMany = jest.fn().mockResolvedValue([])
+    const reader = new PrismaAdmissionApplicantReader(
+      { admissionDocumentType: { findMany } } as never,
+      {} as never,
+    )
+
+    await reader.findRequiredActiveDocumentTypes()
+
+    expect(findMany).toHaveBeenCalledWith({
+      where: { isActive: true, requirement: 'REQUIRED' },
+    })
+  })
+})

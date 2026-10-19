@@ -34,6 +34,11 @@ export class SaveDocumentDecisionUseCase {
     if (result.outcome === 'NOT_FOUND') {
       throw new NotFoundException('Berkas tidak ditemukan')
     }
+    if (result.outcome === 'LATER_TYPE') {
+      throw new ConflictException(
+        'Berkas susulan diperiksa lewat menu Berkas Susulan',
+      )
+    }
     if (result.outcome === 'NOT_SUBMITTED') {
       throw new ConflictException(
         'Keputusan berkas hanya bisa diubah selama pendaftaran menunggu pemeriksaan',

@@ -21,6 +21,10 @@ const type: AdmissionDocumentTypeEntity = {
   documentCount: 0,
 }
 
+const verifier = { execute: jest.fn().mockResolvedValue(true) }
+
+beforeEach(() => verifier.execute.mockClear())
+
 function repository(found: AdmissionDocumentTypeEntity | null = type) {
   return {
     findAll: jest.fn().mockResolvedValue([type]),
@@ -32,6 +36,7 @@ function repository(found: AdmissionDocumentTypeEntity | null = type) {
     update: jest.fn().mockResolvedValue(type),
     reorder: jest.fn().mockResolvedValue(undefined),
     delete: jest.fn().mockResolvedValue(undefined),
+    findSubmittedApplicationIds: jest.fn().mockResolvedValue(['a1', 'a2']),
   }
 }
 
@@ -47,7 +52,7 @@ describe('GetDocumentTypesUseCase', () => {
 describe('SaveDocumentTypeUseCase', () => {
   it('creates a trimmed type last with a generated code', async () => {
     const repo = repository()
-    await new SaveDocumentTypeUseCase(repo).create({
+    await new SaveDocumentTypeUseCase(repo, verifier as never).create({
       name: '  Photo ',
       isRequired: false,
       isActive: true,
@@ -66,7 +71,7 @@ describe('SaveDocumentTypeUseCase', () => {
   it.each(['', '   '])('refuses the blank name %j on create', async (name) => {
     const repo = repository()
     await expect(
-      new SaveDocumentTypeUseCase(repo as never).create({
+      new SaveDocumentTypeUseCase(repo as never, verifier as never).create({
         name,
         isRequired: true,
         isActive: true,
@@ -78,7 +83,10 @@ describe('SaveDocumentTypeUseCase', () => {
   it('refuses a blank name on rename', async () => {
     const repo = repository()
     await expect(
-      new SaveDocumentTypeUseCase(repo as never).update('t1', { name: '   ' }),
+      new SaveDocumentTypeUseCase(repo as never, verifier as never).update(
+        't1',
+        { name: '   ' },
+      ),
     ).rejects.toThrow(BadRequestException)
     expect(repo.update).not.toHaveBeenCalled()
   })
@@ -87,7 +95,7 @@ describe('SaveDocumentTypeUseCase', () => {
     const repo = repository()
     repo.nameTaken.mockResolvedValue(true)
     await expect(
-      new SaveDocumentTypeUseCase(repo as never).create({
+      new SaveDocumentTypeUseCase(repo as never, verifier as never).create({
         name: 'kartu keluarga',
         isRequired: true,
         isActive: true,
@@ -98,7 +106,7 @@ describe('SaveDocumentTypeUseCase', () => {
 
   it('renames without touching the code and allows its own name', async () => {
     const repo = repository()
-    await new SaveDocumentTypeUseCase(repo).update('t1', {
+    await new SaveDocumentTypeUseCase(repo, verifier as never).update('t1', {
       name: ' Kartu Keluarga ',
       isRequired: false,
     })
@@ -114,9 +122,12 @@ describe('SaveDocumentTypeUseCase', () => {
     const repo = repository()
     repo.nameTaken.mockResolvedValue(true)
     await expect(
-      new SaveDocumentTypeUseCase(repo as never).update('t1', {
-        name: 'Photo',
-      }),
+      new SaveDocumentTypeUseCase(repo as never, verifier as never).update(
+        't1',
+        {
+          name: 'Photo',
+        },
+      ),
     ).rejects.toThrow(ConflictException)
     expect(repo.update).not.toHaveBeenCalled()
   })
@@ -124,9 +135,12 @@ describe('SaveDocumentTypeUseCase', () => {
   it('answers 404 for an unknown type', async () => {
     const repo = repository(null)
     await expect(
-      new SaveDocumentTypeUseCase(repo as never).update('x', {
-        isActive: false,
-      }),
+      new SaveDocumentTypeUseCase(repo as never, verifier as never).update(
+        'x',
+        {
+          isActive: false,
+        },
+      ),
     ).rejects.toThrow(new NotFoundException('Jenis berkas tidak ditemukan'))
   })
 })
@@ -134,7 +148,7 @@ describe('SaveDocumentTypeUseCase', () => {
 describe('SaveDocumentTypeUseCase requirement', () => {
   it('creates a LATER type with its limit in months', async () => {
     const repo = repository()
-    await new SaveDocumentTypeUseCase(repo).create({
+    await new SaveDocumentTypeUseCase(repo, verifier as never).create({
       name: 'Ijazah SD',
       requirement: 'LATER',
       lateDueMonths: 2,
@@ -150,7 +164,7 @@ describe('SaveDocumentTypeUseCase requirement', () => {
     async (lateDueMonths) => {
       const repo = repository()
       await expect(
-        new SaveDocumentTypeUseCase(repo).create({
+        new SaveDocumentTypeUseCase(repo, verifier as never).create({
           name: 'Ijazah SD',
           requirement: 'LATER',
           lateDueMonths,
@@ -168,7 +182,7 @@ describe('SaveDocumentTypeUseCase requirement', () => {
   it('refuses a limit on a type that is not LATER', async () => {
     const repo = repository()
     await expect(
-      new SaveDocumentTypeUseCase(repo).create({
+      new SaveDocumentTypeUseCase(repo, verifier as never).create({
         name: 'Akta',
         requirement: 'REQUIRED',
         lateDueMonths: 2,
@@ -184,7 +198,7 @@ describe('SaveDocumentTypeUseCase requirement', () => {
     [false, 'OPTIONAL'],
   ])('maps the old isRequired %j to %s', async (isRequired, requirement) => {
     const repo = repository()
-    await new SaveDocumentTypeUseCase(repo).create({
+    await new SaveDocumentTypeUseCase(repo, verifier as never).create({
       name: 'Photo',
       isRequired,
       isActive: true,
@@ -197,7 +211,7 @@ describe('SaveDocumentTypeUseCase requirement', () => {
   it('refuses a create that names neither requirement nor isRequired', async () => {
     const repo = repository()
     await expect(
-      new SaveDocumentTypeUseCase(repo).create({
+      new SaveDocumentTypeUseCase(repo, verifier as never).create({
         name: 'Photo',
         isActive: true,
       }),
@@ -206,7 +220,7 @@ describe('SaveDocumentTypeUseCase requirement', () => {
 
   it('clears the limit when a LATER type becomes REQUIRED', async () => {
     const repo = repository({ ...type, requirement: 'LATER', lateDueMonths: 2 })
-    await new SaveDocumentTypeUseCase(repo).update('t1', {
+    await new SaveDocumentTypeUseCase(repo, verifier as never).update('t1', {
       requirement: 'REQUIRED',
     })
     expect(repo.update).toHaveBeenCalledWith(
@@ -218,9 +232,11 @@ describe('SaveDocumentTypeUseCase requirement', () => {
   it('needs a limit when an existing type becomes LATER', async () => {
     const repo = repository()
     await expect(
-      new SaveDocumentTypeUseCase(repo).update('t1', { requirement: 'LATER' }),
+      new SaveDocumentTypeUseCase(repo, verifier as never).update('t1', {
+        requirement: 'LATER',
+      }),
     ).rejects.toThrow(BadRequestException)
-    await new SaveDocumentTypeUseCase(repo).update('t1', {
+    await new SaveDocumentTypeUseCase(repo, verifier as never).update('t1', {
       requirement: 'LATER',
       lateDueMonths: 3,
     })
@@ -230,9 +246,36 @@ describe('SaveDocumentTypeUseCase requirement', () => {
     )
   })
 
+  it.each(['LATER', 'OPTIONAL'] as const)(
+    're-checks the submitted applications when a REQUIRED type becomes %s',
+    async (requirement) => {
+      const repo = repository()
+      await new SaveDocumentTypeUseCase(repo, verifier as never).update('t1', {
+        requirement,
+        lateDueMonths: requirement === 'LATER' ? 2 : undefined,
+      })
+      expect(verifier.execute).toHaveBeenCalledTimes(2)
+      expect(verifier.execute).toHaveBeenCalledWith('a1', null)
+      expect(verifier.execute).toHaveBeenCalledWith('a2', null)
+    },
+  )
+
+  it('does not re-check when a type becomes REQUIRED or keeps its requirement', async () => {
+    const repo = repository({ ...type, requirement: 'LATER', lateDueMonths: 2 })
+    await new SaveDocumentTypeUseCase(repo, verifier as never).update('t1', {
+      requirement: 'REQUIRED',
+    })
+    await new SaveDocumentTypeUseCase(repo, verifier as never).update('t1', {
+      name: 'Ijazah',
+    })
+    expect(verifier.execute).not.toHaveBeenCalled()
+  })
+
   it('keeps the requirement and the limit when only the name changes', async () => {
     const repo = repository({ ...type, requirement: 'LATER', lateDueMonths: 2 })
-    await new SaveDocumentTypeUseCase(repo).update('t1', { name: 'Ijazah' })
+    await new SaveDocumentTypeUseCase(repo, verifier as never).update('t1', {
+      name: 'Ijazah',
+    })
     expect(repo.update).toHaveBeenCalledWith('t1', { name: 'Ijazah' })
   })
 })

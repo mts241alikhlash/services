@@ -20,3 +20,18 @@ it('reads active types plus inactive ones the application uploaded', async () =>
     orderBy: { sortOrder: 'asc' },
   })
 })
+
+it('asks only for active REQUIRED types when checking readiness', async () => {
+  const findMany = jest.fn().mockResolvedValue([])
+  const repo = new PrismaAdmissionApplicationRepository(
+    { admissionDocumentType: { findMany } } as never,
+    {} as never,
+    {} as never,
+  )
+
+  await repo.findRequiredActiveDocumentTypes()
+
+  expect(findMany).toHaveBeenCalledWith({
+    where: { isActive: true, requirement: 'REQUIRED' },
+  })
+})

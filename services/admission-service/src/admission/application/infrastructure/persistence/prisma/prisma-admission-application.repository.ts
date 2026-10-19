@@ -304,7 +304,7 @@ export class PrismaAdmissionApplicationRepository extends IAdmissionApplicationR
 
   async findRequiredActiveDocumentTypes(): Promise<AdmissionDocumentType[]> {
     return this.prisma.admissionDocumentType.findMany({
-      where: { isActive: true, isRequired: true },
+      where: { isActive: true, requirement: 'REQUIRED' },
     })
   }
 

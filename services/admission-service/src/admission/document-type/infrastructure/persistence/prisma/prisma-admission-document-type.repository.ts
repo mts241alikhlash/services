@@ -126,6 +126,14 @@ export class PrismaAdmissionDocumentTypeRepository extends IAdmissionDocumentTyp
     )
   }
 
+  async findSubmittedApplicationIds(): Promise<string[]> {
+    const rows = await this.prisma.admissionApplication.findMany({
+      where: { status: 'SUBMITTED', deletedAt: null },
+      select: { id: true },
+    })
+    return rows.map((row) => row.id)
+  }
+
   async reorder(ids: string[]): Promise<void> {
     await this.prisma.$transaction(
       ids.map((id, index) =>

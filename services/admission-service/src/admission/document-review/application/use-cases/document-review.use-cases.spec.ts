@@ -207,6 +207,21 @@ describe('SaveDocumentDecisionUseCase', () => {
     expect(repository.saveDecision).not.toHaveBeenCalled()
   })
 
+  it('refuses a late document with 409', async () => {
+    const repository = {
+      saveDecision: jest.fn().mockResolvedValue({ outcome: 'LATER_TYPE' }),
+    }
+    const useCase = new SaveDocumentDecisionUseCase(repository as never)
+
+    await expect(
+      useCase.execute({ ...base, status: 'APPROVED' }),
+    ).rejects.toThrow(
+      new ConflictException(
+        'Berkas susulan diperiksa lewat menu Berkas Susulan',
+      ),
+    )
+  })
+
   it('saves a rejection with its trimmed reason', async () => {
     const saved = document('kk', 'REJECTED', 'Buram')
     const repository = {

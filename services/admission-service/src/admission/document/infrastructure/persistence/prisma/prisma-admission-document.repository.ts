@@ -53,7 +53,7 @@ export class PrismaAdmissionDocumentRepository extends IAdmissionDocumentReposit
 
   async findRequiredActiveDocumentTypes(): Promise<AdmissionDocumentTypeRef[]> {
     return this.prisma.admissionDocumentType.findMany({
-      where: { isActive: true, isRequired: true },
+      where: { isActive: true, requirement: 'REQUIRED' },
     })
   }
 

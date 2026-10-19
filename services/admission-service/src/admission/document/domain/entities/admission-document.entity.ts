@@ -6,6 +6,7 @@ export interface AdmissionDocumentTypeRef {
   code: string
   name: string
   isRequired: boolean
+  requirement: 'REQUIRED' | 'LATER' | 'OPTIONAL'
   sortOrder: number
   isActive: boolean
 }

@@ -12,3 +12,16 @@ it('resolves an upload code only to an active document type', async () => {
     where: { code: 'RAPOR', isActive: true },
   })
 })
+
+it('lists only active REQUIRED types as required', async () => {
+  const findMany = jest.fn().mockResolvedValue([])
+  const repo = new PrismaAdmissionDocumentRepository({
+    admissionDocumentType: { findMany },
+  } as never)
+
+  await repo.findRequiredActiveDocumentTypes()
+
+  expect(findMany).toHaveBeenCalledWith({
+    where: { isActive: true, requirement: 'REQUIRED' },
+  })
+})

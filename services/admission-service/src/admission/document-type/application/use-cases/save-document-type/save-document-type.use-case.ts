@@ -10,6 +10,7 @@ import {
   type UpdateDocumentTypeInput,
 } from '../../../domain/repositories/admission-document-type-repository.js'
 import type { DocumentRequirement } from '../../../domain/entities/admission-document-type.entity.js'
+import { VerifyApplicationWhenReadyUseCase } from '../../../../verification/index.js'
 import { documentTypeCode } from '../../../domain/policies/document-type-code.policy.js'
 
 const LIMIT_REQUIRED = 'Batas berkas susulan wajib diisi 1 sampai 12 bulan'
@@ -46,7 +47,10 @@ function limitFor(
 
 @Injectable()
 export class SaveDocumentTypeUseCase {
-  constructor(private readonly repository: IAdmissionDocumentTypeRepository) {}
+  constructor(
+    private readonly repository: IAdmissionDocumentTypeRepository,
+    private readonly verifyWhenReady: VerifyApplicationWhenReadyUseCase,
+  ) {}
 
   async create(input: CreateDocumentTypeInput) {
     const name = this.requireName(input.name)
@@ -78,11 +82,27 @@ export class SaveDocumentTypeUseCase {
     const name =
       input.name === undefined ? undefined : this.requireName(input.name)
     if (name !== undefined) await this.assertNameFree(name, id)
-    return this.repository.update(id, {
+    const change = this.requirementChange(existing, input)
+    const updated = await this.repository.update(id, {
       ...(name !== undefined && { name }),
       ...(input.isActive !== undefined && { isActive: input.isActive }),
-      ...this.requirementChange(existing, input),
+      ...change,
     })
+    if (
+      existing.requirement === 'REQUIRED' &&
+      change.requirement !== undefined &&
+      change.requirement !== 'REQUIRED'
+    ) {
+      await this.recheckSubmitted()
+    }
+    return updated
+  }
+
+  private async recheckSubmitted() {
+    const ids = await this.repository.findSubmittedApplicationIds()
+    for (const applicationId of ids) {
+      await this.verifyWhenReady.execute(applicationId, null)
+    }
   }
 
   private requirementChange(

@@ -46,6 +46,7 @@ export abstract class IAdmissionDocumentTypeRepository {
     id: string,
     input: UpdateDocumentTypeRecord,
   ): Promise<AdmissionDocumentTypeEntity>
+  abstract findSubmittedApplicationIds(): Promise<string[]>
   abstract reorder(ids: string[]): Promise<void>
   abstract delete(id: string): Promise<void>
 }
