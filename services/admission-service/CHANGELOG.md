@@ -1,5 +1,11 @@
 # admission-service
 
+## 3.1.0
+
+### Minor Changes
+
+- 5137b0b: Antrean Verifikasi Berkas diurutkan per nomor pendaftaran di semua tab, dan tiap baris membawa `revisionNote` (catatan yang dikirim staf saat meminta perbaikan; `null` bila tidak ada).
+
 ## 3.0.0
 
 ### Major Changes

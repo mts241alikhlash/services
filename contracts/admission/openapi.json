@@ -5015,7 +5015,7 @@
   "info": {
     "title": "Admission Service API",
     "description": "Admission Service",
-    "version": "3.0.0",
+    "version": "3.1.0",
     "contact": {}
   },
   "tags": [],
