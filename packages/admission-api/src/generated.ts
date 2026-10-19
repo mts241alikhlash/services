@@ -878,6 +878,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admissions/late-documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Late documents of the PPDB academic year, one row per student and type */
+        get: operations["AdmissionLateDocumentController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/late-documents/{applicationId}/documents/{documentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Approve or reject a late document */
+        patch: operations["AdmissionLateDocumentController_decide"];
+        trace?: never;
+    };
+    "/admissions/late-documents/{applicationId}/documents/{documentTypeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload or replace a late document for an applicant */
+        post: operations["AdmissionLateDocumentController_upload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admissions/manage-announcements": {
         parameters: {
             query?: never;
@@ -2995,6 +3046,57 @@ export interface components {
                 [key: string]: unknown;
             } | null;
         };
+        AdmissionLateDocumentCountsDto: {
+            complete: number;
+            late: number;
+            onTime: number;
+            overdue: number;
+        };
+        AdmissionLateDocumentListResponseDto: {
+            data: components["schemas"]["AdmissionLateDocumentRowResponseDto"][];
+            meta: components["schemas"]["AdmissionLateDocumentMetaDto"];
+        };
+        AdmissionLateDocumentMetaDto: {
+            counts: components["schemas"]["AdmissionLateDocumentCountsDto"];
+            datesMissing: ("start" | "end")[];
+            limit: number;
+            page: number;
+            total: number;
+            totalPages: number;
+            year: components["schemas"]["AdmissionLateDocumentYearDto"] | null;
+        };
+        AdmissionLateDocumentRowResponseDto: {
+            applicantName: string;
+            applicationId: string;
+            applicationStatus: string;
+            documentId: string | null;
+            documentTypeId: string;
+            documentTypeName: string;
+            fileId: string | null;
+            gradeLevel: number | null;
+            /** Format: date-time */
+            limitDate: string | null;
+            note: string | null;
+            registrationNumber: string;
+            /** @enum {string} */
+            state: "MISSING" | "PENDING" | "REJECTED" | "APPROVED";
+            /** @enum {string} */
+            urgency: "ON_TIME" | "LATE" | "OVERDUE";
+            waveName: string;
+        };
+        AdmissionLateDocumentSavedResponseDto: {
+            documentTypeId: string;
+            id: string;
+            note: string | null;
+            /** @enum {string} */
+            status: "PENDING" | "APPROVED" | "REJECTED";
+            /** Format: date-time */
+            verifiedAt: string | null;
+        };
+        AdmissionLateDocumentYearDto: {
+            id: string;
+            name: string | null;
+        };
         AdmissionNisComposeResponseDto: {
             academicYearId: string;
             changed: number;
@@ -3321,6 +3423,12 @@ export interface components {
             registrationFee: number;
             /** Format: date */
             startDate: string;
+        };
+        DecideLateDocumentDto: {
+            /** @description Required when rejecting */
+            note?: string;
+            /** @enum {string} */
+            status: "APPROVED" | "REJECTED";
         };
         EnrollApplicantDto: {
             /**
@@ -5751,6 +5859,108 @@ export interface operations {
             };
             /** @description Isi tidak valid */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdmissionLateDocumentController_findAll: {
+        parameters: {
+            query?: {
+                documentTypeId?: string;
+                limit?: number;
+                page?: number;
+                /** @description Search by applicant name or registration number */
+                search?: string;
+                /** @description OPEN is MISSING, PENDING and REJECTED */
+                state?: "OPEN" | "MISSING" | "PENDING" | "REJECTED" | "APPROVED";
+                waveId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionLateDocumentRowResponseDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: components["schemas"]["AdmissionLateDocumentMetaDto"];
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionLateDocumentController_decide: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecideLateDocumentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionLateDocumentSavedResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    AdmissionLateDocumentController_upload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+                documentTypeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AdmissionLateDocumentSavedResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Berkas sudah disetujui */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
