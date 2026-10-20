@@ -5372,6 +5372,18 @@
           "isRequired": {
             "type": "boolean"
           },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "LATER",
+              "OPTIONAL"
+            ],
+            "type": "string"
+          },
+          "lateDueMonths": {
+            "type": "number",
+            "nullable": true
+          },
           "sortOrder": {
             "type": "number"
           },
@@ -5384,6 +5396,8 @@
           "code",
           "name",
           "isRequired",
+          "requirement",
+          "lateDueMonths",
           "sortOrder",
           "isActive"
         ]
@@ -5697,7 +5711,6 @@
           "isRequired",
           "requirement",
           "lateDueMonths",
-          "dueDate",
           "sortOrder",
           "isActive"
         ]
@@ -8901,6 +8914,18 @@
           "isRequired": {
             "type": "boolean"
           },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "LATER",
+              "OPTIONAL"
+            ],
+            "type": "string"
+          },
+          "lateDueMonths": {
+            "type": "number",
+            "nullable": true
+          },
           "sortOrder": {
             "type": "number"
           },
@@ -8913,6 +8938,8 @@
           "code",
           "name",
           "isRequired",
+          "requirement",
+          "lateDueMonths",
           "sortOrder",
           "isActive"
         ]

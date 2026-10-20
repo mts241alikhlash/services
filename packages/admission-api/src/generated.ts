@@ -1574,7 +1574,10 @@ export interface components {
             id: string;
             isActive: boolean;
             isRequired: boolean;
+            lateDueMonths: number | null;
             name: string;
+            /** @enum {string} */
+            requirement: "REQUIRED" | "LATER" | "OPTIONAL";
             sortOrder: number;
         };
         AdmissionActiveWavesResponseDto: {
@@ -2165,7 +2168,10 @@ export interface components {
             id: string;
             isActive: boolean;
             isRequired: boolean;
+            lateDueMonths: number | null;
             name: string;
+            /** @enum {string} */
+            requirement: "REQUIRED" | "LATER" | "OPTIONAL";
             sortOrder: number;
         };
         AdmissionApplicationReviewResponseDto: {
@@ -3503,7 +3509,7 @@ export interface components {
         MyAdmissionApplicationResponseDocumentTypesDto: {
             code: string;
             /** Format: date-time */
-            dueDate: string | null;
+            dueDate?: string | null;
             id: string;
             isActive: boolean;
             isRequired: boolean;

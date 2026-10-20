@@ -1,5 +1,8 @@
 import { AdmissionAnnouncementResponseDto } from '../../../../../announcement/presentation/http/dto/response/admission-announcement-response.dto.js'
 import {
+  AdmissionActiveWavesResponseDocumentTypesDto,
+  AdmissionApplicationReviewResponseDocumentTypesDto,
+  MyAdmissionApplicationResponseDocumentTypesDto,
   MyAdmissionApplicationResponseDto,
   MyAdmissionApplicationResponseWaveDto,
 } from './admission-application-response.dto.js'
@@ -189,6 +192,41 @@ describe('admission response DTOs', () => {
         kipNumber: 'KIP123',
         amount: 450000,
         file: null,
+      })
+    })
+  })
+
+  describe('document types carry the requirement', () => {
+    const type = {
+      id: 't1',
+      code: 'IJAZAH',
+      name: 'Ijazah SD',
+      isRequired: false,
+      requirement: 'LATER' as const,
+      lateDueMonths: 2,
+      sortOrder: 1,
+      isActive: true,
+    }
+
+    it('on the staff detail and the public waves', () => {
+      for (const dto of [
+        AdmissionApplicationReviewResponseDocumentTypesDto.fromDomain(type),
+        AdmissionActiveWavesResponseDocumentTypesDto.fromDomain(type),
+      ]) {
+        expect(dto).toMatchObject({ requirement: 'LATER', lateDueMonths: 2 })
+      }
+    })
+
+    it('and the due date on the applicant own application', () => {
+      const dto = MyAdmissionApplicationResponseDocumentTypesDto.fromDomain({
+        ...type,
+        dueDate: '2026-09-13T16:59:59.999Z',
+      })
+
+      expect(dto).toMatchObject({
+        requirement: 'LATER',
+        lateDueMonths: 2,
+        dueDate: '2026-09-13T16:59:59.999Z',
       })
     })
   })
