@@ -1,5 +1,11 @@
 # @mts241alikhlash/academic-api
 
+## 1.2.0
+
+### Minor Changes
+
+- f8e8796: Pencarian semester internal menampilkan `startDate` dan `endDate` (tanggal ISO, `null` bila belum diisi).
+
 ## 1.1.1
 
 ### Patch Changes
