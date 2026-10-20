@@ -12,6 +12,9 @@ export class AdmissionLateDocumentRowResponseDto {
   @ApiProperty({ type: String }) documentTypeName!: string
   @ApiProperty({ type: String, nullable: true }) documentId!: string | null
   @ApiProperty({ type: String, nullable: true }) fileId!: string | null
+  @ApiProperty({ type: String, nullable: true }) fileName!: string | null
+  @ApiProperty({ type: String, nullable: true })
+  fileMimeType!: string | null
   @ApiProperty({ enum: ['MISSING', 'PENDING', 'REJECTED', 'APPROVED'] })
   state!: 'MISSING' | 'PENDING' | 'REJECTED' | 'APPROVED'
   @ApiProperty({ enum: ['ON_TIME', 'LATE', 'OVERDUE'] })
@@ -34,6 +37,8 @@ export class AdmissionLateDocumentRowResponseDto {
     dto.documentTypeName = domain.documentTypeName
     dto.documentId = domain.documentId
     dto.fileId = domain.fileId
+    dto.fileName = domain.fileName
+    dto.fileMimeType = domain.fileMimeType
     dto.state = domain.state
     dto.urgency = domain.urgency
     dto.limitDate = domain.limitDate?.toISOString() ?? null

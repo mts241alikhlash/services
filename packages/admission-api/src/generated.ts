@@ -3079,6 +3079,8 @@ export interface components {
             documentTypeId: string;
             documentTypeName: string;
             fileId: string | null;
+            fileMimeType: string | null;
+            fileName: string | null;
             gradeLevel: number | null;
             /** Format: date-time */
             limitDate: string | null;

@@ -24,6 +24,7 @@ function build(overrides: Record<string, unknown> = {}) {
               id: 'd1',
               documentTypeId: 'ijazah',
               fileId: 'f1',
+              file: { originalName: 'ijazah.pdf', mimeType: 'application/pdf' },
               status: 'PENDING',
               note: null,
             },
@@ -120,7 +121,12 @@ describe('PrismaLateDocumentRepository.findTrackedPairs', () => {
       waveName: 'Gelombang 1',
       gradeLevel: 7,
       documentType: { id: 'ijazah', lateDueMonths: 2 },
-      document: { id: 'd1', status: 'PENDING' },
+      document: {
+        id: 'd1',
+        status: 'PENDING',
+        fileName: 'ijazah.pdf',
+        fileMimeType: 'application/pdf',
+      },
     })
     expect(pairs[1]).toMatchObject({
       documentType: { id: 'rapor' },

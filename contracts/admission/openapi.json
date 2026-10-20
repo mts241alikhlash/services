@@ -15435,6 +15435,14 @@
             "type": "string",
             "nullable": true
           },
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileMimeType": {
+            "type": "string",
+            "nullable": true
+          },
           "state": {
             "enum": [
               "MISSING",
@@ -15473,6 +15481,8 @@
           "documentTypeName",
           "documentId",
           "fileId",
+          "fileName",
+          "fileMimeType",
           "state",
           "urgency",
           "limitDate",

@@ -63,7 +63,14 @@ describe('GetLateDocumentsUseCase', () => {
   it('defaults to the open states, sorts by urgency then registration number and pages the rows', async () => {
     const { useCase } = build([
       pair('PSB-003', {
-        document: { id: 'd3', fileId: 'f3', status: 'APPROVED', note: null },
+        document: {
+          id: 'd3',
+          fileId: 'f3',
+          fileName: 'f3.pdf',
+          fileMimeType: 'application/pdf',
+          status: 'APPROVED',
+          note: null,
+        },
       }),
       pair('PSB-002'),
       pair('PSB-001'),
@@ -95,10 +102,24 @@ describe('GetLateDocumentsUseCase', () => {
     const { useCase } = build([
       pair('PSB-001'),
       pair('PSB-002', {
-        document: { id: 'd2', fileId: 'f2', status: 'PENDING', note: null },
+        document: {
+          id: 'd2',
+          fileId: 'f2',
+          fileName: 'f2.pdf',
+          fileMimeType: 'application/pdf',
+          status: 'PENDING',
+          note: null,
+        },
       }),
       pair('PSB-003', {
-        document: { id: 'd3', fileId: 'f3', status: 'APPROVED', note: null },
+        document: {
+          id: 'd3',
+          fileId: 'f3',
+          fileName: 'f3.pdf',
+          fileMimeType: 'application/pdf',
+          status: 'APPROVED',
+          note: null,
+        },
       }),
     ])
 
@@ -111,6 +132,18 @@ describe('GetLateDocumentsUseCase', () => {
       complete: 1,
     })
     expect(result.data).toHaveLength(2)
+    const rowOf = (number: string) =>
+      result.data.find((row) => row.registrationNumber === number)
+    expect(rowOf('PSB-002')).toMatchObject({
+      fileId: 'f2',
+      fileName: 'f2.pdf',
+      fileMimeType: 'application/pdf',
+    })
+    expect(rowOf('PSB-001')).toMatchObject({
+      fileId: null,
+      fileName: null,
+      fileMimeType: null,
+    })
   })
 
   it('filters by state, document type, wave and search', async () => {
@@ -127,7 +160,14 @@ describe('GetLateDocumentsUseCase', () => {
       }),
       pair('PSB-004', {
         applicantName: 'Ahmad Fauzi',
-        document: { id: 'd4', fileId: 'f4', status: 'APPROVED', note: null },
+        document: {
+          id: 'd4',
+          fileId: 'f4',
+          fileName: 'f4.pdf',
+          fileMimeType: 'application/pdf',
+          status: 'APPROVED',
+          note: null,
+        },
       }),
     ])
 

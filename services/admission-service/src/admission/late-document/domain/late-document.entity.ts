@@ -31,6 +31,8 @@ export interface LateDocumentPair {
   document: {
     id: string
     fileId: string
+    fileName: string
+    fileMimeType: string
     status: 'PENDING' | 'APPROVED' | 'REJECTED'
     note: string | null
   } | null
@@ -47,6 +49,8 @@ export interface LateDocumentRow {
   documentTypeName: string
   documentId: string | null
   fileId: string | null
+  fileName: string | null
+  fileMimeType: string | null
   state: LateDocumentState
   urgency: LateDocumentUrgency
   limitDate: Date | null

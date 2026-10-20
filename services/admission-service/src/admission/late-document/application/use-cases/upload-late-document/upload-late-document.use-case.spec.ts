@@ -82,7 +82,14 @@ describe('UploadLateDocumentUseCase', () => {
   it('replaces a REJECTED file', async () => {
     const { useCase, documents } = build(
       pair({
-        document: { id: 'd1', fileId: 'f1', status: 'REJECTED', note: 'buram' },
+        document: {
+          id: 'd1',
+          fileId: 'f1',
+          fileName: 'f1.pdf',
+          fileMimeType: 'application/pdf',
+          status: 'REJECTED',
+          note: 'buram',
+        },
       }),
     )
 
@@ -94,7 +101,14 @@ describe('UploadLateDocumentUseCase', () => {
   it('refuses to replace an APPROVED file with 409', async () => {
     const { useCase, documents } = build(
       pair({
-        document: { id: 'd1', fileId: 'f1', status: 'APPROVED', note: null },
+        document: {
+          id: 'd1',
+          fileId: 'f1',
+          fileName: 'f1.pdf',
+          fileMimeType: 'application/pdf',
+          status: 'APPROVED',
+          note: null,
+        },
       }),
     )
 

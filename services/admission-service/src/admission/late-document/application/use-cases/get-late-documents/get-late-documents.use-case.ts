@@ -113,6 +113,8 @@ export class GetLateDocumentsUseCase {
       documentTypeName: pair.documentType.name,
       documentId: pair.document?.id ?? null,
       fileId: pair.document?.fileId ?? null,
+      fileName: pair.document?.fileName ?? null,
+      fileMimeType: pair.document?.fileMimeType ?? null,
       state,
       urgency,
       limitDate,

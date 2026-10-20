@@ -25,6 +25,7 @@ interface ApplicationRow {
     id: string
     documentTypeId: string
     fileId: string
+    file: { originalName: string; mimeType: string }
     status: string
     note: string | null
   }[]
@@ -44,6 +45,7 @@ function applicationSelect(typeIds: string[]) {
         id: true,
         documentTypeId: true,
         fileId: true,
+        file: { select: { originalName: true, mimeType: true } },
         status: true,
         note: true,
       },
@@ -71,6 +73,8 @@ function toPair(
       ? {
           id: document.id,
           fileId: document.fileId,
+          fileName: document.file.originalName,
+          fileMimeType: document.file.mimeType,
           status: document.status as 'PENDING' | 'APPROVED' | 'REJECTED',
           note: document.note,
         }
