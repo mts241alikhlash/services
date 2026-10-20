@@ -5010,6 +5010,249 @@
           "Admission — Files"
         ]
       }
+    },
+    "/admissions/late-documents": {
+      "get": {
+        "operationId": "AdmissionLateDocumentController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by applicant name or registration number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentTypeId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "waveId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "description": "OPEN is MISSING, PENDING and REJECTED",
+            "schema": {
+              "default": "OPEN",
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "MISSING",
+                "PENDING",
+                "REJECTED",
+                "APPROVED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdmissionLateDocumentRowResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/AdmissionLateDocumentMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Late documents of the PPDB academic year, one row per student and type",
+        "tags": [
+          "Admission — Late documents"
+        ]
+      }
+    },
+    "/admissions/late-documents/{applicationId}/documents/{documentTypeId}": {
+      "post": {
+        "operationId": "AdmissionLateDocumentController_upload",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentTypeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionLateDocumentSavedResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Berkas sudah disetujui"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload or replace a late document for an applicant",
+        "tags": [
+          "Admission — Late documents"
+        ]
+      }
+    },
+    "/admissions/late-documents/{applicationId}/documents/{documentId}": {
+      "patch": {
+        "operationId": "AdmissionLateDocumentController_decide",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecideLateDocumentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdmissionLateDocumentSavedResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve or reject a late document",
+        "tags": [
+          "Admission — Late documents"
+        ]
+      }
     }
   },
   "info": {
@@ -5129,6 +5372,18 @@
           "isRequired": {
             "type": "boolean"
           },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "LATER",
+              "OPTIONAL"
+            ],
+            "type": "string"
+          },
+          "lateDueMonths": {
+            "type": "number",
+            "nullable": true
+          },
           "sortOrder": {
             "type": "number"
           },
@@ -5141,6 +5396,8 @@
           "code",
           "name",
           "isRequired",
+          "requirement",
+          "lateDueMonths",
           "sortOrder",
           "isActive"
         ]
@@ -5423,6 +5680,23 @@
           "isRequired": {
             "type": "boolean"
           },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "LATER",
+              "OPTIONAL"
+            ],
+            "type": "string"
+          },
+          "lateDueMonths": {
+            "type": "number",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
           "sortOrder": {
             "type": "number"
           },
@@ -5435,6 +5709,8 @@
           "code",
           "name",
           "isRequired",
+          "requirement",
+          "lateDueMonths",
           "sortOrder",
           "isActive"
         ]
@@ -8638,6 +8914,18 @@
           "isRequired": {
             "type": "boolean"
           },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "LATER",
+              "OPTIONAL"
+            ],
+            "type": "string"
+          },
+          "lateDueMonths": {
+            "type": "number",
+            "nullable": true
+          },
           "sortOrder": {
             "type": "number"
           },
@@ -8650,6 +8938,8 @@
           "code",
           "name",
           "isRequired",
+          "requirement",
+          "lateDueMonths",
           "sortOrder",
           "isActive"
         ]
@@ -13603,6 +13893,18 @@
           "isRequired": {
             "type": "boolean"
           },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "LATER",
+              "OPTIONAL"
+            ],
+            "type": "string"
+          },
+          "lateDueMonths": {
+            "type": "number",
+            "nullable": true
+          },
           "isActive": {
             "type": "boolean"
           },
@@ -13618,6 +13920,8 @@
           "code",
           "name",
           "isRequired",
+          "requirement",
+          "lateDueMonths",
           "isActive",
           "sortOrder",
           "documentCount"
@@ -13645,8 +13949,24 @@
             "maxLength": 100,
             "example": "Surat Keterangan Sehat"
           },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "LATER",
+              "OPTIONAL"
+            ],
+            "type": "string"
+          },
+          "lateDueMonths": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Months after the start of the school year; LATER only"
+          },
           "isRequired": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Deprecated: use requirement. true is REQUIRED, false OPTIONAL."
           },
           "isActive": {
             "type": "boolean"
@@ -13654,7 +13974,6 @@
         },
         "required": [
           "name",
-          "isRequired",
           "isActive"
         ]
       },
@@ -13682,8 +14001,24 @@
             "maxLength": 100,
             "example": "Surat Keterangan Sehat"
           },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "LATER",
+              "OPTIONAL"
+            ],
+            "type": "string"
+          },
+          "lateDueMonths": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Months after the start of the school year; LATER only"
+          },
           "isRequired": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Deprecated: use requirement. true is REQUIRED, false OPTIONAL."
           },
           "isActive": {
             "type": "boolean"
@@ -15062,6 +15397,256 @@
           "targetGradeId",
           "targetGradeLevel",
           "nisCleared"
+        ]
+      },
+      "AdmissionLateDocumentRowResponseDto": {
+        "type": "object",
+        "properties": {
+          "applicationId": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "applicationStatus": {
+            "type": "string"
+          },
+          "waveName": {
+            "type": "string"
+          },
+          "gradeLevel": {
+            "type": "number",
+            "nullable": true
+          },
+          "documentTypeId": {
+            "type": "string"
+          },
+          "documentTypeName": {
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileId": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileMimeType": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "enum": [
+              "MISSING",
+              "PENDING",
+              "REJECTED",
+              "APPROVED"
+            ],
+            "type": "string"
+          },
+          "urgency": {
+            "enum": [
+              "ON_TIME",
+              "LATE",
+              "OVERDUE"
+            ],
+            "type": "string"
+          },
+          "limitDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "applicationId",
+          "registrationNumber",
+          "applicantName",
+          "applicationStatus",
+          "waveName",
+          "gradeLevel",
+          "documentTypeId",
+          "documentTypeName",
+          "documentId",
+          "fileId",
+          "fileName",
+          "fileMimeType",
+          "state",
+          "urgency",
+          "limitDate",
+          "note"
+        ]
+      },
+      "AdmissionLateDocumentYearDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "AdmissionLateDocumentCountsDto": {
+        "type": "object",
+        "properties": {
+          "onTime": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "overdue": {
+            "type": "number"
+          },
+          "complete": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "onTime",
+          "late",
+          "overdue",
+          "complete"
+        ]
+      },
+      "AdmissionLateDocumentMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          },
+          "year": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdmissionLateDocumentYearDto"
+              }
+            ]
+          },
+          "datesMissing": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "start",
+                "end"
+              ]
+            }
+          },
+          "counts": {
+            "$ref": "#/components/schemas/AdmissionLateDocumentCountsDto"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages",
+          "year",
+          "datesMissing",
+          "counts"
+        ]
+      },
+      "AdmissionLateDocumentListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionLateDocumentRowResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AdmissionLateDocumentMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "AdmissionLateDocumentSavedResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "documentTypeId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "verifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "documentTypeId",
+          "status",
+          "note",
+          "verifiedAt"
+        ]
+      },
+      "DecideLateDocumentDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "APPROVED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Required when rejecting"
+          }
+        },
+        "required": [
+          "status"
         ]
       }
     }

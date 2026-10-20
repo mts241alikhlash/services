@@ -13,7 +13,7 @@ export class PrismaAdmissionVerificationRepository extends IAdmissionVerificatio
 
   async findRequiredTypeIds(): Promise<string[]> {
     const types = await this.prisma.admissionDocumentType.findMany({
-      where: { isActive: true, isRequired: true },
+      where: { isActive: true, requirement: 'REQUIRED' },
       select: { id: true },
     })
     return types.map((type) => type.id)

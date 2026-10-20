@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { AuthModule } from '../../platform/auth/auth.module.js'
+import { VerificationModule } from '../verification/index.js'
 import { AdmissionDocumentTypeController } from './presentation/http/admission-document-type.controller.js'
 import { PrismaAdmissionDocumentTypeRepository } from './infrastructure/persistence/prisma/prisma-admission-document-type.repository.js'
 import { IAdmissionDocumentTypeRepository } from './domain/repositories/admission-document-type-repository.js'
@@ -9,7 +10,7 @@ import { ReorderDocumentTypesUseCase } from './application/use-cases/reorder-doc
 import { DeleteDocumentTypeUseCase } from './application/use-cases/delete-document-type/delete-document-type.use-case.js'
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, VerificationModule],
   controllers: [AdmissionDocumentTypeController],
   providers: [
     {

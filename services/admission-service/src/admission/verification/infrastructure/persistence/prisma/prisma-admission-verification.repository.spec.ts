@@ -26,7 +26,7 @@ describe('PrismaAdmissionVerificationRepository', () => {
       'akta',
     ])
     expect(findMany).toHaveBeenCalledWith({
-      where: { isActive: true, isRequired: true },
+      where: { isActive: true, requirement: 'REQUIRED' },
       select: { id: true },
     })
   })

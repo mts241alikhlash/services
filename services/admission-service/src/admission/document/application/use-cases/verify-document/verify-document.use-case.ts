@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
@@ -29,6 +30,11 @@ export class VerifyDocumentUseCase {
     )
     if (!document) {
       throw new NotFoundException('Document not found')
+    }
+    if (document.documentType.requirement === 'LATER') {
+      throw new ConflictException(
+        'Berkas susulan diperiksa lewat menu Berkas Susulan',
+      )
     }
 
     const updated = await this.documents.updateDocumentStatus(document.id, {

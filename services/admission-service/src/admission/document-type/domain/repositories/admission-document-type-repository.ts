@@ -1,17 +1,37 @@
-import type { AdmissionDocumentTypeEntity } from '../entities/admission-document-type.entity.js'
+import type {
+  AdmissionDocumentTypeEntity,
+  DocumentRequirement,
+} from '../entities/admission-document-type.entity.js'
 
 export interface CreateDocumentTypeInput {
   name: string
-  isRequired: boolean
+  requirement?: DocumentRequirement
+  isRequired?: boolean
+  lateDueMonths?: number | null
   isActive: boolean
 }
 
-export type UpdateDocumentTypeInput = Partial<CreateDocumentTypeInput>
+export interface UpdateDocumentTypeInput {
+  name?: string
+  requirement?: DocumentRequirement
+  isRequired?: boolean
+  lateDueMonths?: number | null
+  isActive?: boolean
+}
 
-export type CreateDocumentTypeRecord = CreateDocumentTypeInput & {
+export interface CreateDocumentTypeRecord {
+  name: string
   code: string
+  requirement: DocumentRequirement
+  lateDueMonths: number | null
+  isActive: boolean
   sortOrder: number
 }
+
+export type UpdateDocumentTypeRecord = Omit<
+  UpdateDocumentTypeInput,
+  'isRequired'
+>
 
 export abstract class IAdmissionDocumentTypeRepository {
   abstract findAll(): Promise<AdmissionDocumentTypeEntity[]>
@@ -24,8 +44,9 @@ export abstract class IAdmissionDocumentTypeRepository {
   ): Promise<AdmissionDocumentTypeEntity>
   abstract update(
     id: string,
-    input: UpdateDocumentTypeInput,
+    input: UpdateDocumentTypeRecord,
   ): Promise<AdmissionDocumentTypeEntity>
+  abstract findSubmittedApplicationIds(): Promise<string[]>
   abstract reorder(ids: string[]): Promise<void>
   abstract delete(id: string): Promise<void>
 }

@@ -75,6 +75,28 @@ describe('Document workflow use-cases', () => {
     )
   })
 
+  it('refuses to verify a late document with 409', async () => {
+    repo.findDocument.mockResolvedValue({
+      id: 'doc1',
+      documentType: { name: 'Ijazah SD', requirement: 'LATER' },
+    })
+
+    await expect(
+      verifyDocument.execute({
+        applicationId: 'app1',
+        documentId: 'doc1',
+        status: 'APPROVED' as never,
+        adminId: 'admin1',
+      }),
+    ).rejects.toThrow(
+      new ConflictException(
+        'Berkas susulan diperiksa lewat menu Berkas Susulan',
+      ),
+    )
+    expect(repo.updateDocumentStatus).not.toHaveBeenCalled()
+    expect(notifications.notify).not.toHaveBeenCalled()
+  })
+
   it('refuses to verify a document that does not belong to the application', async () => {
     repo.findDocument.mockResolvedValue(null)
 

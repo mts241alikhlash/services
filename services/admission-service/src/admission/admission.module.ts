@@ -22,6 +22,7 @@ import { DecisionModule } from './decision/index.js'
 import { EnrollmentModule } from './enrollment/index.js'
 import { DocumentReviewModule } from './document-review/index.js'
 import { FileModule } from './file/index.js'
+import { LateDocumentModule } from './late-document/index.js'
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { FileModule } from './file/index.js'
     DecisionModule,
     EnrollmentModule,
     FileModule,
+    LateDocumentModule,
   ],
   controllers: [AdmissionPublicController, AdmissionApplicantController],
   providers: [GetActiveWavesUseCase, GetPublishedAnnouncementsUseCase],

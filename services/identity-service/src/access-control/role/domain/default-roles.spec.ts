@@ -80,12 +80,37 @@ describe('default roles', () => {
       expect(codesOf(role)).not.toContain('admission-enrollments.process')
       expect(codesOf(role)).not.toContain('admission-enrollments.nis')
     }
-    for (const role of ['TREASURER', 'VICE_PRINCIPAL_CURRICULUM']) {
+    for (const role of ['TREASURER']) {
       expect(codesOf(role)).not.toContain('admission-enrollments.process')
       expect(codesOf(role)).not.toContain('admission-enrollments.nis')
     }
     expect(codesOf('PRINCIPAL')).toContain('admission-enrollments.read')
     expect(codesOf('PRINCIPAL')).not.toContain('admission-enrollments.process')
+  })
+
+  it('lets TU Kesantrian and the deputy for student affairs read, upload and check late documents, and others only read them', () => {
+    for (const role of [
+      'STUDENT_AFFAIRS_STAFF',
+      'VICE_PRINCIPAL_STUDENT_AFFAIRS',
+    ]) {
+      for (const action of ['read', 'upload', 'verify']) {
+        expect(codesOf(role)).toContain(`admission-late-documents.${action}`)
+      }
+    }
+    for (const role of [
+      'ADMISSION_ADMIN',
+      'OPERATOR',
+      'PRINCIPAL',
+      'VICE_PRINCIPAL_CURRICULUM',
+    ]) {
+      expect(codesOf(role)).toContain('admission-late-documents.read')
+      expect(codesOf(role)).not.toContain('admission-late-documents.upload')
+      expect(codesOf(role)).not.toContain('admission-late-documents.verify')
+    }
+    for (const role of ['TREASURER', 'VICE_PRINCIPAL_CURRICULUM']) {
+      expect(codesOf(role)).not.toContain('admission-late-documents.upload')
+      expect(codesOf(role)).not.toContain('admission-late-documents.verify')
+    }
   })
 
   it('lets applicants apply and nothing else', () => {

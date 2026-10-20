@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ReferenceLookupModule } from '../../platform/reference-lookup/reference-lookup.module.js'
 import { UserModule } from '../../platform/user/user.module.js'
 import { NotificationModule } from '../notification/notification.module.js'
 import { PrismaAdmissionApplicantRepository } from './infrastructure/persistence/prisma/prisma-admission-applicant.repository.js'
@@ -17,6 +18,7 @@ import { BankAccountModule } from '../bank-account/bank-account.module.js'
 
 @Module({
   imports: [
+    ReferenceLookupModule,
     UserModule,
     NotificationModule,
     BankAccountModule,

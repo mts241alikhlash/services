@@ -80,3 +80,4 @@ export type SaveDecisionResult =
   | { outcome: 'SAVED'; document: ReviewDocument }
   | { outcome: 'NOT_FOUND' }
   | { outcome: 'NOT_SUBMITTED' }
+  | { outcome: 'LATER_TYPE' }

@@ -206,8 +206,13 @@ describe('PrismaAdmissionDocumentReviewRepository.findContext', () => {
       ],
     })
     const findTypes = jest.fn().mockResolvedValue([
-      { id: 'kk', code: 'KK', name: 'Kartu Keluarga', isRequired: true },
-      { id: 'surat', code: 'SURAT', name: 'Surat Prestasi', isRequired: false },
+      { id: 'kk', code: 'KK', name: 'Kartu Keluarga', requirement: 'REQUIRED' },
+      {
+        id: 'surat',
+        code: 'SURAT',
+        name: 'Surat Prestasi',
+        requirement: 'OPTIONAL',
+      },
     ])
     const repository = new PrismaAdmissionDocumentReviewRepository({
       admissionApplication: { findFirst },
@@ -220,9 +225,9 @@ describe('PrismaAdmissionDocumentReviewRepository.findContext', () => {
       where: { id: 'app1', deletedAt: null },
     })
     expect(findTypes).toHaveBeenCalledWith({
-      where: { isActive: true },
+      where: { isActive: true, requirement: { not: 'LATER' } },
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
-      select: { id: true, code: true, name: true, isRequired: true },
+      select: { id: true, code: true, name: true, requirement: true },
     })
     expect(context).toMatchObject({
       applicationId: 'app1',
@@ -266,7 +271,10 @@ describe('PrismaAdmissionDocumentReviewRepository writes', () => {
         findFirst: jest.fn().mockResolvedValue({ status: 'SUBMITTED' }),
       },
       admissionDocument: {
-        findFirst: jest.fn().mockResolvedValue({ id: 'd1' }),
+        findFirst: jest.fn().mockResolvedValue({
+          id: 'd1',
+          documentType: { requirement: 'REQUIRED' },
+        }),
         update: jest.fn().mockResolvedValue({
           id: 'd1',
           documentTypeId: 'kk',
@@ -320,6 +328,23 @@ describe('PrismaAdmissionDocumentReviewRepository writes', () => {
       outcome: 'SAVED',
       document: { id: 'd1', status: 'REJECTED' },
     })
+  })
+
+  it('answers LATER_TYPE and writes nothing for a late document', async () => {
+    const { repository, tx } = transactional({
+      admissionDocument: {
+        findFirst: jest.fn().mockResolvedValue({
+          id: 'd1',
+          documentType: { requirement: 'LATER' },
+        }),
+        update: jest.fn(),
+      },
+    })
+
+    await expect(repository.saveDecision(input)).resolves.toEqual({
+      outcome: 'LATER_TYPE',
+    })
+    expect(tx.admissionDocument.update).not.toHaveBeenCalled()
   })
 
   it('writes nothing once the application is no longer submitted', async () => {
@@ -407,6 +432,43 @@ describe('PrismaAdmissionDocumentReviewRepository writes', () => {
         tx,
       }
     }
+
+    it('asks only for active REQUIRED types', async () => {
+      const { repository, tx } = approving()
+
+      await repository.recordApproval('app1')
+
+      expect(tx.admissionDocumentType.findMany).toHaveBeenCalledWith({
+        where: { isActive: true, requirement: 'REQUIRED' },
+        select: { id: true },
+      })
+    })
+
+    it('ignores a rejected late document', async () => {
+      const { repository, tx } = approving({
+        admissionApplication: {
+          findFirst: jest.fn().mockResolvedValue({
+            status: 'SUBMITTED',
+            submittedAt: new Date('2026-10-01T00:00:00Z'),
+            documents: [
+              {
+                documentTypeId: 'kk',
+                status: 'APPROVED',
+                documentType: { requirement: 'REQUIRED' },
+              },
+              {
+                documentTypeId: 'ijazah',
+                status: 'REJECTED',
+                documentType: { requirement: 'LATER' },
+              },
+            ],
+          }),
+        },
+      })
+
+      await expect(repository.recordApproval('app1')).resolves.toBe(true)
+      expect(tx.admissionNotification.create).toHaveBeenCalled()
+    })
 
     it('locks the application and records the approval notice once', async () => {
       const { repository, tx } = approving()

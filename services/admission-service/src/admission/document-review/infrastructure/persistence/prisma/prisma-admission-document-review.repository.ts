@@ -110,7 +110,7 @@ export class PrismaAdmissionDocumentReviewRepository extends IAdmissionDocumentR
   async findQueue(query: ReviewQueueQuery): Promise<ReviewQueueResult> {
     const requiredTypeIds = (
       await this.prisma.admissionDocumentType.findMany({
-        where: { isActive: true, isRequired: true },
+        where: { isActive: true, requirement: 'REQUIRED' },
         select: { id: true },
       })
     ).map((type) => type.id)
@@ -181,9 +181,9 @@ export class PrismaAdmissionDocumentReviewRepository extends IAdmissionDocumentR
         },
       }),
       this.prisma.admissionDocumentType.findMany({
-        where: { isActive: true },
+        where: { isActive: true, requirement: { not: 'LATER' } },
         orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
-        select: { id: true, code: true, name: true, isRequired: true },
+        select: { id: true, code: true, name: true, requirement: true },
       }),
     ])
     if (!application) return null
@@ -205,7 +205,7 @@ export class PrismaAdmissionDocumentReviewRepository extends IAdmissionDocumentR
           documentTypeId: type.id,
           code: type.code,
           name: type.name,
-          isRequired: type.isRequired,
+          isRequired: type.requirement === 'REQUIRED',
           document: document ? toDocument(document) : null,
         }
       }),
@@ -229,9 +229,12 @@ export class PrismaAdmissionDocumentReviewRepository extends IAdmissionDocumentR
           applicationId: input.applicationId,
           documentType: { isActive: true },
         },
-        select: { id: true },
+        select: { id: true, documentType: { select: { requirement: true } } },
       })
       if (!document) return { outcome: 'NOT_FOUND' as const }
+      if (document.documentType.requirement === 'LATER') {
+        return { outcome: 'LATER_TYPE' as const }
+      }
 
       const updated = await tx.admissionDocument.update({
         where: { id: input.documentId },
@@ -255,15 +258,27 @@ export class PrismaAdmissionDocumentReviewRepository extends IAdmissionDocumentR
         select: {
           status: true,
           submittedAt: true,
-          documents: { select: { documentTypeId: true, status: true } },
+          documents: {
+            select: {
+              documentTypeId: true,
+              status: true,
+              documentType: { select: { requirement: true } },
+            },
+          },
         },
       })
       if (application?.status !== 'SUBMITTED') return false
-      if (application.documents.some((row) => row.status === 'REJECTED')) {
+      if (
+        application.documents.some(
+          (row) =>
+            row.status === 'REJECTED' &&
+            row.documentType?.requirement !== 'LATER',
+        )
+      ) {
         return false
       }
       const required = await tx.admissionDocumentType.findMany({
-        where: { isActive: true, isRequired: true },
+        where: { isActive: true, requirement: 'REQUIRED' },
         select: { id: true },
       })
       const stillOpen = required.some(

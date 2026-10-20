@@ -6,6 +6,7 @@ import {
   type OptionRef,
 } from './option-lists.js'
 import {
+  AcademicTimeline,
   GradeRef,
   IReferenceLookupPort,
   NamedRef,
@@ -22,6 +23,24 @@ export class HttpReferenceLookupAdapter extends IReferenceLookupPort {
 
   async listAcademicYears(ids: string[]): Promise<NamedRef[]> {
     return this.batch(ids, '/academic-years/by-ids', toNamedRef)
+  }
+
+  async firstSemesterOf(
+    academicYearId: string,
+  ): Promise<AcademicTimeline | null> {
+    const rows = await this.active(
+      URL_KEY,
+      `/semesters/by-academic-year/${academicYearId}`,
+      toSemesterRef,
+    )
+    const first = [...rows].sort((a, b) => a.sequence - b.sequence)[0]
+    if (!first) return null
+    return {
+      yearId: academicYearId,
+      yearName: first.academicYearName,
+      startDate: first.startDate,
+      endDate: first.endDate,
+    }
   }
 
   async listOccupations(ids: string[]): Promise<NamedRef[]> {
@@ -102,6 +121,32 @@ function toNamedRef(row: unknown): NamedRef | null {
   if (!isRecord(row) || typeof row.id !== 'string') return null
   if (typeof row.name !== 'string') return null
   return { id: row.id, name: row.name }
+}
+
+function toDate(value: unknown): Date | null | undefined {
+  if (value === null) return null
+  if (typeof value !== 'string') return undefined
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? undefined : date
+}
+
+function toSemesterRef(row: unknown): {
+  sequence: number
+  academicYearName: string | null
+  startDate: Date | null
+  endDate: Date | null
+} | null {
+  if (!isRecord(row) || typeof row.sequence !== 'number') return null
+  const startDate = toDate(row.startDate)
+  const endDate = toDate(row.endDate)
+  if (startDate === undefined || endDate === undefined) return null
+  return {
+    sequence: row.sequence,
+    academicYearName:
+      typeof row.academicYearName === 'string' ? row.academicYearName : null,
+    startDate,
+    endDate,
+  }
 }
 
 function toGradeRef(row: unknown): GradeRef | null {

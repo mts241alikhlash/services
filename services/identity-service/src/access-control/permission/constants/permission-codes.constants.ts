@@ -203,6 +203,24 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
     description: 'Read the admission decision queue',
   },
   {
+    module: 'admission-late-documents',
+    action: 'read',
+    code: 'admission-late-documents.read',
+    description: 'Read the list of late admission documents',
+  },
+  {
+    module: 'admission-late-documents',
+    action: 'upload',
+    code: 'admission-late-documents.upload',
+    description: 'Upload a late admission document for an applicant',
+  },
+  {
+    module: 'admission-late-documents',
+    action: 'verify',
+    code: 'admission-late-documents.verify',
+    description: 'Approve or reject a late admission document',
+  },
+  {
     module: 'admission-enrollments',
     action: 'nis',
     code: 'admission-enrollments.nis',

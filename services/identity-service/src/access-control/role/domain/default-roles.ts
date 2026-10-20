@@ -263,6 +263,7 @@ export const DEFAULT_ROLES: DefaultRole[] = [
           'admissions.read',
           'admission-decisions.read',
           'admission-decisions.decide',
+          'admission-late-documents.read',
         ],
       },
     ],
@@ -294,6 +295,9 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         'admission-enrollments.read',
         'admission-enrollments.process',
         'admission-enrollments.nis',
+        'admission-late-documents.read',
+        'admission-late-documents.upload',
+        'admission-late-documents.verify',
         'admission-waves.read',
         'admission-bank-accounts.read',
         'admission-document-types.read',
@@ -452,6 +456,8 @@ const EXPLICIT_ONLY = new Set([
   'admission-decisions.decide',
   'admission-enrollments.process',
   'admission-enrollments.nis',
+  'admission-late-documents.upload',
+  'admission-late-documents.verify',
 ])
 
 function broad(catalog: SystemPermission[]): SystemPermission[] {

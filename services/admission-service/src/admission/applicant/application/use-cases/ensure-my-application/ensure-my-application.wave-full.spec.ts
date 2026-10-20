@@ -8,7 +8,10 @@ describe('EnsureMyApplicationUseCase waveIsFull', () => {
     ensureApplication: jest.fn(),
     isWaveFull: jest.fn(),
   }
-  const ensure = new EnsureMyApplicationUseCase(repo as never)
+  const ensure = new EnsureMyApplicationUseCase(
+    repo as never,
+    { firstSemesterOf: jest.fn().mockResolvedValue(null) } as never,
+  )
 
   beforeEach(() => jest.clearAllMocks())
 

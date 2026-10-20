@@ -43,7 +43,7 @@ export class PrismaAdmissionDecisionRepository extends IAdmissionDecisionReposit
   async findQueue(query: DecisionQueueQuery): Promise<DecisionQueueResult> {
     const requiredTypeIds = (
       await this.prisma.admissionDocumentType.findMany({
-        where: { isActive: true, isRequired: true },
+        where: { isActive: true, requirement: 'REQUIRED' },
         select: { id: true },
       })
     ).map((type) => type.id)

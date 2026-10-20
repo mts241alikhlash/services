@@ -7,20 +7,31 @@ function queueRepository(counts = [4, 3, 2, 1]) {
   const count = jest.fn()
   counts.forEach((value) => count.mockResolvedValueOnce(value))
   count.mockResolvedValue(0)
+  const findTypes = jest.fn().mockResolvedValue([{ id: 'kk' }])
   const prisma = {
-    admissionDocumentType: {
-      findMany: jest.fn().mockResolvedValue([{ id: 'kk' }]),
-    },
+    admissionDocumentType: { findMany: findTypes },
     admissionApplication: { findMany, count },
   }
   return {
     repository: new PrismaAdmissionDecisionRepository(prisma as never),
     findMany,
+    findTypes,
     count,
   }
 }
 
 describe('PrismaAdmissionDecisionRepository.findQueue', () => {
+  it('sums up only the active REQUIRED document types', async () => {
+    const { repository, findTypes } = queueRepository()
+
+    await repository.findQueue({ tab: 'waiting', page: 1, limit: 20 })
+
+    expect(findTypes).toHaveBeenCalledWith({
+      where: { isActive: true, requirement: 'REQUIRED' },
+      select: { id: true },
+    })
+  })
+
   it('lists verified applicants waiting for a decision, oldest verification first', async () => {
     const { repository, findMany } = queueRepository()
 

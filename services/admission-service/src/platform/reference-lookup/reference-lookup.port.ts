@@ -5,6 +5,13 @@ export interface NamedRef {
   name: string
 }
 
+export interface AcademicTimeline {
+  yearId: string
+  yearName: string | null
+  startDate: Date | null
+  endDate: Date | null
+}
+
 export interface GradeRef {
   id: string
   level: number
@@ -13,6 +20,9 @@ export interface GradeRef {
 
 export abstract class IReferenceLookupPort {
   abstract listAcademicYears(ids: string[]): Promise<NamedRef[]>
+  abstract firstSemesterOf(
+    academicYearId: string,
+  ): Promise<AcademicTimeline | null>
   abstract listOccupations(ids: string[]): Promise<NamedRef[]>
   abstract listEducations(ids: string[]): Promise<NamedRef[]>
 
