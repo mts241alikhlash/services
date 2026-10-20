@@ -6,8 +6,8 @@ import {
   type LateDocumentUrgency,
 } from './late-document.policy.js'
 
-const limitDate = limitDateOf(new Date('2026-07-13'), 2) as Date
-const overdueAfter = overdueAfterOf(new Date('2026-12-19')) as Date
+const limitDate = limitDateOf(new Date('2026-07-13'), 2)!
+const overdueAfter = overdueAfterOf(new Date('2026-12-19'))!
 
 function derive(
   documentStatus: 'PENDING' | 'APPROVED' | 'REJECTED' | null,

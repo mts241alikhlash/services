@@ -48,7 +48,7 @@ function build(found: LateDocumentPair | null) {
     useCase: new UploadLateDocumentUseCase(
       repo as never,
       documents as never,
-      storage as never,
+      storage,
     ),
   }
 }
