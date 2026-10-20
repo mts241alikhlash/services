@@ -100,6 +100,13 @@ const expected = [
 for (const [service, table, rows] of expected) {
   assert.equal(await count(databaseOf(service), table), rows, `${service} ${table}`)
 }
+const requirementMismatch = await sql(
+  databaseOf('admission-service'),
+  `SELECT count(*)::int AS n FROM admission_document_types
+   WHERE (requirement = 'REQUIRED') <> is_required
+      OR requirement = 'LATER'`,
+)
+assert.equal(requirementMismatch[0].n, 0, 'requirement backfilled from is_required')
 const regions = await sql(
   databaseOf('identity-service'),
   'SELECT level::text AS name, count(*)::int AS n FROM regions GROUP BY level ORDER BY level',

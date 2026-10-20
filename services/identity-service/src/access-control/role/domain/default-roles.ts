@@ -263,6 +263,7 @@ export const DEFAULT_ROLES: DefaultRole[] = [
           'admissions.read',
           'admission-decisions.read',
           'admission-decisions.decide',
+          'admission-late-documents.read',
         ],
       },
     ],

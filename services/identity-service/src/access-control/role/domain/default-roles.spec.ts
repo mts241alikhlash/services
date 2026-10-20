@@ -80,7 +80,7 @@ describe('default roles', () => {
       expect(codesOf(role)).not.toContain('admission-enrollments.process')
       expect(codesOf(role)).not.toContain('admission-enrollments.nis')
     }
-    for (const role of ['TREASURER', 'VICE_PRINCIPAL_CURRICULUM']) {
+    for (const role of ['TREASURER']) {
       expect(codesOf(role)).not.toContain('admission-enrollments.process')
       expect(codesOf(role)).not.toContain('admission-enrollments.nis')
     }
@@ -97,7 +97,12 @@ describe('default roles', () => {
         expect(codesOf(role)).toContain(`admission-late-documents.${action}`)
       }
     }
-    for (const role of ['ADMISSION_ADMIN', 'OPERATOR', 'PRINCIPAL']) {
+    for (const role of [
+      'ADMISSION_ADMIN',
+      'OPERATOR',
+      'PRINCIPAL',
+      'VICE_PRINCIPAL_CURRICULUM',
+    ]) {
       expect(codesOf(role)).toContain('admission-late-documents.read')
       expect(codesOf(role)).not.toContain('admission-late-documents.upload')
       expect(codesOf(role)).not.toContain('admission-late-documents.verify')
