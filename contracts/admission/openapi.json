@@ -5258,7 +5258,7 @@
   "info": {
     "title": "Admission Service API",
     "description": "Admission Service",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "contact": {}
   },
   "tags": [],

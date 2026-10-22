@@ -1,5 +1,11 @@
 # identity-service
 
+## 1.12.1
+
+### Patch Changes
+
+- 53cb2e8: Run on Node.js 24.22.1, the release that fixes the October 2026 security issues (Brotli decoder out-of-bounds write, TLS hostname checks, DNS NUL handling). The base image, the CI jobs and the engines range move from 24.21.0 to 24.22.1.
+
 ## 1.12.0
 
 ### Minor Changes
