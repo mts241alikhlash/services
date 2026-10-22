@@ -11,7 +11,7 @@
     "prisma.config.ts"
   ],
   "engines": {
-    "node": ">=24.21.0 <25",
+    "node": ">=24.22.1 <25",
     "pnpm": ">=11.25.0 <12"
   },
   "packageManager": "pnpm@11.25.0",

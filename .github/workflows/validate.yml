@@ -52,7 +52,7 @@ jobs:
           version: 11.25.0
       - uses: actions/setup-node@v5
         with:
-          node-version: 24.21.0
+          node-version: 24.22.1
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm dedupe --check
@@ -142,7 +142,7 @@ jobs:
           version: 11.25.0
       - uses: actions/setup-node@v5
         with:
-          node-version: 24.21.0
+          node-version: 24.22.1
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Generate the identity client the seeds import
