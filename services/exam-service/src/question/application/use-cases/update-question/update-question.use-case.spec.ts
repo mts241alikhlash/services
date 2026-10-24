@@ -163,4 +163,12 @@ describe('UpdateQuestionUseCase', () => {
     ).rejects.toThrow(ConflictException)
     expect(await repository.findVersions(question.id)).toHaveLength(1)
   })
+
+  it('refuses points outside the allowed range', async () => {
+    const { question, useCase } = await build()
+
+    await expect(
+      useCase.execute(TEACHER, question.id, { points: 1000 }),
+    ).rejects.toThrow(new BadRequestException('Poin harus antara 0,25 dan 100'))
+  })
 })

@@ -118,4 +118,21 @@ describe('CreateQuestionUseCase', () => {
       useCase.execute(TEACHER, { ...input, content: { answer: { key: 'Z' } } }),
     ).rejects.toThrow(BadRequestException)
   })
+
+  it.each([0, 0.1, -3, 101, Number.NaN])(
+    'refuses %s points',
+    async (points) => {
+      const { repository, useCase } = build({
+        employeeId: 'emp-1',
+        pairs: [MATH_7],
+      })
+
+      await expect(
+        useCase.execute(TEACHER, { ...input, points }),
+      ).rejects.toThrow(
+        new BadRequestException('Poin harus antara 0,25 dan 100'),
+      )
+      expect(repository.questions.size).toBe(0)
+    },
+  )
 })

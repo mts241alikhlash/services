@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import {
   BadRequestException,
   ForbiddenException,
@@ -12,6 +13,7 @@ import {
 } from '../../../../question/application/teacher-scope.service.js'
 import { CreateQuestionUseCase } from '../../../../question/application/use-cases/create-question/create-question.use-case.js'
 import type { ParseResult } from '../../../domain/parsed-question.js'
+import { assertSafeArchive } from '../../parsers/archive-guard.js'
 import { parseExcelQuestions } from '../../parsers/excel-question.parser.js'
 import { parseWordQuestions } from '../../parsers/word-question.parser.js'
 import type {
@@ -21,6 +23,8 @@ import type {
 
 export const IMPORT_MAX_BYTES = 10 * 1024 * 1024
 export const IMPORT_MAX_QUESTIONS = 500
+export const IMPORT_MAX_IMAGES = 100
+export const IMPORT_MAX_IMAGE_BYTES = 20 * 1024 * 1024
 
 const ZIP_SIGNATURE = [0x50, 0x4b, 0x03, 0x04]
 
@@ -53,12 +57,13 @@ export class ImportQuestionsUseCase {
       input.subjectId,
       input.gradeId,
     )
+    await assertSafeArchive(input.buffer)
 
+    const images = this.imageSaver(user)
     const parsed = isExcel
       ? await parseExcelQuestions(input.buffer)
-      : await parseWordQuestions(input.buffer, (content) =>
-          this.saveImage(user, content),
-        )
+      : await parseWordQuestions(input.buffer, images.save)
+    images.assertNoFailure()
     if (parsed.questions.length + parsed.errors.length > IMPORT_MAX_QUESTIONS) {
       throw new BadRequestException('Maksimal 500 soal per berkas')
     }
@@ -66,14 +71,53 @@ export class ImportQuestionsUseCase {
     return this.createAll(user, input, parsed)
   }
 
-  private async saveImage(user: ScopeUser, content: Buffer): Promise<string> {
-    const file = await this.uploadFile.execute({
-      buffer: content,
-      size: content.length,
-      originalName: 'gambar-impor',
-      uploadedById: user.id,
-    })
-    return file.id
+  private imageSaver(user: ScopeUser): {
+    save: (content: Buffer) => Promise<string>
+    assertNoFailure: () => void
+  } {
+    const stored = new Map<string, Promise<string>>()
+    let totalBytes = 0
+    let failure: Error | null = null
+
+    const store = (content: Buffer, digest: string): Promise<string> => {
+      if (stored.size >= IMPORT_MAX_IMAGES) {
+        return Promise.reject(
+          new BadRequestException('Maksimal 100 gambar per berkas'),
+        )
+      }
+      totalBytes += content.length
+      if (totalBytes > IMPORT_MAX_IMAGE_BYTES) {
+        return Promise.reject(
+          new BadRequestException('Total ukuran gambar maksimal 20 MB'),
+        )
+      }
+      const pending = this.uploadFile
+        .execute({
+          buffer: content,
+          size: content.length,
+          originalName: 'gambar-impor',
+          uploadedById: user.id,
+        })
+        .then((file) => file.id)
+      stored.set(digest, pending)
+      return pending
+    }
+
+    return {
+      save: (content) => {
+        const digest = createHash('sha256').update(content).digest('hex')
+        return (stored.get(digest) ?? store(content, digest)).catch(
+          (error: unknown) => {
+            failure ??=
+              error instanceof Error ? error : new Error(String(error))
+            throw error
+          },
+        )
+      },
+      assertNoFailure: () => {
+        if (failure !== null) throw failure
+      },
+    }
   }
 
   private async createAll(

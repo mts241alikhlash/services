@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common'
 import type { QuestionDetail } from '../../../domain/entities/question.entity.js'
 import { nextVersionAction } from '../../../domain/policies/next-version.policy.js'
+import { assertValidPoints } from '../../../domain/policies/validate-points.policy.js'
 import { prepareQuestion } from '../../../domain/policies/prepare-question.policy.js'
 import { IQuestionRepository } from '../../../domain/repositories/question.repository.js'
 import { TeacherScope, type ScopeUser } from '../../teacher-scope.service.js'
@@ -30,6 +31,7 @@ export class UpdateQuestionUseCase {
     ) {
       throw new BadRequestException('Tidak ada yang diubah')
     }
+    if (input.points !== undefined) assertValidPoints(input.points)
 
     const question = await this.questions.findById(id)
     if (!question) throw new NotFoundException('Soal tidak ditemukan')

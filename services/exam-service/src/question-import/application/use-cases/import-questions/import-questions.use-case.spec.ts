@@ -252,4 +252,98 @@ describe('ImportQuestionsUseCase', () => {
       expect(html).not.toMatch(/<script|<a[\s>]|<img|\shref=|javascript:/iu)
     }
   })
+
+  it('reports points outside the allowed range as a row error', async () => {
+    const { questions, useCase } = build()
+    const rows = [
+      pg(1),
+      [2, 'PG', 'Soal 2', 'a', 'b', null, null, null, 'A', null, 1000],
+    ]
+
+    const result = await useCase.execute(TEACHER, input(await xlsx(rows)))
+
+    expect(result.errors).toEqual([
+      { row: 3, reason: 'Poin harus antara 0,25 dan 100' },
+    ])
+    expect(questions.questions.size).toBe(1)
+  })
+
+  describe('images in a Word file', () => {
+    const png = (seed: number) =>
+      Buffer.concat([
+        Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+        Buffer.from([seed % 256, Math.floor(seed / 256)]),
+      ])
+
+    async function docxWithImages(images: Buffer[], refs: number[]) {
+      const zip = new JSZip()
+      const media = images
+        .map(
+          (_image, index) =>
+            `<Relationship Id="rI${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/i${index}.png"/>`,
+        )
+        .join('')
+      zip.file(
+        '[Content_Types].xml',
+        '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>',
+      )
+      zip.file(
+        '_rels/.rels',
+        '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+      )
+      zip.file(
+        'word/_rels/document.xml.rels',
+        `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${media}</Relationships>`,
+      )
+      images.forEach((image, index) =>
+        zip.file(`word/media/i${index}.png`, image),
+      )
+      const drawing = (index: number) =>
+        `<w:p><w:r><w:drawing><wp:inline><wp:extent cx="9525" cy="9525"/><wp:docPr id="${index}" name="g"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="0" name="g"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rI${index}"/></pic:blipFill><pic:spPr/></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`
+      zip.file(
+        'word/document.xml',
+        `<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><w:body><w:p><w:r><w:t>1. Lihat gambar</w:t></w:r></w:p>${refs.map(drawing).join('')}<w:p><w:r><w:t>Jenis: Uraian</w:t></w:r></w:p></w:body></w:document>`,
+      )
+      return zip.generateAsync({ type: 'nodebuffer' })
+    }
+
+    it('stores the same picture once however often it appears', async () => {
+      const { files, useCase } = build()
+      const docx = await docxWithImages([png(1)], [0, 0, 0, 0, 0])
+
+      const result = await useCase.execute(TEACHER, input(docx, 'soal.docx'))
+
+      expect(result.created).toBe(1)
+      expect(files.files.size).toBe(1)
+    })
+
+    it('refuses a picture that is not JPG, PNG or WebP instead of dropping it', async () => {
+      const { questions, useCase } = build()
+      const docx = await docxWithImages([Buffer.from('GIF89a......')], [0])
+
+      await expect(
+        useCase.execute(TEACHER, input(docx, 'soal.docx')),
+      ).rejects.toThrow(
+        new BadRequestException('Gambar harus JPG, PNG, atau WebP'),
+      )
+      expect(questions.questions.size).toBe(0)
+    })
+
+    it('refuses more than 100 different pictures and stores none of the rest', async () => {
+      const { files, questions, useCase } = build()
+      const images = Array.from({ length: 101 }, (_, i) => png(i))
+      const docx = await docxWithImages(
+        images,
+        images.map((_, i) => i),
+      )
+
+      await expect(
+        useCase.execute(TEACHER, input(docx, 'soal.docx')),
+      ).rejects.toThrow(
+        new BadRequestException('Maksimal 100 gambar per berkas'),
+      )
+      expect(files.files.size).toBeLessThanOrEqual(100)
+      expect(questions.questions.size).toBe(0)
+    })
+  })
 })
