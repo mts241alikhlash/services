@@ -86,4 +86,27 @@ describe('ApproveQuestionUseCase', () => {
       NotFoundException,
     )
   })
+
+  it('never approves a version the reviewer did not read', async () => {
+    const { repository, question, useCase } = await submitted()
+    const stale = await repository.findById(question.id)
+    repository.approve(question.id)
+    await repository.addVersion(
+      question.id,
+      { bodyHtml: '<p>Belum dibaca</p>', content: created.content, points: 9 },
+      'user-1',
+      { status: 'APPROVED', currentVersion: 1 },
+    )
+    const edited = await repository.findById(question.id)
+    repository.questions.set(question.id, { ...edited!, status: 'SUBMITTED' })
+    jest.spyOn(repository, 'findById').mockResolvedValueOnce(stale)
+
+    await expect(useCase.execute(MANAGER, question.id)).rejects.toThrow(
+      new ConflictException('Status soal sudah berubah, muat ulang'),
+    )
+    const stored = await repository.findById(question.id)
+    expect(stored?.status).toBe('SUBMITTED')
+    expect(stored?.approvedVersion).toBe(1)
+    expect(stored?.reviews.filter((r) => r.versionNumber === 2)).toEqual([])
+  })
 })

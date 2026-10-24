@@ -35,6 +35,7 @@ export class ReturnQuestionUseCase {
     assertCanReturn(question.status)
 
     const returned = await this.questions.applyReview(id, {
+      expectedVersion: question.currentVersion,
       from: ['SUBMITTED'],
       to: 'RETURNED',
       action: 'RETURNED',

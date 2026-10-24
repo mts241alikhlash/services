@@ -18,6 +18,7 @@ export class ApproveQuestionUseCase {
     assertCanApprove(question.status)
 
     const approved = await this.questions.applyReview(id, {
+      expectedVersion: question.currentVersion,
       from: ['SUBMITTED'],
       to: 'APPROVED',
       action: 'APPROVED',

@@ -165,7 +165,11 @@ export class FakeQuestionRepository extends IQuestionRepository {
 
   applyReview(id: string, input: ReviewInput) {
     const question = this.questions.get(id)
-    if (!question || !input.from.includes(question.status)) {
+    if (
+      !question ||
+      !input.from.includes(question.status) ||
+      question.currentVersion !== input.expectedVersion
+    ) {
       return Promise.resolve(null)
     }
     const updated: QuestionDetail = {

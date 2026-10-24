@@ -166,29 +166,33 @@ export class PrismaQuestionRepository extends IQuestionRepository {
 
   async applyReview(id: string, input: ReviewInput) {
     const row = await this.prisma.$transaction(async (tx) => {
-      const current = await tx.question.findFirst({
-        where: { id, deletedAt: null, status: { in: input.from } },
-        select: { currentVersion: true },
+      const claimed = await tx.question.updateMany({
+        where: {
+          id,
+          deletedAt: null,
+          status: { in: input.from },
+          currentVersion: input.expectedVersion,
+        },
+        data: {
+          status: input.to,
+          ...(input.action === 'APPROVED' && {
+            approvedVersion: input.expectedVersion,
+          }),
+        },
       })
-      if (!current) return null
+      if (claimed.count === 0) return null
 
       await tx.questionReview.create({
         data: {
           questionId: id,
-          versionNumber: current.currentVersion,
+          versionNumber: input.expectedVersion,
           action: input.action,
           note: input.note,
           byUserId: input.byUserId,
         },
       })
-      return tx.question.update({
+      return tx.question.findUniqueOrThrow({
         where: { id },
-        data: {
-          status: input.to,
-          ...(input.action === 'APPROVED' && {
-            approvedVersion: current.currentVersion,
-          }),
-        },
         include: QUESTION_INCLUDE,
       })
     })

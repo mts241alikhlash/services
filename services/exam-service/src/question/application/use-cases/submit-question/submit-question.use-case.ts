@@ -22,6 +22,7 @@ export class SubmitQuestionUseCase {
     assertCanSubmit(question.status)
 
     const submitted = await this.questions.applyReview(id, {
+      expectedVersion: question.currentVersion,
       from: ['DRAFT', 'RETURNED'],
       to: 'SUBMITTED',
       action: 'SUBMITTED',
