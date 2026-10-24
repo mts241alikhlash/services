@@ -91,5 +91,7 @@ describe('no two controllers claim the same URL', () => {
   it('recognizes the shapes it looks for', () => {
     expect(matcher('/students/:id').test('/students/a-value')).toBe(true)
     expect(matcher('/students/me').test('/students/a-value')).toBe(false)
+    expect(routes.some((route) => route.path.includes(':'))).toBe(true)
+    expect(routes.some((route) => route.method === 'PATCH')).toBe(true)
   })
 })

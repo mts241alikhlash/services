@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
+import type { Question } from '../domain/entities/question.entity.js'
 import {
   IAcademicLookupPort,
   type TeachingPair,
@@ -46,6 +47,26 @@ export class TeacherScope {
     )
     if (!covered) {
       throw new ForbiddenException('Mapel dan tingkat ini bukan ampuan Anda')
+    }
+  }
+
+  async employeeIdOf(user: ScopeUser): Promise<string> {
+    const employeeId = await this.employees.findEmployeeIdByUserId(user.id)
+    if (employeeId === null) {
+      throw new ForbiddenException('Akun Anda belum terhubung ke data pegawai')
+    }
+    return employeeId
+  }
+
+  async assertCanModify(
+    user: ScopeUser,
+    question: Pick<Question, 'subjectId' | 'gradeId' | 'authorEmployeeId'>,
+  ): Promise<void> {
+    const scope = await this.forUser(user)
+    if (scope.all) return
+    this.assertCovers(scope, question.subjectId, question.gradeId)
+    if ((await this.employeeIdOf(user)) !== question.authorEmployeeId) {
+      throw new ForbiddenException('Soal ini ditulis guru lain')
     }
   }
 }
