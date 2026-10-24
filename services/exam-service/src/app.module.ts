@@ -14,6 +14,7 @@ import { pinoLoggerConfig } from './core/logger/logger.config.js'
 import { IdentityModule } from './platform/identity/identity.module.js'
 import { ServiceClientModule } from './platform/service-client/service-client.module.js'
 import { AuthModule } from './platform/auth/auth.module.js'
+import { AcademicLookupModule } from './platform/academic-lookup/academic-lookup.module.js'
 import { StorageModule } from './core/storage/storage.module.js'
 import { PermissionModule } from './platform/access-control/permission/permission.module.js'
 import { EmployeeIdentityModule } from './platform/employee-identity/employee-identity.module.js'
@@ -26,6 +27,7 @@ import { PermissionGuard } from './platform/access-control/permission/guards/per
     ServiceClientModule,
     PrismaModule,
     StorageModule,
+    AcademicLookupModule,
     LoggerModule.forRoot(pinoLoggerConfig),
     ScheduleModule.forRoot(),
     AppCacheModule,
