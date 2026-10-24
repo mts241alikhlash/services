@@ -4,6 +4,7 @@ import {
   PayloadTooLargeException,
 } from '@nestjs/common'
 import ExcelJS from 'exceljs'
+import JSZip from 'jszip'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
@@ -210,5 +211,45 @@ describe('ImportQuestionsUseCase', () => {
     await expect(
       useCase.execute(TEACHER, input(await xlsx(rows))),
     ).rejects.toThrow(new BadRequestException('Maksimal 500 soal per berkas'))
+  })
+
+  it('stores nothing executable from a hostile Word file or sheet', async () => {
+    const { questions, useCase } = build()
+    const hostile = '<script>alert(1)</script><img src=x onerror=alert(2)>'
+    const zip = new JSZip()
+    zip.file(
+      '[Content_Types].xml',
+      '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>',
+    )
+    zip.file(
+      '_rels/.rels',
+      '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+    )
+    zip.file(
+      'word/_rels/document.xml.rels',
+      '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId9" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="javascript:alert(3)" TargetMode="External"/></Relationships>',
+    )
+    zip.file(
+      'word/document.xml',
+      '<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body><w:p><w:r><w:t>1. Klik </w:t></w:r><w:hyperlink r:id="rId9"><w:r><w:t>di sini</w:t></w:r></w:hyperlink><w:r><w:t xml:space="preserve"> ' +
+        hostile.replace(/</gu, '&lt;').replace(/>/gu, '&gt;') +
+        '</w:t></w:r></w:p></w:body></w:document>',
+    )
+    const docx = await zip.generateAsync({ type: 'nodebuffer' })
+    const sheet = await xlsx([
+      [1, 'Uraian', hostile, null, null, null, null, null, hostile, null, null],
+    ])
+
+    await useCase.execute(TEACHER, input(docx, 'soal.docx'))
+    await useCase.execute(TEACHER, input(sheet))
+
+    const stored = [...questions.questions.values()].flatMap((q) => [
+      q.current.bodyHtml,
+      JSON.stringify(q.current.content),
+    ])
+    expect(stored.join('')).toContain('di sini')
+    for (const html of stored) {
+      expect(html).not.toMatch(/<script|<a[\s>]|<img|\shref=|javascript:/iu)
+    }
   })
 })
