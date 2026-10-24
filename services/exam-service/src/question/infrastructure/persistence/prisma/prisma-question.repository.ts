@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../../../../core/database/prisma.service.js'
 import type { Prisma } from '../../../../generated/prisma/client.js'
+import type { TeachingPair } from '../../../../platform/academic-lookup/academic-lookup.port.js'
 import type { PaginatedResult } from '../../../../shared/domain/interfaces/repository.interface.js'
 import type { QuestionVersion } from '../../../domain/entities/question.entity.js'
 import {
@@ -47,6 +48,20 @@ export class PrismaQuestionRepository extends IQuestionRepository {
       this.prisma.question.count({ where }),
     ])
     return { data: rows.map(toSummary), total, page, limit }
+  }
+
+  async findAuthorIds(
+    pairs: TeachingPair[] | null,
+    status?: QuestionStatus,
+  ): Promise<string[]> {
+    if (pairs !== null && pairs.length === 0) return []
+
+    const rows = await this.prisma.question.findMany({
+      where: buildQuestionWhere({ page: 1, limit: 1, pairs, status }),
+      select: { authorEmployeeId: true },
+      distinct: ['authorEmployeeId'],
+    })
+    return rows.map((row) => row.authorEmployeeId)
   }
 
   async findById(id: string) {

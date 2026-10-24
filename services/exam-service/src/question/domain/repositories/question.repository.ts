@@ -62,6 +62,10 @@ export abstract class IQuestionRepository {
   abstract findAll(
     query: QuestionListQuery,
   ): Promise<PaginatedResult<QuestionSummary>>
+  abstract findAuthorIds(
+    pairs: TeachingPair[] | null,
+    status?: QuestionStatus,
+  ): Promise<string[]>
   abstract findById(id: string): Promise<QuestionDetail | null>
   abstract findVersions(questionId: string): Promise<QuestionVersion[]>
   abstract create(input: NewQuestionInput): Promise<QuestionDetail>

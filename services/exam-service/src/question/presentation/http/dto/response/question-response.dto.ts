@@ -163,6 +163,11 @@ export class QuestionListResponseDto {
   }
 }
 
+export class QuestionAuthorDto {
+  @ApiProperty({ format: 'uuid' }) id!: string
+  @ApiProperty() name!: string
+}
+
 export class ScopePairDto {
   @ApiProperty({ format: 'uuid' }) subjectId!: string
   @ApiProperty({ type: String, nullable: true }) subjectName!: string | null

@@ -29,6 +29,7 @@ import { SubmitQuestionUseCase } from '../../application/use-cases/submit-questi
 import { CreateQuestionUseCase } from '../../application/use-cases/create-question/create-question.use-case.js'
 import { DeleteQuestionUseCase } from '../../application/use-cases/delete-question/delete-question.use-case.js'
 import { GetQuestionUseCase } from '../../application/use-cases/get-question/get-question.use-case.js'
+import { ListQuestionAuthorsUseCase } from '../../application/use-cases/list-question-authors/list-question-authors.use-case.js'
 import { GetQuestionScopeUseCase } from '../../application/use-cases/get-question-scope/get-question-scope.use-case.js'
 import { GetQuestionVersionsUseCase } from '../../application/use-cases/get-question-versions/get-question-versions.use-case.js'
 import { ListQuestionsUseCase } from '../../application/use-cases/list-questions/list-questions.use-case.js'
@@ -38,11 +39,15 @@ import { CreateQuestionDto } from './dto/request/create-question.dto.js'
 import { ApproveManyDto } from './dto/request/approve-many.dto.js'
 import { ApproveQuestionDto } from './dto/request/approve-question.dto.js'
 import { ReturnQuestionDto } from './dto/request/return-question.dto.js'
-import { QuestionQueryDto } from './dto/request/question-query.dto.js'
+import {
+  AuthorsQueryDto,
+  QuestionQueryDto,
+} from './dto/request/question-query.dto.js'
 import { UpdateQuestionDto } from './dto/request/update-question.dto.js'
 import {
   ApproveManyResponseDto,
   QuestionDetailDto,
+  QuestionAuthorDto,
   QuestionListResponseDto,
   QuestionScopeDto,
   QuestionVersionDto,
@@ -65,6 +70,7 @@ export class QuestionController {
     private readonly returnQuestion: ReturnQuestionUseCase,
     private readonly approveMany: ApproveManyQuestionsUseCase,
     private readonly getScope: GetQuestionScopeUseCase,
+    private readonly listAuthors: ListQuestionAuthorsUseCase,
   ) {}
 
   @Get()
@@ -86,6 +92,19 @@ export class QuestionController {
   @ApiResponse({ status: 200, type: QuestionScopeDto })
   async scope(@CurrentUser() user: ScopeUser): Promise<QuestionScopeDto> {
     return QuestionScopeDto.fromDomain(await this.getScope.execute(user))
+  }
+
+  @Get('authors')
+  @RequirePermissions('exam-questions.read')
+  @ApiOperation({ summary: 'Authors of the questions the user may see' })
+  @ApiResponse({ status: 200, type: [QuestionAuthorDto] })
+  async authors(
+    @CurrentUser() user: ScopeUser,
+    @Query() query: AuthorsQueryDto,
+  ): Promise<QuestionAuthorDto[]> {
+    return (await this.listAuthors.execute(user, query)).map((author) =>
+      Object.assign(new QuestionAuthorDto(), author),
+    )
   }
 
   @Get(':id')

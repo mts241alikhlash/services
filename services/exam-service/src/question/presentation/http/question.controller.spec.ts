@@ -12,6 +12,7 @@ import { ReturnQuestionUseCase } from '../../application/use-cases/return-questi
 import { SubmitQuestionUseCase } from '../../application/use-cases/submit-question/submit-question.use-case.js'
 import { DeleteQuestionUseCase } from '../../application/use-cases/delete-question/delete-question.use-case.js'
 import { GetQuestionUseCase } from '../../application/use-cases/get-question/get-question.use-case.js'
+import { ListQuestionAuthorsUseCase } from '../../application/use-cases/list-question-authors/list-question-authors.use-case.js'
 import { GetQuestionScopeUseCase } from '../../application/use-cases/get-question-scope/get-question-scope.use-case.js'
 import { GetQuestionVersionsUseCase } from '../../application/use-cases/get-question-versions/get-question-versions.use-case.js'
 import { ListQuestionsUseCase } from '../../application/use-cases/list-questions/list-questions.use-case.js'
@@ -40,6 +41,9 @@ function build() {
     new ReturnQuestionUseCase(repository),
     new ApproveManyQuestionsUseCase(approve),
     new GetQuestionScopeUseCase(scope, academic),
+    new ListQuestionAuthorsUseCase(repository, scope, {
+      namesOf: () => Promise.resolve(new Map([['emp-1', 'Ustadz Ahmad']])),
+    }),
   )
 }
 
@@ -136,5 +140,14 @@ describe('QuestionController', () => {
       all: false,
       pairs: [{ subjectId: MATH_7.subjectId, gradeId: MATH_7.gradeId }],
     })
+  })
+
+  it('lists the authors of the questions the user may see', async () => {
+    const controller = build()
+    await controller.create(TEACHER, dto)
+
+    await expect(controller.authors(TEACHER, {})).resolves.toEqual([
+      { id: 'emp-1', name: 'Ustadz Ahmad' },
+    ])
   })
 })

@@ -66,6 +66,26 @@ export class FakeQuestionRepository extends IQuestionRepository {
     })
   }
 
+  findAuthorIds(
+    pairs: { subjectId: string; gradeId: string }[] | null,
+    status?: QuestionStatus,
+  ) {
+    const authors = [...this.questions.values()]
+      .filter((question) => question.deletedAt === null)
+      .filter(
+        (question) =>
+          pairs === null ||
+          pairs.some(
+            (pair) =>
+              pair.subjectId === question.subjectId &&
+              pair.gradeId === question.gradeId,
+          ),
+      )
+      .filter((question) => !status || question.status === status)
+      .map((question) => question.authorEmployeeId)
+    return Promise.resolve([...new Set(authors)])
+  }
+
   findById(id: string) {
     const question = this.questions.get(id)
     return Promise.resolve(question?.deletedAt === null ? question : null)

@@ -8,6 +8,13 @@ import {
   type QuestionType,
 } from '../../../../domain/value-objects/question-content.js'
 
+export class AuthorsQueryDto {
+  @ApiPropertyOptional({ enum: QUESTION_STATUSES })
+  @IsOptional()
+  @IsIn(QUESTION_STATUSES)
+  status?: QuestionStatus
+}
+
 export class QuestionQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ format: 'uuid' })
   @IsOptional()

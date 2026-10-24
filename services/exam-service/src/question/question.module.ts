@@ -7,6 +7,7 @@ import { SubmitQuestionUseCase } from './application/use-cases/submit-question/s
 import { CreateQuestionUseCase } from './application/use-cases/create-question/create-question.use-case.js'
 import { DeleteQuestionUseCase } from './application/use-cases/delete-question/delete-question.use-case.js'
 import { GetQuestionUseCase } from './application/use-cases/get-question/get-question.use-case.js'
+import { ListQuestionAuthorsUseCase } from './application/use-cases/list-question-authors/list-question-authors.use-case.js'
 import { GetQuestionScopeUseCase } from './application/use-cases/get-question-scope/get-question-scope.use-case.js'
 import { GetQuestionVersionsUseCase } from './application/use-cases/get-question-versions/get-question-versions.use-case.js'
 import { ListQuestionsUseCase } from './application/use-cases/list-questions/list-questions.use-case.js'
@@ -24,6 +25,7 @@ import { QuestionController } from './presentation/http/question.controller.js'
     GetQuestionUseCase,
     GetQuestionVersionsUseCase,
     GetQuestionScopeUseCase,
+    ListQuestionAuthorsUseCase,
     CreateQuestionUseCase,
     UpdateQuestionUseCase,
     DeleteQuestionUseCase,
