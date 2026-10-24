@@ -31,7 +31,11 @@ describe('ApproveQuestionUseCase', () => {
   it('approves the current version and records the review', async () => {
     const { question, useCase } = await submitted()
 
-    const approved = await useCase.execute(MANAGER, question.id)
+    const approved = await useCase.execute(
+      MANAGER,
+      question.id,
+      question.revision,
+    )
 
     expect(approved).toMatchObject({
       status: 'APPROVED',
@@ -45,7 +49,7 @@ describe('ApproveQuestionUseCase', () => {
 
   it('moves the approved version forward when a newer version is approved', async () => {
     const { repository, question, useCase } = await submitted()
-    await useCase.execute(MANAGER, question.id)
+    await useCase.execute(MANAGER, question.id, question.revision)
     await repository.addVersion(
       question.id,
       { bodyHtml: '<p>Baru</p>', content: created.content, points: 2 },
@@ -54,7 +58,11 @@ describe('ApproveQuestionUseCase', () => {
     const draft = await repository.findById(question.id)
     repository.questions.set(question.id, { ...draft!, status: 'SUBMITTED' })
 
-    const approved = await useCase.execute(MANAGER, question.id)
+    const approved = await useCase.execute(
+      MANAGER,
+      question.id,
+      draft!.revision,
+    )
 
     expect(approved).toMatchObject({
       approvedVersion: 2,
@@ -69,9 +77,9 @@ describe('ApproveQuestionUseCase', () => {
       const { repository, question, useCase } = await submitted()
       repository.questions.set(question.id, { ...question, status })
 
-      await expect(useCase.execute(MANAGER, question.id)).rejects.toThrow(
-        ConflictException,
-      )
+      await expect(
+        useCase.execute(MANAGER, question.id, question.revision),
+      ).rejects.toThrow(ConflictException)
     },
   )
 
@@ -79,10 +87,12 @@ describe('ApproveQuestionUseCase', () => {
     const { repository, question, useCase } = await submitted()
     jest.spyOn(repository, 'applyReview').mockResolvedValueOnce(null)
 
-    await expect(useCase.execute(MANAGER, question.id)).rejects.toThrow(
+    await expect(
+      useCase.execute(MANAGER, question.id, question.revision),
+    ).rejects.toThrow(
       new ConflictException('Status soal sudah berubah, muat ulang'),
     )
-    await expect(useCase.execute(MANAGER, 'missing')).rejects.toThrow(
+    await expect(useCase.execute(MANAGER, 'missing', 1)).rejects.toThrow(
       NotFoundException,
     )
   })
@@ -101,12 +111,35 @@ describe('ApproveQuestionUseCase', () => {
     repository.questions.set(question.id, { ...edited!, status: 'SUBMITTED' })
     jest.spyOn(repository, 'findById').mockResolvedValueOnce(stale)
 
-    await expect(useCase.execute(MANAGER, question.id)).rejects.toThrow(
+    await expect(
+      useCase.execute(MANAGER, question.id, question.revision),
+    ).rejects.toThrow(
       new ConflictException('Status soal sudah berubah, muat ulang'),
     )
     const stored = await repository.findById(question.id)
     expect(stored?.status).toBe('SUBMITTED')
     expect(stored?.approvedVersion).toBe(1)
     expect(stored?.reviews.filter((r) => r.versionNumber === 2)).toEqual([])
+  })
+
+  it('never approves text that was edited and resubmitted after the reviewer read it', async () => {
+    const { repository, question, useCase } = await submitted()
+    const readByReviewer = question.revision
+    await repository.editCurrentVersion(
+      question.id,
+      { bodyHtml: '<p>Diganti</p>', content: created.content, points: 9 },
+      'DRAFT',
+      { status: 'SUBMITTED', currentVersion: 1 },
+    )
+    const edited = await repository.findById(question.id)
+    repository.questions.set(question.id, { ...edited!, status: 'SUBMITTED' })
+
+    await expect(
+      useCase.execute(MANAGER, question.id, readByReviewer),
+    ).rejects.toThrow(
+      new ConflictException('Status soal sudah berubah, muat ulang'),
+    )
+    expect((await repository.findById(question.id))?.status).toBe('SUBMITTED')
+    expect((await repository.findById(question.id))?.approvedVersion).toBeNull()
   })
 })

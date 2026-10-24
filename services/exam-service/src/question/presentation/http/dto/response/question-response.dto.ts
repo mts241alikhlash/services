@@ -69,6 +69,7 @@ export class QuestionSummaryDto {
   @ApiProperty({ enum: QUESTION_STATUSES }) status!: QuestionStatus
   @ApiProperty() currentVersion!: number
   @ApiProperty({ type: Number, nullable: true }) approvedVersion!: number | null
+  @ApiProperty() revision!: number
   @ApiProperty() bodyHtml!: string
   @ApiProperty() points!: number
   @ApiProperty({ format: 'date-time' }) createdAt!: string
@@ -84,6 +85,7 @@ export class QuestionSummaryDto {
     dto.status = domain.status
     dto.currentVersion = domain.currentVersion
     dto.approvedVersion = domain.approvedVersion
+    dto.revision = domain.revision
     dto.bodyHtml = domain.bodyHtml
     dto.points = domain.points
     dto.createdAt = domain.createdAt.toISOString()
@@ -101,6 +103,7 @@ export class QuestionDetailDto {
   @ApiProperty({ enum: QUESTION_STATUSES }) status!: QuestionStatus
   @ApiProperty() currentVersion!: number
   @ApiProperty({ type: Number, nullable: true }) approvedVersion!: number | null
+  @ApiProperty() revision!: number
   @ApiProperty({ format: 'uuid' }) createdById!: string
   @ApiProperty({ format: 'date-time' }) createdAt!: string
   @ApiProperty({ format: 'date-time' }) updatedAt!: string
@@ -120,6 +123,7 @@ export class QuestionDetailDto {
     dto.status = domain.status
     dto.currentVersion = domain.currentVersion
     dto.approvedVersion = domain.approvedVersion
+    dto.revision = domain.revision
     dto.createdById = domain.createdById
     dto.createdAt = domain.createdAt.toISOString()
     dto.updatedAt = domain.updatedAt.toISOString()

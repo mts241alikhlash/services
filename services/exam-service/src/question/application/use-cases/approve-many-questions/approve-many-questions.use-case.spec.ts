@@ -27,10 +27,10 @@ describe('ApproveManyQuestionsUseCase', () => {
     )
 
     const results = await useCase.execute(MANAGER, [
-      ready.id,
-      draft.id,
-      'missing',
-      ready.id,
+      { id: ready.id, revision: ready.revision },
+      { id: draft.id, revision: draft.revision },
+      { id: 'missing', revision: 1 },
+      { id: ready.id, revision: ready.revision },
     ])
 
     expect(results).toEqual([

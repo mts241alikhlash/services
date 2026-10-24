@@ -22,7 +22,8 @@ enum ReviewAction {
 /// One question of the bank. The subject and grade are ids owned by
 /// academic-service. `currentVersion` is the version being edited or reviewed;
 /// `approvedVersion` is the last one a reviewer approved, and stays usable
-/// while a newer version waits for approval again.
+/// while a newer version waits for approval again. `revision` counts every
+/// edit, so a reviewer can approve exactly the text they read.
 model Question {
   id               String         @id @default(uuid()) @db.Uuid
   subjectId        String         @map("subject_id") @db.Uuid
@@ -32,6 +33,7 @@ model Question {
   status           QuestionStatus @default(DRAFT)
   currentVersion   Int            @default(1) @map("current_version")
   approvedVersion  Int?           @map("approved_version")
+  revision         Int            @default(1)
   createdById      String         @map("created_by_id") @db.Uuid
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime       @updatedAt @map("updated_at")

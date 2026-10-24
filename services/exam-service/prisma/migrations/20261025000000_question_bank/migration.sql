@@ -17,6 +17,7 @@ CREATE TABLE "questions" (
     "status" "QuestionStatus" NOT NULL DEFAULT 'DRAFT',
     "current_version" INTEGER NOT NULL DEFAULT 1,
     "approved_version" INTEGER,
+    "revision" INTEGER NOT NULL DEFAULT 1,
     "created_by_id" UUID NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,

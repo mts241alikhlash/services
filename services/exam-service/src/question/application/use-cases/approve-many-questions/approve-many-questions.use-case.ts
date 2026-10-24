@@ -12,11 +12,17 @@ export interface ApprovalResult {
 export class ApproveManyQuestionsUseCase {
   constructor(private readonly approveQuestion: ApproveQuestionUseCase) {}
 
-  async execute(user: ScopeUser, ids: string[]): Promise<ApprovalResult[]> {
+  async execute(
+    user: ScopeUser,
+    items: { id: string; revision: number }[],
+  ): Promise<ApprovalResult[]> {
     const results: ApprovalResult[] = []
-    for (const id of new Set(ids)) {
+    const seen = new Set<string>()
+    for (const { id, revision } of items) {
+      if (seen.has(id)) continue
+      seen.add(id)
       try {
-        await this.approveQuestion.execute(user, id)
+        await this.approveQuestion.execute(user, id, revision)
         results.push({ id, ok: true })
       } catch (error) {
         if (!(error instanceof HttpException)) throw error

@@ -39,6 +39,7 @@ describe('ReturnQuestionUseCase', () => {
       MANAGER,
       question.id,
       '  Kunci jawaban keliru  ',
+      question.revision,
     )
 
     expect(returned.status).toBe('RETURNED')
@@ -55,11 +56,18 @@ describe('ReturnQuestionUseCase', () => {
   it('refuses a blank note or one over 1000 characters with 400', async () => {
     const { question, useCase } = await submitted()
 
-    await expect(useCase.execute(MANAGER, question.id, '   ')).rejects.toThrow(
+    await expect(
+      useCase.execute(MANAGER, question.id, '   ', question.revision),
+    ).rejects.toThrow(
       new BadRequestException('Catatan pengembalian wajib diisi'),
     )
     await expect(
-      useCase.execute(MANAGER, question.id, 'x'.repeat(1001)),
+      useCase.execute(
+        MANAGER,
+        question.id,
+        'x'.repeat(1001),
+        question.revision,
+      ),
     ).rejects.toThrow(BadRequestException)
   })
 
@@ -67,10 +75,10 @@ describe('ReturnQuestionUseCase', () => {
     const { repository, question, useCase } = await submitted()
     repository.questions.set(question.id, { ...question, status: 'DRAFT' })
 
-    await expect(useCase.execute(MANAGER, question.id, 'x')).rejects.toThrow(
-      ConflictException,
-    )
-    await expect(useCase.execute(MANAGER, 'missing', 'x')).rejects.toThrow(
+    await expect(
+      useCase.execute(MANAGER, question.id, 'x', question.revision),
+    ).rejects.toThrow(ConflictException)
+    await expect(useCase.execute(MANAGER, 'missing', 'x', 1)).rejects.toThrow(
       NotFoundException,
     )
   })

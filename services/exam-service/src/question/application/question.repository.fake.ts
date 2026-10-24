@@ -88,6 +88,7 @@ export class FakeQuestionRepository extends IQuestionRepository {
       status: 'DRAFT',
       currentVersion: 1,
       approvedVersion: null,
+      revision: 1,
       createdById: input.createdById,
       createdAt: now,
       updatedAt: now,
@@ -110,7 +111,13 @@ export class FakeQuestionRepository extends IQuestionRepository {
     const question = this.require(id)
     if (!this.matches(question, expected)) return Promise.resolve(null)
     const current: QuestionVersion = { ...question.current, ...fields }
-    const updated = { ...question, status, current, updatedAt: new Date() }
+    const updated = {
+      ...question,
+      status,
+      current,
+      revision: question.revision + 1,
+      updatedAt: new Date(),
+    }
     this.questions.set(id, updated)
     this.versions.set(
       id,
@@ -141,6 +148,7 @@ export class FakeQuestionRepository extends IQuestionRepository {
       ...question,
       status: 'DRAFT',
       currentVersion: current.number,
+      revision: question.revision + 1,
       current,
       updatedAt: new Date(),
     }
@@ -168,7 +176,9 @@ export class FakeQuestionRepository extends IQuestionRepository {
     if (
       !question ||
       !input.from.includes(question.status) ||
-      question.currentVersion !== input.expectedVersion
+      question.currentVersion !== input.expectedVersion ||
+      (input.expectedRevision !== undefined &&
+        question.revision !== input.expectedRevision)
     ) {
       return Promise.resolve(null)
     }

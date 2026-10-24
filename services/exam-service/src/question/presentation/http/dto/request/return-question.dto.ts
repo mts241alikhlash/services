@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsString, MaxLength, MinLength } from 'class-validator'
+import { ApproveQuestionDto } from './approve-question.dto.js'
 
-export class ReturnQuestionDto {
+export class ReturnQuestionDto extends ApproveQuestionDto {
   @ApiProperty({ minLength: 1, maxLength: 1000 })
   @IsString()
   @MinLength(1)

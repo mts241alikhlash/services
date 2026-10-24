@@ -22,6 +22,7 @@ const row = {
   status: 'DRAFT' as const,
   currentVersion: 2,
   approvedVersion: 1,
+  revision: 3,
   createdById: 'user-1',
   createdAt: at,
   updatedAt: at,

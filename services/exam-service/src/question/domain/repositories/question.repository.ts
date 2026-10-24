@@ -51,6 +51,7 @@ export interface ExpectedState {
 export interface ReviewInput {
   from: QuestionStatus[]
   expectedVersion: number
+  expectedRevision?: number
   to: QuestionStatus
   action: ReviewAction
   note: string | null

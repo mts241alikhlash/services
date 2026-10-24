@@ -19,6 +19,7 @@ export class ReturnQuestionUseCase {
     user: ScopeUser,
     id: string,
     note: string,
+    revision: number,
   ): Promise<QuestionDetail> {
     const trimmed = note.trim()
     if (trimmed === '') {
@@ -36,6 +37,7 @@ export class ReturnQuestionUseCase {
 
     const returned = await this.questions.applyReview(id, {
       expectedVersion: question.currentVersion,
+      expectedRevision: revision,
       from: ['SUBMITTED'],
       to: 'RETURNED',
       action: 'RETURNED',

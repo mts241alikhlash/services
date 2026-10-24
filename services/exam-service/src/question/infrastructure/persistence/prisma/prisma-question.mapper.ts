@@ -44,6 +44,7 @@ function toQuestion(row: QuestionRow): Question {
     status: row.status,
     currentVersion: row.currentVersion,
     approvedVersion: row.approvedVersion,
+    revision: row.revision,
     createdById: row.createdById,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,

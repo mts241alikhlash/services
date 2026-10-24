@@ -35,6 +35,7 @@ import { UpdateQuestionUseCase } from '../../application/use-cases/update-questi
 import type { ScopeUser } from '../../application/teacher-scope.service.js'
 import { CreateQuestionDto } from './dto/request/create-question.dto.js'
 import { ApproveManyDto } from './dto/request/approve-many.dto.js'
+import { ApproveQuestionDto } from './dto/request/approve-question.dto.js'
 import { ReturnQuestionDto } from './dto/request/return-question.dto.js'
 import { QuestionQueryDto } from './dto/request/question-query.dto.js'
 import { UpdateQuestionDto } from './dto/request/update-question.dto.js'
@@ -155,7 +156,7 @@ export class QuestionController {
     @Body() dto: ApproveManyDto,
   ): Promise<ApproveManyResponseDto> {
     return ApproveManyResponseDto.fromDomain(
-      await this.approveMany.execute(user, dto.ids),
+      await this.approveMany.execute(user, dto.items),
     )
   }
 
@@ -183,9 +184,10 @@ export class QuestionController {
   async approve(
     @CurrentUser() user: ScopeUser,
     @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ApproveQuestionDto,
   ): Promise<QuestionDetailDto> {
     return QuestionDetailDto.fromDomain(
-      await this.approveQuestion.execute(user, id),
+      await this.approveQuestion.execute(user, id, dto.revision),
     )
   }
 
@@ -201,7 +203,7 @@ export class QuestionController {
     @Body() dto: ReturnQuestionDto,
   ): Promise<QuestionDetailDto> {
     return QuestionDetailDto.fromDomain(
-      await this.returnQuestion.execute(user, id, dto.note),
+      await this.returnQuestion.execute(user, id, dto.note, dto.revision),
     )
   }
 }

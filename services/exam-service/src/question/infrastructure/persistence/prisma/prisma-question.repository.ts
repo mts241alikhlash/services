@@ -102,7 +102,7 @@ export class PrismaQuestionRepository extends IQuestionRepository {
           status: expected.status,
           currentVersion: expected.currentVersion,
         },
-        data: { status },
+        data: { status, revision: { increment: 1 } },
       })
       if (claimed.count === 0) return null
 
@@ -142,7 +142,11 @@ export class PrismaQuestionRepository extends IQuestionRepository {
           status: expected.status,
           currentVersion: expected.currentVersion,
         },
-        data: { currentVersion: number, status: 'DRAFT' },
+        data: {
+          currentVersion: number,
+          status: 'DRAFT',
+          revision: { increment: 1 },
+        },
       })
       if (claimed.count === 0) return null
 
@@ -172,6 +176,9 @@ export class PrismaQuestionRepository extends IQuestionRepository {
           deletedAt: null,
           status: { in: input.from },
           currentVersion: input.expectedVersion,
+          ...(input.expectedRevision !== undefined && {
+            revision: input.expectedRevision,
+          }),
         },
         data: {
           status: input.to,

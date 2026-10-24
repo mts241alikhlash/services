@@ -87,9 +87,12 @@ describe('QuestionController', () => {
     const submitted = await controller.submit(TEACHER, created.id)
     const returned = await controller.returnToAuthor(MANAGER, created.id, {
       note: 'Perbaiki kunci',
+      revision: submitted.revision,
     })
-    await controller.submit(TEACHER, created.id)
-    const approved = await controller.approve(MANAGER, created.id)
+    const resubmitted = await controller.submit(TEACHER, created.id)
+    const approved = await controller.approve(MANAGER, created.id, {
+      revision: resubmitted.revision,
+    })
 
     expect(submitted.status).toBe('SUBMITTED')
     expect(returned.reviews.at(-1)).toMatchObject({
@@ -103,10 +106,13 @@ describe('QuestionController', () => {
   it('approves many and reports each id', async () => {
     const controller = build()
     const created = await controller.create(TEACHER, dto)
-    await controller.submit(TEACHER, created.id)
+    const submitted = await controller.submit(TEACHER, created.id)
 
     const result = await controller.approveManyQuestions(MANAGER, {
-      ids: [created.id, '3f0b6a0e-0000-4000-8000-000000000000'],
+      items: [
+        { id: created.id, revision: submitted.revision },
+        { id: '3f0b6a0e-0000-4000-8000-000000000000', revision: 1 },
+      ],
     })
 
     expect(result.data).toEqual([

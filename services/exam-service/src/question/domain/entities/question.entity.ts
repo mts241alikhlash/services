@@ -36,6 +36,7 @@ export interface Question {
   status: QuestionStatus
   currentVersion: number
   approvedVersion: number | null
+  revision: number
   createdById: string
   createdAt: Date
   updatedAt: Date

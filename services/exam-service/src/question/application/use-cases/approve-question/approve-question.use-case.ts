@@ -12,13 +12,18 @@ import type { ScopeUser } from '../../teacher-scope.service.js'
 export class ApproveQuestionUseCase {
   constructor(private readonly questions: IQuestionRepository) {}
 
-  async execute(user: ScopeUser, id: string): Promise<QuestionDetail> {
+  async execute(
+    user: ScopeUser,
+    id: string,
+    revision: number,
+  ): Promise<QuestionDetail> {
     const question = await this.questions.findById(id)
     if (!question) throw new NotFoundException('Soal tidak ditemukan')
     assertCanApprove(question.status)
 
     const approved = await this.questions.applyReview(id, {
       expectedVersion: question.currentVersion,
+      expectedRevision: revision,
       from: ['SUBMITTED'],
       to: 'APPROVED',
       action: 'APPROVED',
