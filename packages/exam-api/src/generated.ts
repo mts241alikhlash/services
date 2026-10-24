@@ -194,6 +194,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exam-questions/authors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Authors of the questions the user may see */
+        get: operations["QuestionController_authors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-questions/scope": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Subjects and grades the signed-in user may use */
+        get: operations["QuestionController_scope"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -266,6 +300,11 @@ export interface components {
             errors: components["schemas"]["ImportErrorDto"][];
             questionIds: string[];
         };
+        QuestionAuthorDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
         QuestionDetailDto: {
             approved: components["schemas"]["QuestionVersionDto"] | null;
             approvedVersion: number | null;
@@ -312,10 +351,15 @@ export interface components {
             questionId: string;
             versionNumber: number;
         };
+        QuestionScopeDto: {
+            all: boolean;
+            pairs: components["schemas"]["ScopePairDto"][];
+        };
         QuestionSummaryDto: {
             approvedVersion: number | null;
             /** Format: uuid */
             authorEmployeeId: string;
+            authorName: string | null;
             bodyHtml: string;
             /** Format: date-time */
             createdAt: string;
@@ -355,6 +399,15 @@ export interface components {
             note: string;
             /** @description The revision of the question the reviewer read */
             revision: number;
+        };
+        ScopePairDto: {
+            /** Format: uuid */
+            gradeId: string;
+            gradeLevel: number | null;
+            gradeName: string | null;
+            /** Format: uuid */
+            subjectId: string;
+            subjectName: string | null;
         };
         UpdateQuestionDto: {
             bodyHtml?: string;
@@ -767,6 +820,58 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["ApprovalResultDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    QuestionController_authors: {
+        parameters: {
+            query?: {
+                status?: "DRAFT" | "SUBMITTED" | "APPROVED" | "RETURNED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["QuestionAuthorDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    QuestionController_scope: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["QuestionScopeDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */

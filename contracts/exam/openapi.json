@@ -193,6 +193,104 @@
         ]
       }
     },
+    "/exam-questions/scope": {
+      "get": {
+        "operationId": "QuestionController_scope",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/QuestionScopeDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Subjects and grades the signed-in user may use",
+        "tags": [
+          "Exam Questions"
+        ]
+      }
+    },
+    "/exam-questions/authors": {
+      "get": {
+        "operationId": "QuestionController_authors",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "SUBMITTED",
+                "APPROVED",
+                "RETURNED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/QuestionAuthorDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Authors of the questions the user may see",
+        "tags": [
+          "Exam Questions"
+        ]
+      }
+    },
     "/exam-questions/{id}": {
       "get": {
         "operationId": "QuestionController_findOne",
@@ -1138,6 +1236,10 @@
           "points": {
             "type": "number"
           },
+          "authorName": {
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -1159,6 +1261,7 @@
           "revision",
           "bodyHtml",
           "points",
+          "authorName",
           "createdAt",
           "updatedAt"
         ]
@@ -1187,6 +1290,72 @@
           "total",
           "page",
           "limit"
+        ]
+      },
+      "ScopePairDto": {
+        "type": "object",
+        "properties": {
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subjectName": {
+            "type": "string",
+            "nullable": true
+          },
+          "gradeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gradeLevel": {
+            "type": "number",
+            "nullable": true
+          },
+          "gradeName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "subjectId",
+          "subjectName",
+          "gradeId",
+          "gradeLevel",
+          "gradeName"
+        ]
+      },
+      "QuestionScopeDto": {
+        "type": "object",
+        "properties": {
+          "all": {
+            "type": "boolean"
+          },
+          "pairs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScopePairDto"
+            }
+          }
+        },
+        "required": [
+          "all",
+          "pairs"
+        ]
+      },
+      "QuestionAuthorDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
         ]
       },
       "QuestionVersionDto": {
