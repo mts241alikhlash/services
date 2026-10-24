@@ -1,14 +1,14 @@
 # 241 Apps Constitution
 
-**Version 1.1.0 · Ratified 2026-09-02 · Last amended 2026-09-16**
+**Version 1.1.1 · Ratified 2026-09-02 · Last amended 2026-10-24**
 
-This document is binding across all nine services of the 241 Apps platform,
+This document is binding across all ten services of the 241 Apps platform,
 maintained in the `241-services` monorepo:
 `identity-service`, `academic-service`, `admission-service`, `inventory-service`,
 `portal-service`, `presence-service`, `hr-service`, `student-service`,
-`assessment-service`.
+`assessment-service`, `exam-service`.
 
-**The shared principles and governance text applies to all nine services in one
+**The shared principles and governance text applies to all ten services in one
 `241-services` repository.** The shared text is mirrored into each service's
 `docs/CONSTITUTION.md`; changes to a shared rule must update every copy in the
 same session, and a drifted copy is a bug — see Governance.
@@ -65,7 +65,7 @@ A service owns its domain, and every other service reaches it only through a
 published API.
 
 - **A service MUST NOT import source from another service**, by path, by
-  package, or by copy-paste. The nine service projects are siblings at runtime,
+  package, or by copy-paste. The ten service projects are siblings at runtime,
   dependencies.
 - Where a service needs data another service owns, **HTTP is the only
   channel.** It declares a **port** (an abstract class in `platform/` or
@@ -417,7 +417,7 @@ Known outstanding items, each named in the owning service's `ARCHITECTURE.md`:
 - **Amendment procedure:** an amendment names (a) the exact edits, (b) the
   version bump and its rationale, (c) the docs and ADRs affected, (d) the
   migration plan or its absence, and (e) whether the Compliance Baseline is
-  re-surveyed. It is then applied to **the root constitution and all nine
+  re-surveyed. It is then applied to **the root constitution and all ten
   service copies** in the same
   session.
 - **Versioning:** MAJOR for a principle removed or materially narrowed in a way

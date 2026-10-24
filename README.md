@@ -1,6 +1,6 @@
 # 241 Services
 
-Nine independent NestJS microservices for 241 Apps, a school platform, sharing
+Ten independent NestJS microservices for 241 Apps, a school platform, sharing
 one pnpm workspace with independent runtime, database, migration, image, and
 release boundaries:
 
@@ -15,6 +15,7 @@ release boundaries:
 | `hr-service` | 241 HR | 3800 | `hr_service` |
 | `student-service` | 241 Academic | 3900 | `student_service` |
 | `assessment-service` | 241 Academic | 4000 | `assessment_service` |
+| `exam-service` | 241 Academic | 4100 | `exam_service` |
 
 Each service owns its own database and Prisma migrations. Cross-service calls
 go over HTTP through a shared `src/platform/identity/` slice, never through
