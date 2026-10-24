@@ -5,6 +5,7 @@ import {
   TEACHER,
   buildTeacherScope,
 } from '../../question.repository.fake.js'
+import type { IAuthorLookupPort } from '../../../../platform/author-lookup/author-lookup.port.js'
 import { ListQuestionsUseCase } from './list-questions.use-case.js'
 
 const base = {
@@ -23,7 +24,10 @@ async function build(employeeId: string | null = 'emp-1') {
   await repository.create({ ...base, subjectId: 'math', gradeId: 'grade-8' })
   await repository.create({ ...base, subjectId: 'ipa', gradeId: 'grade-7' })
   const { scope } = buildTeacherScope({ employeeId, pairs: [MATH_7] })
-  return { useCase: new ListQuestionsUseCase(repository, scope) }
+  const authors = {
+    namesOf: () => Promise.resolve(new Map([['emp-1', 'Ustadz Ahmad']])),
+  } as IAuthorLookupPort
+  return { useCase: new ListQuestionsUseCase(repository, scope, authors) }
 }
 
 describe('ListQuestionsUseCase', () => {
@@ -69,5 +73,16 @@ describe('ListQuestionsUseCase', () => {
       page: 1,
       limit: 10,
     })
+  })
+
+  it('names the author of each question, and leaves the name empty when unknown', async () => {
+    const { useCase } = await build()
+
+    const result = await useCase.execute(TEACHER, {})
+
+    expect(result.data.map((q) => q.authorName)).toEqual([
+      'Ustadz Ahmad',
+      'Ustadz Ahmad',
+    ])
   })
 })

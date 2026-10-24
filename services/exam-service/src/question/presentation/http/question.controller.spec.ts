@@ -27,7 +27,9 @@ function build() {
   })
   const approve = new ApproveQuestionUseCase(repository)
   return new QuestionController(
-    new ListQuestionsUseCase(repository, scope),
+    new ListQuestionsUseCase(repository, scope, {
+      namesOf: () => Promise.resolve(new Map()),
+    }),
     new GetQuestionUseCase(repository, scope),
     new GetQuestionVersionsUseCase(repository, scope),
     new CreateQuestionUseCase(repository, scope, employees),

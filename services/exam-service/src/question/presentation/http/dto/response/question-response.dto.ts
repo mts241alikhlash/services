@@ -11,7 +11,7 @@ import {
   type QuestionType,
 } from '../../../../domain/value-objects/question-content.js'
 import type { QuestionScopeView } from '../../../../application/use-cases/get-question-scope/get-question-scope.use-case.js'
-import type { QuestionSummary } from '../../../../domain/repositories/question.repository.js'
+import type { QuestionListItem } from '../../../../application/use-cases/list-questions/list-questions.use-case.js'
 
 export class QuestionVersionDto {
   @ApiProperty({ format: 'uuid' }) id!: string
@@ -73,10 +73,11 @@ export class QuestionSummaryDto {
   @ApiProperty() revision!: number
   @ApiProperty() bodyHtml!: string
   @ApiProperty() points!: number
+  @ApiProperty({ type: String, nullable: true }) authorName!: string | null
   @ApiProperty({ format: 'date-time' }) createdAt!: string
   @ApiProperty({ format: 'date-time' }) updatedAt!: string
 
-  static fromDomain(domain: QuestionSummary): QuestionSummaryDto {
+  static fromDomain(domain: QuestionListItem): QuestionSummaryDto {
     const dto = new QuestionSummaryDto()
     dto.id = domain.id
     dto.subjectId = domain.subjectId
@@ -89,6 +90,7 @@ export class QuestionSummaryDto {
     dto.revision = domain.revision
     dto.bodyHtml = domain.bodyHtml
     dto.points = domain.points
+    dto.authorName = domain.authorName
     dto.createdAt = domain.createdAt.toISOString()
     dto.updatedAt = domain.updatedAt.toISOString()
     return dto
@@ -147,7 +149,7 @@ export class QuestionListResponseDto {
   @ApiProperty() limit!: number
 
   static fromDomain(domain: {
-    data: QuestionSummary[]
+    data: QuestionListItem[]
     total: number
     page: number
     limit: number

@@ -14,6 +14,7 @@ import { pinoLoggerConfig } from './core/logger/logger.config.js'
 import { IdentityModule } from './platform/identity/identity.module.js'
 import { ServiceClientModule } from './platform/service-client/service-client.module.js'
 import { AuthModule } from './platform/auth/auth.module.js'
+import { AuthorLookupModule } from './platform/author-lookup/author-lookup.module.js'
 import { AcademicLookupModule } from './platform/academic-lookup/academic-lookup.module.js'
 import { ExamFileModule } from './exam-file/exam-file.module.js'
 import { QuestionImportModule } from './question-import/question-import.module.js'
@@ -31,6 +32,7 @@ import { PermissionGuard } from './platform/access-control/permission/guards/per
     PrismaModule,
     StorageModule,
     AcademicLookupModule,
+    AuthorLookupModule,
     QuestionModule,
     ExamFileModule,
     QuestionImportModule,
