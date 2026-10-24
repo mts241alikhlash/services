@@ -57,4 +57,40 @@ describe('prepareQuestion', () => {
       prepareQuestion('ESSAY', '<p>Jelaskan</p>', { guideHtml: '  ' }).content,
     ).toEqual({ guideHtml: null })
   })
+
+  it('treats empty paragraphs and spaces as nothing', () => {
+    expect(() =>
+      prepareQuestion('TRUE_FALSE', '<p dir="auto"></p><p>&nbsp; </p>', {
+        answer: { value: true },
+      }),
+    ).toThrow(new BadRequestException('Isi soal wajib diisi'))
+    expect(() =>
+      prepareQuestion('MULTIPLE_CHOICE', '<p>Soal</p>', {
+        choices: [
+          { key: 'A', html: '<p dir="auto"></p>' },
+          { key: 'B', html: '<p>Dua</p>' },
+        ],
+        answer: { key: 'B' },
+      }),
+    ).toThrow(new BadRequestException('Isi pilihan jawaban wajib diisi'))
+    expect(
+      prepareQuestion('ESSAY', '<p>Jelaskan</p>', { guideHtml: '<p></p>' })
+        .content,
+    ).toEqual({ guideHtml: null })
+  })
+
+  it('keeps a body that holds only a picture or only math', () => {
+    expect(
+      prepareQuestion('TRUE_FALSE', '<p><img data-file-id="f1"></p>', {
+        answer: { value: true },
+      }).bodyHtml,
+    ).toBe('<p><img data-file-id="f1" /></p>')
+    expect(
+      prepareQuestion(
+        'TRUE_FALSE',
+        '<p><span data-latex="x^2">x^2</span></p>',
+        { answer: { value: true } },
+      ).bodyHtml,
+    ).toBe('<p><span data-latex="x^2">x^2</span></p>')
+  })
 })

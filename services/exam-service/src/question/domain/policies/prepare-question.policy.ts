@@ -6,6 +6,11 @@ import type {
 import { sanitizeQuestionHtml } from './sanitize-question-html.policy.js'
 import { validateQuestionContent } from './validate-question-content.policy.js'
 
+function hasContent(html: string): boolean {
+  if (/<img\b|data-latex=/u.test(html)) return true
+  return html.replace(/<[^>]*>|&nbsp;|\s/gu, '') !== ''
+}
+
 export interface PreparedQuestion {
   bodyHtml: string
   content: QuestionContent
@@ -17,14 +22,14 @@ export function prepareQuestion(
   content: unknown,
 ): PreparedQuestion {
   const body = sanitizeQuestionHtml(bodyHtml)
-  if (body === '') throw new BadRequestException('Isi soal wajib diisi')
+  if (!hasContent(body)) throw new BadRequestException('Isi soal wajib diisi')
 
   const validated = validateQuestionContent(type, content)
 
   if ('choices' in validated) {
     const choices = validated.choices.map((choice) => {
       const html = sanitizeQuestionHtml(choice.html)
-      if (html === '') {
+      if (!hasContent(html)) {
         throw new BadRequestException('Isi pilihan jawaban wajib diisi')
       }
       return { key: choice.key, html }
@@ -39,7 +44,7 @@ export function prepareQuestion(
         : sanitizeQuestionHtml(validated.guideHtml)
     return {
       bodyHtml: body,
-      content: { guideHtml: guide === '' ? null : guide },
+      content: { guideHtml: hasContent(guide) ? guide : null },
     }
   }
 
