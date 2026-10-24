@@ -10,6 +10,7 @@ import {
   type QuestionStatus,
   type QuestionType,
 } from '../../../../domain/value-objects/question-content.js'
+import type { QuestionScopeView } from '../../../../application/use-cases/get-question-scope/get-question-scope.use-case.js'
 import type { QuestionSummary } from '../../../../domain/repositories/question.repository.js'
 
 export class QuestionVersionDto {
@@ -156,6 +157,28 @@ export class QuestionListResponseDto {
     dto.total = domain.total
     dto.page = domain.page
     dto.limit = domain.limit
+    return dto
+  }
+}
+
+export class ScopePairDto {
+  @ApiProperty({ format: 'uuid' }) subjectId!: string
+  @ApiProperty({ type: String, nullable: true }) subjectName!: string | null
+  @ApiProperty({ format: 'uuid' }) gradeId!: string
+  @ApiProperty({ type: Number, nullable: true }) gradeLevel!: number | null
+  @ApiProperty({ type: String, nullable: true }) gradeName!: string | null
+}
+
+export class QuestionScopeDto {
+  @ApiProperty() all!: boolean
+  @ApiProperty({ type: () => [ScopePairDto] }) pairs!: ScopePairDto[]
+
+  static fromDomain(domain: QuestionScopeView): QuestionScopeDto {
+    const dto = new QuestionScopeDto()
+    dto.all = domain.all
+    dto.pairs = domain.pairs.map((pair) =>
+      Object.assign(new ScopePairDto(), pair),
+    )
     return dto
   }
 }

@@ -12,6 +12,7 @@ import { ReturnQuestionUseCase } from '../../application/use-cases/return-questi
 import { SubmitQuestionUseCase } from '../../application/use-cases/submit-question/submit-question.use-case.js'
 import { DeleteQuestionUseCase } from '../../application/use-cases/delete-question/delete-question.use-case.js'
 import { GetQuestionUseCase } from '../../application/use-cases/get-question/get-question.use-case.js'
+import { GetQuestionScopeUseCase } from '../../application/use-cases/get-question-scope/get-question-scope.use-case.js'
 import { GetQuestionVersionsUseCase } from '../../application/use-cases/get-question-versions/get-question-versions.use-case.js'
 import { ListQuestionsUseCase } from '../../application/use-cases/list-questions/list-questions.use-case.js'
 import { UpdateQuestionUseCase } from '../../application/use-cases/update-question/update-question.use-case.js'
@@ -20,7 +21,7 @@ import type { CreateQuestionDto } from './dto/request/create-question.dto.js'
 
 function build() {
   const repository = new FakeQuestionRepository()
-  const { scope, employees } = buildTeacherScope({
+  const { scope, employees, academic } = buildTeacherScope({
     employeeId: 'emp-1',
     pairs: [MATH_7],
   })
@@ -36,6 +37,7 @@ function build() {
     approve,
     new ReturnQuestionUseCase(repository),
     new ApproveManyQuestionsUseCase(approve),
+    new GetQuestionScopeUseCase(scope, academic),
   )
 }
 
@@ -123,5 +125,14 @@ describe('QuestionController', () => {
         reason: 'Soal tidak ditemukan',
       },
     ])
+  })
+
+  it('tells the web which subjects and grades the user may pick', async () => {
+    const result = await build().scope(TEACHER)
+
+    expect(result).toMatchObject({
+      all: false,
+      pairs: [{ subjectId: MATH_7.subjectId, gradeId: MATH_7.gradeId }],
+    })
   })
 })

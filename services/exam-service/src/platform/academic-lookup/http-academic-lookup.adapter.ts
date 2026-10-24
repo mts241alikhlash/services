@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ServiceClient } from '../service-client/service-client.js'
 import {
   IAcademicLookupPort,
+  type GradeRef,
   type TeachingPair,
 } from './academic-lookup.port.js'
 
@@ -30,6 +31,7 @@ export class HttpAcademicLookupAdapter extends IAcademicLookupPort {
       if (
         !isRecord(row) ||
         typeof row.subjectId !== 'string' ||
+        typeof row.subjectName !== 'string' ||
         typeof row.classroomGradeId !== 'string'
       ) {
         return this.client.malformed(URL_KEY)
@@ -37,9 +39,32 @@ export class HttpAcademicLookupAdapter extends IAcademicLookupPort {
       pairs.set(`${row.subjectId}:${row.classroomGradeId}`, {
         subjectId: row.subjectId,
         gradeId: row.classroomGradeId,
+        subjectName: row.subjectName,
       })
     }
     return [...pairs.values()]
+  }
+
+  async gradesByIds(ids: string[]): Promise<GradeRef[]> {
+    if (ids.length === 0) return []
+
+    const data = await this.client.postData(URL_KEY, '/grades/by-ids', { ids })
+    if (!Array.isArray(data)) return this.client.malformed(URL_KEY)
+
+    return (data as unknown[]).map((row) => {
+      if (
+        !isRecord(row) ||
+        typeof row.id !== 'string' ||
+        typeof row.level !== 'number'
+      ) {
+        return this.client.malformed(URL_KEY)
+      }
+      return {
+        id: row.id,
+        level: row.level,
+        name: typeof row.name === 'string' ? row.name : null,
+      }
+    })
   }
 
   private async findActiveSemesterId(): Promise<string | null> {

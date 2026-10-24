@@ -29,6 +29,7 @@ import { SubmitQuestionUseCase } from '../../application/use-cases/submit-questi
 import { CreateQuestionUseCase } from '../../application/use-cases/create-question/create-question.use-case.js'
 import { DeleteQuestionUseCase } from '../../application/use-cases/delete-question/delete-question.use-case.js'
 import { GetQuestionUseCase } from '../../application/use-cases/get-question/get-question.use-case.js'
+import { GetQuestionScopeUseCase } from '../../application/use-cases/get-question-scope/get-question-scope.use-case.js'
 import { GetQuestionVersionsUseCase } from '../../application/use-cases/get-question-versions/get-question-versions.use-case.js'
 import { ListQuestionsUseCase } from '../../application/use-cases/list-questions/list-questions.use-case.js'
 import { UpdateQuestionUseCase } from '../../application/use-cases/update-question/update-question.use-case.js'
@@ -43,6 +44,7 @@ import {
   ApproveManyResponseDto,
   QuestionDetailDto,
   QuestionListResponseDto,
+  QuestionScopeDto,
   QuestionVersionDto,
 } from './dto/response/question-response.dto.js'
 
@@ -62,6 +64,7 @@ export class QuestionController {
     private readonly approveQuestion: ApproveQuestionUseCase,
     private readonly returnQuestion: ReturnQuestionUseCase,
     private readonly approveMany: ApproveManyQuestionsUseCase,
+    private readonly getScope: GetQuestionScopeUseCase,
   ) {}
 
   @Get()
@@ -75,6 +78,14 @@ export class QuestionController {
     return QuestionListResponseDto.fromDomain(
       await this.listQuestions.execute(user, query),
     )
+  }
+
+  @Get('scope')
+  @RequirePermissions('exam-questions.read')
+  @ApiOperation({ summary: 'Subjects and grades the signed-in user may use' })
+  @ApiResponse({ status: 200, type: QuestionScopeDto })
+  async scope(@CurrentUser() user: ScopeUser): Promise<QuestionScopeDto> {
+    return QuestionScopeDto.fromDomain(await this.getScope.execute(user))
   }
 
   @Get(':id')

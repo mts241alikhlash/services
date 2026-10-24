@@ -9,30 +9,39 @@ const assignment = (
   classroomId: string,
   subjectId: string,
   classroomGradeId: string,
+  subjectName = 'Matematika',
 ) => ({
   id,
   employeeId: 'emp-1',
   classroomId,
   subjectId,
   semesterId: 'sem-1',
-  subjectName: 'Matematika',
+  subjectName,
   classroomCode: classroomId,
   classroomGradeId,
   classroomAcademicYearId: 'year-1',
 })
 
 function build(responses: Record<string, unknown>) {
-  const getData = jest.fn((_key: string, path: string) => {
+  const answer = (path: string) => {
     const hit = Object.entries(responses).find(([prefix]) =>
       path.startsWith(prefix),
     )
     return Promise.resolve(hit ? hit[1] : undefined)
-  })
+  }
+  const getData = jest.fn((_key: string, path: string) => answer(path))
+  const postData = jest.fn((_key: string, path: string, _body: unknown) =>
+    answer(path),
+  )
   const malformed = jest.fn((): never => {
     throw new ServiceUnavailableException('malformed')
   })
-  const client = { getData, malformed } as unknown as ServiceClient
-  return { adapter: new HttpAcademicLookupAdapter(client), getData }
+  const client = {
+    getData,
+    postData,
+    malformed,
+  } as unknown as ServiceClient
+  return { adapter: new HttpAcademicLookupAdapter(client), getData, postData }
 }
 
 describe('HttpAcademicLookupAdapter.teachingPairsOf', () => {
@@ -43,14 +52,14 @@ describe('HttpAcademicLookupAdapter.teachingPairsOf', () => {
         assignment('a1', 'c-7a', 'math', 'grade-7'),
         assignment('a2', 'c-7b', 'math', 'grade-7'),
         assignment('a3', 'c-8a', 'math', 'grade-8'),
-        assignment('a4', 'c-7a', 'ipa', 'grade-7'),
+        assignment('a4', 'c-7a', 'ipa', 'grade-7', 'IPA'),
       ],
     })
 
     await expect(adapter.teachingPairsOf('emp-1')).resolves.toEqual([
-      { subjectId: 'math', gradeId: 'grade-7' },
-      { subjectId: 'math', gradeId: 'grade-8' },
-      { subjectId: 'ipa', gradeId: 'grade-7' },
+      { subjectId: 'math', gradeId: 'grade-7', subjectName: 'Matematika' },
+      { subjectId: 'math', gradeId: 'grade-8', subjectName: 'Matematika' },
+      { subjectId: 'ipa', gradeId: 'grade-7', subjectName: 'IPA' },
     ])
   })
 
@@ -82,6 +91,37 @@ describe('HttpAcademicLookupAdapter.teachingPairsOf', () => {
     })
 
     await expect(adapter.teachingPairsOf('emp-1')).rejects.toThrow(
+      ServiceUnavailableException,
+    )
+  })
+})
+
+describe('HttpAcademicLookupAdapter.gradesByIds', () => {
+  it('asks once for the ids and keeps level and name', async () => {
+    const { adapter, postData } = build({
+      '/grades/by-ids': [
+        { id: 'grade-7', level: 7, name: 'Kelas VII' },
+        { id: 'grade-8', level: 8, name: null },
+      ],
+    })
+
+    await expect(adapter.gradesByIds(['grade-7', 'grade-8'])).resolves.toEqual([
+      { id: 'grade-7', level: 7, name: 'Kelas VII' },
+      { id: 'grade-8', level: 8, name: null },
+    ])
+    expect(postData).toHaveBeenCalledWith(
+      'ACADEMIC_SERVICE_URL',
+      '/grades/by-ids',
+      { ids: ['grade-7', 'grade-8'] },
+    )
+  })
+
+  it('does not call academic for no ids, and fails closed on a bad answer', async () => {
+    const { adapter, postData } = build({ '/grades/by-ids': [{ id: 1 }] })
+
+    await expect(adapter.gradesByIds([])).resolves.toEqual([])
+    expect(postData).not.toHaveBeenCalled()
+    await expect(adapter.gradesByIds(['grade-7'])).rejects.toThrow(
       ServiceUnavailableException,
     )
   })

@@ -247,11 +247,13 @@ export interface ScopeFixture {
   employeeId: string | null
   pairs?: { subjectId: string; gradeId: string }[]
   existingEmployees?: string[]
+  grades?: { id: string; level: number; name: string | null }[]
 }
 
 export function buildTeacherScope(fixture: ScopeFixture): {
   scope: TeacherScope
   employees: IEmployeeIdentityReadPort
+  academic: IAcademicLookupPort
 } {
   const employees = {
     findEmployeeIdByUserId: () => Promise.resolve(fixture.employeeId),
@@ -260,8 +262,12 @@ export function buildTeacherScope(fixture: ScopeFixture): {
   } as IEmployeeIdentityReadPort
   const academic = {
     teachingPairsOf: () => Promise.resolve(fixture.pairs ?? []),
+    gradesByIds: (ids: string[]) =>
+      Promise.resolve(
+        (fixture.grades ?? []).filter((grade) => ids.includes(grade.id)),
+      ),
   } as IAcademicLookupPort
-  return { scope: new TeacherScope(employees, academic), employees }
+  return { scope: new TeacherScope(employees, academic), employees, academic }
 }
 
 export const TEACHER = {

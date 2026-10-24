@@ -17,7 +17,7 @@ function build(options: {
   const teachingPairsOf = jest.fn().mockResolvedValue(options.pairs ?? [])
   const scope = new TeacherScope(
     { findEmployeeIdByUserId } as unknown as IEmployeeIdentityReadPort,
-    { teachingPairsOf },
+    { teachingPairsOf, gradesByIds: jest.fn() },
   )
   return { scope, findEmployeeIdByUserId, teachingPairsOf }
 }
