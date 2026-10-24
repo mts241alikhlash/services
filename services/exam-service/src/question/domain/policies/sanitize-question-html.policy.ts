@@ -31,6 +31,9 @@ const ALLOWED_ATTRIBUTES: sanitizeHtml.IOptions['allowedAttributes'] = {
   td: ['colspan', 'rowspan'],
 }
 
+const FILE_ID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu
+
 export function sanitizeQuestionHtml(html: string): string {
   const clean = sanitizeHtml(html, {
     allowedTags: ALLOWED_TAGS,
@@ -39,6 +42,8 @@ export function sanitizeQuestionHtml(html: string): string {
     allowProtocolRelative: false,
     selfClosing: ['br', 'img'],
     disallowedTagsMode: 'discard',
+    exclusiveFilter: (frame) =>
+      frame.tag === 'img' && !FILE_ID.test(frame.attribs['data-file-id'] ?? ''),
   })
   return clean.trim()
 }

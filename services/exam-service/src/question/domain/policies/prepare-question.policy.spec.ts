@@ -81,10 +81,14 @@ describe('prepareQuestion', () => {
 
   it('keeps a body that holds only a picture or only math', () => {
     expect(
-      prepareQuestion('TRUE_FALSE', '<p><img data-file-id="f1"></p>', {
-        answer: { value: true },
-      }).bodyHtml,
-    ).toBe('<p><img data-file-id="f1" /></p>')
+      prepareQuestion(
+        'TRUE_FALSE',
+        '<p><img data-file-id="3d2a9b2e-6a4f-4b1c-9d0e-1f2a3b4c5d6e"></p>',
+        {
+          answer: { value: true },
+        },
+      ).bodyHtml,
+    ).toBe('<p><img data-file-id="3d2a9b2e-6a4f-4b1c-9d0e-1f2a3b4c5d6e" /></p>')
     expect(
       prepareQuestion(
         'TRUE_FALSE',
