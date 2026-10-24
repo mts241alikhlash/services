@@ -30,6 +30,6 @@ import { QuestionController } from './presentation/http/question.controller.js'
     ReturnQuestionUseCase,
     ApproveManyQuestionsUseCase,
   ],
-  exports: [IQuestionRepository, TeacherScope],
+  exports: [IQuestionRepository, TeacherScope, CreateQuestionUseCase],
 })
 export class QuestionModule {}

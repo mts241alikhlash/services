@@ -16,6 +16,7 @@ import { ServiceClientModule } from './platform/service-client/service-client.mo
 import { AuthModule } from './platform/auth/auth.module.js'
 import { AcademicLookupModule } from './platform/academic-lookup/academic-lookup.module.js'
 import { ExamFileModule } from './exam-file/exam-file.module.js'
+import { QuestionImportModule } from './question-import/question-import.module.js'
 import { QuestionModule } from './question/question.module.js'
 import { StorageModule } from './core/storage/storage.module.js'
 import { PermissionModule } from './platform/access-control/permission/permission.module.js'
@@ -32,6 +33,7 @@ import { PermissionGuard } from './platform/access-control/permission/guards/per
     AcademicLookupModule,
     QuestionModule,
     ExamFileModule,
+    QuestionImportModule,
     LoggerModule.forRoot(pinoLoggerConfig),
     ScheduleModule.forRoot(),
     AppCacheModule,
