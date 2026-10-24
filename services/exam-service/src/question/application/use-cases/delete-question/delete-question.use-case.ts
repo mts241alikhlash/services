@@ -23,6 +23,11 @@ export class DeleteQuestionUseCase {
         'Soal yang pernah disetujui tidak bisa dihapus',
       )
     }
-    await this.questions.softDelete(id)
+    const deleted = await this.questions.softDeleteNeverApproved(id)
+    if (!deleted) {
+      throw new ConflictException(
+        'Soal yang pernah disetujui tidak bisa dihapus',
+      )
+    }
   }
 }

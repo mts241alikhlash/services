@@ -22,6 +22,10 @@ import {
 import { CurrentUser } from '../../../core/decorators/current-user.decorator.js'
 import { RequirePermissions } from '../../../platform/access-control/permission/decorators/require-permissions.decorator.js'
 import { JwtAuthGuard } from '../../../platform/auth/index.js'
+import { ApproveManyQuestionsUseCase } from '../../application/use-cases/approve-many-questions/approve-many-questions.use-case.js'
+import { ApproveQuestionUseCase } from '../../application/use-cases/approve-question/approve-question.use-case.js'
+import { ReturnQuestionUseCase } from '../../application/use-cases/return-question/return-question.use-case.js'
+import { SubmitQuestionUseCase } from '../../application/use-cases/submit-question/submit-question.use-case.js'
 import { CreateQuestionUseCase } from '../../application/use-cases/create-question/create-question.use-case.js'
 import { DeleteQuestionUseCase } from '../../application/use-cases/delete-question/delete-question.use-case.js'
 import { GetQuestionUseCase } from '../../application/use-cases/get-question/get-question.use-case.js'
@@ -30,9 +34,12 @@ import { ListQuestionsUseCase } from '../../application/use-cases/list-questions
 import { UpdateQuestionUseCase } from '../../application/use-cases/update-question/update-question.use-case.js'
 import type { ScopeUser } from '../../application/teacher-scope.service.js'
 import { CreateQuestionDto } from './dto/request/create-question.dto.js'
+import { ApproveManyDto } from './dto/request/approve-many.dto.js'
+import { ReturnQuestionDto } from './dto/request/return-question.dto.js'
 import { QuestionQueryDto } from './dto/request/question-query.dto.js'
 import { UpdateQuestionDto } from './dto/request/update-question.dto.js'
 import {
+  ApproveManyResponseDto,
   QuestionDetailDto,
   QuestionListResponseDto,
   QuestionVersionDto,
@@ -50,6 +57,10 @@ export class QuestionController {
     private readonly createQuestion: CreateQuestionUseCase,
     private readonly updateQuestion: UpdateQuestionUseCase,
     private readonly deleteQuestion: DeleteQuestionUseCase,
+    private readonly submitQuestion: SubmitQuestionUseCase,
+    private readonly approveQuestion: ApproveQuestionUseCase,
+    private readonly returnQuestion: ReturnQuestionUseCase,
+    private readonly approveMany: ApproveManyQuestionsUseCase,
   ) {}
 
   @Get()
@@ -132,5 +143,65 @@ export class QuestionController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
     await this.deleteQuestion.execute(user, id)
+  }
+
+  @Post('approve-many')
+  @HttpCode(HttpStatus.OK)
+  @RequirePermissions('exam-questions.approve')
+  @ApiOperation({ summary: 'Approve several submitted questions at once' })
+  @ApiResponse({ status: 200, type: ApproveManyResponseDto })
+  async approveManyQuestions(
+    @CurrentUser() user: ScopeUser,
+    @Body() dto: ApproveManyDto,
+  ): Promise<ApproveManyResponseDto> {
+    return ApproveManyResponseDto.fromDomain(
+      await this.approveMany.execute(user, dto.ids),
+    )
+  }
+
+  @Post(':id/submit')
+  @HttpCode(HttpStatus.OK)
+  @RequirePermissions('exam-questions.update')
+  @ApiOperation({ summary: 'Submit a question for approval' })
+  @ApiResponse({ status: 200, type: QuestionDetailDto })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  async submit(
+    @CurrentUser() user: ScopeUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<QuestionDetailDto> {
+    return QuestionDetailDto.fromDomain(
+      await this.submitQuestion.execute(user, id),
+    )
+  }
+
+  @Post(':id/approve')
+  @HttpCode(HttpStatus.OK)
+  @RequirePermissions('exam-questions.approve')
+  @ApiOperation({ summary: 'Approve a submitted question' })
+  @ApiResponse({ status: 200, type: QuestionDetailDto })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  async approve(
+    @CurrentUser() user: ScopeUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<QuestionDetailDto> {
+    return QuestionDetailDto.fromDomain(
+      await this.approveQuestion.execute(user, id),
+    )
+  }
+
+  @Post(':id/return')
+  @HttpCode(HttpStatus.OK)
+  @RequirePermissions('exam-questions.approve')
+  @ApiOperation({ summary: 'Return a submitted question with a note' })
+  @ApiResponse({ status: 200, type: QuestionDetailDto })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  async returnToAuthor(
+    @CurrentUser() user: ScopeUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ReturnQuestionDto,
+  ): Promise<QuestionDetailDto> {
+    return QuestionDetailDto.fromDomain(
+      await this.returnQuestion.execute(user, id, dto.note),
+    )
   }
 }

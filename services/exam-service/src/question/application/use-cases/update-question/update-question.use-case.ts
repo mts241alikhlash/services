@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
@@ -45,10 +46,22 @@ export class UpdateQuestionUseCase {
       points: input.points ?? question.current.points,
     }
 
-    if (nextVersionAction(question.status) === 'new-version') {
-      return this.questions.addVersion(id, fields, user.id)
+    const expected = {
+      status: question.status,
+      currentVersion: question.currentVersion,
     }
-    const status = question.status === 'SUBMITTED' ? 'DRAFT' : question.status
-    return this.questions.editCurrentVersion(id, fields, status)
+    const updated =
+      nextVersionAction(question.status) === 'new-version'
+        ? await this.questions.addVersion(id, fields, user.id, expected)
+        : await this.questions.editCurrentVersion(
+            id,
+            fields,
+            question.status === 'SUBMITTED' ? 'DRAFT' : question.status,
+            expected,
+          )
+    if (!updated) {
+      throw new ConflictException('Status soal sudah berubah, muat ulang')
+    }
+    return updated
   }
 }

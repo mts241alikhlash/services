@@ -51,7 +51,7 @@ describe('GetQuestionUseCase', () => {
       pairs: [MATH_7],
     })
     const question = await repository.create(created)
-    await repository.softDelete(question.id)
+    await repository.softDeleteNeverApproved(question.id)
     const useCase = new GetQuestionUseCase(repository, scope)
 
     await expect(useCase.execute(TEACHER, 'missing')).rejects.toThrow(

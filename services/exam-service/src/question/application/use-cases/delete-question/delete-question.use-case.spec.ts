@@ -66,4 +66,16 @@ describe('DeleteQuestionUseCase', () => {
       NotFoundException,
     )
   })
+
+  it('never deletes a question that was approved after the read', async () => {
+    const { repository, question, useCase } = await build()
+    const stale = await repository.findById(question.id)
+    repository.approve(question.id)
+    jest.spyOn(repository, 'findById').mockResolvedValueOnce(stale)
+
+    await expect(useCase.execute(TEACHER, question.id)).rejects.toThrow(
+      ConflictException,
+    )
+    expect(await repository.findById(question.id)).not.toBeNull()
+  })
 })

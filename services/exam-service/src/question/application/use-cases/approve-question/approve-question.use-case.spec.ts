@@ -1,0 +1,89 @@
+import { ConflictException, NotFoundException } from '@nestjs/common'
+import {
+  FakeQuestionRepository,
+  MANAGER,
+  MATH_7,
+} from '../../question.repository.fake.js'
+import { ApproveQuestionUseCase } from './approve-question.use-case.js'
+
+const created = {
+  ...MATH_7,
+  authorEmployeeId: 'emp-1',
+  type: 'TRUE_FALSE' as const,
+  createdById: 'user-1',
+  bodyHtml: '<p>Bumi bulat</p>',
+  content: { answer: { value: true } },
+  points: 1,
+}
+
+async function submitted() {
+  const repository = new FakeQuestionRepository()
+  const question = await repository.create(created)
+  repository.questions.set(question.id, { ...question, status: 'SUBMITTED' })
+  return {
+    repository,
+    question,
+    useCase: new ApproveQuestionUseCase(repository),
+  }
+}
+
+describe('ApproveQuestionUseCase', () => {
+  it('approves the current version and records the review', async () => {
+    const { question, useCase } = await submitted()
+
+    const approved = await useCase.execute(MANAGER, question.id)
+
+    expect(approved).toMatchObject({
+      status: 'APPROVED',
+      approvedVersion: 1,
+      approved: { number: 1 },
+    })
+    expect(approved.reviews).toMatchObject([
+      { action: 'APPROVED', versionNumber: 1, byUserId: MANAGER.id },
+    ])
+  })
+
+  it('moves the approved version forward when a newer version is approved', async () => {
+    const { repository, question, useCase } = await submitted()
+    await useCase.execute(MANAGER, question.id)
+    await repository.addVersion(
+      question.id,
+      { bodyHtml: '<p>Baru</p>', content: created.content, points: 2 },
+      'user-1',
+    )
+    const draft = await repository.findById(question.id)
+    repository.questions.set(question.id, { ...draft!, status: 'SUBMITTED' })
+
+    const approved = await useCase.execute(MANAGER, question.id)
+
+    expect(approved).toMatchObject({
+      approvedVersion: 2,
+      approved: { number: 2, bodyHtml: '<p>Baru</p>' },
+    })
+    expect(await repository.findVersions(question.id)).toHaveLength(2)
+  })
+
+  it.each(['DRAFT', 'APPROVED', 'RETURNED'] as const)(
+    'refuses a %s question with 409',
+    async (status) => {
+      const { repository, question, useCase } = await submitted()
+      repository.questions.set(question.id, { ...question, status })
+
+      await expect(useCase.execute(MANAGER, question.id)).rejects.toThrow(
+        ConflictException,
+      )
+    },
+  )
+
+  it('answers 409 when the status changed under it, and 404 for unknown', async () => {
+    const { repository, question, useCase } = await submitted()
+    jest.spyOn(repository, 'applyReview').mockResolvedValueOnce(null)
+
+    await expect(useCase.execute(MANAGER, question.id)).rejects.toThrow(
+      new ConflictException('Status soal sudah berubah, muat ulang'),
+    )
+    await expect(useCase.execute(MANAGER, 'missing')).rejects.toThrow(
+      NotFoundException,
+    )
+  })
+})

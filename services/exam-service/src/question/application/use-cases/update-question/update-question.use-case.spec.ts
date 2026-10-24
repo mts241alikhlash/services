@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common'
@@ -131,5 +132,35 @@ describe('UpdateQuestionUseCase', () => {
     await expect(
       useCase.execute(TEACHER, 'missing', { points: 2 }),
     ).rejects.toThrow(NotFoundException)
+  })
+
+  it('never edits an approved version in place when it was approved after the read', async () => {
+    const { repository, question, useCase } = await build()
+    const stale = await repository.findById(question.id)
+    repository.approve(question.id)
+    jest.spyOn(repository, 'findById').mockResolvedValueOnce(stale)
+
+    await expect(
+      useCase.execute(TEACHER, question.id, { points: 9 }),
+    ).rejects.toThrow(
+      new ConflictException('Status soal sudah berubah, muat ulang'),
+    )
+
+    const stored = await repository.findById(question.id)
+    expect(stored?.approved?.points).toBe(1)
+    expect(stored?.current.points).toBe(1)
+  })
+
+  it('never writes a second version over a question that left approved after the read', async () => {
+    const { repository, question, useCase } = await build()
+    repository.approve(question.id)
+    const stale = await repository.findById(question.id)
+    repository.questions.set(question.id, { ...stale!, status: 'DRAFT' })
+    jest.spyOn(repository, 'findById').mockResolvedValueOnce(stale)
+
+    await expect(
+      useCase.execute(TEACHER, question.id, { points: 9 }),
+    ).rejects.toThrow(ConflictException)
+    expect(await repository.findVersions(question.id)).toHaveLength(1)
   })
 })

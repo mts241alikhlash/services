@@ -8,9 +8,11 @@ import type {
 } from '../domain/entities/question.entity.js'
 import {
   IQuestionRepository,
+  type ExpectedState,
   type NewQuestionInput,
   type QuestionListQuery,
   type QuestionSummary,
+  type ReviewInput,
   type VersionFields,
 } from '../domain/repositories/question.repository.js'
 import type { QuestionStatus } from '../domain/value-objects/question-content.js'
@@ -103,8 +105,10 @@ export class FakeQuestionRepository extends IQuestionRepository {
     id: string,
     fields: VersionFields,
     status: QuestionStatus,
+    expected: ExpectedState,
   ) {
     const question = this.require(id)
+    if (!this.matches(question, expected)) return Promise.resolve(null)
     const current: QuestionVersion = { ...question.current, ...fields }
     const updated = { ...question, status, current, updatedAt: new Date() }
     this.questions.set(id, updated)
@@ -117,8 +121,16 @@ export class FakeQuestionRepository extends IQuestionRepository {
     return Promise.resolve(updated)
   }
 
-  addVersion(id: string, fields: VersionFields, createdById: string) {
+  addVersion(
+    id: string,
+    fields: VersionFields,
+    createdById: string,
+    expected?: ExpectedState,
+  ) {
     const question = this.require(id)
+    if (expected && !this.matches(question, expected)) {
+      return Promise.resolve(null)
+    }
     const current = this.version(
       id,
       question.currentVersion + 1,
@@ -137,10 +149,49 @@ export class FakeQuestionRepository extends IQuestionRepository {
     return Promise.resolve(updated)
   }
 
-  softDelete(id: string) {
+  softDeleteNeverApproved(id: string) {
     const question = this.require(id)
+    if (question.approvedVersion !== null) return Promise.resolve(false)
     this.questions.set(id, { ...question, deletedAt: new Date() })
-    return Promise.resolve()
+    return Promise.resolve(true)
+  }
+
+  private matches(question: QuestionDetail, expected: ExpectedState): boolean {
+    return (
+      question.status === expected.status &&
+      question.currentVersion === expected.currentVersion
+    )
+  }
+
+  applyReview(id: string, input: ReviewInput) {
+    const question = this.questions.get(id)
+    if (!question || !input.from.includes(question.status)) {
+      return Promise.resolve(null)
+    }
+    const updated: QuestionDetail = {
+      ...question,
+      status: input.to,
+      ...(input.action === 'APPROVED'
+        ? {
+            approvedVersion: question.currentVersion,
+            approved: question.current,
+          }
+        : {}),
+      reviews: [
+        ...question.reviews,
+        {
+          id: randomUUID(),
+          questionId: id,
+          versionNumber: question.currentVersion,
+          action: input.action,
+          note: input.note,
+          byUserId: input.byUserId,
+          createdAt: new Date(),
+        },
+      ],
+    }
+    this.questions.set(id, updated)
+    return Promise.resolve(updated)
   }
 
   approve(id: string): void {

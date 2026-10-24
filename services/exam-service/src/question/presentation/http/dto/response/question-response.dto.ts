@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import type {
   QuestionDetail,
   QuestionReview,
@@ -152,6 +152,31 @@ export class QuestionListResponseDto {
     dto.total = domain.total
     dto.page = domain.page
     dto.limit = domain.limit
+    return dto
+  }
+}
+
+export class ApprovalResultDto {
+  @ApiProperty({ type: String }) id!: string
+  @ApiProperty() ok!: boolean
+  @ApiPropertyOptional({ type: String }) reason?: string
+}
+
+export class ApproveManyResponseDto {
+  @ApiProperty({ type: () => [ApprovalResultDto] })
+  data!: ApprovalResultDto[]
+
+  static fromDomain(
+    results: { id: string; ok: boolean; reason?: string }[],
+  ): ApproveManyResponseDto {
+    const dto = new ApproveManyResponseDto()
+    dto.data = results.map((result) => {
+      const row = new ApprovalResultDto()
+      row.id = result.id
+      row.ok = result.ok
+      if (result.reason !== undefined) row.reason = result.reason
+      return row
+    })
     return dto
   }
 }

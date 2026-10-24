@@ -3,6 +3,7 @@ import type { TeachingPair } from '../../../platform/academic-lookup/academic-lo
 import type {
   Question,
   QuestionDetail,
+  ReviewAction,
   QuestionVersion,
 } from '../entities/question.entity.js'
 import type {
@@ -42,6 +43,19 @@ export interface NewQuestionInput extends VersionFields {
   createdById: string
 }
 
+export interface ExpectedState {
+  status: QuestionStatus
+  currentVersion: number
+}
+
+export interface ReviewInput {
+  from: QuestionStatus[]
+  to: QuestionStatus
+  action: ReviewAction
+  note: string | null
+  byUserId: string
+}
+
 export abstract class IQuestionRepository {
   abstract findAll(
     query: QuestionListQuery,
@@ -53,11 +67,17 @@ export abstract class IQuestionRepository {
     id: string,
     fields: VersionFields,
     status: QuestionStatus,
-  ): Promise<QuestionDetail>
+    expected: ExpectedState,
+  ): Promise<QuestionDetail | null>
   abstract addVersion(
     id: string,
     fields: VersionFields,
     createdById: string,
-  ): Promise<QuestionDetail>
-  abstract softDelete(id: string): Promise<void>
+    expected: ExpectedState,
+  ): Promise<QuestionDetail | null>
+  abstract applyReview(
+    id: string,
+    input: ReviewInput,
+  ): Promise<QuestionDetail | null>
+  abstract softDeleteNeverApproved(id: string): Promise<boolean>
 }

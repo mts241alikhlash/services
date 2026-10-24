@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common'
 import { TeacherScope } from './application/teacher-scope.service.js'
+import { ApproveManyQuestionsUseCase } from './application/use-cases/approve-many-questions/approve-many-questions.use-case.js'
+import { ApproveQuestionUseCase } from './application/use-cases/approve-question/approve-question.use-case.js'
+import { ReturnQuestionUseCase } from './application/use-cases/return-question/return-question.use-case.js'
+import { SubmitQuestionUseCase } from './application/use-cases/submit-question/submit-question.use-case.js'
 import { CreateQuestionUseCase } from './application/use-cases/create-question/create-question.use-case.js'
 import { DeleteQuestionUseCase } from './application/use-cases/delete-question/delete-question.use-case.js'
 import { GetQuestionUseCase } from './application/use-cases/get-question/get-question.use-case.js'
@@ -21,6 +25,10 @@ import { QuestionController } from './presentation/http/question.controller.js'
     CreateQuestionUseCase,
     UpdateQuestionUseCase,
     DeleteQuestionUseCase,
+    SubmitQuestionUseCase,
+    ApproveQuestionUseCase,
+    ReturnQuestionUseCase,
+    ApproveManyQuestionsUseCase,
   ],
   exports: [IQuestionRepository, TeacherScope],
 })

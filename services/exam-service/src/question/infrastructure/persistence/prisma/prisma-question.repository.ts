@@ -5,9 +5,11 @@ import type { PaginatedResult } from '../../../../shared/domain/interfaces/repos
 import type { QuestionVersion } from '../../../domain/entities/question.entity.js'
 import {
   IQuestionRepository,
+  type ExpectedState,
   type NewQuestionInput,
   type QuestionListQuery,
   type QuestionSummary,
+  type ReviewInput,
   type VersionFields,
 } from '../../../domain/repositories/question.repository.js'
 import type { QuestionStatus } from '../../../domain/value-objects/question-content.js'
@@ -90,15 +92,26 @@ export class PrismaQuestionRepository extends IQuestionRepository {
     id: string,
     fields: VersionFields,
     status: QuestionStatus,
+    expected: ExpectedState,
   ) {
     const row = await this.prisma.$transaction(async (tx) => {
-      const { currentVersion } = await tx.question.findUniqueOrThrow({
-        where: { id },
-        select: { currentVersion: true },
+      const claimed = await tx.question.updateMany({
+        where: {
+          id,
+          deletedAt: null,
+          status: expected.status,
+          currentVersion: expected.currentVersion,
+        },
+        data: { status },
       })
+      if (claimed.count === 0) return null
+
       await tx.questionVersion.update({
         where: {
-          questionId_number: { questionId: id, number: currentVersion },
+          questionId_number: {
+            questionId: id,
+            number: expected.currentVersion,
+          },
         },
         data: {
           bodyHtml: fields.bodyHtml,
@@ -106,22 +119,33 @@ export class PrismaQuestionRepository extends IQuestionRepository {
           points: fields.points,
         },
       })
-      return tx.question.update({
+      return tx.question.findUniqueOrThrow({
         where: { id },
-        data: { status },
         include: QUESTION_INCLUDE,
       })
     })
-    return toDetail(row)
+    return row ? toDetail(row) : null
   }
 
-  async addVersion(id: string, fields: VersionFields, createdById: string) {
+  async addVersion(
+    id: string,
+    fields: VersionFields,
+    createdById: string,
+    expected: ExpectedState,
+  ) {
+    const number = expected.currentVersion + 1
     const row = await this.prisma.$transaction(async (tx) => {
-      const { currentVersion } = await tx.question.findUniqueOrThrow({
-        where: { id },
-        select: { currentVersion: true },
+      const claimed = await tx.question.updateMany({
+        where: {
+          id,
+          deletedAt: null,
+          status: expected.status,
+          currentVersion: expected.currentVersion,
+        },
+        data: { currentVersion: number, status: 'DRAFT' },
       })
-      const number = currentVersion + 1
+      if (claimed.count === 0) return null
+
       await tx.questionVersion.create({
         data: {
           questionId: id,
@@ -132,19 +156,50 @@ export class PrismaQuestionRepository extends IQuestionRepository {
           createdById,
         },
       })
-      return tx.question.update({
+      return tx.question.findUniqueOrThrow({
         where: { id },
-        data: { currentVersion: number, status: 'DRAFT' },
         include: QUESTION_INCLUDE,
       })
     })
-    return toDetail(row)
+    return row ? toDetail(row) : null
   }
 
-  async softDelete(id: string): Promise<void> {
-    await this.prisma.question.update({
-      where: { id },
+  async applyReview(id: string, input: ReviewInput) {
+    const row = await this.prisma.$transaction(async (tx) => {
+      const current = await tx.question.findFirst({
+        where: { id, deletedAt: null, status: { in: input.from } },
+        select: { currentVersion: true },
+      })
+      if (!current) return null
+
+      await tx.questionReview.create({
+        data: {
+          questionId: id,
+          versionNumber: current.currentVersion,
+          action: input.action,
+          note: input.note,
+          byUserId: input.byUserId,
+        },
+      })
+      return tx.question.update({
+        where: { id },
+        data: {
+          status: input.to,
+          ...(input.action === 'APPROVED' && {
+            approvedVersion: current.currentVersion,
+          }),
+        },
+        include: QUESTION_INCLUDE,
+      })
+    })
+    return row ? toDetail(row) : null
+  }
+
+  async softDeleteNeverApproved(id: string): Promise<boolean> {
+    const result = await this.prisma.question.updateMany({
+      where: { id, deletedAt: null, approvedVersion: null },
       data: { deletedAt: new Date() },
     })
+    return result.count > 0
   }
 }
