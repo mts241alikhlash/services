@@ -50,6 +50,12 @@ importers:
         specifier: ^0.17.0
         version: 0.17.0
 
+  packages/exam-api:
+    dependencies:
+      openapi-fetch:
+        specifier: ^0.17.0
+        version: 0.17.0
+
   packages/hr-api:
     dependencies:
       openapi-fetch:
