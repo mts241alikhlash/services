@@ -789,6 +789,43 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
   },
 
   {
+    module: 'exam-questions',
+    action: 'approve',
+    code: 'exam-questions.approve',
+    description: 'Approve and return submitted exam questions',
+  },
+  {
+    module: 'exam-questions',
+    action: 'create',
+    code: 'exam-questions.create',
+    description: 'Create exam questions and import them',
+  },
+  {
+    module: 'exam-questions',
+    action: 'delete',
+    code: 'exam-questions.delete',
+    description: 'Delete exam questions that were never approved',
+  },
+  {
+    module: 'exam-questions',
+    action: 'manage-all',
+    code: 'exam-questions.manage-all',
+    description: 'Work on exam questions of every teacher',
+  },
+  {
+    module: 'exam-questions',
+    action: 'read',
+    code: 'exam-questions.read',
+    description: 'Read exam questions',
+  },
+  {
+    module: 'exam-questions',
+    action: 'update',
+    code: 'exam-questions.update',
+    description: 'Update and submit exam questions',
+  },
+
+  {
     module: 'files',
     action: 'create',
     code: 'files.create',
