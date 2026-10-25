@@ -40,7 +40,7 @@ function build() {
     approve,
     new ReturnQuestionUseCase(repository),
     new ApproveManyQuestionsUseCase(approve),
-    new GetQuestionScopeUseCase(scope, academic),
+    new GetQuestionScopeUseCase(scope, academic, employees),
     new ListQuestionAuthorsUseCase(repository, scope, {
       namesOf: () => Promise.resolve(new Map([['emp-1', 'Ustadz Ahmad']])),
     }),

@@ -214,4 +214,50 @@ describe('parseExcelQuestions', () => {
       parseExcelQuestions(Buffer.from('bukan xlsx')),
     ).rejects.toThrow(new BadRequestException('Berkas Excel tidak bisa dibaca'))
   })
+
+  it('stops reading and refuses a sheet past 500 questions', async () => {
+    const rows = Array.from({ length: 501 }, (_, i) => [
+      i + 1,
+      'Uraian',
+      `Soal ${i + 1}`,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ])
+
+    await expect(parseExcelQuestions(await workbook(rows))).rejects.toThrow(
+      new BadRequestException('Maksimal 500 soal per berkas'),
+    )
+  })
+
+  it('reads only the first sheet', async () => {
+    const book = new ExcelJS.Workbook()
+    const first = book.addWorksheet('Soal')
+    first.addRow(HEADERS)
+    first.addRow([
+      1,
+      'Uraian',
+      'Jelaskan',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ])
+    const second = book.addWorksheet('Lain')
+    second.addRow(['x'])
+    const result = await parseExcelQuestions(
+      Buffer.from(await book.xlsx.writeBuffer()),
+    )
+
+    expect(result.questions.map((q) => q.row)).toEqual([2])
+  })
 })

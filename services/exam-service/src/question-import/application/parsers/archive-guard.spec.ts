@@ -43,6 +43,21 @@ describe('assertSafeArchive', () => {
     )
   })
 
+  it('refuses one XML part that expands past 20 MB, but lets a large picture through', async () => {
+    const xml = await zipOf({
+      'word/document.xml': Buffer.alloc(24 * 1024 * 1024),
+    })
+    const picture = await zipOf({
+      'word/document.xml': Buffer.from('<w:document/>'),
+      'word/media/image1.png': Buffer.alloc(24 * 1024 * 1024),
+    })
+
+    await expect(assertSafeArchive(xml)).rejects.toThrow(
+      new BadRequestException('Isi berkas terlalu besar setelah diekstrak'),
+    )
+    await expect(assertSafeArchive(picture)).resolves.toBeUndefined()
+  })
+
   it('refuses an archive with too many entries', async () => {
     const entries: Record<string, Buffer> = {}
     for (let i = 0; i < 1001; i++) entries[`f${i}.xml`] = Buffer.from('x')

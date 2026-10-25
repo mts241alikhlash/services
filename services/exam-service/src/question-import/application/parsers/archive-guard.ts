@@ -3,6 +3,7 @@ import JSZip from 'jszip'
 
 const MAX_ENTRIES = 1000
 const MAX_EXPANDED_BYTES = 60 * 1024 * 1024
+const MAX_XML_BYTES = 20 * 1024 * 1024
 
 const TOO_BIG = 'Isi berkas terlalu besar setelah diekstrak'
 
@@ -10,16 +11,23 @@ interface DeclaredEntry {
   _data?: { uncompressedSize?: number }
 }
 
+function isXml(name: string): boolean {
+  return /\.(xml|rels)$/iu.test(name)
+}
+
 function inflateWithin(
   entry: JSZip.JSZipObject,
   remaining: number,
 ): Promise<number> {
+  const limit = isXml(entry.name)
+    ? Math.min(remaining, MAX_XML_BYTES)
+    : remaining
   return new Promise((resolve, reject) => {
     const stream = entry.nodeStream()
     let seen = 0
     stream.on('data', (chunk: Buffer) => {
       seen += chunk.length
-      if (seen > remaining) {
+      if (seen > limit) {
         stream.pause()
         reject(new BadRequestException(TOO_BIG))
       }

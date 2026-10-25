@@ -12,6 +12,12 @@ import {
   type ScopeUser,
 } from '../../../../question/application/teacher-scope.service.js'
 import { CreateQuestionUseCase } from '../../../../question/application/use-cases/create-question/create-question.use-case.js'
+import {
+  IMPORT_MAX_IMAGE_BYTES,
+  IMPORT_MAX_IMAGES,
+  IMPORT_MAX_BYTES,
+  IMPORT_MAX_QUESTIONS,
+} from '../../../domain/import-limits.js'
 import type { ParseResult } from '../../../domain/parsed-question.js'
 import { assertSafeArchive } from '../../parsers/archive-guard.js'
 import { parseExcelQuestions } from '../../parsers/excel-question.parser.js'
@@ -20,11 +26,6 @@ import type {
   ImportQuestionsInput,
   ImportQuestionsResult,
 } from './import-questions.input.js'
-
-export const IMPORT_MAX_BYTES = 10 * 1024 * 1024
-export const IMPORT_MAX_QUESTIONS = 500
-export const IMPORT_MAX_IMAGES = 100
-export const IMPORT_MAX_IMAGE_BYTES = 20 * 1024 * 1024
 
 const ZIP_SIGNATURE = [0x50, 0x4b, 0x03, 0x04]
 

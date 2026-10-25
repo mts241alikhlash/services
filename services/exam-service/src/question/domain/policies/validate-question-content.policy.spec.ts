@@ -117,4 +117,22 @@ describe('validateQuestionContent', () => {
       validateQuestionContent('TRUE_FALSE', { guideHtml: null }),
     ).toThrow(BadRequestException)
   })
+
+  it('ignores blank accepted answers as long as one real answer is left', () => {
+    expect(
+      validateQuestionContent('SHORT_ANSWER', {
+        answer: {
+          accepted: ['Jakarta', '', '   ', ' DKI Jakarta '],
+          ignoreCase: true,
+          ignoreHarakat: false,
+        },
+      }),
+    ).toEqual({
+      answer: {
+        accepted: ['Jakarta', 'DKI Jakarta'],
+        ignoreCase: true,
+        ignoreHarakat: false,
+      },
+    })
+  })
 })

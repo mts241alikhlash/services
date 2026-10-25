@@ -28,10 +28,8 @@ import { RequirePermissions } from '../../../platform/access-control/permission/
 import { JwtAuthGuard } from '../../../platform/auth/index.js'
 import type { ScopeUser } from '../../../question/application/teacher-scope.service.js'
 import { GetImportTemplateUseCase } from '../../application/use-cases/get-import-template/get-import-template.use-case.js'
-import {
-  IMPORT_MAX_BYTES,
-  ImportQuestionsUseCase,
-} from '../../application/use-cases/import-questions/import-questions.use-case.js'
+import { ImportQuestionsUseCase } from '../../application/use-cases/import-questions/import-questions.use-case.js'
+import { IMPORT_MAX_BYTES } from '../../domain/import-limits.js'
 import {
   ImportQuestionsDto,
   ImportResultDto,

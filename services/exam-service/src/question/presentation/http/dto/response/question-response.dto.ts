@@ -178,11 +178,13 @@ export class ScopePairDto {
 
 export class QuestionScopeDto {
   @ApiProperty() all!: boolean
+  @ApiProperty({ type: String, nullable: true }) employeeId!: string | null
   @ApiProperty({ type: () => [ScopePairDto] }) pairs!: ScopePairDto[]
 
   static fromDomain(domain: QuestionScopeView): QuestionScopeDto {
     const dto = new QuestionScopeDto()
     dto.all = domain.all
+    dto.employeeId = domain.employeeId
     dto.pairs = domain.pairs.map((pair) =>
       Object.assign(new ScopePairDto(), pair),
     )

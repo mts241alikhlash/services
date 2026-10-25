@@ -12,18 +12,21 @@ const pairs = [
 
 describe('GetQuestionScopeUseCase', () => {
   it('lists the subject and grade pairs of a teacher with their labels', async () => {
-    const { scope, academic } = buildTeacherScope({
+    const { scope, academic, employees } = buildTeacherScope({
       employeeId: 'emp-1',
       pairs,
       grades: [{ id: 'grade-7', level: 7, name: 'Kelas VII' }],
     })
 
-    const result = await new GetQuestionScopeUseCase(scope, academic).execute(
-      TEACHER,
-    )
+    const result = await new GetQuestionScopeUseCase(
+      scope,
+      academic,
+      employees,
+    ).execute(TEACHER)
 
     expect(result).toEqual({
       all: false,
+      employeeId: 'emp-1',
       pairs: [
         {
           subjectId: 'math',
@@ -44,18 +47,22 @@ describe('GetQuestionScopeUseCase', () => {
   })
 
   it('says all, with no pairs, for a user who manages every question', async () => {
-    const { scope, academic } = buildTeacherScope({ employeeId: null })
+    const { scope, academic, employees } = buildTeacherScope({
+      employeeId: null,
+    })
 
     await expect(
-      new GetQuestionScopeUseCase(scope, academic).execute(MANAGER),
-    ).resolves.toEqual({ all: true, pairs: [] })
+      new GetQuestionScopeUseCase(scope, academic, employees).execute(MANAGER),
+    ).resolves.toEqual({ all: true, employeeId: null, pairs: [] })
   })
 
   it('returns no pairs for a user with no teaching assignment', async () => {
-    const { scope, academic } = buildTeacherScope({ employeeId: 'emp-1' })
+    const { scope, academic, employees } = buildTeacherScope({
+      employeeId: 'emp-1',
+    })
 
     await expect(
-      new GetQuestionScopeUseCase(scope, academic).execute(TEACHER),
-    ).resolves.toEqual({ all: false, pairs: [] })
+      new GetQuestionScopeUseCase(scope, academic, employees).execute(TEACHER),
+    ).resolves.toEqual({ all: false, employeeId: 'emp-1', pairs: [] })
   })
 })

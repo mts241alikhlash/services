@@ -96,17 +96,22 @@ export function validateQuestionContent(
     case 'SHORT_ANSWER': {
       onlyKeys(content, ['answer'])
       const answer = readAnswer(content)
-      const accepted = answer.accepted
+      const given = answer.accepted
       if (
-        !Array.isArray(accepted) ||
-        accepted.length === 0 ||
-        accepted.some((item) => typeof item !== 'string' || item.trim() === '')
+        !Array.isArray(given) ||
+        given.some((item) => typeof item !== 'string')
       ) {
+        fail('Isian singkat butuh minimal satu jawaban benar')
+      }
+      const accepted = (given as string[])
+        .map((item) => item.trim())
+        .filter((item) => item !== '')
+      if (accepted.length === 0) {
         fail('Isian singkat butuh minimal satu jawaban benar')
       }
       return {
         answer: {
-          accepted: accepted.map((item: string) => item.trim()),
+          accepted,
           ignoreCase: answer.ignoreCase !== false,
           ignoreHarakat: answer.ignoreHarakat === true,
         },
