@@ -15,6 +15,7 @@ const services = [
   'academic',
   'admission',
   'assessment',
+  'exam',
   'hr',
   'identity',
   'inventory',

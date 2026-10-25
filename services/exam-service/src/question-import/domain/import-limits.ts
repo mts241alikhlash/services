@@ -1,0 +1,4 @@
+export const IMPORT_MAX_BYTES = 10 * 1024 * 1024
+export const IMPORT_MAX_QUESTIONS = 500
+export const IMPORT_MAX_IMAGES = 100
+export const IMPORT_MAX_IMAGE_BYTES = 20 * 1024 * 1024

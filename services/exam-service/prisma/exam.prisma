@@ -1,0 +1,95 @@
+enum QuestionType {
+  MULTIPLE_CHOICE
+  MULTIPLE_RESPONSE
+  TRUE_FALSE
+  SHORT_ANSWER
+  ESSAY
+}
+
+enum QuestionStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  RETURNED
+}
+
+enum ReviewAction {
+  SUBMITTED
+  APPROVED
+  RETURNED
+}
+
+/// One question of the bank. The subject and grade are ids owned by
+/// academic-service. `currentVersion` is the version being edited or reviewed;
+/// `approvedVersion` is the last one a reviewer approved, and stays usable
+/// while a newer version waits for approval again. `revision` counts every
+/// edit, so a reviewer can approve exactly the text they read.
+model Question {
+  id               String         @id @default(uuid()) @db.Uuid
+  subjectId        String         @map("subject_id") @db.Uuid
+  gradeId          String         @map("grade_id") @db.Uuid
+  authorEmployeeId String         @map("author_employee_id") @db.Uuid
+  type             QuestionType
+  status           QuestionStatus @default(DRAFT)
+  currentVersion   Int            @default(1) @map("current_version")
+  approvedVersion  Int?           @map("approved_version")
+  revision         Int            @default(1)
+  createdById      String         @map("created_by_id") @db.Uuid
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  deletedAt        DateTime?      @map("deleted_at")
+
+  versions QuestionVersion[]
+  reviews  QuestionReview[]
+
+  @@index([subjectId, gradeId, status])
+  @@index([authorEmployeeId])
+  @@index([status])
+  @@map("questions")
+}
+
+/// An immutable snapshot of what a question says. `content` holds the choices
+/// and the answer, shaped by the question type.
+model QuestionVersion {
+  id          String   @id @default(uuid()) @db.Uuid
+  questionId  String   @map("question_id") @db.Uuid
+  number      Int
+  bodyHtml    String   @map("body_html")
+  content     Json
+  points      Float    @default(1)
+  createdById String   @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@unique([questionId, number])
+  @@map("question_versions")
+}
+
+model QuestionReview {
+  id            String       @id @default(uuid()) @db.Uuid
+  questionId    String       @map("question_id") @db.Uuid
+  versionNumber Int          @map("version_number")
+  action        ReviewAction
+  note          String?
+  byUserId      String       @map("by_user_id") @db.Uuid
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@index([questionId])
+  @@map("question_reviews")
+}
+
+/// An image used by a question, stored in object storage under `storageKey`.
+model ExamFile {
+  id           String   @id @default(uuid()) @db.Uuid
+  storageKey   String   @unique @map("storage_key")
+  mimeType     String   @map("mime_type") @db.VarChar(100)
+  sizeBytes    Int      @map("size_bytes")
+  originalName String   @map("original_name") @db.VarChar(255)
+  uploadedById String   @map("uploaded_by_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("exam_files")
+}

@@ -25,6 +25,7 @@ const MODULE_APP: Record<string, PermissionApp> = {
   'academic-settings': 'academic',
   'academic-years': 'academic',
   'assessment-items': 'academic',
+  'exam-questions': 'academic',
   attendances: 'academic',
   classrooms: 'academic',
   curricula: 'academic',

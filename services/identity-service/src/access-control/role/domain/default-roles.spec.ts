@@ -265,4 +265,64 @@ describe('default roles', () => {
   it('lets the treasurer read waves for the payment queue filter', () => {
     expect(codesOf('TREASURER')).toContain('admission-waves.read')
   })
+
+  describe('exam questions', () => {
+    const teacherCodes = ['read', 'create', 'update', 'delete'].map(
+      (action) => `exam-questions.${action}`,
+    )
+
+    it('lets a teacher read, write and delete questions but never approve or manage others', () => {
+      for (const code of teacherCodes)
+        expect(codesOf('TEACHER')).toContain(code)
+      expect(codesOf('TEACHER')).not.toContain('exam-questions.approve')
+      expect(codesOf('TEACHER')).not.toContain('exam-questions.manage-all')
+    })
+
+    it('lets the deputy for curriculum hold all six codes', () => {
+      for (const action of [
+        'read',
+        'create',
+        'update',
+        'delete',
+        'approve',
+        'manage-all',
+      ]) {
+        expect(codesOf('VICE_PRINCIPAL_CURRICULUM')).toContain(
+          `exam-questions.${action}`,
+        )
+      }
+    })
+
+    it('lets curriculum staff help with every question but not approve', () => {
+      for (const code of [...teacherCodes, 'exam-questions.manage-all']) {
+        expect(codesOf('CURRICULUM_STAFF')).toContain(code)
+      }
+      expect(codesOf('CURRICULUM_STAFF')).not.toContain(
+        'exam-questions.approve',
+      )
+    })
+
+    it('keeps every exam question code away from students and applicants', () => {
+      for (const role of ['STUDENT', 'APPLICANT', 'EMPLOYEE']) {
+        expect(
+          [...codesOf(role)].filter((code) =>
+            code.startsWith('exam-questions.'),
+          ),
+        ).toEqual([])
+      }
+    })
+
+    it('never gives approve or manage-all through a broad grant', () => {
+      const holders = DEFAULT_ROLES.filter(
+        (role) =>
+          codesOf(role.code).has('exam-questions.approve') ||
+          codesOf(role.code).has('exam-questions.manage-all'),
+      ).map((role) => role.code)
+
+      expect(holders.sort()).toEqual([
+        'CURRICULUM_STAFF',
+        'VICE_PRINCIPAL_CURRICULUM',
+      ])
+    })
+  })
 })
