@@ -206,6 +206,15 @@ export function findBreakingChanges(before, after) {
   return issues
 }
 
+function existsAtBase(base, file) {
+  try {
+    execFileSync('git', ['cat-file', '-e', `${base}:${file}`], { stdio: 'ignore' })
+    return true
+  } catch {
+    return false
+  }
+}
+
 function run(base) {
   const files = changedFiles(base)
   const contracts = [...new Set(files.map((file) => file.match(CONTRACT_RE)?.[1]).filter(Boolean))]
@@ -221,6 +230,10 @@ function run(base) {
     let before
     let after
     try {
+      if (!existsAtBase(base, file)) {
+        console.log(`${file} is new, nothing to compare`)
+        continue
+      }
       before = parseJson(execFileSync('git', ['show', `${base}:${file}`], { encoding: 'utf8' }), `${base}:${file}`)
       after = parseJson(currentFile(file), file)
     } catch (error) {
