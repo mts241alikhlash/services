@@ -1330,6 +1330,10 @@
           "all": {
             "type": "boolean"
           },
+          "employeeId": {
+            "type": "string",
+            "nullable": true
+          },
           "pairs": {
             "type": "array",
             "items": {
@@ -1339,6 +1343,7 @@
         },
         "required": [
           "all",
+          "employeeId",
           "pairs"
         ]
       },

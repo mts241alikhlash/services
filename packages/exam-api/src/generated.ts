@@ -353,6 +353,7 @@ export interface components {
         };
         QuestionScopeDto: {
             all: boolean;
+            employeeId: string | null;
             pairs: components["schemas"]["ScopePairDto"][];
         };
         QuestionSummaryDto: {
