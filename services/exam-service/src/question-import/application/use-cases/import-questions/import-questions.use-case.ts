@@ -19,7 +19,10 @@ import {
   IMPORT_MAX_QUESTIONS,
 } from '../../../domain/import-limits.js'
 import type { ParseResult } from '../../../domain/parsed-question.js'
-import { assertSafeArchive } from '../../parsers/archive-guard.js'
+import {
+  assertSafeArchive,
+  normalizeArchive,
+} from '../../parsers/archive-guard.js'
 import { parseExcelQuestions } from '../../parsers/excel-question.parser.js'
 import { parseWordQuestions } from '../../parsers/word-question.parser.js'
 import type {
@@ -58,12 +61,15 @@ export class ImportQuestionsUseCase {
       input.subjectId,
       input.gradeId,
     )
-    await assertSafeArchive(input.buffer)
 
     const images = this.imageSaver(user)
-    const parsed = isExcel
-      ? await parseExcelQuestions(input.buffer)
-      : await parseWordQuestions(input.buffer, images.save)
+    let parsed: ParseResult
+    if (isExcel) {
+      parsed = await parseExcelQuestions(await normalizeArchive(input.buffer))
+    } else {
+      await assertSafeArchive(input.buffer)
+      parsed = await parseWordQuestions(input.buffer, images.save)
+    }
     images.assertNoFailure()
     if (parsed.questions.length + parsed.errors.length > IMPORT_MAX_QUESTIONS) {
       throw new BadRequestException('Maksimal 500 soal per berkas')

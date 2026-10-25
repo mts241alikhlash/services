@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common'
 import JSZip from 'jszip'
-import { assertSafeArchive } from './archive-guard.js'
+import { assertSafeArchive, normalizeArchive } from './archive-guard.js'
 
 async function zipOf(entries: Record<string, Buffer>): Promise<Buffer> {
   const zip = new JSZip()
@@ -70,6 +70,50 @@ describe('assertSafeArchive', () => {
   it('refuses something that is not an archive', async () => {
     await expect(
       assertSafeArchive(Buffer.from('PK\x03\x04junk')),
+    ).rejects.toThrow(
+      new BadRequestException('Isi berkas tidak sesuai dengan jenisnya'),
+    )
+  })
+})
+
+describe('normalizeArchive', () => {
+  it('rebuilds the archive from the entries it inflated itself, keeping names and bytes', async () => {
+    const original = await zipOf({
+      '[Content_Types].xml': Buffer.from('<Types/>'),
+      'xl/worksheets/sheet1.xml': Buffer.from('<worksheet>مَا</worksheet>'),
+    })
+
+    const normalized = await normalizeArchive(original)
+    const reread = await JSZip.loadAsync(normalized)
+
+    expect(Object.keys(reread.files).sort()).toEqual([
+      '[Content_Types].xml',
+      'xl/worksheets/sheet1.xml',
+    ])
+    expect(await reread.file('xl/worksheets/sheet1.xml')!.async('string')).toBe(
+      '<worksheet>مَا</worksheet>',
+    )
+  })
+
+  it('refuses the same bombs as the guard, including forged headers', async () => {
+    const honest = await zipOf({ 'big.xml': Buffer.alloc(64 * 1024 * 1024) })
+    const forged = Buffer.from(honest)
+    for (const [signature, offset] of [
+      [0x04034b50, 22],
+      [0x02014b50, 24],
+    ] as const) {
+      for (let at = 0; at + offset + 4 <= forged.length; at++) {
+        if (forged.readUInt32LE(at) === signature) {
+          forged.writeUInt32LE(100, at + offset)
+        }
+      }
+    }
+
+    await expect(normalizeArchive(forged)).rejects.toThrow(
+      new BadRequestException('Isi berkas terlalu besar setelah diekstrak'),
+    )
+    await expect(
+      normalizeArchive(Buffer.from('PK\x03\x04junk')),
     ).rejects.toThrow(
       new BadRequestException('Isi berkas tidak sesuai dengan jenisnya'),
     )

@@ -18,6 +18,7 @@ function isXml(name: string): boolean {
 function inflateWithin(
   entry: JSZip.JSZipObject,
   remaining: number,
+  collect?: Buffer[],
 ): Promise<number> {
   const limit = isXml(entry.name)
     ? Math.min(remaining, MAX_XML_BYTES)
@@ -30,7 +31,9 @@ function inflateWithin(
       if (seen > limit) {
         stream.pause()
         reject(new BadRequestException(TOO_BIG))
+        return
       }
+      collect?.push(chunk)
     })
     stream.on('end', () => resolve(seen))
     stream.on('error', () =>
@@ -41,7 +44,7 @@ function inflateWithin(
   })
 }
 
-export async function assertSafeArchive(buffer: Buffer): Promise<void> {
+async function openChecked(buffer: Buffer): Promise<JSZip.JSZipObject[]> {
   let zip: JSZip
   try {
     zip = await JSZip.loadAsync(buffer)
@@ -59,10 +62,33 @@ export async function assertSafeArchive(buffer: Buffer): Promise<void> {
     0,
   )
   if (declared > MAX_EXPANDED_BYTES) throw new BadRequestException(TOO_BIG)
+  return entries
+}
+
+export async function assertSafeArchive(buffer: Buffer): Promise<void> {
+  const entries = await openChecked(buffer)
 
   let expanded = 0
   for (const entry of entries) {
     if (entry.dir) continue
     expanded += await inflateWithin(entry, MAX_EXPANDED_BYTES - expanded)
   }
+}
+
+export async function normalizeArchive(buffer: Buffer): Promise<Buffer> {
+  const entries = await openChecked(buffer)
+  const rebuilt = new JSZip()
+
+  let expanded = 0
+  for (const entry of entries) {
+    if (entry.dir) continue
+    const chunks: Buffer[] = []
+    expanded += await inflateWithin(
+      entry,
+      MAX_EXPANDED_BYTES - expanded,
+      chunks,
+    )
+    rebuilt.file(entry.name, Buffer.concat(chunks), { createFolders: false })
+  }
+  return rebuilt.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' })
 }
