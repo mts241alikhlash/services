@@ -99,8 +99,9 @@ export abstract class IAuthRepository {
 
   abstract updateSessionToken(
     sessionId: string,
+    currentTokenHash: string,
     data: UpdateSessionTokenRepositoryInput,
-  ): Promise<AuthSessionEntity>
+  ): Promise<boolean>
 
   abstract revokeSession(sessionId: string): Promise<AuthSessionEntity>
 

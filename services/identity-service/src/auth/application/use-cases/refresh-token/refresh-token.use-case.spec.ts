@@ -75,7 +75,7 @@ describe('RefreshTokenUseCase', () => {
         refreshToken: 'new-refresh-token',
       })
       mockTokenManagerService.getRefreshExpirationMs.mockReturnValue(604800000)
-      mockAuthRepository.updateSessionToken.mockResolvedValue({})
+      mockAuthRepository.updateSessionToken.mockResolvedValue(true)
     }
 
     it('refuses an app session whose central session was revoked', async () => {
@@ -118,7 +118,7 @@ describe('RefreshTokenUseCase', () => {
 
       const result = await useCase.execute('old-refresh-token')
 
-      const update = mockAuthRepository.updateSessionToken.mock.calls[0][1] as {
+      const update = mockAuthRepository.updateSessionToken.mock.calls[0][2] as {
         expiresAt: Date
       }
       expect(update.expiresAt).toEqual(absoluteExpiresAt)
@@ -256,12 +256,37 @@ describe('RefreshTokenUseCase', () => {
 
       expect(mockAuthRepository.updateSessionToken).toHaveBeenCalledWith(
         mockSession.id,
+        'stored-hash',
         expect.objectContaining({
           tokenHash: 'new-hashed-refresh',
           previousTokenHash: 'stored-hash',
           previousRotatedAt: expect.any(Date) as Date,
         }),
       )
+    })
+
+    it('issues an access token and keeps the session when another refresh rotated first', async () => {
+      validRefresh()
+      mockAuthRepository.findSessionWithUser.mockResolvedValue(mockSession)
+      mockAuthRepository.updateSessionToken.mockResolvedValue(false)
+
+      const result = await useCase.execute('old-refresh-token')
+
+      expect(mockAuthRepository.updateSessionToken).toHaveBeenCalledWith(
+        mockSession.id,
+        'stored-hash',
+        expect.any(Object),
+      )
+      expect(result).toEqual({
+        accessToken: 'new-access-token',
+        user: {
+          id: mockSession.user.id,
+          identifier: mockSession.user.identifier,
+          isActive: mockSession.user.isActive,
+        },
+      })
+      expect(mockAuthRepository.revokeSession).not.toHaveBeenCalled()
+      expect(mockAuthRepository.slideSession).not.toHaveBeenCalled()
     })
 
     it('should rotate tokens successfully', async () => {
@@ -274,7 +299,7 @@ describe('RefreshTokenUseCase', () => {
         refreshToken: 'new-refresh-token',
       })
       mockTokenManagerService.getRefreshExpirationMs.mockReturnValue(604800000)
-      mockAuthRepository.updateSessionToken.mockResolvedValue({})
+      mockAuthRepository.updateSessionToken.mockResolvedValue(true)
 
       const result = await useCase.execute('old-refresh-token')
 
@@ -302,12 +327,13 @@ describe('RefreshTokenUseCase', () => {
         refreshToken: 'new-refresh',
       })
       mockTokenManagerService.getRefreshExpirationMs.mockReturnValue(604800000)
-      mockAuthRepository.updateSessionToken.mockResolvedValue({})
+      mockAuthRepository.updateSessionToken.mockResolvedValue(true)
 
       await useCase.execute('old-refresh-token')
 
       expect(mockAuthRepository.updateSessionToken).toHaveBeenCalledWith(
         mockSession.id,
+        'stored-hash',
         expect.objectContaining({
           tokenHash: 'new-hashed-refresh',
         }),
