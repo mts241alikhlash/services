@@ -122,6 +122,15 @@ export class TokenManagerService {
     return crypto.timingSafeEqual(leftBuffer, rightBuffer)
   }
 
+  getAccessExpirationSeconds(): number {
+    const raw = this.configService.get<string>('JWT_ACCESS_EXPIRATION', '15m')
+    const match = /^(\d+)([smhd])$/.exec(raw)
+    if (!match) return 15 * 60
+
+    const seconds: Record<string, number> = { s: 1, m: 60, h: 3600, d: 86400 }
+    return parseInt(match[1], 10) * seconds[match[2]]
+  }
+
   getRefreshExpirationMs(): number {
     const refreshExp = this.configService.get<string>(
       'JWT_REFRESH_EXPIRATION',

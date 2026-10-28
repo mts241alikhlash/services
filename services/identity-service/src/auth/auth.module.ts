@@ -25,6 +25,10 @@ import { SameOriginGuard } from './guards/same-origin.guard.js'
 import { GetProfileUseCase } from './application/use-cases/get-profile/get-profile.use-case.js'
 import { LoginUseCase } from './application/use-cases/login/login.use-case.js'
 import { OAuthLoginUseCase } from './application/use-cases/oauth-login/oauth-login.use-case.js'
+import { NativeLoginUseCase } from './application/use-cases/native-auth/native-login.use-case.js'
+import { NativeLogoutUseCase } from './application/use-cases/native-auth/native-logout.use-case.js'
+import { NativeRefreshUseCase } from './application/use-cases/native-auth/native-refresh.use-case.js'
+import { NativeAuthController } from './presentation/http/native-auth.controller.js'
 import { LogoutUseCase } from './application/use-cases/logout/logout.use-case.js'
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token/refresh-token.use-case.js'
 import { ValidateTokenUseCase } from './application/use-cases/validate-token/validate-token.use-case.js'
@@ -45,7 +49,7 @@ import { NotificationModule } from '../notification/notification.module.js'
       }),
     }),
   ],
-  controllers: [AuthController, SsoController],
+  controllers: [AuthController, SsoController, NativeAuthController],
   providers: [
     {
       provide: IAuthRepository,
@@ -63,6 +67,9 @@ import { NotificationModule } from '../notification/notification.module.js'
     OAuthLoginUseCase,
     RefreshTokenUseCase,
     LogoutUseCase,
+    NativeLoginUseCase,
+    NativeRefreshUseCase,
+    NativeLogoutUseCase,
     SsoLoginUseCase,
     SsoGoogleLoginUseCase,
     SsoAuthorizeUseCase,

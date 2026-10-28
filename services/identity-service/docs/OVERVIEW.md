@@ -286,6 +286,19 @@ of `app=callback-url` pairs, where app is one of `account`, `academic`, `admin`,
 `account`, and the callback is the only redirect URI the app may use. The
 reset-password link points at accounts, or at PPDB for an applicant.
 
+## Sign-in from the exam app
+
+`POST /auth/native/login`, `/auth/native/refresh` and `/auth/native/logout` serve the Android
+exam app. They are public, throttled like `/auth/login`, need no `Origin` header and set no
+cookie: the access and refresh tokens travel in the body (`accessToken`, `refreshToken`,
+`expiresIn` in seconds, `user { id, name, roles }`). Only accounts with the `STUDENT` or `TEACHER`
+role may sign in (403 otherwise). The session is a plain one (no parent, no `appKey`), so the
+existing refresh rotation, reuse detection and absolute lifetime apply. The tablet's
+`deviceId` is stored in `user_agent` as `native:<deviceId>`; a refresh from another `deviceId`
+is refused with 401 and changes nothing. A refresh that raced another one answers with a new
+access token and `refreshToken: null`: the client keeps the refresh token it already holds.
+Logout is idempotent and answers 204 even for a token that no longer verifies.
+
 ## Commands
 
 ```bash
