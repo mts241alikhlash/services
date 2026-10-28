@@ -1574,6 +1574,553 @@
         ]
       }
     },
+    "/me/exams": {
+      "get": {
+        "operationId": "StudentExamController_findMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MyExamDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The exams of the classroom the student is in",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
+    "/me/exams/{scheduleId}/sessions": {
+      "post": {
+        "operationId": "StudentExamController_start",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StartedSessionDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start the exam, or continue it on the same device, with the access code",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
+    "/student-exams/{sessionId}/questions": {
+      "get": {
+        "operationId": "SessionExamController_questions",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PaperQuestionDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The shuffled paper of this session, without keys",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
+    "/student-exams/{sessionId}/answers": {
+      "get": {
+        "operationId": "SessionExamController_answers",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SavedAnswerDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The answers saved so far",
+        "tags": [
+          "Student Exams"
+        ]
+      },
+      "post": {
+        "operationId": "SessionExamController_save",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveAnswerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SavedAnswerAckDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Save one answer; replaying a client id is a no-op",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
+    "/student-exams/{sessionId}/submit": {
+      "post": {
+        "operationId": "SessionExamController_submit",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SubmittedSessionDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Hand in the exam; repeating it changes nothing",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
+    "/student-exams/{sessionId}/files/{fileId}": {
+      "get": {
+        "operationId": "SessionExamController_file",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The image bytes",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Stream an image used by the paper of this session",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
+    "/exam-schedules/{id}/sessions": {
+      "get": {
+        "operationId": "ExamSessionAdminController_findBySchedule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ScheduleSessionDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "page": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The sessions students started for a schedule",
+        "tags": [
+          "Exam Sessions"
+        ]
+      }
+    },
+    "/exam-sessions/{id}/release": {
+      "post": {
+        "operationId": "ExamSessionAdminController_release",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ScheduleSessionDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Free the device of a session so the student can continue elsewhere",
+        "tags": [
+          "Exam Sessions"
+        ]
+      }
+    },
     "/exam-files": {
       "post": {
         "operationId": "ExamFileController_upload",
@@ -3142,6 +3689,336 @@
         "required": [
           "accessCode",
           "rotation"
+        ]
+      },
+      "MyExamDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The schedule id"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMinutes": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "UPCOMING",
+              "OPEN",
+              "IN_PROGRESS",
+              "FINISHED"
+            ],
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "subjectId",
+          "startsAt",
+          "endsAt",
+          "durationMinutes",
+          "status",
+          "sessionId"
+        ]
+      },
+      "StartSessionDto": {
+        "type": "object",
+        "properties": {
+          "accessCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "example": "K7M2QX"
+          },
+          "deviceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Identifier of the tablet starting the exam"
+          }
+        },
+        "required": [
+          "accessCode",
+          "deviceId"
+        ]
+      },
+      "StartedSessionDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deadline": {
+            "type": "number",
+            "description": "End of the working time, epoch milliseconds"
+          },
+          "serverTime": {
+            "type": "number",
+            "description": "Server clock, epoch milliseconds"
+          }
+        },
+        "required": [
+          "sessionId",
+          "deadline",
+          "serverTime"
+        ]
+      },
+      "PaperChoiceDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "E"
+            ]
+          },
+          "html": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "html"
+        ]
+      },
+      "PaperQuestionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "number",
+            "description": "Position on this student paper, from 1"
+          },
+          "type": {
+            "enum": [
+              "MULTIPLE_CHOICE",
+              "MULTIPLE_RESPONSE",
+              "TRUE_FALSE",
+              "SHORT_ANSWER",
+              "ESSAY"
+            ],
+            "type": "string"
+          },
+          "bodyHtml": {
+            "type": "string"
+          },
+          "points": {
+            "type": "number"
+          },
+          "choices": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaperChoiceDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "type",
+          "bodyHtml",
+          "points",
+          "choices"
+        ]
+      },
+      "SavedAnswerDto": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "answer": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "One of { key } | { keys } | { value } | { text }"
+          }
+        },
+        "required": [
+          "questionId",
+          "answer"
+        ]
+      },
+      "SaveAnswerDto": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "Generated by the tablet per change; a replay is a no-op"
+          },
+          "answer": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "One of { key } | { keys } | { value } | { text }"
+          }
+        },
+        "required": [
+          "questionId",
+          "clientId",
+          "answer"
+        ]
+      },
+      "SavedAnswerAckDto": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientId": {
+            "type": "string"
+          },
+          "receivedAfterDeadline": {
+            "type": "boolean"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "questionId",
+          "clientId",
+          "receivedAfterDeadline",
+          "updatedAt"
+        ]
+      },
+      "SubmittedSessionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "SUBMITTED",
+              "EXPIRED",
+              "GRADED"
+            ]
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "status",
+          "submittedAt"
+        ]
+      },
+      "ScheduleSessionDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "enum": [
+              "IN_PROGRESS",
+              "SUBMITTED",
+              "EXPIRED",
+              "GRADED"
+            ],
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "rawScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "deviceBound": {
+            "type": "boolean",
+            "description": "False once a supervisor released the device"
+          }
+        },
+        "required": [
+          "sessionId",
+          "studentId",
+          "status",
+          "startedAt",
+          "submittedAt",
+          "rawScore",
+          "maxScore",
+          "deviceBound"
+        ]
+      },
+      "ScheduleSessionListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScheduleSessionDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
         ]
       },
       "ExamFileDto": {

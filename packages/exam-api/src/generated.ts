@@ -386,6 +386,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exam-schedules/{id}/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The sessions students started for a schedule */
+        get: operations["ExamSessionAdminController_findBySchedule"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-sessions/{id}/release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Free the device of a session so the student can continue elsewhere */
+        post: operations["ExamSessionAdminController_release"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -397,6 +431,109 @@ export interface paths {
         get: operations["HealthController_check"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/exams": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The exams of the classroom the student is in */
+        get: operations["StudentExamController_findMine"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/exams/{scheduleId}/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start the exam, or continue it on the same device, with the access code */
+        post: operations["StudentExamController_start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/student-exams/{sessionId}/answers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The answers saved so far */
+        get: operations["SessionExamController_answers"];
+        put?: never;
+        /** Save one answer; replaying a client id is a no-op */
+        post: operations["SessionExamController_save"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/student-exams/{sessionId}/files/{fileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream an image used by the paper of this session */
+        get: operations["SessionExamController_file"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/student-exams/{sessionId}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The shuffled paper of this session, without keys */
+        get: operations["SessionExamController_questions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/student-exams/{sessionId}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hand in the exam; repeating it changes nothing */
+        post: operations["SessionExamController_submit"];
         delete?: never;
         options?: never;
         head?: never;
@@ -596,6 +733,25 @@ export interface components {
             errors: components["schemas"]["ImportErrorDto"][];
             questionIds: string[];
         };
+        MyExamDto: {
+            durationMinutes: number;
+            /** Format: date-time */
+            endsAt: string;
+            /**
+             * Format: uuid
+             * @description The schedule id
+             */
+            id: string;
+            /** Format: uuid */
+            sessionId: string | null;
+            /** Format: date-time */
+            startsAt: string;
+            /** @enum {string} */
+            status: "UPCOMING" | "OPEN" | "IN_PROGRESS" | "FINISHED";
+            /** Format: uuid */
+            subjectId: string;
+            title: string;
+        };
         PackageCandidateDto: {
             approvedVersion: number;
             /** Format: uuid */
@@ -610,6 +766,22 @@ export interface components {
             limit: number;
             page: number;
             total: number;
+        };
+        PaperChoiceDto: {
+            html: string;
+            /** @enum {string} */
+            key: "A" | "B" | "C" | "D" | "E";
+        };
+        PaperQuestionDto: {
+            bodyHtml: string;
+            choices: components["schemas"]["PaperChoiceDto"][] | null;
+            /** Format: uuid */
+            id: string;
+            /** @description Position on this student paper, from 1 */
+            number: number;
+            points: number;
+            /** @enum {string} */
+            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
         };
         QuestionAuthorDto: {
             /** Format: uuid */
@@ -712,6 +884,54 @@ export interface components {
             /** @description The revision of the question the reviewer read */
             revision: number;
         };
+        SaveAnswerDto: {
+            /** @description One of { key } | { keys } | { value } | { text } */
+            answer: {
+                [key: string]: unknown;
+            };
+            /** @description Generated by the tablet per change; a replay is a no-op */
+            clientId: string;
+            /** Format: uuid */
+            questionId: string;
+        };
+        SavedAnswerAckDto: {
+            clientId: string;
+            /** Format: uuid */
+            questionId: string;
+            receivedAfterDeadline: boolean;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        SavedAnswerDto: {
+            /** @description One of { key } | { keys } | { value } | { text } */
+            answer: {
+                [key: string]: unknown;
+            };
+            /** Format: uuid */
+            questionId: string;
+        };
+        ScheduleSessionDto: {
+            /** @description False once a supervisor released the device */
+            deviceBound: boolean;
+            maxScore: number | null;
+            rawScore: number | null;
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: date-time */
+            startedAt: string;
+            /** @enum {string} */
+            status: "IN_PROGRESS" | "SUBMITTED" | "EXPIRED" | "GRADED";
+            /** Format: uuid */
+            studentId: string;
+            /** Format: date-time */
+            submittedAt: string | null;
+        };
+        ScheduleSessionListResponseDto: {
+            data: components["schemas"]["ScheduleSessionDto"][];
+            limit: number;
+            page: number;
+            total: number;
+        };
         ScopePairDto: {
             /** Format: uuid */
             gradeId: string;
@@ -720,6 +940,26 @@ export interface components {
             /** Format: uuid */
             subjectId: string;
             subjectName: string | null;
+        };
+        StartedSessionDto: {
+            /** @description End of the working time, epoch milliseconds */
+            deadline: number;
+            /** @description Server clock, epoch milliseconds */
+            serverTime: number;
+            /** Format: uuid */
+            sessionId: string;
+        };
+        StartSessionDto: {
+            /** @example K7M2QX */
+            accessCode: string;
+            /** @description Identifier of the tablet starting the exam */
+            deviceId: string;
+        };
+        SubmittedSessionDto: {
+            /** @enum {string} */
+            status: "SUBMITTED" | "EXPIRED" | "GRADED";
+            /** Format: date-time */
+            submittedAt: string | null;
         };
         UpdateExamPackageDto: {
             /** @description Question ids; the array order is the position in the package */
@@ -1609,6 +1849,68 @@ export interface operations {
             };
         };
     };
+    ExamSessionAdminController_findBySchedule: {
+        parameters: {
+            query?: {
+                limit?: number;
+                page?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ScheduleSessionDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: {
+                            limit?: number;
+                            page?: number;
+                            total?: number;
+                        };
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamSessionAdminController_release: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ScheduleSessionDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
     HealthController_check: {
         parameters: {
             query?: never;
@@ -1766,6 +2068,212 @@ export interface operations {
                          * @enum {string}
                          */
                         status?: "error" | "shutting_down";
+                    };
+                };
+            };
+        };
+    };
+    StudentExamController_findMine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["MyExamDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    StudentExamController_start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scheduleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartSessionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["StartedSessionDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    SessionExamController_answers: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The tablet the session was started on */
+                "X-Device-Id": string;
+            };
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["SavedAnswerDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    SessionExamController_save: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The tablet the session was started on */
+                "X-Device-Id": string;
+            };
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveAnswerDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["SavedAnswerAckDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    SessionExamController_file: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The tablet the session was started on */
+                "X-Device-Id": string;
+            };
+            path: {
+                fileId: string;
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The image bytes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                };
+            };
+        };
+    };
+    SessionExamController_questions: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The tablet the session was started on */
+                "X-Device-Id": string;
+            };
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["PaperQuestionDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    SessionExamController_submit: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The tablet the session was started on */
+                "X-Device-Id": string;
+            };
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["SubmittedSessionDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
                     };
                 };
             };

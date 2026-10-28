@@ -39,6 +39,27 @@ import and analysis.
   packages. It ignores the teacher scope of the question bank on purpose, so
   the deputy for curriculum and the admin can pick any teacher's question.
 
+- **Sessions** (`src/exam-session/`): a student starts a session with the
+  access code (`POST /me/exams/:scheduleId/sessions`). The server owns the
+  clock: `deadline = min(startedAt + duration, schedule end)` and the session
+  closes at `deadline + 10 minutes` (answers in that grace are flagged
+  `receivedAfterDeadline`). The paper is the package's pinned questions with
+  question and choice order shuffled by a per-session seed (no answer keys
+  are ever sent). Answers are idempotent by `clientId` and typed
+  (`{key}`, `{keys}`, `{value}`, `{text}`). Five wrong codes lock the student
+  for five minutes. A session is bound to one device (every session route needs the
+  `X-Device-Id` header and answers 409 for any other device); a supervisor releases it
+  (`POST /exam-sessions/:id/release`) and the same session, seed and deadline
+  resume elsewhere.
+- **Scoring** (`finalize-session.service.ts`): submitting, or the minute job
+  closing sessions past their finalize time, scores multiple choice and
+  true/false all-or-nothing and multiple response proportionally minus wrong
+  choices. Short answer and essay stay ungraded; a session with none of them
+  becomes `GRADED`, otherwise `SUBMITTED` or `EXPIRED`. Scores stay in this
+  service; nothing is written to the report card.
+- A schedule with sessions cannot be cancelled and only its end time can be
+  extended.
+
 ## What it borrows
 
 | Borrowed | Why |
@@ -48,6 +69,8 @@ import and analysis.
 | `platform/identity` | Token introspection against identity-service |
 | `platform/employee-identity` | Which employee record a signed-in user owns |
 | `platform/academic-lookup` | The subject and grade pairs a teacher teaches, classrooms by id, the active semester |
+| `platform/student-identity` | The student record of a signed-in account (student-service) |
+| `platform/enrollment-lookup` | The active classroom of a student (student-service) |
 
 ## Permissions
 
@@ -60,11 +83,18 @@ Kurikulum) to work on any teacher's questions.
 `exam-schedules.read|create|update|cancel|access-code` are explicit-only,
 declared in identity-service and granted to curriculum staff, Wakamad
 Kurikulum and the academic admin. Principal reads packages and schedules
-through its read-everything grant but not the access code. A role that was
+through its read-everything grant but not the access code.
+
+`exam-sessions.take` belongs to students only. `exam-sessions.read|release`
+are explicit-only for curriculum staff, Wakamad Kurikulum and the academic
+admin (Principal reads through its grant, not release). A role that was
 edited by hand in admin-web does not get new codes by itself: grant them there.
 
 ## Known gaps
 
-- No sessions, answers or scoring yet (phase 2, stages 2 and 3). Updating or
-  cancelling a schedule has no guard for started sessions until they exist.
+- Teacher grading of short answer and essay, and publishing scores to
+  assessment-service, are stage 3. The Android app needs identity-service
+  native login (`/auth/native/*`), a separate track.
+- Sessions list shows `studentId` only (no names); the schedule DTO does not
+  expose `hasSessions` yet.
 - No AI import (phase 3).
