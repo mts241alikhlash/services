@@ -48,3 +48,12 @@ export interface QuestionDetail extends Question {
   approved: QuestionVersion | null
   reviews: QuestionReview[]
 }
+
+export interface ApprovedQuestionRef {
+  id: string
+  subjectId: string
+  gradeId: string
+  status: QuestionStatus
+  approvedVersion: number | null
+  deletedAt: Date | null
+}

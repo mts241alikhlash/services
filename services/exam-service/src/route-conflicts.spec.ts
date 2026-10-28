@@ -4,6 +4,8 @@ process.env.IDENTITY_SERVICE_URL ??= 'http://localhost:3000'
 process.env.HR_SERVICE_URL ??= 'http://localhost:3800'
 process.env.STUDENT_SERVICE_URL ??= 'http://localhost:3900'
 process.env.PROVISIONING_SERVICE_TOKEN ??= 'routes-test-provisioning-token'
+process.env.EXAM_ACCESS_CODE_SECRET ??=
+  'boots-test-exam-access-code-secret-32-chars'
 process.env.ACADEMIC_SERVICE_URL ??= 'http://localhost:3200'
 process.env.S3_ENDPOINT ??= 'http://localhost:9000'
 process.env.S3_BUCKET ??= 'routes'
