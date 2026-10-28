@@ -881,6 +881,25 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
   },
 
   {
+    module: 'exam-sessions',
+    action: 'read',
+    code: 'exam-sessions.read',
+    description: 'Read exam sessions of a schedule',
+  },
+  {
+    module: 'exam-sessions',
+    action: 'release',
+    code: 'exam-sessions.release',
+    description: 'Release the device of an exam session',
+  },
+  {
+    module: 'exam-sessions',
+    action: 'take',
+    code: 'exam-sessions.take',
+    description: 'Take an exam as a student',
+  },
+
+  {
     module: 'files',
     action: 'create',
     code: 'files.create',

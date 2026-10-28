@@ -108,6 +108,7 @@ const STUDENT_CODES = (): string[] => [
   'time-slots.read',
   'religions.read',
   'blood-types.read',
+  'exam-sessions.take',
 ]
 
 const role = (
@@ -136,6 +137,8 @@ export const DEFAULT_ROLES: DefaultRole[] = [
           'exam-schedules.update',
           'exam-schedules.cancel',
           'exam-schedules.access-code',
+          'exam-sessions.read',
+          'exam-sessions.release',
         ],
       },
     ],
@@ -255,6 +258,8 @@ export const DEFAULT_ROLES: DefaultRole[] = [
           'exam-schedules.update',
           'exam-schedules.cancel',
           'exam-schedules.access-code',
+          'exam-sessions.read',
+          'exam-sessions.release',
           'schedules.read',
           'teaching-assignments.read',
           'report-cards.read',
@@ -503,6 +508,9 @@ const EXPLICIT_ONLY = new Set([
   'exam-schedules.update',
   'exam-schedules.cancel',
   'exam-schedules.access-code',
+  'exam-sessions.read',
+  'exam-sessions.release',
+  'exam-sessions.take',
 ])
 
 function broad(catalog: SystemPermission[]): SystemPermission[] {

@@ -383,4 +383,42 @@ describe('default roles', () => {
       expect(codesOf('PRINCIPAL')).not.toContain('exam-schedules.access-code')
     })
   })
+
+  describe('exam sessions', () => {
+    const holders = (code: string) =>
+      DEFAULT_ROLES.filter((role) => codesOf(role.code).has(code))
+        .map((role) => role.code)
+        .sort()
+
+    it('gives exam-sessions.take to students and to no other role', () => {
+      expect(holders('exam-sessions.take')).toEqual(['STUDENT'])
+    })
+
+    it('gives release only to curriculum staff, the deputy for curriculum and the academic admin', () => {
+      expect(holders('exam-sessions.release')).toEqual([
+        'ACADEMIC_ADMIN',
+        'CURRICULUM_STAFF',
+        'VICE_PRINCIPAL_CURRICULUM',
+      ])
+    })
+
+    it('gives read to the same staff, plus the principal through its read-everything grant', () => {
+      expect(holders('exam-sessions.read')).toEqual([
+        'ACADEMIC_ADMIN',
+        'CURRICULUM_STAFF',
+        'PRINCIPAL',
+        'VICE_PRINCIPAL_CURRICULUM',
+      ])
+    })
+
+    it('keeps teachers, applicants, employees and the operator away from every session code', () => {
+      for (const role of ['TEACHER', 'APPLICANT', 'EMPLOYEE', 'OPERATOR']) {
+        expect(
+          [...codesOf(role)].filter((code) =>
+            code.startsWith('exam-sessions.'),
+          ),
+        ).toEqual([])
+      }
+    })
+  })
 })
