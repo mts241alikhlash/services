@@ -74,8 +74,10 @@ import and analysis.
 - **Score publication**: a `GRADED` session gets a `ScorePublication`
   (`PENDING`). A job every minute posts pending ones to assessment-service
   `POST /exam-scores` with the provisioning token (`ASSESSMENT_SERVICE_URL`,
-  now required): `RETRY` outcomes wait `min(2^attempts, 60)` minutes, a refusal
-  is recorded in `lastError`, and a publication stops after ten attempts. The
+  now required): `RETRY` outcomes wait `min(2^attempts, 60)` minutes and are retried for as
+  long as it takes; a refusal is recorded in `lastError` and a publication stops
+  after ten refusals. A mark only applies if the session was not graded again
+  while the score was in flight. The
   payload carries the percentage `rawScore / maxScore * 100` and the student
   name and NIS. Nothing reaches `StudentScore` or the report card.
 

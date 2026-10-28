@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { IExamScheduleRepository } from '../../../../exam-schedule/domain/repositories/exam-schedule.repository.js'
+import type { ExamSession } from '../../../../exam-session/domain/entities/exam-session.entity.js'
 import { IExamSessionRepository } from '../../../../exam-session/domain/repositories/exam-session.repository.js'
 import { IAcademicLookupPort } from '../../../../platform/academic-lookup/academic-lookup.port.js'
 import { IEnrollmentLookupPort } from '../../../../platform/enrollment-lookup/enrollment-lookup.port.js'
@@ -60,35 +61,59 @@ export class PublishScoresUseCase {
   }
 
   private async publishOne(sessionId: string, now: Date): Promise<void> {
+    let gradedAt: Date | null = null
     try {
-      const payload = await this.payloadOf(sessionId, now)
-      const outcome = await this.publisher.publish(payload)
+      const session = await this.sessions.findById(sessionId)
+      if (session === null) {
+        throw new Unpublishable('Sesi ujian tidak ditemukan')
+      }
+      gradedAt = session.gradedAt
+      const outcome = await this.publisher.publish(
+        await this.payloadOf(session, now),
+      )
       if (outcome.result === 'SENT') {
-        await this.publications.markSent(sessionId, now)
+        await this.publications.markSent(sessionId, now, gradedAt)
       } else {
-        await this.publications.markFailed(sessionId, now, outcome.reason)
+        await this.publications.markFailed(
+          sessionId,
+          now,
+          outcome.reason,
+          outcome.result === 'REJECTED',
+          gradedAt,
+        )
       }
     } catch (error) {
-      const reason =
-        error instanceof Unpublishable
-          ? error.message
-          : 'Data nilai tidak bisa dilengkapi, coba lagi nanti'
-      if (!(error instanceof Unpublishable)) {
+      const permanent = error instanceof Unpublishable
+      const reason = permanent
+        ? error.message
+        : 'Data nilai tidak bisa dilengkapi, coba lagi nanti'
+      if (!permanent) {
         this.logger.error(
           `Score of session ${sessionId} could not be prepared`,
           error instanceof Error ? error.stack : String(error),
         )
       }
-      await this.publications.markFailed(sessionId, now, reason)
+      try {
+        await this.publications.markFailed(
+          sessionId,
+          now,
+          reason,
+          permanent,
+          gradedAt,
+        )
+      } catch (markError) {
+        this.logger.error(
+          `Failure of session ${sessionId} could not be recorded`,
+          markError instanceof Error ? markError.stack : String(markError),
+        )
+      }
     }
   }
 
   private async payloadOf(
-    sessionId: string,
+    session: ExamSession,
     now: Date,
   ): Promise<ExamScorePayload> {
-    const session = await this.sessions.findById(sessionId)
-    if (session === null) throw new Unpublishable('Sesi ujian tidak ditemukan')
     const schedule = await this.schedules.findById(session.scheduleId)
     if (schedule === null)
       throw new Unpublishable('Jadwal ujian tidak ditemukan')

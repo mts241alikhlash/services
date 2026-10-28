@@ -21,12 +21,14 @@ class FakePublisher extends IScorePublisherPort {
   readonly sent: ExamScorePayload[] = []
   constructor(
     private readonly outcome: () => PublishOutcome = () => ({ result: 'SENT' }),
+    private readonly during: () => void = () => undefined,
   ) {
     super()
   }
 
   publish(payload: ExamScorePayload) {
     this.sent.push(payload)
+    this.during()
     return Promise.resolve(this.outcome())
   }
 }
@@ -172,7 +174,7 @@ describe('PublishScoresUseCase', () => {
 
     expect(publisher.sent).toHaveLength(10)
     expect(publications.states.get('ses-1')).toMatchObject({
-      attempts: 10,
+      permanentFailures: 10,
       lastError: 'assessment-service refused with 422',
     })
   })
@@ -224,5 +226,65 @@ describe('PublishScoresUseCase', () => {
     await useCase.execute(NOW)
 
     expect(publisher.sent).toHaveLength(120)
+  })
+
+  it('keeps retrying through a long outage instead of giving up', async () => {
+    const world = build()
+    await graded(world)
+    const { useCase, publisher, publications } = make(
+      world,
+      new FakePublisher(() => ({ result: 'RETRY', reason: 'down' })),
+    )
+
+    for (let attempt = 0; attempt < 15; attempt += 1) {
+      await useCase.execute(new Date(NOW.getTime() + attempt * 3 * 3_600_000))
+    }
+
+    expect(publisher.sent).toHaveLength(15)
+    expect(world.sessions.publications.get('ses-1')).toBe('PENDING')
+    expect(publications.states.get('ses-1')?.permanentFailures).toBe(0)
+  })
+
+  it('does not overwrite a regrade that happened while the score was being sent', async () => {
+    const world = build()
+    await graded(world)
+    const regrade = () => {
+      const session = world.sessions.sessions.get('ses-1')!
+      world.sessions.sessions.set('ses-1', {
+        ...session,
+        rawScore: 14,
+        gradedAt: new Date(NOW.getTime() + 5_000),
+      })
+      world.sessions.publications.set('ses-1', 'PENDING')
+    }
+    const { useCase, publications } = make(
+      world,
+      new FakePublisher(() => ({ result: 'SENT' }), regrade),
+    )
+
+    await useCase.execute(NOW)
+
+    expect(world.sessions.publications.get('ses-1')).toBe('PENDING')
+    expect(publications.states.get('ses-1')?.sentAt).toBeNull()
+  })
+
+  it('does not count a failed attempt of an outdated score', async () => {
+    const world = build()
+    await graded(world)
+    const regrade = () => {
+      const session = world.sessions.sessions.get('ses-1')!
+      world.sessions.sessions.set('ses-1', {
+        ...session,
+        gradedAt: new Date(NOW.getTime() + 5_000),
+      })
+    }
+    const { useCase, publications } = make(
+      world,
+      new FakePublisher(() => ({ result: 'RETRY', reason: 'down' }), regrade),
+    )
+
+    await useCase.execute(NOW)
+
+    expect(publications.states.get('ses-1')?.attempts ?? 0).toBe(0)
   })
 })

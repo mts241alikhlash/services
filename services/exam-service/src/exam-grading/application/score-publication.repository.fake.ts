@@ -6,6 +6,7 @@ import {
 
 export interface FakePublicationState {
   attempts: number
+  permanentFailures: number
   lastAttemptAt: Date | null
   lastError: string | null
   sentAt: Date | null
@@ -23,6 +24,7 @@ export class FakeScorePublicationRepository extends IScorePublicationRepository 
     if (state === undefined) {
       state = {
         attempts: 0,
+        permanentFailures: 0,
         lastAttemptAt: null,
         lastError: null,
         sentAt: null,
@@ -38,7 +40,7 @@ export class FakeScorePublicationRepository extends IScorePublicationRepository 
       if (status !== 'PENDING' || excludeSessionIds.includes(sessionId))
         continue
       const state = this.stateOf(sessionId)
-      if (state.attempts >= 10) continue
+      if (state.permanentFailures >= 10) continue
       rows.push({
         sessionId,
         attempts: state.attempts,
@@ -48,7 +50,13 @@ export class FakeScorePublicationRepository extends IScorePublicationRepository 
     return Promise.resolve(rows.slice(0, limit))
   }
 
-  markSent(sessionId: string, at: Date) {
+  private isCurrent(sessionId: string, gradedAt: Date | null): boolean {
+    const current = this.sessions.sessions.get(sessionId)?.gradedAt ?? null
+    return current?.getTime() === gradedAt?.getTime()
+  }
+
+  markSent(sessionId: string, at: Date, gradedAt: Date | null) {
+    if (!this.isCurrent(sessionId, gradedAt)) return Promise.resolve()
     const state = this.stateOf(sessionId)
     state.sentAt = at
     state.lastAttemptAt = at
@@ -57,9 +65,17 @@ export class FakeScorePublicationRepository extends IScorePublicationRepository 
     return Promise.resolve()
   }
 
-  markFailed(sessionId: string, at: Date, reason: string) {
+  markFailed(
+    sessionId: string,
+    at: Date,
+    reason: string,
+    permanent: boolean,
+    gradedAt: Date | null,
+  ) {
+    if (!this.isCurrent(sessionId, gradedAt)) return Promise.resolve()
     const state = this.stateOf(sessionId)
     state.attempts += 1
+    if (permanent) state.permanentFailures += 1
     state.lastAttemptAt = at
     state.lastError = reason.slice(0, 300)
     return Promise.resolve()

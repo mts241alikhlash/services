@@ -5,7 +5,7 @@ import {
   type PublicationCandidate,
 } from '../../domain/repositories/score-publication.repository.js'
 
-const MAX_ATTEMPTS = 10
+const MAX_PERMANENT_FAILURES = 10
 
 @Injectable()
 export class PrismaScorePublicationRepository extends IScorePublicationRepository {
@@ -20,7 +20,7 @@ export class PrismaScorePublicationRepository extends IScorePublicationRepositor
     const rows = await this.prisma.scorePublication.findMany({
       where: {
         status: 'PENDING',
-        attempts: { lt: MAX_ATTEMPTS },
+        permanentFailures: { lt: MAX_PERMANENT_FAILURES },
         sessionId: { notIn: excludeSessionIds },
       },
       orderBy: [
@@ -33,18 +33,29 @@ export class PrismaScorePublicationRepository extends IScorePublicationRepositor
     return rows
   }
 
-  async markSent(sessionId: string, at: Date): Promise<void> {
-    await this.prisma.scorePublication.update({
-      where: { sessionId },
+  async markSent(
+    sessionId: string,
+    at: Date,
+    gradedAt: Date | null,
+  ): Promise<void> {
+    await this.prisma.scorePublication.updateMany({
+      where: { sessionId, session: { gradedAt } },
       data: { status: 'SENT', sentAt: at, lastAttemptAt: at, lastError: null },
     })
   }
 
-  async markFailed(sessionId: string, at: Date, reason: string): Promise<void> {
-    await this.prisma.scorePublication.update({
-      where: { sessionId },
+  async markFailed(
+    sessionId: string,
+    at: Date,
+    reason: string,
+    permanent: boolean,
+    gradedAt: Date | null,
+  ): Promise<void> {
+    await this.prisma.scorePublication.updateMany({
+      where: { sessionId, session: { gradedAt } },
       data: {
         attempts: { increment: 1 },
+        ...(permanent ? { permanentFailures: { increment: 1 } } : {}),
         lastAttemptAt: at,
         lastError: reason.slice(0, 300),
       },

@@ -9,10 +9,16 @@ export abstract class IScorePublicationRepository {
     limit: number,
     excludeSessionIds: string[],
   ): Promise<PublicationCandidate[]>
-  abstract markSent(sessionId: string, at: Date): Promise<void>
+  abstract markSent(
+    sessionId: string,
+    at: Date,
+    gradedAt: Date | null,
+  ): Promise<void>
   abstract markFailed(
     sessionId: string,
     at: Date,
     reason: string,
+    permanent: boolean,
+    gradedAt: Date | null,
   ): Promise<void>
 }

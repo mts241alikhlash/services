@@ -201,6 +201,7 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
           update: {
             status: 'PENDING',
             attempts: 0,
+            permanentFailures: 0,
             lastError: null,
             lastAttemptAt: null,
             sentAt: null,
