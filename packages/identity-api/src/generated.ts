@@ -296,6 +296,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/native/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign in from the exam app with tokens in the body, no cookies */
+        post: operations["NativeAuthController_login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/native/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke the session of a refresh token */
+        post: operations["NativeAuthController_logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/native/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rotate the refresh token from the same tablet */
+        post: operations["NativeAuthController_refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/refresh": {
         parameters: {
             query?: never;
@@ -1635,6 +1686,38 @@ export interface components {
              */
             password: string;
         };
+        NativeAuthResponseDto: {
+            accessToken: string;
+            /** @description Access token lifetime in seconds */
+            expiresIn: number;
+            /** @description Null when the call raced another refresh: keep the token you hold */
+            refreshToken: string | null;
+            user: components["schemas"]["NativeUserDto"];
+        };
+        NativeLoginDto: {
+            /** @description Identifier of the tablet */
+            deviceId: string;
+            /**
+             * @description NIS or NIP
+             * @example 2024001
+             */
+            identifier: string;
+            password: string;
+        };
+        NativeLogoutDto: {
+            refreshToken: string;
+        };
+        NativeRefreshDto: {
+            /** @description Must be the tablet that signed in */
+            deviceId: string;
+            refreshToken: string;
+        };
+        NativeUserDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            roles: string[];
+        };
         PermissionCatalogItemResponseDto: {
             action: string;
             /** @enum {string} */
@@ -2965,6 +3048,106 @@ export interface operations {
                 };
             };
             /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    NativeAuthController_login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NativeLoginDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["NativeAuthResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a student or teacher account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    NativeAuthController_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NativeLogoutDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    NativeAuthController_refresh: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NativeRefreshDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["NativeAuthResponseDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Invalid, revoked or foreign session */
             401: {
                 headers: {
                     [name: string]: unknown;

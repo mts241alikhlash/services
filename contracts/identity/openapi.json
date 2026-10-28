@@ -889,6 +889,130 @@
         ]
       }
     },
+    "/auth/native/login": {
+      "post": {
+        "operationId": "NativeAuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NativeAuthResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "403": {
+            "description": "Not a student or teacher account"
+          }
+        },
+        "summary": "Sign in from the exam app with tokens in the body, no cookies",
+        "tags": [
+          "Native authentication"
+        ]
+      }
+    },
+    "/auth/native/refresh": {
+      "post": {
+        "operationId": "NativeAuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeRefreshDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NativeAuthResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid, revoked or foreign session"
+          }
+        },
+        "summary": "Rotate the refresh token from the same tablet",
+        "tags": [
+          "Native authentication"
+        ]
+      }
+    },
+    "/auth/native/logout": {
+      "post": {
+        "operationId": "NativeAuthController_logout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeLogoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Revoke the session of a refresh token",
+        "tags": [
+          "Native authentication"
+        ]
+      }
+    },
     "/users": {
       "post": {
         "operationId": "UserController_create",
@@ -5435,6 +5559,110 @@
           "key",
           "label",
           "url"
+        ]
+      },
+      "NativeLoginDto": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "2024001",
+            "description": "NIS or NIP"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "deviceId": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Identifier of the tablet"
+          }
+        },
+        "required": [
+          "identifier",
+          "password",
+          "deviceId"
+        ]
+      },
+      "NativeUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "roles"
+        ]
+      },
+      "NativeAuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string",
+            "nullable": true,
+            "description": "Null when the call raced another refresh: keep the token you hold"
+          },
+          "expiresIn": {
+            "type": "number",
+            "description": "Access token lifetime in seconds"
+          },
+          "user": {
+            "$ref": "#/components/schemas/NativeUserDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "expiresIn",
+          "user"
+        ]
+      },
+      "NativeRefreshDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "deviceId": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Must be the tablet that signed in"
+          }
+        },
+        "required": [
+          "refreshToken",
+          "deviceId"
+        ]
+      },
+      "NativeLogoutDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "refreshToken"
         ]
       },
       "CreateUserDto": {
