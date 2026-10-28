@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import type { StringValue } from 'ms'
+import ms, { type StringValue } from 'ms'
 import * as crypto from 'node:crypto'
 import type { JwtTokenPayload } from '../../types/jwt-token-payload.type.js'
 import { TOKEN_PERMISSION_BUDGET_BYTES } from '../../types/jwt-token-payload.type.js'
@@ -132,24 +132,12 @@ export class TokenManagerService {
   }
 
   getRefreshExpirationMs(): number {
-    const refreshExp = this.configService.get<string>(
-      'JWT_REFRESH_EXPIRATION',
-      '7d',
+    return ms(
+      this.configService.get<string>(
+        'JWT_REFRESH_EXPIRATION',
+        '7d',
+      ) as StringValue,
     )
-
-    const match = /^(\d+)([smhd])$/.exec(refreshExp)
-    if (!match) return 7 * 24 * 60 * 60 * 1000
-
-    const value = parseInt(match[1], 10)
-    const unit = match[2]
-    const multipliers: Record<string, number> = {
-      s: 1000,
-      m: 60 * 1000,
-      h: 60 * 60 * 1000,
-      d: 24 * 60 * 60 * 1000,
-    }
-
-    return value * (multipliers[unit] || 1000)
   }
 
   getAbsoluteSessionMs(): number {
