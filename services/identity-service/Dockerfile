@@ -10,6 +10,7 @@ RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" pnpm --filter i
 RUN pnpm --filter identity-service deploy --prod --legacy /out
 
 FROM node:24.22.1-alpine AS runner
+ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build --chown=node:node /out/ ./
 USER node
