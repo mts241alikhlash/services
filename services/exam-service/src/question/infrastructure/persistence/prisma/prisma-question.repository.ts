@@ -3,12 +3,17 @@ import { PrismaService } from '../../../../core/database/prisma.service.js'
 import type { Prisma } from '../../../../generated/prisma/client.js'
 import type { TeachingPair } from '../../../../platform/academic-lookup/academic-lookup.port.js'
 import type { PaginatedResult } from '../../../../shared/domain/interfaces/repository.interface.js'
-import type { QuestionVersion } from '../../../domain/entities/question.entity.js'
+import type {
+  ApprovedQuestionRef,
+  QuestionVersion,
+} from '../../../domain/entities/question.entity.js'
 import {
   IQuestionRepository,
   type ExpectedState,
   type NewQuestionInput,
+  type PinnedQuestion,
   type QuestionListQuery,
+  type QuestionPin,
   type QuestionSummary,
   type ReviewInput,
   type VersionFields,
@@ -26,6 +31,41 @@ import { buildQuestionWhere } from './prisma-question.where.js'
 export class PrismaQuestionRepository extends IQuestionRepository {
   constructor(private readonly prisma: PrismaService) {
     super()
+  }
+
+  async findApprovedRefs(ids: string[]): Promise<ApprovedQuestionRef[]> {
+    if (ids.length === 0) return []
+    return this.prisma.question.findMany({
+      where: { id: { in: ids } },
+      select: {
+        id: true,
+        subjectId: true,
+        gradeId: true,
+        status: true,
+        approvedVersion: true,
+        deletedAt: true,
+      },
+    })
+  }
+
+  async findPinned(pins: QuestionPin[]): Promise<PinnedQuestion[]> {
+    if (pins.length === 0) return []
+    const rows = await this.prisma.questionVersion.findMany({
+      where: {
+        OR: pins.map((pin) => ({
+          questionId: pin.questionId,
+          number: pin.number,
+        })),
+      },
+      include: { question: { select: { type: true } } },
+    })
+    return rows.map((row) => ({
+      questionId: row.questionId,
+      number: row.number,
+      type: row.question.type,
+      bodyHtml: row.bodyHtml,
+      points: row.points,
+    }))
   }
 
   async findAll(

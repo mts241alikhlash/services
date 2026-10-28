@@ -10,6 +10,8 @@ import {
   IQuestionRepository,
   type ExpectedState,
   type NewQuestionInput,
+  type PinnedQuestion,
+  type QuestionPin,
   type QuestionListQuery,
   type QuestionSummary,
   type ReviewInput,
@@ -20,6 +22,46 @@ import type { QuestionStatus } from '../domain/value-objects/question-content.js
 export class FakeQuestionRepository extends IQuestionRepository {
   readonly questions = new Map<string, QuestionDetail>()
   readonly versions = new Map<string, QuestionVersion[]>()
+
+  findApprovedRefs(ids: string[]) {
+    return Promise.resolve(
+      ids.flatMap((id) => {
+        const question = this.questions.get(id)
+        return question
+          ? [
+              {
+                id: question.id,
+                subjectId: question.subjectId,
+                gradeId: question.gradeId,
+                status: question.status,
+                approvedVersion: question.approvedVersion,
+                deletedAt: question.deletedAt,
+              },
+            ]
+          : []
+      }),
+    )
+  }
+
+  findPinned(pins: QuestionPin[]) {
+    const found: PinnedQuestion[] = []
+    for (const pin of pins) {
+      const question = this.questions.get(pin.questionId)
+      const version = (this.versions.get(pin.questionId) ?? []).find(
+        (candidate) => candidate.number === pin.number,
+      )
+      if (question && version) {
+        found.push({
+          questionId: pin.questionId,
+          number: pin.number,
+          type: question.type,
+          bodyHtml: version.bodyHtml,
+          points: version.points,
+        })
+      }
+    }
+    return Promise.resolve(found)
+  }
 
   findAll(query: QuestionListQuery) {
     const rows = [...this.questions.values()]
@@ -282,6 +324,8 @@ export function buildTeacherScope(fixture: ScopeFixture): {
   } as IEmployeeIdentityReadPort
   const academic = {
     teachingPairsOf: () => Promise.resolve(fixture.pairs ?? []),
+    classroomsByIds: () => Promise.resolve([]),
+    activeSemester: () => Promise.resolve(null),
     gradesByIds: (ids: string[]) =>
       Promise.resolve(
         (fixture.grades ?? []).filter((grade) => ids.includes(grade.id)),
