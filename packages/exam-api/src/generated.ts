@@ -72,6 +72,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exam-packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List exam packages */
+        get: operations["ExamPackageController_findAll"];
+        put?: never;
+        /** Create a draft package from approved questions */
+        post: operations["ExamPackageController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-packages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a package with every item from its pinned version */
+        get: operations["ExamPackageController_findOne"];
+        put?: never;
+        post?: never;
+        /** Delete a draft package */
+        delete: operations["ExamPackageController_remove"];
+        options?: never;
+        head?: never;
+        /** Replace the title and items of a draft package */
+        patch: operations["ExamPackageController_update"];
+        trace?: never;
+    };
+    "/exam-packages/{id}/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Copy a package into a new draft */
+        post: operations["ExamPackageController_copy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/exam-questions": {
         parameters: {
             query?: never;
@@ -228,6 +282,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exam-schedules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List exam schedules */
+        get: operations["ExamScheduleController_findAll"];
+        put?: never;
+        /** Schedule a package for a classroom and lock the package */
+        post: operations["ExamScheduleController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-schedules/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an exam schedule */
+        get: operations["ExamScheduleController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change the window and duration of a schedule */
+        patch: operations["ExamScheduleController_update"];
+        trace?: never;
+    };
+    "/exam-schedules/{id}/access-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The access code students enter to start */
+        get: operations["ExamScheduleController_accessCode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-schedules/{id}/access-code/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Replace the access code with a new one */
+        post: operations["ExamScheduleController_rotateAccessCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-schedules/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a schedule */
+        post: operations["ExamScheduleController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -249,6 +390,11 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccessCodeDto: {
+            /** @example K7M2QX */
+            accessCode: string;
+            rotation: number;
+        };
         ApprovalResultDto: {
             id: string;
             ok: boolean;
@@ -270,6 +416,26 @@ export interface components {
             /** @description The revision of the question the reviewer read */
             revision: number;
         };
+        CreateExamPackageDto: {
+            /** Format: uuid */
+            gradeId: string;
+            /** @description Question ids; the array order is the position in the package */
+            questionIds: string[];
+            /** Format: uuid */
+            subjectId: string;
+            title: string;
+        };
+        CreateExamScheduleDto: {
+            /** Format: uuid */
+            classroomId: string;
+            durationMinutes: number;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: uuid */
+            packageId: string;
+            /** Format: date-time */
+            startsAt: string;
+        };
         CreateQuestionDto: {
             /** Format: uuid */
             authorEmployeeId?: string;
@@ -290,6 +456,119 @@ export interface components {
             id: string;
             mimeType: string;
             sizeBytes: number;
+        };
+        ExamPackageDetailDto: {
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            createdById: string;
+            /** Format: uuid */
+            gradeId: string;
+            /** Format: uuid */
+            id: string;
+            items: components["schemas"]["ExamPackageItemDto"][];
+            /** Format: date-time */
+            lockedAt: string | null;
+            /** @enum {string} */
+            status: "DRAFT" | "LOCKED";
+            /** Format: uuid */
+            subjectId: string;
+            title: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ExamPackageItemDto: {
+            position: number;
+            /** Format: uuid */
+            questionId: string;
+            questionVersion: number;
+        };
+        ExamPackageItemViewDto: {
+            points: number;
+            position: number;
+            /** Format: uuid */
+            questionId: string;
+            questionVersion: number;
+            summary: string;
+            /** @enum {string} */
+            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
+        };
+        ExamPackageListResponseDto: {
+            data: components["schemas"]["ExamPackageSummaryDto"][];
+            limit: number;
+            page: number;
+            total: number;
+        };
+        ExamPackageSummaryDto: {
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            createdById: string;
+            /** Format: uuid */
+            gradeId: string;
+            /** Format: uuid */
+            id: string;
+            itemCount: number;
+            /** Format: date-time */
+            lockedAt: string | null;
+            /** @enum {string} */
+            status: "DRAFT" | "LOCKED";
+            /** Format: uuid */
+            subjectId: string;
+            title: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ExamPackageViewDto: {
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            createdById: string;
+            /** Format: uuid */
+            gradeId: string;
+            /** Format: uuid */
+            id: string;
+            items: components["schemas"]["ExamPackageItemViewDto"][];
+            /** Format: date-time */
+            lockedAt: string | null;
+            /** @enum {string} */
+            status: "DRAFT" | "LOCKED";
+            /** Format: uuid */
+            subjectId: string;
+            title: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ExamScheduleDto: {
+            /** Format: uuid */
+            classroomId: string;
+            classroomName: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            createdById: string;
+            durationMinutes: number;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            packageId: string;
+            packageTitle: string;
+            /** Format: uuid */
+            semesterId: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** @enum {string} */
+            status: "SCHEDULED" | "CANCELLED";
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ExamScheduleListResponseDto: {
+            data: components["schemas"]["ExamScheduleDto"][];
+            limit: number;
+            page: number;
+            total: number;
         };
         ImportErrorDto: {
             reason: string;
@@ -409,6 +688,18 @@ export interface components {
             /** Format: uuid */
             subjectId: string;
             subjectName: string | null;
+        };
+        UpdateExamPackageDto: {
+            /** @description Question ids; the array order is the position in the package */
+            questionIds: string[];
+            title: string;
+        };
+        UpdateExamScheduleDto: {
+            durationMinutes: number;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: date-time */
+            startsAt: string;
         };
         UpdateQuestionDto: {
             bodyHtml?: string;
@@ -536,6 +827,176 @@ export interface operations {
                 };
                 content: {
                     "application/octet-stream": string;
+                };
+            };
+        };
+    };
+    ExamPackageController_findAll: {
+        parameters: {
+            query?: {
+                gradeId?: string;
+                limit?: number;
+                page?: number;
+                search?: string;
+                status?: "DRAFT" | "LOCKED";
+                subjectId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageSummaryDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: {
+                            limit?: number;
+                            page?: number;
+                            total?: number;
+                        };
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateExamPackageDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageViewDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ExamPackageController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateExamPackageDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_copy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
                 };
             };
         };
@@ -879,6 +1340,204 @@ export interface operations {
                         statusCode?: number;
                     };
                 };
+            };
+        };
+    };
+    ExamScheduleController_findAll: {
+        parameters: {
+            query?: {
+                classroomId?: string;
+                from?: string;
+                limit?: number;
+                packageId?: string;
+                page?: number;
+                status?: "SCHEDULED" | "CANCELLED";
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamScheduleDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: {
+                            limit?: number;
+                            page?: number;
+                            total?: number;
+                        };
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamScheduleController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateExamScheduleDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamScheduleDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamScheduleController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamScheduleDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamScheduleController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateExamScheduleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamScheduleDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamScheduleController_accessCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AccessCodeDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamScheduleController_rotateAccessCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AccessCodeDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamScheduleController_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
