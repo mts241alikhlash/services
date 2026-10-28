@@ -42,6 +42,7 @@ model Question {
   versions     QuestionVersion[]
   reviews      QuestionReview[]
   packageItems ExamPackageItem[]
+  answers      ExamAnswer[]
 
   @@index([subjectId, gradeId, status])
   @@index([authorEmployeeId])
