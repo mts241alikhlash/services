@@ -6,14 +6,21 @@ const CONFIG: Record<string, string> = {
     'account=https://accounts.test/oauth/callback,admission=https://ppdb.test/oauth/callback',
 }
 
-function build(nodeEnv: string, emailSent: boolean, roles: string[] = []) {
+function build(
+  nodeEnv: string,
+  emailSent: boolean,
+  roles: string[] = [],
+  identifier = 'guru@example.com',
+  profileEmail: string | null = 'guru@example.com',
+) {
   const authRepository = {
     findUserByIdentifier: jest.fn().mockResolvedValue({
       id: 'user-1',
-      identifier: 'guru@example.com',
+      identifier,
       isActive: true,
       deletedAt: null,
       userRoles: roles.map((code) => ({ role: { code } })),
+      profile: profileEmail === null ? null : { email: profileEmail },
     }),
     createPasswordResetToken: jest.fn().mockResolvedValue(undefined),
   }
@@ -29,7 +36,7 @@ function build(nodeEnv: string, emailSent: boolean, roles: string[] = []) {
     emailService as never,
     configService as never,
   )
-  return { useCase, emailService }
+  return { useCase, emailService, authRepository }
 }
 
 function sentHtml(emailService: { sendEmail: jest.Mock }): string {
@@ -62,6 +69,40 @@ describe('RequestPasswordResetUseCase', () => {
     expect(sentHtml(emailService)).toContain(
       'https://accounts.test/reset-password?token=',
     )
+  })
+
+  it('mails the address in the profile, not the identifier', async () => {
+    const { useCase, emailService } = build(
+      'production',
+      true,
+      ['SUPER_ADMIN'],
+      'admin',
+      'a@x.id',
+    )
+
+    await useCase.execute('admin')
+
+    expect(emailService.sendEmail.mock.calls[0][0]).toBe('a@x.id')
+  })
+
+  it('sends nothing without a profile email and answers the same', async () => {
+    const { useCase, emailService, authRepository } = build(
+      'production',
+      true,
+      ['TEACHER'],
+      '198001012010011001',
+      null,
+    )
+
+    const result = await useCase.execute('198001012010011001')
+
+    expect(emailService.sendEmail).not.toHaveBeenCalled()
+    expect(authRepository.createPasswordResetToken).not.toHaveBeenCalled()
+    expect(result).toEqual({
+      success: true,
+      message:
+        'Jika akun Anda terdaftar, email instruksi reset password telah dikirim.',
+    })
   })
 
   it('sends an applicant to PPDB to reset the password', async () => {

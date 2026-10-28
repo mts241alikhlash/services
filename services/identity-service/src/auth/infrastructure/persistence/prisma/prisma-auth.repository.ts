@@ -37,6 +37,7 @@ export class PrismaAuthRepository extends IAuthRepository {
       where: { identifier, deletedAt: null },
       include: {
         userRoles: { include: { role: true } },
+        profile: { select: { email: true } },
       },
     })
   }

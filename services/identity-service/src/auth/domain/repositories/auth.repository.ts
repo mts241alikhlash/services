@@ -56,9 +56,13 @@ export interface UpdateSessionTokenRepositoryInput {
 }
 
 export abstract class IAuthRepository {
-  abstract findUserByIdentifier(
-    identifier: string,
-  ): Promise<(UserEntity & { userRoles: { role: { code: string } }[] }) | null>
+  abstract findUserByIdentifier(identifier: string): Promise<
+    | (UserEntity & {
+        userRoles: { role: { code: string } }[]
+        profile: { email: string | null } | null
+      })
+    | null
+  >
 
   abstract findUserById(userId: string): Promise<UserWithProfileAndRoles | null>
 
