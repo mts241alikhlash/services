@@ -85,6 +85,20 @@ describe('RequestPasswordResetUseCase', () => {
     expect(emailService.sendEmail.mock.calls[0][0]).toBe('a@x.id')
   })
 
+  it('mails an applicant without a profile at the email they signed up with', async () => {
+    const { useCase, emailService } = build(
+      'production',
+      true,
+      ['APPLICANT'],
+      'calon@x.id',
+      null,
+    )
+
+    await useCase.execute('calon@x.id')
+
+    expect(emailService.sendEmail.mock.calls[0][0]).toBe('calon@x.id')
+  })
+
   it('sends nothing without a profile email and answers the same', async () => {
     const { useCase, emailService, authRepository } = build(
       'production',

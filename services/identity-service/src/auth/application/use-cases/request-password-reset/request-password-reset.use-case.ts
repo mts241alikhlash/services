@@ -40,7 +40,9 @@ export class RequestPasswordResetUseCase {
       )
       return generic
     }
-    const email = user.profile?.email
+    const email =
+      user.profile?.email ||
+      (user.identifier.includes('@') ? user.identifier : null)
     if (!email) {
       this.logger.warn(
         `Password reset requested for user ${user.id} without a profile email`,
