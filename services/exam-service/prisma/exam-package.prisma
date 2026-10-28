@@ -1,0 +1,73 @@
+enum ExamPackageStatus {
+  DRAFT
+  LOCKED
+}
+
+enum ExamScheduleStatus {
+  SCHEDULED
+  CANCELLED
+}
+
+/// A fixed set of approved questions for one subject and grade. Each item pins
+/// the approved version number it had when it was added, so editing a question
+/// afterwards never changes a package. A package is LOCKED the moment it is
+/// scheduled and can then only be copied.
+model ExamPackage {
+  id          String            @id @default(uuid()) @db.Uuid
+  title       String            @db.VarChar(200)
+  subjectId   String            @map("subject_id") @db.Uuid
+  gradeId     String            @map("grade_id") @db.Uuid
+  status      ExamPackageStatus @default(DRAFT)
+  lockedAt    DateTime?         @map("locked_at")
+  createdById String            @map("created_by_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  deletedAt   DateTime?         @map("deleted_at")
+
+  items     ExamPackageItem[]
+  schedules ExamSchedule[]
+
+  @@index([subjectId, gradeId, status])
+  @@index([status])
+  @@map("exam_packages")
+}
+
+model ExamPackageItem {
+  id              String @id @default(uuid()) @db.Uuid
+  packageId       String @map("package_id") @db.Uuid
+  questionId      String @map("question_id") @db.Uuid
+  questionVersion Int    @map("question_version")
+  position        Int
+
+  package  ExamPackage @relation(fields: [packageId], references: [id])
+  question Question    @relation(fields: [questionId], references: [id])
+
+  @@unique([packageId, questionId])
+  @@unique([packageId, position])
+  @@index([questionId])
+  @@map("exam_package_items")
+}
+
+/// One package scheduled for one classroom inside a time window. The access
+/// code is never stored: it is derived from the schedule id and
+/// `tokenRotation`, which only ever grows.
+model ExamSchedule {
+  id              String             @id @default(uuid()) @db.Uuid
+  packageId       String             @map("package_id") @db.Uuid
+  classroomId     String             @map("classroom_id") @db.Uuid
+  semesterId      String             @map("semester_id") @db.Uuid
+  startsAt        DateTime           @map("starts_at")
+  endsAt          DateTime           @map("ends_at")
+  durationMinutes Int                @map("duration_minutes")
+  tokenRotation   Int                @default(0) @map("token_rotation")
+  status          ExamScheduleStatus @default(SCHEDULED)
+  createdById     String             @map("created_by_id") @db.Uuid
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  package ExamPackage @relation(fields: [packageId], references: [id])
+
+  @@index([classroomId, startsAt])
+  @@index([packageId])
+  @@map("exam_schedules")
+}
