@@ -67,6 +67,7 @@ describe('PublishScoresUseCase', () => {
         enrollment,
         world.academic,
         publisher,
+        world.students,
       ),
     }
   }
@@ -83,6 +84,8 @@ describe('PublishScoresUseCase', () => {
         examSessionId: 'ses-1',
         enrollmentId: 'enr-1',
         studentId: 'stu-1',
+        studentName: null,
+        studentNis: null,
         subjectId: schedule.subjectId,
         gradeId: CLASSROOM_7A.gradeId,
         classroomId: CLASSROOM_7A.id,

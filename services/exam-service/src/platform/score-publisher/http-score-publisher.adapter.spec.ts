@@ -7,6 +7,8 @@ const payload: ExamScorePayload = {
   examSessionId: 's1',
   enrollmentId: 'e1',
   studentId: 'st1',
+  studentName: 'Ahmad Fauzi',
+  studentNis: '2024001',
   subjectId: 'sub1',
   gradeId: 'g1',
   classroomId: 'c1',

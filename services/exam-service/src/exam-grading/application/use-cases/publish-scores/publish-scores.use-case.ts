@@ -3,6 +3,7 @@ import { IExamScheduleRepository } from '../../../../exam-schedule/domain/reposi
 import { IExamSessionRepository } from '../../../../exam-session/domain/repositories/exam-session.repository.js'
 import { IAcademicLookupPort } from '../../../../platform/academic-lookup/academic-lookup.port.js'
 import { IEnrollmentLookupPort } from '../../../../platform/enrollment-lookup/enrollment-lookup.port.js'
+import { IStudentDirectoryPort } from '../../../../platform/student-directory/student-directory.port.js'
 import {
   IScorePublisherPort,
   type ExamScorePayload,
@@ -31,6 +32,7 @@ export class PublishScoresUseCase {
     private readonly enrollments: IEnrollmentLookupPort,
     private readonly academic: IAcademicLookupPort,
     private readonly publisher: IScorePublisherPort,
+    private readonly students: IStudentDirectoryPort,
   ) {}
 
   async execute(now: Date = new Date()): Promise<number> {
@@ -106,12 +108,15 @@ export class PublishScoresUseCase {
     if (classroom === undefined)
       throw new Unpublishable('Kelas tidak ditemukan')
 
+    const student = (await this.students.refsByIds([session.studentId])).at(0)
     const rawScore = session.rawScore ?? 0
     const maxScore = session.maxScore ?? 0
     return {
       examSessionId: session.id,
       enrollmentId: enrollment.id,
       studentId: session.studentId,
+      studentName: student?.name ?? null,
+      studentNis: student?.nis ?? null,
       subjectId: schedule.subjectId,
       gradeId: classroom.gradeId,
       classroomId: schedule.classroomId,

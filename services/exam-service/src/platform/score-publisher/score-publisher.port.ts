@@ -2,6 +2,8 @@ export interface ExamScorePayload {
   examSessionId: string
   enrollmentId: string
   studentId: string
+  studentName: string | null
+  studentNis: string | null
   subjectId: string
   gradeId: string
   classroomId: string
