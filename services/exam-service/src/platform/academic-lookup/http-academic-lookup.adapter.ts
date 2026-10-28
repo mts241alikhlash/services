@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { ServiceClient } from '../service-client/service-client.js'
 import {
   IAcademicLookupPort,
+  type ActiveSemester,
+  type ClassroomRef,
   type GradeRef,
   type TeachingPair,
 } from './academic-lookup.port.js'
@@ -15,8 +17,9 @@ export class HttpAcademicLookupAdapter extends IAcademicLookupPort {
   }
 
   async teachingPairsOf(employeeId: string): Promise<TeachingPair[]> {
-    const semesterId = await this.findActiveSemesterId()
-    if (semesterId === null) return []
+    const semester = await this.findActiveSemester()
+    if (semester === null) return []
+    const semesterId = semester.id
 
     const data = await this.client.getData(
       URL_KEY,
@@ -45,6 +48,36 @@ export class HttpAcademicLookupAdapter extends IAcademicLookupPort {
     return [...pairs.values()]
   }
 
+  async classroomsByIds(ids: string[]): Promise<ClassroomRef[]> {
+    if (ids.length === 0) return []
+
+    const data = await this.client.postData(URL_KEY, '/classrooms/by-ids', {
+      ids,
+    })
+    if (!Array.isArray(data)) return this.client.malformed(URL_KEY)
+
+    return (data as unknown[]).map((row) => {
+      if (
+        !isRecord(row) ||
+        typeof row.id !== 'string' ||
+        typeof row.gradeId !== 'string' ||
+        typeof row.academicYearId !== 'string'
+      ) {
+        return this.client.malformed(URL_KEY)
+      }
+      return {
+        id: row.id,
+        gradeId: row.gradeId,
+        academicYearId: row.academicYearId,
+        name: typeof row.name === 'string' ? row.name : null,
+      }
+    })
+  }
+
+  activeSemester(): Promise<ActiveSemester | null> {
+    return this.findActiveSemester()
+  }
+
   async gradesByIds(ids: string[]): Promise<GradeRef[]> {
     if (ids.length === 0) return []
 
@@ -67,10 +100,16 @@ export class HttpAcademicLookupAdapter extends IAcademicLookupPort {
     })
   }
 
-  private async findActiveSemesterId(): Promise<string | null> {
+  private async findActiveSemester(): Promise<ActiveSemester | null> {
     const data = await this.client.getData(URL_KEY, '/semesters/active')
     if (data === null) return null
-    if (isRecord(data) && typeof data.id === 'string') return data.id
+    if (
+      isRecord(data) &&
+      typeof data.id === 'string' &&
+      typeof data.academicYearId === 'string'
+    ) {
+      return { id: data.id, academicYearId: data.academicYearId }
+    }
     return this.client.malformed(URL_KEY)
   }
 }

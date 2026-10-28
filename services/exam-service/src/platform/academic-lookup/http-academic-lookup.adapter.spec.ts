@@ -126,3 +126,93 @@ describe('HttpAcademicLookupAdapter.gradesByIds', () => {
     )
   })
 })
+
+const classroomRow = (overrides: Record<string, unknown> = {}) => ({
+  id: 'c-7a',
+  code: '7A',
+  name: 'VII A',
+  gradeId: 'grade-7',
+  academicYearId: 'year-1',
+  capacity: 30,
+  gradeLevel: 7,
+  gradeName: 'VII',
+  ...overrides,
+})
+
+describe('HttpAcademicLookupAdapter.classroomsByIds', () => {
+  it('maps the detail rows to classroom references', async () => {
+    const { adapter, postData } = build({
+      '/classrooms/by-ids': [
+        classroomRow(),
+        classroomRow({ id: 'c-7b', name: null }),
+      ],
+    })
+
+    await expect(adapter.classroomsByIds(['c-7a', 'c-7b'])).resolves.toEqual([
+      {
+        id: 'c-7a',
+        gradeId: 'grade-7',
+        academicYearId: 'year-1',
+        name: 'VII A',
+      },
+      { id: 'c-7b', gradeId: 'grade-7', academicYearId: 'year-1', name: null },
+    ])
+    expect(postData).toHaveBeenCalledWith(
+      'ACADEMIC_SERVICE_URL',
+      '/classrooms/by-ids',
+      { ids: ['c-7a', 'c-7b'] },
+    )
+  })
+
+  it('returns an empty list without calling the service for no ids', async () => {
+    const { adapter, postData } = build({})
+
+    await expect(adapter.classroomsByIds([])).resolves.toEqual([])
+    expect(postData).not.toHaveBeenCalled()
+  })
+
+  it('treats a row without an academic year as malformed', async () => {
+    const { adapter } = build({
+      '/classrooms/by-ids': [classroomRow({ academicYearId: undefined })],
+    })
+
+    await expect(adapter.classroomsByIds(['c-7a'])).rejects.toThrow('malformed')
+  })
+
+  it('treats a row without a grade as malformed', async () => {
+    const { adapter } = build({
+      '/classrooms/by-ids': [classroomRow({ gradeId: undefined })],
+    })
+
+    await expect(adapter.classroomsByIds(['c-7a'])).rejects.toThrow('malformed')
+  })
+
+  it('treats a non-list answer as malformed', async () => {
+    const { adapter } = build({ '/classrooms/by-ids': { nope: true } })
+
+    await expect(adapter.classroomsByIds(['c-7a'])).rejects.toThrow('malformed')
+  })
+})
+
+describe('HttpAcademicLookupAdapter.activeSemester', () => {
+  it('returns the id and academic year of the active semester', async () => {
+    const { adapter } = build({ '/semesters/active': SEMESTER })
+
+    await expect(adapter.activeSemester()).resolves.toEqual({
+      id: 'sem-1',
+      academicYearId: 'year-1',
+    })
+  })
+
+  it('returns null when there is no active semester', async () => {
+    const { adapter } = build({ '/semesters/active': null })
+
+    await expect(adapter.activeSemester()).resolves.toBeNull()
+  })
+
+  it('treats a semester without an academic year as malformed', async () => {
+    const { adapter } = build({ '/semesters/active': { id: 'sem-1' } })
+
+    await expect(adapter.activeSemester()).rejects.toThrow('malformed')
+  })
+})
