@@ -3,6 +3,7 @@ import type { AnswerPayload } from '../policies/validate-answer-shape.policy.js'
 import type {
   ExamAnswerRecord,
   ExamSession,
+  ExamSessionStatus,
 } from '../entities/exam-session.entity.js'
 
 export interface SaveAnswerInput {
@@ -11,6 +12,12 @@ export interface SaveAnswerInput {
   clientId: string
   answer: AnswerPayload
   receivedAfterDeadline: boolean
+}
+
+export interface ScheduleSessionCounts {
+  sessions: number
+  awaitingGrading: number
+  graded: number
 }
 
 export interface SessionClosure {
@@ -66,7 +73,14 @@ export abstract class IExamSessionRepository {
     scheduleId: string,
     page: number,
     limit: number,
+    status?: ExamSessionStatus,
   ): Promise<PaginatedResult<ExamSession>>
+  abstract countsBySchedule(
+    scheduleIds: string[],
+  ): Promise<Map<string, ScheduleSessionCounts>>
+  abstract publicationStatuses(
+    sessionIds: string[],
+  ): Promise<Map<string, 'PENDING' | 'SENT'>>
   abstract listAnswers(sessionId: string): Promise<ExamAnswerRecord[]>
   abstract listByStudentAndSchedules(
     studentId: string,

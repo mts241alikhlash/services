@@ -245,7 +245,7 @@ describe('FinalizeSessionService', () => {
     const closed = await service.finalize('a', 'SUBMITTED', NOW)
 
     expect(closed.gradedAt).toEqual(NOW)
-    expect([...sessions.publications]).toEqual(['a'])
+    expect([...sessions.publications.keys()]).toEqual(['a'])
   })
 
   it('leaves no publication while a manual answer waits', async () => {

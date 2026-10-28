@@ -3,6 +3,7 @@ import { AccessCodeDto, ExamScheduleDto } from './exam-schedule-response.dto.js'
 const view = {
   id: '55555555-5555-4555-8555-555555555555',
   packageId: '66666666-6666-4666-8666-666666666666',
+  subjectId: '11111111-1111-4111-8111-111111111111',
   packageTitle: 'UTS',
   classroomId: '77777777-7777-4777-8777-777777777777',
   classroomName: 'VII A',

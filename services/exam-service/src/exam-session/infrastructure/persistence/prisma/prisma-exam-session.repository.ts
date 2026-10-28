@@ -5,11 +5,13 @@ import type { PaginatedResult } from '../../../../shared/domain/interfaces/repos
 import type {
   ExamAnswerRecord,
   ExamSession,
+  ExamSessionStatus,
 } from '../../../domain/entities/exam-session.entity.js'
 import {
   IExamSessionRepository,
   type NewExamSession,
   type SaveAnswerInput,
+  type ScheduleSessionCounts,
   type SessionClosure,
 } from '../../../domain/repositories/exam-session.repository.js'
 import { toAnswer, toSession } from './prisma-exam-session.mapper.js'
@@ -179,19 +181,56 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
     return this.findById(id)
   }
 
+  async countsBySchedule(
+    scheduleIds: string[],
+  ): Promise<Map<string, ScheduleSessionCounts>> {
+    const grouped = await this.prisma.examSession.groupBy({
+      by: ['scheduleId', 'status'],
+      where: { scheduleId: { in: scheduleIds } },
+      _count: { _all: true },
+    })
+    const counts = new Map<string, ScheduleSessionCounts>()
+    for (const row of grouped) {
+      const entry = counts.get(row.scheduleId) ?? {
+        sessions: 0,
+        awaitingGrading: 0,
+        graded: 0,
+      }
+      entry.sessions += row._count._all
+      if (row.status === 'GRADED') entry.graded += row._count._all
+      if (row.status === 'SUBMITTED' || row.status === 'EXPIRED') {
+        entry.awaitingGrading += row._count._all
+      }
+      counts.set(row.scheduleId, entry)
+    }
+    return counts
+  }
+
+  async publicationStatuses(
+    sessionIds: string[],
+  ): Promise<Map<string, 'PENDING' | 'SENT'>> {
+    const rows = await this.prisma.scorePublication.findMany({
+      where: { sessionId: { in: sessionIds } },
+      select: { sessionId: true, status: true },
+    })
+    return new Map(rows.map((row) => [row.sessionId, row.status]))
+  }
+
   async findPageBySchedule(
     scheduleId: string,
     page: number,
     limit: number,
+    status?: ExamSessionStatus,
   ): Promise<PaginatedResult<ExamSession>> {
+    const where = { scheduleId, ...(status ? { status } : {}) }
     const [rows, total] = await Promise.all([
       this.prisma.examSession.findMany({
-        where: { scheduleId },
+        where,
         orderBy: [{ startedAt: 'asc' }, { id: 'asc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),
-      this.prisma.examSession.count({ where: { scheduleId } }),
+      this.prisma.examSession.count({ where }),
     ])
     return { data: rows.map(toSession), total, page, limit }
   }

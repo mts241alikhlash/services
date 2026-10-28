@@ -14,6 +14,7 @@ import {
   IEnrollmentLookupPort,
   type ActiveEnrollment,
 } from '../../platform/enrollment-lookup/enrollment-lookup.port.js'
+import { IStudentDirectoryPort } from '../../platform/student-directory/student-directory.port.js'
 import { IStudentIdentityReadPort } from '../../platform/student-identity/student-identity.port.js'
 import { CreateExamPackageUseCase } from '../../exam-package/application/use-cases/create-exam-package/create-exam-package.use-case.js'
 import {
@@ -205,4 +206,20 @@ export async function schedulePaper(
     new Date('2026-10-30T00:00:00.000Z'),
   )
   return { schedule, questionIds: ids }
+}
+
+export class FakeStudentDirectory extends IStudentDirectoryPort {
+  constructor(
+    private readonly refs: {
+      id: string
+      nis: string
+      name: string | null
+    }[] = [{ id: STUDENT_ID, nis: '2024001', name: 'Ahmad Fauzi' }],
+  ) {
+    super()
+  }
+
+  refsByIds(ids: string[]) {
+    return Promise.resolve(this.refs.filter((ref) => ids.includes(ref.id)))
+  }
 }

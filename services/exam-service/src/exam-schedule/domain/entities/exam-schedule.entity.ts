@@ -6,6 +6,7 @@ export interface ExamSchedule {
   id: string
   packageId: string
   packageTitle: string
+  subjectId: string
   classroomId: string
   semesterId: string
   startsAt: Date

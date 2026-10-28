@@ -5,6 +5,7 @@ import type { PaginatedResult } from '../../../../shared/domain/interfaces/repos
 import type { ExamSchedule } from '../../../domain/entities/exam-schedule.entity.js'
 import {
   IExamScheduleRepository,
+  type ExamScheduleGradingQuery,
   type ExamScheduleListQuery,
   type NewExamSchedule,
   type ScheduleWindowFields,
@@ -45,6 +46,42 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
       this.prisma.examSchedule.count({ where }),
     ])
     return { data: rows.map(toSchedule), total, page, limit }
+  }
+
+  async findForGrading(
+    query: ExamScheduleGradingQuery,
+  ): Promise<PaginatedResult<ExamSchedule>> {
+    if (query.pairs !== null && query.pairs.length === 0) {
+      return { data: [], total: 0, page: query.page, limit: query.limit }
+    }
+    const where: Prisma.ExamScheduleWhereInput = {
+      semesterId: query.semesterId,
+      sessions: { some: {} },
+      ...(query.pairs === null
+        ? {}
+        : {
+            OR: query.pairs.map((pair) => ({
+              classroomId: pair.classroomId,
+              package: { subjectId: pair.subjectId },
+            })),
+          }),
+    }
+    const [rows, total] = await Promise.all([
+      this.prisma.examSchedule.findMany({
+        where,
+        include: SCHEDULE_INCLUDE,
+        orderBy: [{ startsAt: 'desc' }, { id: 'asc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+      this.prisma.examSchedule.count({ where }),
+    ])
+    return {
+      data: rows.map(toSchedule),
+      total,
+      page: query.page,
+      limit: query.limit,
+    }
   }
 
   async findForClassroom(
