@@ -3,7 +3,10 @@ import { CreateStudentInput } from './create-student.input.js'
 import { StudentEntity } from '../../../domain/entities/student.entity.js'
 import { IStudentRepository } from '../../../domain/repositories/student.repository.js'
 import { EnsureStudentEnrollmentUseCase } from '../../../../enrollment/application/use-cases/ensure-student-enrollment/ensure-student-enrollment.use-case.js'
-import { hashPassword } from '../../../../shared/utils/hash.helper.js'
+import {
+  hashPassword,
+  randomPassword,
+} from '../../../../shared/utils/hash.helper.js'
 import {
   StudentCreationFailedException,
   StudentNisAlreadyExistsException,
@@ -33,7 +36,7 @@ export class CreateStudentUseCase {
     input.identifier ??= nis
       ? nis
       : input.name.toLowerCase().replace(/\s+/g, '.')
-    input.password ??= nis ? nis : input.identifier
+    input.password ||= randomPassword()
 
     const [dupNis, dupNisn] = await Promise.all([
       nis ? this.studentRepository.findByNis(nis) : null,

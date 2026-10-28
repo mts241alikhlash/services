@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common'
 import ExcelJS from 'exceljs'
 import { StudentImportRow } from '../../domain/entities/student-import-row.entity.js'
 import { ExcelStudentParser as IExcelStudentParser } from '../../domain/repositories/student-excel-parser.interface.js'
+import { randomPassword } from '../../../shared/utils/hash.helper.js'
 
 type ExcelRow = Record<string, ExcelJS.CellValue>
 
@@ -58,7 +59,7 @@ export class ExcelStudentParser implements IExcelStudentParser {
     const nis = str('NIS', 'nis')
     const identifier =
       str('Identifier', 'identifier', 'Username', 'username') || nis
-    const password = str('Password', 'password') || nis
+    const password = str('Password', 'password') || randomPassword()
 
     return {
       identifier,
