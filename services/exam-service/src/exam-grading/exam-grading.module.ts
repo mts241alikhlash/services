@@ -4,6 +4,7 @@ import { ExamScheduleModule } from '../exam-schedule/exam-schedule.module.js'
 import { ExamSessionModule } from '../exam-session/exam-session.module.js'
 import { QuestionModule } from '../question/question.module.js'
 import { GradingScopeService } from './application/grading-scope.service.js'
+import { GradeAnswerUseCase } from './application/use-cases/grade-answer/grade-answer.use-case.js'
 import { GetGradingSessionUseCase } from './application/use-cases/get-grading-session/get-grading-session.use-case.js'
 import { ListGradingSchedulesUseCase } from './application/use-cases/list-grading-schedules/list-grading-schedules.use-case.js'
 import { ListGradingSessionsUseCase } from './application/use-cases/list-grading-sessions/list-grading-sessions.use-case.js'
@@ -22,6 +23,7 @@ import { ExamGradingController } from './presentation/http/exam-grading.controll
     ListGradingSchedulesUseCase,
     ListGradingSessionsUseCase,
     GetGradingSessionUseCase,
+    GradeAnswerUseCase,
   ],
 })
 export class ExamGradingModule {}

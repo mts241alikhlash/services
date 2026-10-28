@@ -6,6 +6,7 @@ const expected: Record<string, string[]> = {
   schedules: ['exam-grading.read'],
   sessions: ['exam-grading.read'],
   session: ['exam-grading.read'],
+  grade: ['exam-grading.grade'],
 }
 
 describe('ExamGradingController permissions', () => {

@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import type { PaginatedResult } from '../../../../shared/domain/interfaces/repository.interface.js'
-import type {
-  GradingItem,
-  GradingSessionDetail,
-} from '../../../application/use-cases/get-grading-session/get-grading-session.use-case.js'
+import type { GradingSessionDetail } from '../../../application/use-cases/get-grading-session/get-grading-session.use-case.js'
+import type { GradingItem } from '../../../application/grading-item.js'
 import type { GradingSchedule } from '../../../application/use-cases/list-grading-schedules/list-grading-schedules.use-case.js'
 import type { GradingSessionRow } from '../../../application/use-cases/list-grading-sessions/list-grading-sessions.use-case.js'
 

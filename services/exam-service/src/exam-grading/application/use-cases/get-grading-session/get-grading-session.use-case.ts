@@ -6,29 +6,18 @@ import {
 import { loadPaperSources } from '../../../../exam-session/application/load-paper-sources.js'
 import { IExamPackageRepository } from '../../../../exam-package/domain/repositories/exam-package.repository.js'
 import { IExamScheduleRepository } from '../../../../exam-schedule/domain/repositories/exam-schedule.repository.js'
-import type { AnswerPayload } from '../../../../exam-session/domain/policies/validate-answer-shape.policy.js'
 import { IExamSessionRepository } from '../../../../exam-session/domain/repositories/exam-session.repository.js'
 import { IStudentDirectoryPort } from '../../../../platform/student-directory/student-directory.port.js'
 import { IQuestionRepository } from '../../../../question/domain/repositories/question.repository.js'
 import {
+  isManual,
+  toGradingItem,
+  type GradingItem,
+} from '../../grading-item.js'
+import {
   GradingScopeService,
   type GradingUser,
 } from '../../grading-scope.service.js'
-
-export interface GradingItem {
-  questionId: string
-  number: number
-  type: 'SHORT_ANSWER' | 'ESSAY'
-  bodyHtml: string
-  points: number
-  guideHtml: string | null
-  acceptedAnswers: string[] | null
-  answer: AnswerPayload | null
-  score: number | null
-  note: string | null
-  gradedAt: Date | null
-  needsGrading: boolean
-}
 
 export interface GradingSessionDetail {
   session: {
@@ -93,32 +82,14 @@ export class GetGradingSessionUseCase {
 
     const items: GradingItem[] = []
     sources.forEach((source, index) => {
-      if (source.type !== 'SHORT_ANSWER' && source.type !== 'ESSAY') return
-      const answer = answerOf.get(source.questionId) ?? null
-      const blank =
-        answer === null ||
-        ('text' in answer.answer && answer.answer.text.trim() === '')
-      const content = source.content as {
-        guideHtml?: string | null
-        answer?: { accepted: string[] }
-      }
-      items.push({
-        questionId: source.questionId,
-        number: index + 1,
-        type: source.type,
-        bodyHtml: source.bodyHtml,
-        points: source.points,
-        guideHtml: source.type === 'ESSAY' ? (content.guideHtml ?? null) : null,
-        acceptedAnswers:
-          source.type === 'SHORT_ANSWER'
-            ? (content.answer?.accepted ?? [])
-            : null,
-        answer: answer?.answer ?? null,
-        score: answer?.score ?? null,
-        note: answer?.gradeNote ?? null,
-        gradedAt: answer?.gradedAt ?? null,
-        needsGrading: !blank && answer.score === null,
-      })
+      if (!isManual(source.type)) return
+      items.push(
+        toGradingItem(
+          { ...source, type: source.type },
+          index + 1,
+          answerOf.get(source.questionId) ?? null,
+        ),
+      )
     })
 
     const ref = refs[0]

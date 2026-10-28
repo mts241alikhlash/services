@@ -1,8 +1,10 @@
 import {
   Controller,
+  Body,
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Query,
   UseGuards,
 } from '@nestjs/common'
@@ -18,13 +20,16 @@ import { RequirePermissions } from '../../../platform/access-control/permission/
 import { JwtAuthGuard } from '../../../platform/auth/index.js'
 import type { GradingUser } from '../../application/grading-scope.service.js'
 import { GetGradingSessionUseCase } from '../../application/use-cases/get-grading-session/get-grading-session.use-case.js'
+import { GradeAnswerUseCase } from '../../application/use-cases/grade-answer/grade-answer.use-case.js'
 import { ListGradingSchedulesUseCase } from '../../application/use-cases/list-grading-schedules/list-grading-schedules.use-case.js'
 import { ListGradingSessionsUseCase } from '../../application/use-cases/list-grading-sessions/list-grading-sessions.use-case.js'
 import {
+  GradeAnswerDto,
   GradingScheduleQueryDto,
   GradingSessionQueryDto,
 } from './dto/grading-request.dto.js'
 import {
+  GradingItemDto,
   GradingScheduleListResponseDto,
   GradingSessionDetailDto,
   GradingSessionListResponseDto,
@@ -39,6 +44,7 @@ export class ExamGradingController {
     private readonly listSchedules: ListGradingSchedulesUseCase,
     private readonly listSessions: ListGradingSessionsUseCase,
     private readonly getSession: GetGradingSessionUseCase,
+    private readonly gradeAnswer: GradeAnswerUseCase,
   ) {}
 
   @Get('schedules')
@@ -94,6 +100,23 @@ export class ExamGradingController {
   ): Promise<GradingSessionDetailDto> {
     return GradingSessionDetailDto.fromDomain(
       await this.getSession.execute(user, sessionId),
+    )
+  }
+
+  @Patch('sessions/:sessionId/answers/:questionId')
+  @RequirePermissions('exam-grading.grade')
+  @ApiOperation({ summary: 'Grade one short answer or essay' })
+  @ApiParam({ name: 'sessionId', format: 'uuid' })
+  @ApiParam({ name: 'questionId', format: 'uuid' })
+  @ApiResponse({ status: 200, type: GradingItemDto })
+  async grade(
+    @CurrentUser() user: GradingUser,
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+    @Param('questionId', ParseUUIDPipe) questionId: string,
+    @Body() dto: GradeAnswerDto,
+  ): Promise<GradingItemDto> {
+    return GradingItemDto.fromDomain(
+      await this.gradeAnswer.execute(user, sessionId, questionId, dto),
     )
   }
 }

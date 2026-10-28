@@ -14,6 +14,21 @@ export interface SaveAnswerInput {
   receivedAfterDeadline: boolean
 }
 
+export interface GradeAnswerInput {
+  sessionId: string
+  questionId: string
+  score: number
+  note: string | null
+  gradedById: string
+  at: Date
+}
+
+export interface GradeRecompute {
+  rawScore: number
+  maxScore: number
+  pendingManual: number
+}
+
 export interface ScheduleSessionCounts {
   sessions: number
   awaitingGrading: number
@@ -59,6 +74,10 @@ export abstract class IExamSessionRepository {
     id: string,
     build: (answers: ExamAnswerRecord[]) => SessionClosure,
   ): Promise<ExamSession | null>
+  abstract applyGrade(
+    input: GradeAnswerInput,
+    recompute: (answers: ExamAnswerRecord[]) => GradeRecompute,
+  ): Promise<{ answer: ExamAnswerRecord; session: ExamSession } | null>
   abstract findDueIds(
     now: Date,
     limit: number,

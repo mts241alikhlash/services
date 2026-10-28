@@ -10,6 +10,8 @@ import type {
 import {
   IExamSessionRepository,
   type NewExamSession,
+  type GradeAnswerInput,
+  type GradeRecompute,
   type SaveAnswerInput,
   type ScheduleSessionCounts,
   type SessionClosure,
@@ -147,6 +149,65 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
         })
       }
       return toSession(row)
+    })
+  }
+
+  async applyGrade(
+    input: GradeAnswerInput,
+    recompute: (answers: ExamAnswerRecord[]) => GradeRecompute,
+  ): Promise<{ answer: ExamAnswerRecord; session: ExamSession } | null> {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM exam_sessions WHERE id = ${input.sessionId}::uuid FOR UPDATE`
+      const current = await tx.examSession.findUnique({
+        where: { id: input.sessionId },
+      })
+      const target = await tx.examAnswer.findUnique({
+        where: {
+          sessionId_questionId: {
+            sessionId: input.sessionId,
+            questionId: input.questionId,
+          },
+        },
+      })
+      if (current === null || target === null) return null
+
+      const graded = await tx.examAnswer.update({
+        where: { id: target.id },
+        data: {
+          score: input.score,
+          gradeNote: input.note,
+          gradedById: input.gradedById,
+          gradedAt: input.at,
+        },
+      })
+      const rows = await tx.examAnswer.findMany({
+        where: { sessionId: input.sessionId },
+      })
+      const result = recompute(rows.map(toAnswer))
+      const done = result.pendingManual === 0
+      const session = await tx.examSession.update({
+        where: { id: input.sessionId },
+        data: {
+          rawScore: result.rawScore,
+          maxScore: result.maxScore,
+          status: done ? 'GRADED' : current.status,
+          gradedAt: done ? input.at : null,
+        },
+      })
+      if (done) {
+        await tx.scorePublication.upsert({
+          where: { sessionId: input.sessionId },
+          create: { sessionId: input.sessionId },
+          update: {
+            status: 'PENDING',
+            attempts: 0,
+            lastError: null,
+            lastAttemptAt: null,
+            sentAt: null,
+          },
+        })
+      }
+      return { answer: toAnswer(graded), session: toSession(session) }
     })
   }
 

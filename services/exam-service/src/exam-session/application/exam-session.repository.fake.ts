@@ -6,6 +6,8 @@ import type {
 } from '../domain/entities/exam-session.entity.js'
 import {
   IExamSessionRepository,
+  type GradeAnswerInput,
+  type GradeRecompute,
   type NewExamSession,
   type SaveAnswerInput,
   type ScheduleSessionCounts,
@@ -116,6 +118,43 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
       if (answer) this.answers.set(answerId, { ...answer, score })
     }
     return Promise.resolve(closed)
+  }
+
+  applyGrade(
+    input: GradeAnswerInput,
+    recompute: (answers: ExamAnswerRecord[]) => GradeRecompute,
+  ) {
+    const session = this.sessions.get(input.sessionId)
+    const existing = [...this.answers.values()].find(
+      (row) =>
+        row.sessionId === input.sessionId &&
+        row.questionId === input.questionId,
+    )
+    if (!session || !existing) return Promise.resolve(null)
+
+    const answer: ExamAnswerRecord = {
+      ...existing,
+      score: input.score,
+      gradeNote: input.note,
+      gradedById: input.gradedById,
+      gradedAt: input.at,
+    }
+    this.answers.set(answer.id, answer)
+
+    const result = recompute(
+      [...this.answers.values()].filter((row) => row.sessionId === session.id),
+    )
+    const graded = result.pendingManual === 0
+    const updated: ExamSession = {
+      ...session,
+      rawScore: result.rawScore,
+      maxScore: result.maxScore,
+      status: graded ? 'GRADED' : session.status,
+      gradedAt: graded ? input.at : null,
+    }
+    this.sessions.set(session.id, updated)
+    if (graded) this.publications.set(session.id, 'PENDING')
+    return Promise.resolve({ answer, session: updated })
   }
 
   findDueIds(now: Date, limit: number, excludeIds: string[]) {
