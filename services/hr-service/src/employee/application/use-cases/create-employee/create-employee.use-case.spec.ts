@@ -7,6 +7,7 @@ import { CreateEmployeeUseCase } from './create-employee.use-case.js'
 import { hashPassword } from '../../../../shared/utils/hash.helper.js'
 
 jest.mock('../../../../shared/utils/hash.helper.js', () => ({
+  ...jest.requireActual('../../../../shared/utils/hash.helper.js'),
   hashPassword: jest.fn(),
 }))
 
@@ -85,7 +86,7 @@ describe('CreateEmployeeUseCase', () => {
       [{ identifier: '', password: '', nip: 'nip-1' }, 'nip-1'],
       [{}, '3578010101700001'],
     ])(
-      'uses the available staff number as account fallback',
+      'uses the available staff number as identifier and a random password',
       async (identifiers, expected) => {
         const withoutAccount = {
           ...input,
@@ -104,7 +105,9 @@ describe('CreateEmployeeUseCase', () => {
         expect(mockRepository.findUserByIdentifier).toHaveBeenCalledWith(
           expected,
         )
-        expect(hashPassword).toHaveBeenCalledWith(expected)
+        const hashed = (hashPassword as jest.Mock).mock.calls[0][0] as string
+        expect(hashed).not.toBe(expected)
+        expect(hashed.length).toBeGreaterThanOrEqual(24)
         expect(mockRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({ identifier: expected }),
           'hashed-password',
