@@ -2218,6 +2218,316 @@
         ]
       }
     },
+    "/exam-grading/schedules": {
+      "get": {
+        "operationId": "ExamGradingController_schedules",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "semesterId",
+            "required": false,
+            "in": "query",
+            "description": "Defaults to the active semester",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GradingScheduleDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "page": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The exams the caller may grade, with grading counts",
+        "tags": [
+          "Exam Grading"
+        ]
+      }
+    },
+    "/exam-grading/schedules/{scheduleId}/sessions": {
+      "get": {
+        "operationId": "ExamGradingController_sessions",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "IN_PROGRESS",
+                "SUBMITTED",
+                "EXPIRED",
+                "GRADED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GradingSessionRowDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "page": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The sessions of one exam with their grading state",
+        "tags": [
+          "Exam Grading"
+        ]
+      }
+    },
+    "/exam-grading/sessions/{sessionId}": {
+      "get": {
+        "operationId": "ExamGradingController_session",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/GradingSessionDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The short answers and essays of a session to grade",
+        "tags": [
+          "Exam Grading"
+        ]
+      }
+    },
+    "/exam-grading/sessions/{sessionId}/answers/{questionId}": {
+      "patch": {
+        "operationId": "ExamGradingController_grade",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "questionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeAnswerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/GradingItemDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Grade one short answer or essay",
+        "tags": [
+          "Exam Grading"
+        ]
+      }
+    },
     "/exam-imports/template": {
       "get": {
         "operationId": "QuestionImportController_template",
@@ -3568,6 +3878,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "hasSessions": {
+            "type": "boolean",
+            "description": "True once a student started: it can no longer be cancelled"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -3589,6 +3903,7 @@
           "durationMinutes",
           "status",
           "createdById",
+          "hasSessions",
           "createdAt",
           "updatedAt"
         ]
@@ -3953,6 +4268,14 @@
             "type": "string",
             "format": "uuid"
           },
+          "studentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentNis": {
+            "type": "string",
+            "nullable": true
+          },
           "status": {
             "enum": [
               "IN_PROGRESS",
@@ -3987,6 +4310,8 @@
         "required": [
           "sessionId",
           "studentId",
+          "studentName",
+          "studentNis",
           "status",
           "startedAt",
           "submittedAt",
@@ -4039,6 +4364,341 @@
           "id",
           "mimeType",
           "sizeBytes"
+        ]
+      },
+      "GradingScheduleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classroomId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classroomName": {
+            "type": "string",
+            "nullable": true
+          },
+          "semesterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sessions": {
+            "type": "number"
+          },
+          "awaitingGrading": {
+            "type": "number"
+          },
+          "graded": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "subjectId",
+          "classroomId",
+          "classroomName",
+          "semesterId",
+          "startsAt",
+          "endsAt",
+          "sessions",
+          "awaitingGrading",
+          "graded"
+        ]
+      },
+      "GradingScheduleListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GradingScheduleDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "GradingSessionRowDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentNis": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "IN_PROGRESS",
+              "SUBMITTED",
+              "EXPIRED",
+              "GRADED"
+            ],
+            "type": "string"
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "rawScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "awaitingGrading": {
+            "type": "boolean"
+          },
+          "publication": {
+            "nullable": true,
+            "enum": [
+              "PENDING",
+              "SENT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "studentId",
+          "studentName",
+          "studentNis",
+          "status",
+          "submittedAt",
+          "rawScore",
+          "maxScore",
+          "awaitingGrading",
+          "publication"
+        ]
+      },
+      "GradingSessionListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GradingSessionRowDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "GradingSessionSummaryDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentNis": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "IN_PROGRESS",
+              "SUBMITTED",
+              "EXPIRED",
+              "GRADED"
+            ]
+          },
+          "rawScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxScore": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sessionId",
+          "scheduleId",
+          "studentId",
+          "studentName",
+          "studentNis",
+          "status",
+          "rawScore",
+          "maxScore"
+        ]
+      },
+      "GradingItemDto": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "number",
+            "description": "Position on the package, from 1"
+          },
+          "type": {
+            "enum": [
+              "SHORT_ANSWER",
+              "ESSAY"
+            ],
+            "type": "string"
+          },
+          "bodyHtml": {
+            "type": "string"
+          },
+          "points": {
+            "type": "number"
+          },
+          "guideHtml": {
+            "type": "string",
+            "nullable": true
+          },
+          "acceptedAnswers": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "answer": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "score": {
+            "type": "number",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "gradedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "needsGrading": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "questionId",
+          "number",
+          "type",
+          "bodyHtml",
+          "points",
+          "guideHtml",
+          "acceptedAnswers",
+          "answer",
+          "score",
+          "note",
+          "gradedAt",
+          "needsGrading"
+        ]
+      },
+      "GradingSessionDetailDto": {
+        "type": "object",
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/GradingSessionSummaryDto"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GradingItemDto"
+            }
+          }
+        },
+        "required": [
+          "session",
+          "items"
+        ]
+      },
+      "GradeAnswerDto": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "description": "From 0 up to the points of the question"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "score"
         ]
       },
       "ImportErrorDto": {

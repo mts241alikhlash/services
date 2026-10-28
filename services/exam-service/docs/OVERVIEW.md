@@ -58,7 +58,26 @@ import and analysis.
   becomes `GRADED`, otherwise `SUBMITTED` or `EXPIRED`. Scores stay in this
   service; nothing is written to the report card.
 - A schedule with sessions cannot be cancelled and only its end time can be
-  extended.
+  extended; the schedule list and detail carry `hasSessions`, and the session
+  list carries the student name and NIS (student-service ids joined with
+  identity-service profiles).
+- **Grading** (`src/exam-grading/`): a short answer or essay with text waits
+  for the teacher; a blank or missing one scores 0 at once. Teachers list the
+  exams they may grade (`GET /exam-grading/schedules`), the sessions of one
+  exam, and the manual answers of a session, then grade each one
+  (`PATCH /exam-grading/sessions/:sessionId/answers/:questionId`, 0 up to the
+  question points, optional note). Scope is the teacher's teaching assignments
+  (subject and classroom) in the semester of the exam, from academic-service;
+  `exam-grading.manage-all` skips it. The last grade makes the session `GRADED`;
+  grading a graded session again updates the total. Everything for one session
+  runs under a row lock.
+- **Score publication**: a `GRADED` session gets a `ScorePublication`
+  (`PENDING`). A job every minute posts pending ones to assessment-service
+  `POST /exam-scores` with the provisioning token (`ASSESSMENT_SERVICE_URL`,
+  now required): `RETRY` outcomes wait `min(2^attempts, 60)` minutes, a refusal
+  is recorded in `lastError`, and a publication stops after ten attempts. The
+  payload carries the percentage `rawScore / maxScore * 100` and the student
+  name and NIS. Nothing reaches `StudentScore` or the report card.
 
 ## What it borrows
 
@@ -85,6 +104,10 @@ declared in identity-service and granted to curriculum staff, Wakamad
 Kurikulum and the academic admin. Principal reads packages and schedules
 through its read-everything grant but not the access code.
 
+`exam-grading.read|grade` and `exam-scores.read` belong to teachers (and, with
+`exam-grading.manage-all` and `exam-scores.read-all`, to the same curriculum
+staff); all are explicit-only.
+
 `exam-sessions.take` belongs to students only. `exam-sessions.read|release`
 are explicit-only for curriculum staff, Wakamad Kurikulum and the academic
 admin (Principal reads through its grant, not release). A role that was
@@ -92,9 +115,7 @@ edited by hand in admin-web does not get new codes by itself: grant them there.
 
 ## Known gaps
 
-- Teacher grading of short answer and essay, and publishing scores to
-  assessment-service, are stage 3. The Android app needs identity-service
-  native login (`/auth/native/*`), a separate track.
-- Sessions list shows `studentId` only (no names); the schedule DTO does not
-  expose `hasSessions` yet.
+- A score a teacher changes after it was sent reaches assessment-service
+  again, but the report card is never updated: the teacher enters it there.
+- The sessions list does not say which students never started.
 - No AI import (phase 3).

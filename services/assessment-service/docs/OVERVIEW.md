@@ -31,6 +31,16 @@ One real defect surfaced and fixed on the way out, not ported:
 directly. The import was dead in academic-service too; it is simply gone here
 rather than carried over.
 
+**Exam scores** (`src/exam-score/`, table `exam_scores`): the final score of one
+student's exam, pushed by exam-service through `POST /exam-scores`
+(provisioning token, upsert per `examSessionId`). It is not linked to
+`student_scores`, assessment items or the report card. Teachers read
+`GET /exam-scores` for the classrooms and subjects they teach in the semester
+of each score (`exam-scores.read`, semester defaults to the active one);
+`exam-scores.read-all` reads every row. Classroom names come from
+academic-service and degrade to `null`; the student name and NIS are stored
+with the score.
+
 ## What it borrows
 
 Five platform pieces, copied wholesale:
