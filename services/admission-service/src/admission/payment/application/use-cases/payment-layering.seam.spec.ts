@@ -91,6 +91,37 @@ describe('Payment layering', () => {
     expect(notifications.notify).not.toHaveBeenCalled()
   })
 
+  it('refuses a rejection when the payment is verified in the meantime', async () => {
+    const payments = makePaymentRepository({
+      findPayment: jest.fn().mockResolvedValue({
+        id: 'pay1',
+        status: 'PENDING',
+        proofFileId: 'file1',
+      }),
+      updatePaymentStatus: jest.fn().mockResolvedValue(null),
+    })
+    const notifications = { notify: jest.fn() }
+    const useCase = new VerifyPaymentUseCase(
+      payments,
+      notifications,
+      makeVerification(),
+    )
+
+    await expect(
+      useCase.execute({
+        applicationId: 'app1',
+        status: AdmissionPaymentStatus.REJECTED,
+        note: 'Salah',
+        adminId: 'admin1',
+      }),
+    ).rejects.toThrow(
+      new ConflictException(
+        'Pembayaran sudah diverifikasi, batalkan verifikasi terlebih dahulu',
+      ),
+    )
+    expect(notifications.notify).not.toHaveBeenCalled()
+  })
+
   it('refuses to verify a payment whose proof was never uploaded', async () => {
     const payments = makePaymentRepository({
       findPayment: jest
@@ -354,6 +385,37 @@ describe('Payment layering', () => {
       })
 
       expect(payments.savePaymentProof).toHaveBeenCalled()
+    })
+
+    it('refuses a proof when the payment is verified while the file uploads', async () => {
+      const payments = makePaymentRepository({
+        findApplicationWithPayment: jest.fn().mockResolvedValue({
+          status: 'SUBMITTED',
+          payment: { id: 'pay1', status: 'PENDING' },
+        }),
+        savePaymentProof: jest.fn().mockResolvedValue(null),
+      })
+      const savingStorage: IAdmissionFileStorage = {
+        save: jest.fn().mockResolvedValue({
+          filename: 'stored.png',
+          storageKey: 'payments/stored.png',
+        }),
+      }
+      const useCase = new UploadPaymentProofUseCase(
+        payments,
+        savingStorage,
+        bankAccounts,
+      )
+
+      await expect(
+        useCase.execute({
+          userId: 'u1',
+          bankName: 'BSI',
+          bankAccountId: 'acc-1',
+          senderAccountName: 'Budi',
+          file: file,
+        }),
+      ).rejects.toThrow(new ConflictException('Pembayaran sudah diverifikasi'))
     })
 
     it('refuses a proof once the application has been verified', async () => {

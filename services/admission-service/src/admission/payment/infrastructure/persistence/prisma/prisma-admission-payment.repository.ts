@@ -43,23 +43,28 @@ export class PrismaAdmissionPaymentRepository extends IAdmissionPaymentRepositor
 
   async savePaymentProof(
     input: SavePaymentProofInput,
-  ): Promise<AdmissionPaymentWithProof> {
+  ): Promise<AdmissionPaymentWithProof | null> {
     return this.prisma.$transaction(async (tx) => {
-      const fileRow = await tx.file.create({ data: input.file })
-
-      return tx.admissionPayment.update({
-        where: { id: input.paymentId },
+      const claimed = await tx.admissionPayment.updateMany({
+        where: { id: input.paymentId, status: { not: 'VERIFIED' } },
         data: {
           bankName: input.bankName,
           bankAccountId: input.bankAccountId,
           senderAccountName: input.senderAccountName,
           transferDate: input.transferDate,
-          proofFileId: fileRow.id,
           status: 'PENDING',
           note: null,
           verifiedById: null,
           verifiedAt: null,
         },
+      })
+      if (claimed.count === 0) return null
+
+      const fileRow = await tx.file.create({ data: input.file })
+
+      return tx.admissionPayment.update({
+        where: { id: input.paymentId },
+        data: { proofFileId: fileRow.id },
         include: { proofFile: true, bankAccount: true },
       })
     })
@@ -76,15 +81,19 @@ export class PrismaAdmissionPaymentRepository extends IAdmissionPaymentRepositor
   async updatePaymentStatus(
     paymentId: string,
     input: UpdatePaymentStatusInput,
-  ): Promise<AdmissionPaymentWithProof> {
-    return this.prisma.admissionPayment.update({
-      where: { id: paymentId },
+  ): Promise<AdmissionPaymentWithProof | null> {
+    const updated = await this.prisma.admissionPayment.updateMany({
+      where: { id: paymentId, status: { not: 'VERIFIED' } },
       data: {
         status: input.status,
         note: input.note,
         verifiedById: input.adminId,
         verifiedAt: new Date(),
       },
+    })
+    if (updated.count === 0) return null
+    return this.prisma.admissionPayment.findUniqueOrThrow({
+      where: { id: paymentId },
       include: { proofFile: true, bankAccount: true },
     })
   }
