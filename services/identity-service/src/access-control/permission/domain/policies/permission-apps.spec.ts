@@ -33,6 +33,12 @@ describe('permission applications', () => {
     }
   })
 
+  it('files the exam package and schedule modules under academic', () => {
+    for (const module of ['exam-packages', 'exam-schedules']) {
+      expect(appForModule(module)).toBe('academic')
+    }
+  })
+
   it('keeps the keys to the building in the system group', () => {
     for (const module of ['roles', 'permissions', 'users', 'sessions']) {
       expect(appForModule(module)).toBe('platform')

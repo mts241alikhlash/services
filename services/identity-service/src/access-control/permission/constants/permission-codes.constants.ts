@@ -789,6 +789,30 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
   },
 
   {
+    module: 'exam-packages',
+    action: 'create',
+    code: 'exam-packages.create',
+    description: 'Create and copy exam packages',
+  },
+  {
+    module: 'exam-packages',
+    action: 'delete',
+    code: 'exam-packages.delete',
+    description: 'Delete draft exam packages',
+  },
+  {
+    module: 'exam-packages',
+    action: 'read',
+    code: 'exam-packages.read',
+    description: 'Read exam packages',
+  },
+  {
+    module: 'exam-packages',
+    action: 'update',
+    code: 'exam-packages.update',
+    description: 'Update draft exam packages',
+  },
+  {
     module: 'exam-questions',
     action: 'approve',
     code: 'exam-questions.approve',
@@ -823,6 +847,37 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
     action: 'update',
     code: 'exam-questions.update',
     description: 'Update and submit exam questions',
+  },
+
+  {
+    module: 'exam-schedules',
+    action: 'access-code',
+    code: 'exam-schedules.access-code',
+    description: 'See and rotate the access code of an exam schedule',
+  },
+  {
+    module: 'exam-schedules',
+    action: 'cancel',
+    code: 'exam-schedules.cancel',
+    description: 'Cancel exam schedules',
+  },
+  {
+    module: 'exam-schedules',
+    action: 'create',
+    code: 'exam-schedules.create',
+    description: 'Schedule exam packages for classrooms',
+  },
+  {
+    module: 'exam-schedules',
+    action: 'read',
+    code: 'exam-schedules.read',
+    description: 'Read exam schedules',
+  },
+  {
+    module: 'exam-schedules',
+    action: 'update',
+    code: 'exam-schedules.update',
+    description: 'Update exam schedules',
   },
 
   {
