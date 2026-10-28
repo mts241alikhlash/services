@@ -4,6 +4,7 @@ import { FakeQuestionRepository } from '../../../../question/application/questio
 import { AccessCodeService } from '../../access-code.service.js'
 import { CancelExamScheduleUseCase } from '../cancel-exam-schedule/cancel-exam-schedule.use-case.js'
 import { CreateExamScheduleUseCase } from '../create-exam-schedule/create-exam-schedule.use-case.js'
+import { FakeScheduleSessionGuard } from '../../schedule-session-guard.fake.js'
 import { FakeExamScheduleRepository } from '../../exam-schedule.repository.fake.js'
 import {
   CLASSROOM_7A,
@@ -80,7 +81,10 @@ describe('Access code use cases', () => {
   })
 
   it('refuses the code of a cancelled schedule', async () => {
-    await new CancelExamScheduleUseCase(schedules).execute(scheduleId)
+    await new CancelExamScheduleUseCase(
+      schedules,
+      new FakeScheduleSessionGuard(),
+    ).execute(scheduleId)
 
     await expect(
       new GetAccessCodeUseCase(schedules, codes).execute(scheduleId),

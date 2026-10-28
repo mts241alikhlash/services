@@ -47,6 +47,18 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
     return { data: rows.map(toSchedule), total, page, limit }
   }
 
+  async findForClassroom(
+    classroomId: string,
+    semesterId: string,
+  ): Promise<ExamSchedule[]> {
+    const rows = await this.prisma.examSchedule.findMany({
+      where: { classroomId, semesterId, status: 'SCHEDULED' },
+      include: SCHEDULE_INCLUDE,
+      orderBy: { startsAt: 'asc' },
+    })
+    return rows.map(toSchedule)
+  }
+
   async findById(id: string): Promise<ExamSchedule | null> {
     const row = await this.prisma.examSchedule.findUnique({
       where: { id },
@@ -81,7 +93,18 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
     fields: ScheduleWindowFields,
   ): Promise<ExamSchedule | null> {
     const result = await this.prisma.examSchedule.updateMany({
-      where: { id, status: 'SCHEDULED' },
+      where: {
+        id,
+        status: 'SCHEDULED',
+        OR: [
+          { sessions: { none: {} } },
+          {
+            startsAt: fields.startsAt,
+            durationMinutes: fields.durationMinutes,
+            endsAt: { lte: fields.endsAt },
+          },
+        ],
+      },
       data: fields,
     })
     return result.count === 0 ? null : this.findById(id)
@@ -89,7 +112,7 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
 
   async cancel(id: string): Promise<boolean> {
     const result = await this.prisma.examSchedule.updateMany({
-      where: { id, status: 'SCHEDULED' },
+      where: { id, status: 'SCHEDULED', sessions: { none: {} } },
       data: { status: 'CANCELLED' },
     })
     return result.count > 0

@@ -15,6 +15,6 @@ import { ExamFileController } from './presentation/http/exam-file.controller.js'
     UploadExamFileUseCase,
     GetExamFileUseCase,
   ],
-  exports: [UploadExamFileUseCase],
+  exports: [UploadExamFileUseCase, GetExamFileUseCase],
 })
 export class ExamFileModule {}

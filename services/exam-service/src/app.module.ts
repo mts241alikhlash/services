@@ -19,11 +19,14 @@ import { AcademicLookupModule } from './platform/academic-lookup/academic-lookup
 import { ExamFileModule } from './exam-file/exam-file.module.js'
 import { ExamPackageModule } from './exam-package/exam-package.module.js'
 import { ExamScheduleModule } from './exam-schedule/exam-schedule.module.js'
+import { ExamSessionModule } from './exam-session/exam-session.module.js'
 import { QuestionImportModule } from './question-import/question-import.module.js'
 import { QuestionModule } from './question/question.module.js'
 import { StorageModule } from './core/storage/storage.module.js'
 import { PermissionModule } from './platform/access-control/permission/permission.module.js'
 import { EmployeeIdentityModule } from './platform/employee-identity/employee-identity.module.js'
+import { EnrollmentLookupModule } from './platform/enrollment-lookup/enrollment-lookup.module.js'
+import { StudentIdentityModule } from './platform/student-identity/student-identity.module.js'
 import { JwtAuthGuard } from './platform/auth/index.js'
 import { PermissionGuard } from './platform/access-control/permission/guards/permission.guard.js'
 
@@ -38,6 +41,7 @@ import { PermissionGuard } from './platform/access-control/permission/guards/per
     QuestionModule,
     ExamPackageModule,
     ExamScheduleModule,
+    ExamSessionModule,
     ExamFileModule,
     QuestionImportModule,
     LoggerModule.forRoot(pinoLoggerConfig),
@@ -59,6 +63,8 @@ import { PermissionGuard } from './platform/access-control/permission/guards/per
     AuthModule,
     PermissionModule,
     EmployeeIdentityModule,
+    StudentIdentityModule,
+    EnrollmentLookupModule,
   ],
   controllers: [],
   providers: [

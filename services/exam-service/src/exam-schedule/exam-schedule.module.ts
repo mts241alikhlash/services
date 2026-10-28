@@ -9,6 +9,8 @@ import { GetExamScheduleUseCase } from './application/use-cases/get-exam-schedul
 import { ListExamSchedulesUseCase } from './application/use-cases/list-exam-schedules/list-exam-schedules.use-case.js'
 import { RotateAccessCodeUseCase } from './application/use-cases/rotate-access-code/rotate-access-code.use-case.js'
 import { UpdateExamScheduleUseCase } from './application/use-cases/update-exam-schedule/update-exam-schedule.use-case.js'
+import { IScheduleSessionGuard } from './domain/ports/schedule-session-guard.port.js'
+import { PrismaScheduleSessionGuard } from './infrastructure/persistence/prisma/prisma-schedule-session-guard.js'
 import { IExamScheduleRepository } from './domain/repositories/exam-schedule.repository.js'
 import { PrismaExamScheduleRepository } from './infrastructure/persistence/prisma/prisma-exam-schedule.repository.js'
 import { ExamScheduleController } from './presentation/http/exam-schedule.controller.js'
@@ -17,6 +19,7 @@ import { ExamScheduleController } from './presentation/http/exam-schedule.contro
   imports: [ExamPackageModule],
   controllers: [ExamScheduleController],
   providers: [
+    { provide: IScheduleSessionGuard, useClass: PrismaScheduleSessionGuard },
     {
       provide: IExamScheduleRepository,
       useClass: PrismaExamScheduleRepository,
@@ -37,6 +40,6 @@ import { ExamScheduleController } from './presentation/http/exam-schedule.contro
     GetAccessCodeUseCase,
     RotateAccessCodeUseCase,
   ],
-  exports: [IExamScheduleRepository],
+  exports: [IExamScheduleRepository, AccessCodeService],
 })
 export class ExamScheduleModule {}

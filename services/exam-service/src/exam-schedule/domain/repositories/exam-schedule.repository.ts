@@ -35,6 +35,10 @@ export abstract class IExamScheduleRepository {
     query: ExamScheduleListQuery,
   ): Promise<PaginatedResult<ExamSchedule>>
   abstract findById(id: string): Promise<ExamSchedule | null>
+  abstract findForClassroom(
+    classroomId: string,
+    semesterId: string,
+  ): Promise<ExamSchedule[]>
   abstract createAndLockPackage(
     input: NewExamSchedule,
   ): Promise<ExamSchedule | null>

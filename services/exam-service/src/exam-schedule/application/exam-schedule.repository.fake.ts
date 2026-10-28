@@ -35,6 +35,17 @@ export class FakeExamScheduleRepository extends IExamScheduleRepository {
     })
   }
 
+  findForClassroom(classroomId: string, semesterId: string) {
+    return Promise.resolve(
+      [...this.schedules.values()].filter(
+        (row) =>
+          row.classroomId === classroomId &&
+          row.semesterId === semesterId &&
+          row.status === 'SCHEDULED',
+      ),
+    )
+  }
+
   findById(id: string) {
     return Promise.resolve(this.schedules.get(id) ?? null)
   }

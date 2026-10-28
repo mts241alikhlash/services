@@ -56,6 +56,7 @@ export class FakeQuestionRepository extends IQuestionRepository {
           number: pin.number,
           type: question.type,
           bodyHtml: version.bodyHtml,
+          content: version.content,
           points: version.points,
         })
       }
