@@ -327,6 +327,7 @@ export function buildTeacherScope(fixture: ScopeFixture): {
     teachingPairsOf: () => Promise.resolve(fixture.pairs ?? []),
     classroomsByIds: () => Promise.resolve([]),
     activeSemester: () => Promise.resolve(null),
+    teachingAssignmentsOf: () => Promise.resolve([]),
     gradesByIds: (ids: string[]) =>
       Promise.resolve(
         (fixture.grades ?? []).filter((grade) => ids.includes(grade.id)),

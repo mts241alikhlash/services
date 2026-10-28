@@ -13,11 +13,53 @@ export class ServiceClient {
     return this.request(urlKey, path, { method: 'GET' })
   }
 
+  async postStatus(
+    urlKey: string,
+    path: string,
+    body: unknown,
+  ): Promise<number> {
+    try {
+      const response = await this.fetchRaw(urlKey, path, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      return response.status
+    } catch (error) {
+      if (error instanceof ServiceUnavailableException) return 0
+      throw error
+    }
+  }
+
   private async request(
     urlKey: string,
     path: string,
     init: { method: string; headers?: Record<string, string>; body?: string },
   ): Promise<unknown> {
+    const service = urlKey.replace('_SERVICE_URL', '').toLowerCase()
+    const response = await this.fetchRaw(urlKey, path, init)
+
+    if (!response.ok) {
+      this.logger.error(
+        `${service}-service answered ${response.status} for ${path}`,
+      )
+      throw new ServiceUnavailableException(
+        `The ${service} service could not answer, so this request cannot be answered.`,
+      )
+    }
+
+    const body: unknown = await response.json().catch(() => null)
+    if (body !== null && typeof body === 'object' && 'data' in body) {
+      return body.data
+    }
+    return undefined
+  }
+
+  private async fetchRaw(
+    urlKey: string,
+    path: string,
+    init: { method: string; headers?: Record<string, string>; body?: string },
+  ): Promise<Response> {
     const service = urlKey.replace('_SERVICE_URL', '').toLowerCase()
 
     const base = this.config.get<string>(urlKey)
@@ -51,20 +93,7 @@ export class ServiceClient {
       )
     }
 
-    if (!response.ok) {
-      this.logger.error(
-        `${service}-service answered ${response.status} for ${path}`,
-      )
-      throw new ServiceUnavailableException(
-        `The ${service} service could not answer, so this request cannot be answered.`,
-      )
-    }
-
-    const body: unknown = await response.json().catch(() => null)
-    if (body !== null && typeof body === 'object' && 'data' in body) {
-      return body.data
-    }
-    return undefined
+    return response
   }
 
   async postData(
