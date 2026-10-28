@@ -132,6 +132,7 @@ export function sessionFor(
     maxScore: null,
     releasedAt: null,
     releasedById: null,
+    gradedAt: null,
     createdAt: NOW,
     updatedAt: NOW,
     ...overrides,

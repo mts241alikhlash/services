@@ -3,7 +3,7 @@ import { IExamPackageRepository } from '../../exam-package/domain/repositories/e
 import { IExamScheduleRepository } from '../../exam-schedule/domain/repositories/exam-schedule.repository.js'
 import { IQuestionRepository } from '../../question/domain/repositories/question.repository.js'
 import type { ExamSession } from '../domain/entities/exam-session.entity.js'
-import { scoreAnswer } from '../domain/policies/score-answer.policy.js'
+import { computeSessionResult } from '../domain/policies/compute-session-result.policy.js'
 import { IExamSessionRepository } from '../domain/repositories/exam-session.repository.js'
 import { ISessionFinalizer } from '../domain/repositories/session-finalizer.port.js'
 import { loadPaperSources } from './load-paper-sources.js'
@@ -47,30 +47,15 @@ export class FinalizeSessionService extends ISessionFinalizer {
       session.scheduleId,
     )
     const closed = await this.sessions.close(session.id, (answers) => {
-      const answerOf = new Map(answers.map((row) => [row.questionId, row]))
-      let rawScore = 0
-      let maxScore = 0
-      let hasManual = false
-      const scores: { answerId: string; score: number | null }[] = []
-      for (const source of sources) {
-        maxScore += source.points
-        const answer = answerOf.get(source.questionId) ?? null
-        const { score } = scoreAnswer(
-          source.type,
-          source.content,
-          answer?.answer ?? null,
-          source.points,
-        )
-        if (score === null) hasManual = true
-        else rawScore += score
-        if (answer !== null) scores.push({ answerId: answer.id, score })
-      }
+      const result = computeSessionResult(sources, answers)
+      const graded = result.pendingManual === 0
       return {
-        status: hasManual ? as : 'GRADED',
+        status: graded ? 'GRADED' : as,
         submittedAt: as === 'SUBMITTED' ? now : null,
-        rawScore: Math.round(rawScore * 10000) / 10000,
-        maxScore,
-        scores,
+        gradedAt: graded ? now : null,
+        rawScore: result.rawScore,
+        maxScore: result.maxScore,
+        scores: result.scores,
       }
     })
     if (closed !== null) return closed

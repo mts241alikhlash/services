@@ -126,10 +126,18 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
         data: {
           status: closure.status,
           submittedAt: closure.submittedAt,
+          gradedAt: closure.gradedAt,
           rawScore: closure.rawScore,
           maxScore: closure.maxScore,
         },
       })
+      if (closure.status === 'GRADED') {
+        await tx.scorePublication.upsert({
+          where: { sessionId: id },
+          create: { sessionId: id },
+          update: {},
+        })
+      }
       for (const { answerId, score } of closure.scores) {
         await tx.examAnswer.update({
           where: { id: answerId },

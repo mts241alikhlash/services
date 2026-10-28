@@ -16,6 +16,7 @@ export interface SaveAnswerInput {
 export interface SessionClosure {
   status: 'SUBMITTED' | 'EXPIRED' | 'GRADED'
   submittedAt: Date | null
+  gradedAt: Date | null
   rawScore: number
   maxScore: number
   scores: { answerId: string; score: number | null }[]

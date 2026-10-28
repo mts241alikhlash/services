@@ -42,6 +42,7 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
       maxScore: null,
       releasedAt: null,
       releasedById: null,
+      gradedAt: null,
       createdAt: now,
       updatedAt: now,
     }
@@ -58,6 +59,7 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
   }
 
   readonly answers = new Map<string, ExamAnswerRecord>()
+  readonly publications = new Set<string>()
 
   findAnswerByClientId(sessionId: string, clientId: string) {
     const found = [...this.answers.values()].find(
@@ -80,6 +82,9 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
     const record: ExamAnswerRecord = {
       id: existing?.id ?? randomUUID(),
       score: null,
+      gradedById: null,
+      gradedAt: null,
+      gradeNote: null,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
       ...input,
@@ -98,10 +103,12 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
       ...session,
       status: closure.status,
       submittedAt: closure.submittedAt,
+      gradedAt: closure.gradedAt,
       rawScore: closure.rawScore,
       maxScore: closure.maxScore,
     }
     this.sessions.set(id, closed)
+    if (closure.status === 'GRADED') this.publications.add(id)
     for (const { answerId, score } of closure.scores) {
       const answer = this.answers.get(answerId)
       if (answer) this.answers.set(answerId, { ...answer, score })

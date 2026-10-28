@@ -25,6 +25,7 @@ export interface ExamSession {
   maxScore: number | null
   releasedAt: Date | null
   releasedById: string | null
+  gradedAt: Date | null
   createdAt: Date
   updatedAt: Date
 }
@@ -37,6 +38,9 @@ export interface ExamAnswerRecord {
   clientId: string
   receivedAfterDeadline: boolean
   score: number | null
+  gradedById: string | null
+  gradedAt: Date | null
+  gradeNote: string | null
   createdAt: Date
   updatedAt: Date
 }
