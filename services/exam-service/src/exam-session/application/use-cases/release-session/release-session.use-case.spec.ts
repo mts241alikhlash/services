@@ -7,6 +7,7 @@ import { FakeExamSessionRepository } from '../../exam-session.repository.fake.js
 import { AccessCodeService } from '../../../../exam-schedule/application/access-code.service.js'
 import {
   FakeEnrollment,
+  FakeStudentDirectory,
   FakeStudentIdentity,
   NOW,
   STUDENT_USER,
@@ -112,7 +113,11 @@ describe('ReleaseSessionUseCase', () => {
 
   it('lists the sessions of a schedule with paging and 404 for an unknown schedule', async () => {
     const { schedule, schedules, sessions } = await setup()
-    const list = new ListScheduleSessionsUseCase(schedules, sessions)
+    const list = new ListScheduleSessionsUseCase(
+      schedules,
+      sessions,
+      new FakeStudentDirectory(),
+    )
 
     expect(await list.execute(schedule.id, 1, 10)).toMatchObject({
       total: 1,
@@ -120,5 +125,29 @@ describe('ReleaseSessionUseCase', () => {
       limit: 10,
     })
     await expect(list.execute('missing')).rejects.toThrow(NotFoundException)
+  })
+
+  it('carries the student name and nis, and tolerates a student that is gone', async () => {
+    const { schedule, schedules, sessions } = await setup()
+
+    const known = await new ListScheduleSessionsUseCase(
+      schedules,
+      sessions,
+      new FakeStudentDirectory(),
+    ).execute(schedule.id)
+    const missing = await new ListScheduleSessionsUseCase(
+      schedules,
+      sessions,
+      new FakeStudentDirectory([]),
+    ).execute(schedule.id)
+
+    expect(known.data[0]).toMatchObject({
+      studentName: 'Ahmad Fauzi',
+      studentNis: '2024001',
+    })
+    expect(missing.data[0]).toMatchObject({
+      studentName: null,
+      studentNis: null,
+    })
   })
 })

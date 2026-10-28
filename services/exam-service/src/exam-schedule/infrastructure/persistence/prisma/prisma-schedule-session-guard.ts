@@ -8,6 +8,15 @@ export class PrismaScheduleSessionGuard extends IScheduleSessionGuard {
     super()
   }
 
+  async idsWithSessions(scheduleIds: string[]): Promise<Set<string>> {
+    if (scheduleIds.length === 0) return new Set()
+    const rows = await this.prisma.examSession.groupBy({
+      by: ['scheduleId'],
+      where: { scheduleId: { in: scheduleIds } },
+    })
+    return new Set(rows.map((row) => row.scheduleId))
+  }
+
   async hasSessions(scheduleId: string): Promise<boolean> {
     const count = await this.prisma.examSession.count({
       where: { scheduleId },

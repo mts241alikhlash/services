@@ -17,6 +17,10 @@ export class ExamScheduleDto {
   @ApiProperty() durationMinutes!: number
   @ApiProperty({ enum: EXAM_SCHEDULE_STATUSES }) status!: ExamScheduleStatus
   @ApiProperty({ format: 'uuid' }) createdById!: string
+  @ApiProperty({
+    description: 'True once a student started: it can no longer be cancelled',
+  })
+  hasSessions!: boolean
   @ApiProperty({ format: 'date-time' }) createdAt!: string
   @ApiProperty({ format: 'date-time' }) updatedAt!: string
 
@@ -36,6 +40,7 @@ export class ExamScheduleDto {
     dto.endsAt = domain.endsAt.toISOString()
     dto.durationMinutes = domain.durationMinutes
     dto.status = domain.status
+    dto.hasSessions = domain.hasSessions ?? false
     dto.createdById = domain.createdById
     dto.createdAt = domain.createdAt.toISOString()
     dto.updatedAt = domain.updatedAt.toISOString()

@@ -21,4 +21,5 @@ export interface ExamSchedule {
 
 export interface ExamScheduleView extends ExamSchedule {
   classroomName: string | null
+  hasSessions?: boolean
 }
