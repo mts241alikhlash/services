@@ -21,6 +21,7 @@ import { StudentIdentityModule } from './platform/student-identity/student-ident
 import { JwtAuthGuard } from './platform/auth/index.js'
 import { PermissionGuard } from './platform/access-control/permission/guards/permission.guard.js'
 import { PresenceLookupModule } from './platform/presence-lookup/presence-lookup.module.js'
+import { ExamScoreModule } from './exam-score/exam-score.module.js'
 import { AssessmentModule } from './assessment/assessment.module.js'
 import { AttendanceModule } from './attendance/attendance.module.js'
 import { ReportCardModule } from './report-card/report-card.module.js'
@@ -58,6 +59,7 @@ import { EnrollmentLookupModule } from './platform/enrollment-lookup/enrollment-
     EmployeeIdentityModule,
     StudentIdentityModule,
     AssessmentModule,
+    ExamScoreModule,
     AttendanceModule,
     ReportCardModule,
     MyDashboardModule,
