@@ -34,6 +34,10 @@ import and analysis.
   code students enter is derived with HMAC from the schedule id and
   `tokenRotation` (secret `EXAM_ACCESS_CODE_SECRET`) and is never stored; it
   appears only in the `access-code` endpoints.
+- **Package candidates** (`GET /exam-packages/candidates`, `exam-packages.create`):
+  the approved questions of one subject and grade, for the people who build
+  packages. It ignores the teacher scope of the question bank on purpose, so
+  the deputy for curriculum and the admin can pick any teacher's question.
 
 ## What it borrows
 

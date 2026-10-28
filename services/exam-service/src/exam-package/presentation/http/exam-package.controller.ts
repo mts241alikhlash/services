@@ -26,17 +26,20 @@ import { CopyExamPackageUseCase } from '../../application/use-cases/copy-exam-pa
 import { CreateExamPackageUseCase } from '../../application/use-cases/create-exam-package/create-exam-package.use-case.js'
 import { DeleteExamPackageUseCase } from '../../application/use-cases/delete-exam-package/delete-exam-package.use-case.js'
 import { GetExamPackageUseCase } from '../../application/use-cases/get-exam-package/get-exam-package.use-case.js'
+import { ListPackageCandidatesUseCase } from '../../application/use-cases/list-package-candidates/list-package-candidates.use-case.js'
 import { ListExamPackagesUseCase } from '../../application/use-cases/list-exam-packages/list-exam-packages.use-case.js'
 import { UpdateExamPackageUseCase } from '../../application/use-cases/update-exam-package/update-exam-package.use-case.js'
 import {
   CreateExamPackageDto,
   ExamPackageQueryDto,
+  PackageCandidateQueryDto,
   UpdateExamPackageDto,
 } from './dto/request/exam-package-request.dto.js'
 import {
   ExamPackageDetailDto,
   ExamPackageListResponseDto,
   ExamPackageViewDto,
+  PackageCandidateListResponseDto,
 } from './dto/response/exam-package-response.dto.js'
 
 @ApiTags('Exam Packages')
@@ -46,6 +49,7 @@ import {
 export class ExamPackageController {
   constructor(
     private readonly listPackages: ListExamPackagesUseCase,
+    private readonly listCandidates: ListPackageCandidatesUseCase,
     private readonly getPackage: GetExamPackageUseCase,
     private readonly createPackage: CreateExamPackageUseCase,
     private readonly updatePackage: UpdateExamPackageUseCase,
@@ -62,6 +66,21 @@ export class ExamPackageController {
   ): Promise<ExamPackageListResponseDto> {
     return ExamPackageListResponseDto.fromDomain(
       await this.listPackages.execute(query),
+    )
+  }
+
+  @Get('candidates')
+  @RequirePermissions('exam-packages.create')
+  @ApiOperation({
+    summary:
+      'Approved questions of a subject and grade a package may be built from',
+  })
+  @ApiResponse({ status: 200, type: PackageCandidateListResponseDto })
+  async findCandidates(
+    @Query() query: PackageCandidateQueryDto,
+  ): Promise<PackageCandidateListResponseDto> {
+    return PackageCandidateListResponseDto.fromDomain(
+      await this.listCandidates.execute(query),
     )
   }
 

@@ -126,6 +126,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exam-packages/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Approved questions of a subject and grade a package may be built from */
+        get: operations["ExamPackageController_findCandidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/exam-questions": {
         parameters: {
             query?: never;
@@ -579,6 +596,21 @@ export interface components {
             errors: components["schemas"]["ImportErrorDto"][];
             questionIds: string[];
         };
+        PackageCandidateDto: {
+            approvedVersion: number;
+            /** Format: uuid */
+            id: string;
+            points: number;
+            summary: string;
+            /** @enum {string} */
+            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
+        };
+        PackageCandidateListResponseDto: {
+            data: components["schemas"]["PackageCandidateDto"][];
+            limit: number;
+            page: number;
+            total: number;
+        };
         QuestionAuthorDto: {
             /** Format: uuid */
             id: string;
@@ -994,6 +1026,42 @@ export interface operations {
                         data?: components["schemas"]["ExamPackageDetailDto"];
                         /** @example Success */
                         message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_findCandidates: {
+        parameters: {
+            query: {
+                gradeId: string;
+                limit?: number;
+                page?: number;
+                search?: string;
+                subjectId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["PackageCandidateDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: {
+                            limit?: number;
+                            page?: number;
+                            total?: number;
+                        };
                         /** @example 200 */
                         statusCode?: number;
                     };

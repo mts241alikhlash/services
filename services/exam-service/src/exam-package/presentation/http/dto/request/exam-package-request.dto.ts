@@ -66,3 +66,14 @@ export class ExamPackageQueryDto extends PaginationQueryDto {
   @MaxLength(100)
   search?: string
 }
+
+export class PackageCandidateQueryDto extends PaginationQueryDto {
+  @ApiProperty({ format: 'uuid' }) @IsUUID() subjectId!: string
+  @ApiProperty({ format: 'uuid' }) @IsUUID() gradeId!: string
+
+  @ApiPropertyOptional({ maxLength: 100 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  search?: string
+}

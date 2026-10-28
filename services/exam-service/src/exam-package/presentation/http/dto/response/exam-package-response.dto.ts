@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import type { PackageCandidate } from '../../../../application/use-cases/list-package-candidates/list-package-candidates.use-case.js'
 import {
   QUESTION_TYPES,
   type QuestionType,
@@ -122,6 +123,46 @@ export class ExamPackageListResponseDto {
   }): ExamPackageListResponseDto {
     const dto = new ExamPackageListResponseDto()
     dto.data = domain.data.map((row) => ExamPackageSummaryDto.fromDomain(row))
+    dto.total = domain.total
+    dto.page = domain.page
+    dto.limit = domain.limit
+    return dto
+  }
+}
+
+export class PackageCandidateDto {
+  @ApiProperty({ format: 'uuid' }) id!: string
+  @ApiProperty({ enum: QUESTION_TYPES }) type!: QuestionType
+  @ApiProperty() summary!: string
+  @ApiProperty() points!: number
+  @ApiProperty() approvedVersion!: number
+
+  static fromDomain(domain: PackageCandidate): PackageCandidateDto {
+    const dto = new PackageCandidateDto()
+    dto.id = domain.id
+    dto.type = domain.type
+    dto.summary = domain.summary
+    dto.points = domain.points
+    dto.approvedVersion = domain.approvedVersion
+    return dto
+  }
+}
+
+export class PackageCandidateListResponseDto {
+  @ApiProperty({ type: () => [PackageCandidateDto] })
+  data!: PackageCandidateDto[]
+  @ApiProperty() total!: number
+  @ApiProperty() page!: number
+  @ApiProperty() limit!: number
+
+  static fromDomain(domain: {
+    data: PackageCandidate[]
+    total: number
+    page: number
+    limit: number
+  }): PackageCandidateListResponseDto {
+    const dto = new PackageCandidateListResponseDto()
+    dto.data = domain.data.map((row) => PackageCandidateDto.fromDomain(row))
     dto.total = domain.total
     dto.page = domain.page
     dto.limit = domain.limit

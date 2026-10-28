@@ -869,6 +869,112 @@
         ]
       }
     },
+    "/exam-packages/candidates": {
+      "get": {
+        "operationId": "ExamPackageController_findCandidates",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "subjectId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "gradeId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PackageCandidateDto"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "page": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approved questions of a subject and grade a package may be built from",
+        "tags": [
+          "Exam Packages"
+        ]
+      }
+    },
     "/exam-packages/{id}": {
       "get": {
         "operationId": "ExamPackageController_findOne",
@@ -2546,6 +2652,67 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ExamPackageSummaryDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "PackageCandidateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "enum": [
+              "MULTIPLE_CHOICE",
+              "MULTIPLE_RESPONSE",
+              "TRUE_FALSE",
+              "SHORT_ANSWER",
+              "ESSAY"
+            ],
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "points": {
+            "type": "number"
+          },
+          "approvedVersion": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "summary",
+          "points",
+          "approvedVersion"
+        ]
+      },
+      "PackageCandidateListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackageCandidateDto"
             }
           },
           "total": {
