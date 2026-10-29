@@ -841,6 +841,8 @@ export interface components {
             /** Format: uuid */
             subjectId: string;
             title: string;
+            /** @enum {string} */
+            type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
         };
         GradingScheduleListResponseDto: {
             data: components["schemas"]["GradingScheduleDto"][];

@@ -4442,6 +4442,16 @@
             "type": "string",
             "format": "uuid"
           },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
+          },
           "startsAt": {
             "type": "string",
             "format": "date-time"
@@ -4467,6 +4477,7 @@
           "classroomId",
           "classroomName",
           "semesterId",
+          "type",
           "startsAt",
           "endsAt",
           "sessions",

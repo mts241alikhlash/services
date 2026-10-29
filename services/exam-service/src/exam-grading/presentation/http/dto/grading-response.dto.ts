@@ -1,4 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
+import {
+  EXAM_TYPES,
+  type ExamType,
+} from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
 import type { PaginatedResult } from '../../../../shared/domain/interfaces/repository.interface.js'
 import type { GradingSessionDetail } from '../../../application/use-cases/get-grading-session/get-grading-session.use-case.js'
 import type { GradingItem } from '../../../application/grading-item.js'
@@ -19,6 +23,7 @@ export class GradingScheduleDto {
   @ApiProperty({ format: 'uuid' }) classroomId!: string
   @ApiProperty({ type: String, nullable: true }) classroomName!: string | null
   @ApiProperty({ format: 'uuid' }) semesterId!: string
+  @ApiProperty({ enum: EXAM_TYPES }) type!: ExamType
   @ApiProperty({ format: 'date-time' }) startsAt!: string
   @ApiProperty({ format: 'date-time' }) endsAt!: string
   @ApiProperty() sessions!: number
@@ -33,6 +38,7 @@ export class GradingScheduleDto {
     dto.classroomId = domain.classroomId
     dto.classroomName = domain.classroomName
     dto.semesterId = domain.semesterId
+    dto.type = domain.type
     dto.startsAt = domain.startsAt.toISOString()
     dto.endsAt = domain.endsAt.toISOString()
     dto.sessions = domain.sessions
