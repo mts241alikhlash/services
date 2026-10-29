@@ -19,7 +19,7 @@ describe('GetMyStudentUseCase', () => {
 
     const useCase = new GetMyStudentUseCase(
       { findByUserId, findById } as unknown as IStudentRepository,
-      { findByUserIds } as unknown as IProfileLookupPort,
+      { findByUserIds },
     )
 
     return { useCase, findByUserId, findById, findByUserIds }
