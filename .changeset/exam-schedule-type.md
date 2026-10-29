@@ -1,5 +1,5 @@
 ---
-'exam-service': minor
+'exam-service': major
 'academic-service': minor
 ---
 
