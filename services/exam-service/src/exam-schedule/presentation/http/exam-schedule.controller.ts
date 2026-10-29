@@ -98,6 +98,7 @@ export class ExamScheduleController {
         startsAt: new Date(dto.startsAt),
         endsAt: new Date(dto.endsAt),
         durationMinutes: dto.durationMinutes,
+        type: dto.type,
       }),
     )
   }
@@ -116,6 +117,7 @@ export class ExamScheduleController {
         startsAt: new Date(dto.startsAt),
         endsAt: new Date(dto.endsAt),
         durationMinutes: dto.durationMinutes,
+        type: dto.type,
       }),
     )
   }

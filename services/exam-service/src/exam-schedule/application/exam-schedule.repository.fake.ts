@@ -91,6 +91,7 @@ export class FakeExamScheduleRepository extends IExamScheduleRepository {
       startsAt: input.startsAt,
       endsAt: input.endsAt,
       durationMinutes: input.durationMinutes,
+      type: input.type,
       tokenRotation: 0,
       status: 'SCHEDULED',
       createdById: input.createdById,

@@ -36,6 +36,7 @@ describe('List and get exam schedules', () => {
         startsAt: START,
         endsAt: END,
         durationMinutes: 90,
+        type: 'UH',
       })
     ).id
   })

@@ -18,6 +18,7 @@ export function toSchedule(row: Row): ExamSchedule {
     startsAt: row.startsAt,
     endsAt: row.endsAt,
     durationMinutes: row.durationMinutes,
+    type: row.type,
     tokenRotation: row.tokenRotation,
     status: row.status,
     createdById: row.createdById,

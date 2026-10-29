@@ -657,6 +657,8 @@ export interface components {
             packageId: string;
             /** Format: date-time */
             startsAt: string;
+            /** @enum {string} */
+            type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
         };
         CreateQuestionDto: {
             /** Format: uuid */
@@ -785,6 +787,8 @@ export interface components {
             startsAt: string;
             /** @enum {string} */
             status: "SCHEDULED" | "CANCELLED";
+            /** @enum {string} */
+            type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
             /** Format: date-time */
             updatedAt: string;
         };
@@ -911,7 +915,11 @@ export interface components {
             status: "UPCOMING" | "OPEN" | "IN_PROGRESS" | "FINISHED";
             /** Format: uuid */
             subjectId: string;
+            /** @description Null when academic-service cannot name the subject right now */
+            subjectName: string | null;
             title: string;
+            /** @enum {string} */
+            type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
         };
         PackageCandidateDto: {
             approvedVersion: number;
@@ -1135,6 +1143,8 @@ export interface components {
             endsAt: string;
             /** Format: date-time */
             startsAt: string;
+            /** @enum {string} */
+            type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
         };
         UpdateQuestionDto: {
             bodyHtml?: string;

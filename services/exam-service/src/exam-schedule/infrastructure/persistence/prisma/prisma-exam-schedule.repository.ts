@@ -138,6 +138,7 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
           {
             startsAt: fields.startsAt,
             durationMinutes: fields.durationMinutes,
+            type: fields.type,
             endsAt: { lte: fields.endsAt },
           },
         ],

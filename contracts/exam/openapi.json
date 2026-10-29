@@ -3867,6 +3867,16 @@
           "durationMinutes": {
             "type": "number"
           },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
+          },
           "status": {
             "enum": [
               "SCHEDULED",
@@ -3901,6 +3911,7 @@
           "startsAt",
           "endsAt",
           "durationMinutes",
+          "type",
           "status",
           "createdById",
           "hasSessions",
@@ -3950,6 +3961,16 @@
             "minimum": 1,
             "maximum": 1440
           },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
+          },
           "packageId": {
             "type": "string",
             "format": "uuid"
@@ -3963,6 +3984,7 @@
           "startsAt",
           "endsAt",
           "durationMinutes",
+          "type",
           "packageId",
           "classroomId"
         ]
@@ -3982,12 +4004,23 @@
             "type": "number",
             "minimum": 1,
             "maximum": 1440
+          },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
           }
         },
         "required": [
           "startsAt",
           "endsAt",
-          "durationMinutes"
+          "durationMinutes",
+          "type"
         ]
       },
       "AccessCodeDto": {
@@ -4021,6 +4054,21 @@
             "type": "string",
             "format": "uuid"
           },
+          "subjectName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Null when academic-service cannot name the subject right now"
+          },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
+          },
           "startsAt": {
             "type": "string",
             "format": "date-time"
@@ -4051,6 +4099,8 @@
           "id",
           "title",
           "subjectId",
+          "subjectName",
+          "type",
           "startsAt",
           "endsAt",
           "durationMinutes",

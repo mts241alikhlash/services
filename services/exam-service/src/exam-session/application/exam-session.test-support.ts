@@ -1,3 +1,4 @@
+import type { ExamType } from '../../exam-schedule/domain/entities/exam-schedule.entity.js'
 import { ServiceUnavailableException } from '@nestjs/common'
 import type { FakeExamPackageRepository } from '../../exam-package/application/exam-package.repository.fake.js'
 import { CreateExamScheduleUseCase } from '../../exam-schedule/application/use-cases/create-exam-schedule/create-exam-schedule.use-case.js'
@@ -93,7 +94,12 @@ export async function scheduleExam(
     schedules: FakeExamScheduleRepository
     questions: FakeQuestionRepository
   },
-  overrides: { startsAt?: Date; endsAt?: Date; durationMinutes?: number } = {},
+  overrides: {
+    startsAt?: Date
+    endsAt?: Date
+    durationMinutes?: number
+    type?: ExamType
+  } = {},
 ): Promise<ExamSchedule> {
   const pkg = await draftPackage(fixtures.packages, fixtures.questions)
   return new CreateExamScheduleUseCase(
@@ -108,6 +114,7 @@ export async function scheduleExam(
       startsAt: overrides.startsAt ?? STARTS,
       endsAt: overrides.endsAt ?? ENDS,
       durationMinutes: overrides.durationMinutes ?? 90,
+      type: overrides.type ?? 'UH',
     },
     new Date('2026-10-30T00:00:00.000Z'),
   )
@@ -203,6 +210,7 @@ export async function schedulePaper(
       startsAt: STARTS,
       endsAt: ENDS,
       durationMinutes: 90,
+      type: 'UH',
     },
     new Date('2026-10-30T00:00:00.000Z'),
   )

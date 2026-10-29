@@ -1,7 +1,11 @@
 import { ServiceUnavailableException } from '@nestjs/common'
 import { FakeExamPackageRepository } from '../../../../exam-package/application/exam-package.repository.fake.js'
 import { FakeExamScheduleRepository } from '../../../../exam-schedule/application/exam-schedule.repository.fake.js'
-import { CLASSROOM_7A } from '../../../../exam-schedule/application/exam-schedule.test-support.js'
+import {
+  CLASSROOM_7A,
+  FakeAcademicLookup,
+} from '../../../../exam-schedule/application/exam-schedule.test-support.js'
+import { SUBJECT_ID } from '../../../../exam-package/application/exam-package.test-support.js'
 import { FakeQuestionRepository } from '../../../../question/application/question.repository.fake.js'
 import { FakeExamSessionRepository } from '../../exam-session.repository.fake.js'
 import {
@@ -33,8 +37,18 @@ describe('ListMyExamsUseCase', () => {
   const build = (
     students = new FakeStudentIdentity(),
     enrollments = new FakeEnrollment(),
+    academic = new FakeAcademicLookup({
+      subjects: [{ id: SUBJECT_ID, name: 'Matematika' }],
+    }),
   ) =>
-    new ListMyExamsUseCase(students, enrollments, schedules, packages, sessions)
+    new ListMyExamsUseCase(
+      students,
+      enrollments,
+      schedules,
+      packages,
+      sessions,
+      academic,
+    )
 
   const fixtures = () => ({ packages, schedules, questions })
 
@@ -53,6 +67,27 @@ describe('ListMyExamsUseCase', () => {
       sessionId: null,
     })
     expect(list[0].subjectId).toBeTruthy()
+  })
+
+  it('carries the exam type and the subject name', async () => {
+    await scheduleExam(fixtures(), { type: 'UTS' })
+
+    const [exam] = await build().execute(STUDENT_USER, NOW)
+
+    expect(exam).toMatchObject({ type: 'UTS', subjectName: 'Matematika' })
+  })
+
+  it('still lists the exams when the subject names cannot be fetched', async () => {
+    await scheduleExam(fixtures())
+
+    const [exam] = await build(
+      new FakeStudentIdentity(),
+      new FakeEnrollment(),
+      new FakeAcademicLookup({ failWith: down() }),
+    ).execute(STUDENT_USER, NOW)
+
+    expect(exam.subjectName).toBeNull()
+    expect(exam.type).toBe('UH')
   })
 
   it('leaves out the exams of another classroom and cancelled exams', async () => {

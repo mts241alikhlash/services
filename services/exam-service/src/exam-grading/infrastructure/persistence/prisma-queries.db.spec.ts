@@ -163,6 +163,31 @@ suite('Prisma queries against a real database', () => {
     expect(none.total).toBe(0)
   })
 
+  it('changes the exam type only while nobody has started', async () => {
+    const quiet = await schedule()
+    const started = await schedule()
+    await session(started.scheduleId, 'IN_PROGRESS')
+    const fields = {
+      startsAt: new Date('2026-11-02T01:00:00.000Z'),
+      endsAt: new Date('2026-11-02T04:00:00.000Z'),
+      durationMinutes: 90,
+      type: 'UAS' as const,
+    }
+
+    const changed = await schedules.updateWindow(quiet.scheduleId, fields)
+    const refused = await schedules.updateWindow(started.scheduleId, fields)
+    const sameType = await schedules.updateWindow(started.scheduleId, {
+      ...fields,
+      type: 'UH',
+      endsAt: new Date('2026-11-02T05:00:00.000Z'),
+    })
+
+    expect(changed?.type).toBe('UAS')
+    expect(refused).toBeNull()
+    expect(sameType?.type).toBe('UH')
+    expect((await schedules.findById(started.scheduleId))?.type).toBe('UH')
+  })
+
   it('counts sessions per schedule and tells which schedules have any', async () => {
     const s = await schedule()
     await session(s.scheduleId, 'SUBMITTED')

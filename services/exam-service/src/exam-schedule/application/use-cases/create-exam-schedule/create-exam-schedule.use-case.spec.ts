@@ -42,6 +42,7 @@ describe('CreateExamScheduleUseCase', () => {
     startsAt: START,
     endsAt: END,
     durationMinutes: 90,
+    type: 'UH' as const,
     ...overrides,
   })
 
@@ -58,6 +59,13 @@ describe('CreateExamScheduleUseCase', () => {
     expect(created.semesterId).toBe(SEMESTER_ID)
     expect(created.createdById).toBe(USER.id)
     expect((await packages.findById(packageId))?.status).toBe('LOCKED')
+  })
+
+  it('keeps the exam type it was given', async () => {
+    const created = await build().execute(USER, input({ type: 'UAS' }))
+
+    expect(created.type).toBe('UAS')
+    expect((await schedules.findById(created.id))?.type).toBe('UAS')
   })
 
   it('refuses a classroom of another grade', async () => {

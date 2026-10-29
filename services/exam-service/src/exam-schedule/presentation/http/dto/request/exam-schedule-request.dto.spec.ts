@@ -13,6 +13,7 @@ const valid = {
   startsAt: '2026-11-02T01:00:00.000Z',
   endsAt: '2026-11-02T04:00:00.000Z',
   durationMinutes: 90,
+  type: 'UTS',
 }
 
 describe('UpdateExamScheduleDto', () => {
@@ -34,6 +35,17 @@ describe('UpdateExamScheduleDto', () => {
     expect(errorsFor({ ...valid, endsAt: '2026-11-02T11:00' })).toEqual([
       'endsAt',
     ])
+  })
+
+  it('accepts every exam type', () => {
+    for (const type of ['UH', 'QUIZ', 'TUGAS', 'UTS', 'UAS']) {
+      expect(errorsFor({ ...valid, type })).toEqual([])
+    }
+  })
+
+  it('rejects an unknown or missing exam type', () => {
+    expect(errorsFor({ ...valid, type: 'REMEDIAL' })).toEqual(['type'])
+    expect(errorsFor({ ...valid, type: undefined })).toEqual(['type'])
   })
 
   it('rejects a duration above 24 hours so it can never overflow the column', () => {

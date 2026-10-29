@@ -40,11 +40,24 @@ function choicesOf(
   )
 }
 
+const TYPE_ORDER: readonly QuestionType[] = [
+  'MULTIPLE_CHOICE',
+  'MULTIPLE_RESPONSE',
+  'TRUE_FALSE',
+  'SHORT_ANSWER',
+  'ESSAY',
+]
+
 export function buildPaper(
   sources: readonly PaperSource[],
   seed: string,
 ): PaperQuestion[] {
-  return seededShuffle(sources, seed).map((source, index) => ({
+  return TYPE_ORDER.flatMap((type) =>
+    seededShuffle(
+      sources.filter((source) => source.type === type),
+      `${seed}:${type}`,
+    ),
+  ).map((source, index) => ({
     questionId: source.questionId,
     number: index + 1,
     type: source.type,

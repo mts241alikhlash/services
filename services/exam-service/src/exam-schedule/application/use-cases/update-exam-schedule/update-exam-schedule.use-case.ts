@@ -36,6 +36,7 @@ export class UpdateExamScheduleUseCase {
       const unchanged =
         fields.startsAt.getTime() === existing.startsAt.getTime() &&
         fields.durationMinutes === existing.durationMinutes &&
+        fields.type === existing.type &&
         fields.endsAt.getTime() >= existing.endsAt.getTime()
       if (!unchanged) throw new ConflictException(EXTEND_ONLY_MESSAGE)
     }

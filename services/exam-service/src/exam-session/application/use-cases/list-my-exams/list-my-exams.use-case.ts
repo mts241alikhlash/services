@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { IExamPackageRepository } from '../../../../exam-package/domain/repositories/exam-package.repository.js'
 import { IExamScheduleRepository } from '../../../../exam-schedule/domain/repositories/exam-schedule.repository.js'
+import { IAcademicLookupPort } from '../../../../platform/academic-lookup/academic-lookup.port.js'
 import { IEnrollmentLookupPort } from '../../../../platform/enrollment-lookup/enrollment-lookup.port.js'
 import { IStudentIdentityReadPort } from '../../../../platform/student-identity/student-identity.port.js'
+import type { ExamType } from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
 import type { MyExamStatus } from '../../../domain/entities/exam-session.entity.js'
 import { myExamStatus } from '../../../domain/policies/my-exam-status.policy.js'
 import { IExamSessionRepository } from '../../../domain/repositories/exam-session.repository.js'
@@ -11,6 +13,8 @@ export interface MyExam {
   id: string
   title: string
   subjectId: string
+  subjectName: string | null
+  type: ExamType
   startsAt: Date
   endsAt: Date
   durationMinutes: number
@@ -33,6 +37,7 @@ export class ListMyExamsUseCase {
     private readonly schedules: IExamScheduleRepository,
     private readonly packages: IExamPackageRepository,
     private readonly sessions: IExamSessionRepository,
+    private readonly academic: IAcademicLookupPort,
   ) {}
 
   async execute(
@@ -65,6 +70,8 @@ export class ListMyExamsUseCase {
         id: schedule.id,
         title: schedule.packageTitle,
         subjectId: pkg.subjectId,
+        subjectName: null,
+        type: schedule.type,
         startsAt: schedule.startsAt,
         endsAt: schedule.endsAt,
         durationMinutes: schedule.durationMinutes,
@@ -72,6 +79,9 @@ export class ListMyExamsUseCase {
         sessionId: session?.id ?? null,
       })
     }
+    const names = await this.subjectNames(rows.map((row) => row.subjectId))
+    for (const row of rows) row.subjectName = names.get(row.subjectId) ?? null
+
     return rows.sort(
       (a, b) =>
         RANK[a.status] - RANK[b.status] ||
@@ -79,5 +89,14 @@ export class ListMyExamsUseCase {
           ? b.endsAt.getTime() - a.endsAt.getTime()
           : a.startsAt.getTime() - b.startsAt.getTime()),
     )
+  }
+
+  private async subjectNames(ids: string[]): Promise<Map<string, string>> {
+    try {
+      const subjects = await this.academic.subjectsByIds([...new Set(ids)])
+      return new Map(subjects.map((subject) => [subject.id, subject.name]))
+    } catch {
+      return new Map()
+    }
   }
 }

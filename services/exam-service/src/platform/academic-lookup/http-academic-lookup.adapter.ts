@@ -5,6 +5,7 @@ import {
   type ActiveSemester,
   type ClassroomRef,
   type GradeRef,
+  type SubjectRef,
   type TeachingAssignmentRef,
   type TeachingPair,
 } from './academic-lookup.port.js'
@@ -122,6 +123,26 @@ export class HttpAcademicLookupAdapter extends IAcademicLookupPort {
         level: row.level,
         name: typeof row.name === 'string' ? row.name : null,
       }
+    })
+  }
+
+  async subjectsByIds(ids: string[]): Promise<SubjectRef[]> {
+    if (ids.length === 0) return []
+
+    const data = await this.client.postData(URL_KEY, '/subjects/by-ids', {
+      ids,
+    })
+    if (!Array.isArray(data)) return this.client.malformed(URL_KEY)
+
+    return (data as unknown[]).map((row) => {
+      if (
+        !isRecord(row) ||
+        typeof row.id !== 'string' ||
+        typeof row.name !== 'string'
+      ) {
+        return this.client.malformed(URL_KEY)
+      }
+      return { id: row.id, name: row.name }
     })
   }
 

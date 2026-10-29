@@ -36,6 +36,7 @@ describe('Update and cancel exam schedule', () => {
         startsAt: START,
         endsAt: END,
         durationMinutes: 90,
+        type: 'UH',
       })
     ).id
   })
@@ -50,10 +51,26 @@ describe('Update and cancel exam schedule', () => {
       startsAt: START,
       endsAt: later,
       durationMinutes: 120,
+      type: 'UH',
     })
 
     expect(updated.endsAt).toEqual(later)
     expect(updated.durationMinutes).toBe(120)
+  })
+
+  it('changes the exam type while nobody has started', async () => {
+    const updated = await new UpdateExamScheduleUseCase(
+      schedules,
+      guard,
+    ).execute(scheduleId, {
+      startsAt: START,
+      endsAt: END,
+      durationMinutes: 90,
+      type: 'UAS',
+    })
+
+    expect(updated.type).toBe('UAS')
+    expect((await schedules.findById(scheduleId))?.type).toBe('UAS')
   })
 
   it('refuses an invalid window without changing the schedule', async () => {
@@ -62,6 +79,7 @@ describe('Update and cancel exam schedule', () => {
         startsAt: START,
         endsAt: END,
         durationMinutes: 500,
+        type: 'UH',
       }),
     ).rejects.toThrow('Durasi tidak boleh lebih panjang')
     expect((await schedules.findById(scheduleId))?.durationMinutes).toBe(90)
@@ -71,7 +89,7 @@ describe('Update and cancel exam schedule', () => {
     await expect(
       new UpdateExamScheduleUseCase(schedules, guard).execute(
         '00000000-0000-4000-8000-000000000000',
-        { startsAt: START, endsAt: END, durationMinutes: 60 },
+        { startsAt: START, endsAt: END, durationMinutes: 60, type: 'UH' },
       ),
     ).rejects.toThrow(NotFoundException)
   })
@@ -90,6 +108,7 @@ describe('Update and cancel exam schedule', () => {
         startsAt: START,
         endsAt: END,
         durationMinutes: 60,
+        type: 'UH',
       }),
     ).rejects.toThrow(ConflictException)
     await expect(
@@ -107,6 +126,20 @@ describe('Update and cancel exam schedule', () => {
       expect((await schedules.findById(scheduleId))?.status).toBe('SCHEDULED')
     })
 
+    it('keeps its exam type', async () => {
+      await expect(
+        new UpdateExamScheduleUseCase(schedules, guard).execute(scheduleId, {
+          startsAt: START,
+          endsAt: later,
+          durationMinutes: 90,
+          type: 'UTS',
+        }),
+      ).rejects.toThrow(
+        'Jadwal sudah punya sesi: hanya waktu selesai yang bisa diperpanjang',
+      )
+      expect((await schedules.findById(scheduleId))?.type).toBe('UH')
+    })
+
     it('can only be extended', async () => {
       const useCase = new UpdateExamScheduleUseCase(schedules, guard)
 
@@ -114,6 +147,7 @@ describe('Update and cancel exam schedule', () => {
         startsAt: START,
         endsAt: later,
         durationMinutes: 90,
+        type: 'UH',
       })
       expect(extended.endsAt).toEqual(later)
 
@@ -124,6 +158,7 @@ describe('Update and cancel exam schedule', () => {
           startsAt: new Date(START.getTime() + 60_000),
           endsAt: later,
           durationMinutes: 90,
+          type: 'UH',
         }),
       ).rejects.toThrow(message)
       await expect(
@@ -131,6 +166,7 @@ describe('Update and cancel exam schedule', () => {
           startsAt: START,
           endsAt: later,
           durationMinutes: 60,
+          type: 'UH',
         }),
       ).rejects.toThrow(message)
       await expect(
@@ -138,6 +174,7 @@ describe('Update and cancel exam schedule', () => {
           startsAt: START,
           endsAt: END,
           durationMinutes: 90,
+          type: 'UH',
         }),
       ).rejects.toThrow(message)
     })
@@ -166,6 +203,7 @@ describe('Update and cancel exam schedule', () => {
           startsAt: START,
           endsAt: END,
           durationMinutes: 60,
+          type: 'UH',
         }),
       ).rejects.toThrow(
         'Jadwal sudah punya sesi: hanya waktu selesai yang bisa diperpanjang',

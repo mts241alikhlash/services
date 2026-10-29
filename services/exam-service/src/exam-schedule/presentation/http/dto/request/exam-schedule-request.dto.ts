@@ -13,7 +13,9 @@ import {
 import { PaginationQueryDto } from '../../../../../shared/dto/pagination.dto.js'
 import {
   EXAM_SCHEDULE_STATUSES,
+  EXAM_TYPES,
   type ExamScheduleStatus,
+  type ExamType,
 } from '../../../../domain/entities/exam-schedule.entity.js'
 
 const HAS_TIME_ZONE = /(Z|[+-]\d{2}:?\d{2})$/i
@@ -35,6 +37,10 @@ export class UpdateExamScheduleDto {
   @Min(1)
   @Max(1440)
   durationMinutes!: number
+
+  @ApiProperty({ enum: EXAM_TYPES })
+  @IsIn(EXAM_TYPES)
+  type!: ExamType
 }
 
 export class CreateExamScheduleDto extends UpdateExamScheduleDto {

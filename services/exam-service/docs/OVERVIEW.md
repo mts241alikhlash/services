@@ -44,7 +44,7 @@ import and analysis.
   clock: `deadline = min(startedAt + duration, schedule end)` and the session
   closes at `deadline + 10 minutes` (answers in that grace are flagged
   `receivedAfterDeadline`). The paper is the package's pinned questions with
-  question and choice order shuffled by a per-session seed (no answer keys
+  questions grouped by type (multiple choice and multiple response, then true/false, short answer, essay; a missing type leaves no gap) with the order inside each group and the choice order shuffled by a per-session seed (no answer keys
   are ever sent). Answers are idempotent by `clientId` and typed
   (`{key}`, `{keys}`, `{value}`, `{text}`). Five wrong codes lock the student
   for five minutes. A session is bound to one device (every session route needs the
@@ -61,6 +61,10 @@ import and analysis.
   extended; the schedule list and detail carry `hasSessions`, and the session
   list carries the student name and NIS (student-service ids joined with
   identity-service profiles).
+- A schedule has an exam type (`UH`, `QUIZ`, `TUGAS`, `UTS`, `UAS`), required on
+  create and update and frozen once a student has started. The student exam list
+  reports `type` and `subjectName` (academic-service `POST /subjects/by-ids`; a
+  failing lookup leaves the name null so the exams still show).
 - **Grading** (`src/exam-grading/`): a short answer or essay with text waits
   for the teacher; a blank or missing one scores 0 at once. Teachers list the
   exams they may grade (`GET /exam-grading/schedules`), the sessions of one
@@ -89,7 +93,7 @@ import and analysis.
 | `platform/access-control/permission` | `PermissionGuard`, `exam-questions.*` codes |
 | `platform/identity` | Token introspection against identity-service |
 | `platform/employee-identity` | Which employee record a signed-in user owns |
-| `platform/academic-lookup` | The subject and grade pairs a teacher teaches, classrooms by id, the active semester |
+| `platform/academic-lookup` | The subject and grade pairs a teacher teaches, classrooms, grades and subjects by id, the active semester |
 | `platform/student-identity` | The student record of a signed-in account (student-service) |
 | `platform/enrollment-lookup` | The active classroom of a student (student-service) |
 
