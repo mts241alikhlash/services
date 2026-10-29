@@ -21,12 +21,10 @@ describe('GetMyClassroomUseCase', () => {
     const findSemesterContext = jest.fn().mockResolvedValue(options.semester)
     const useCase = new GetMyClassroomUseCase(
       {
-        findActiveEnrollment: jest
-          .fn()
-          .mockResolvedValue({
-            classroomId: 'classroom-1',
-            semesterId: 'semester-1',
-          }),
+        findActiveEnrollment: jest.fn().mockResolvedValue({
+          classroomId: 'classroom-1',
+          semesterId: 'semester-1',
+        }),
         findAll: jest.fn().mockResolvedValue({ data: [] }),
       } as unknown as IEnrollmentRepository,
       {
