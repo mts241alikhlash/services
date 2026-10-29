@@ -310,4 +310,20 @@ describe('PublishScoresUseCase', () => {
     expect(publisher.sent[0].enrollmentId).toBe('enr-at-start')
     expect(world.sessions.publications.get('ses-1')).toBe('SENT')
   })
+
+  it('still sends the score when the student name cannot be looked up', async () => {
+    const world = build()
+    await graded(world)
+    world.students.refsByIds = () =>
+      Promise.reject(new Error('student-service down'))
+    const { useCase, publisher } = make(world)
+
+    await useCase.execute(NOW)
+
+    expect(publisher.sent[0]).toMatchObject({
+      studentName: null,
+      studentNis: null,
+    })
+    expect(world.sessions.publications.get('ses-1')).toBe('SENT')
+  })
 })

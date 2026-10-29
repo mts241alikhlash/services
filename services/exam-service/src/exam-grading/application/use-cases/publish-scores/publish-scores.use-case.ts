@@ -110,6 +110,17 @@ export class PublishScoresUseCase {
     }
   }
 
+  private async studentRef(studentId: string) {
+    try {
+      return (await this.students.refsByIds([studentId])).at(0)
+    } catch (error) {
+      this.logger.warn(
+        `Student ${studentId} could not be named: ${String(error)}`,
+      )
+      return undefined
+    }
+  }
+
   private async activeEnrollmentId(
     session: ExamSession,
     semesterId: string,
@@ -143,7 +154,7 @@ export class PublishScoresUseCase {
     if (classroom === undefined)
       throw new Unpublishable('Kelas tidak ditemukan')
 
-    const student = (await this.students.refsByIds([session.studentId])).at(0)
+    const student = await this.studentRef(session.studentId)
     const rawScore = session.rawScore ?? 0
     const maxScore = session.maxScore ?? 0
     return {
