@@ -19,4 +19,19 @@ describe('migrations', () => {
     expect(sql).not.toMatch(/Update available/u)
     expect(sql.trimEnd().endsWith(';')).toBe(true)
   })
+  it('refuses the package-owned questions migration while questions exist', () => {
+    const sql = readFileSync(
+      join(
+        MIGRATIONS,
+        '20261029050000_package_owned_questions',
+        'migration.sql',
+      ),
+      'utf8',
+    )
+
+    expect(sql).toMatch(/IF EXISTS \(SELECT 1 FROM "questions"\)/u)
+    expect(sql.indexOf('RAISE EXCEPTION')).toBeLessThan(
+      sql.search(/ADD COLUMN\s+"package_id"/u),
+    )
+  })
 })

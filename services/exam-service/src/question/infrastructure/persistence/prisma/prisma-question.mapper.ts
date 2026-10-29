@@ -37,6 +37,9 @@ export function toVersion(row: VersionRow): QuestionVersion {
 function toQuestion(row: QuestionRow): Question {
   return {
     id: row.id,
+    packageId: row.packageId,
+    copiedFromQuestionId: row.copiedFromQuestionId,
+    copiedFromVersion: row.copiedFromVersion,
     subjectId: row.subjectId,
     gradeId: row.gradeId,
     authorEmployeeId: row.authorEmployeeId,

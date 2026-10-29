@@ -15,6 +15,9 @@ const version = (number: number, bodyHtml: string, points: number) => ({
 
 const row = {
   id: 'q1',
+  packageId: 'package-1',
+  copiedFromQuestionId: null,
+  copiedFromVersion: null,
   subjectId: 'math',
   gradeId: 'grade-7',
   authorEmployeeId: 'emp-1',

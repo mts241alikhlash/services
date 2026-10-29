@@ -83,9 +83,10 @@ export class QuestionImportController {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['file', 'subjectId', 'gradeId'],
+      required: ['file', 'packageId', 'subjectId', 'gradeId'],
       properties: {
         file: { type: 'string', format: 'binary' },
+        packageId: { type: 'string', format: 'uuid' },
         subjectId: { type: 'string', format: 'uuid' },
         gradeId: { type: 'string', format: 'uuid' },
         authorEmployeeId: { type: 'string', format: 'uuid' },
@@ -104,6 +105,7 @@ export class QuestionImportController {
         buffer: file.buffer,
         size: file.size,
         fileName: file.originalname,
+        packageId: dto.packageId,
         subjectId: dto.subjectId,
         gradeId: dto.gradeId,
         authorEmployeeId: dto.authorEmployeeId,

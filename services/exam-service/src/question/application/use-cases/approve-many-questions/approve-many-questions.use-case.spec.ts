@@ -7,6 +7,7 @@ import { ApproveQuestionUseCase } from '../approve-question/approve-question.use
 import { ApproveManyQuestionsUseCase } from './approve-many-questions.use-case.js'
 
 const created = {
+  packageId: 'package-1',
   ...MATH_7,
   authorEmployeeId: 'emp-1',
   type: 'TRUE_FALSE' as const,

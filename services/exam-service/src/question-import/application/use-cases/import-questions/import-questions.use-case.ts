@@ -138,6 +138,7 @@ export class ImportQuestionsUseCase {
     for (const question of parsed.questions) {
       try {
         const created = await this.createQuestion.execute(user, {
+          packageId: input.packageId,
           subjectId: input.subjectId,
           gradeId: input.gradeId,
           authorEmployeeId: input.authorEmployeeId,

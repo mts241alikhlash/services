@@ -37,6 +37,7 @@ export interface VersionFields {
 }
 
 export interface NewQuestionInput extends VersionFields {
+  packageId: string
   subjectId: string
   gradeId: string
   authorEmployeeId: string

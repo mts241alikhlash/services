@@ -43,6 +43,7 @@ describe('CreateExamPackageUseCase', () => {
 
   it('rejects a question that is not approved', async () => {
     const draft = await questions.create({
+      packageId: 'package-1',
       subjectId: SUBJECT_ID,
       gradeId: GRADE_ID,
       authorEmployeeId: USER.id,

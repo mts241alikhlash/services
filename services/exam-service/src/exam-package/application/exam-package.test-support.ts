@@ -22,6 +22,7 @@ export async function seedApprovedQuestion(
   } = {},
 ): Promise<QuestionDetail> {
   const created = await questions.create({
+    packageId: 'package-1',
     subjectId: overrides.subjectId ?? SUBJECT_ID,
     gradeId: overrides.gradeId ?? GRADE_ID,
     authorEmployeeId: randomUUID(),

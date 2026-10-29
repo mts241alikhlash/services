@@ -8,6 +8,7 @@ import {
 import { GetQuestionUseCase } from './get-question.use-case.js'
 
 const created = {
+  packageId: 'package-1',
   ...MATH_7,
   authorEmployeeId: 'emp-1',
   type: 'ESSAY' as const,

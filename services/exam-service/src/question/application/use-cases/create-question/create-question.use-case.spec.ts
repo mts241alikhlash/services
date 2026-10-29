@@ -11,6 +11,7 @@ import type { CreateQuestionInput } from './create-question.input.js'
 
 const input: CreateQuestionInput = {
   ...MATH_7,
+  packageId: 'package-1',
   type: 'MULTIPLE_CHOICE',
   bodyHtml: '<p onclick="x()">Berapa 1 + 1?</p><script>x</script>',
   content: {

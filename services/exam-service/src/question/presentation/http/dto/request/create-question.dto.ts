@@ -17,6 +17,7 @@ import {
 } from '../../../../domain/value-objects/question-content.js'
 
 export class CreateQuestionDto {
+  @ApiProperty({ format: 'uuid' }) @IsUUID() packageId!: string
   @ApiProperty({ format: 'uuid' }) @IsUUID() subjectId!: string
   @ApiProperty({ format: 'uuid' }) @IsUUID() gradeId!: string
   @ApiPropertyOptional({ format: 'uuid' })

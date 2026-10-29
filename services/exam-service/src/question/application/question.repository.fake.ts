@@ -144,6 +144,9 @@ export class FakeQuestionRepository extends IQuestionRepository {
     const current = this.version(id, 1, input, input.createdById)
     const question: QuestionDetail = {
       id,
+      packageId: input.packageId,
+      copiedFromQuestionId: null,
+      copiedFromVersion: null,
       subjectId: input.subjectId,
       gradeId: input.gradeId,
       authorEmployeeId: input.authorEmployeeId,

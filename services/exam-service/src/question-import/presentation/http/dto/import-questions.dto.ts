@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsIn, IsOptional, IsUUID } from 'class-validator'
 
 export class ImportQuestionsDto {
+  @ApiProperty({ format: 'uuid' }) @IsUUID() packageId!: string
   @ApiProperty({ format: 'uuid' }) @IsUUID() subjectId!: string
   @ApiProperty({ format: 'uuid' }) @IsUUID() gradeId!: string
   @ApiPropertyOptional({ format: 'uuid' })

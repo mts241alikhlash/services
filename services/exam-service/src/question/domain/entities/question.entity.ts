@@ -29,6 +29,9 @@ export interface QuestionReview {
 
 export interface Question {
   id: string
+  packageId: string
+  copiedFromQuestionId: string | null
+  copiedFromVersion: number | null
   subjectId: string
   gradeId: string
   authorEmployeeId: string

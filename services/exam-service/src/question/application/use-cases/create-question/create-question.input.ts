@@ -1,6 +1,7 @@
 import type { QuestionType } from '../../../domain/value-objects/question-content.js'
 
 export interface CreateQuestionInput {
+  packageId: string
   subjectId: string
   gradeId: string
   authorEmployeeId?: string

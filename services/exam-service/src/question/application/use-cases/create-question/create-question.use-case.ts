@@ -39,6 +39,7 @@ export class CreateQuestionUseCase {
     )
 
     return this.questions.create({
+      packageId: input.packageId,
       subjectId: input.subjectId,
       gradeId: input.gradeId,
       authorEmployeeId,

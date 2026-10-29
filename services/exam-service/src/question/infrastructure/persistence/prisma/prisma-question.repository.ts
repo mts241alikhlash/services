@@ -127,6 +127,7 @@ export class PrismaQuestionRepository extends IQuestionRepository {
   async create(input: NewQuestionInput) {
     const row = await this.prisma.question.create({
       data: {
+        packageId: input.packageId,
         subjectId: input.subjectId,
         gradeId: input.gradeId,
         authorEmployeeId: input.authorEmployeeId,

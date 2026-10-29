@@ -1,6 +1,12 @@
 import type { QuestionType } from '../../../question/domain/value-objects/question-content.js'
 
-export const EXAM_PACKAGE_STATUSES = ['DRAFT', 'LOCKED'] as const
+export const EXAM_PACKAGE_STATUSES = [
+  'DRAFT',
+  'SUBMITTED',
+  'RETURNED',
+  'APPROVED',
+  'LOCKED',
+] as const
 
 export type ExamPackageStatus = (typeof EXAM_PACKAGE_STATUSES)[number]
 
@@ -39,4 +45,21 @@ export interface PackageItemView extends PackageItem {
 
 export interface ExamPackageView extends ExamPackage {
   items: PackageItemView[]
+}
+
+export type PackageReviewAction = 'SUBMIT' | 'APPROVE' | 'RETURN'
+
+export interface PackageQuestionNote {
+  questionId: string
+  note: string
+}
+
+export interface PackageReview {
+  id: string
+  packageId: string
+  action: PackageReviewAction
+  byUserId: string
+  note: string | null
+  questionNotes: PackageQuestionNote[]
+  createdAt: Date
 }

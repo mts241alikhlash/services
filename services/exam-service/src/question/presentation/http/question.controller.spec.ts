@@ -49,6 +49,7 @@ function build() {
 
 const dto: CreateQuestionDto = {
   ...MATH_7,
+  packageId: 'package-1',
   type: 'TRUE_FALSE',
   bodyHtml: '<p>Bumi bulat</p>',
   content: { answer: { value: true } },

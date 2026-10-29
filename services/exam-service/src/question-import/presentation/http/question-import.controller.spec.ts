@@ -55,7 +55,7 @@ describe('QuestionImportController', () => {
         size: buffer.length,
         originalname: 'template-soal.xlsx',
       } as Express.Multer.File,
-      MATH_7,
+      { ...MATH_7, packageId: 'package-1' },
     )
 
     expect(streamed).toBeInstanceOf(StreamableFile)
@@ -70,7 +70,10 @@ describe('QuestionImportController', () => {
 
   it('refuses a request with no file', async () => {
     await expect(
-      build().controller.import(TEACHER, undefined, MATH_7),
+      build().controller.import(TEACHER, undefined, {
+        ...MATH_7,
+        packageId: 'package-1',
+      }),
     ).rejects.toThrow(BadRequestException)
   })
 })

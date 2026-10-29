@@ -8,6 +8,7 @@ import {
 import { GetQuestionVersionsUseCase } from './get-question-versions.use-case.js'
 
 const created = {
+  packageId: 'package-1',
   ...MATH_7,
   authorEmployeeId: 'emp-1',
   type: 'TRUE_FALSE' as const,

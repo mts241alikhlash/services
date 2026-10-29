@@ -9,6 +9,7 @@ import type { IAuthorLookupPort } from '../../../../platform/author-lookup/autho
 import { ListQuestionsUseCase } from './list-questions.use-case.js'
 
 const base = {
+  packageId: 'package-1',
   authorEmployeeId: 'emp-1',
   type: 'TRUE_FALSE' as const,
   createdById: 'user-1',
