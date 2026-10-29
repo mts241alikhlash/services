@@ -58,7 +58,12 @@ export abstract class IExamPackageRepository {
     id: string,
     fields: DraftFields,
   ): Promise<ExamPackageDetail | null>
-  abstract softDeleteDraft(id: string): Promise<boolean>
+  abstract softDeleteUnscheduled(id: string): Promise<boolean>
+  abstract renamePackage(
+    id: string,
+    edit: PackageEdit,
+    title: string,
+  ): Promise<ExamPackageDetail | null>
   abstract transition(
     id: string,
     from: ExamPackageStatus[],

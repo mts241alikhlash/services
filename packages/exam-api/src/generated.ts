@@ -147,10 +147,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List exam packages */
+        /** List packages: your own in every status and the approved or locked ones of others */
         get: operations["ExamPackageController_findAll"];
         put?: never;
-        /** Create a draft package from approved questions */
+        /** Create an empty draft package */
         post: operations["ExamPackageController_create"];
         delete?: never;
         options?: never;
@@ -165,16 +165,33 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a package with every item from its pinned version */
+        /** Get a package with its questions, their markers and the review history */
         get: operations["ExamPackageController_findOne"];
         put?: never;
         post?: never;
-        /** Delete a draft package */
+        /** Delete a package that is not waiting for review or scheduled */
         delete: operations["ExamPackageController_remove"];
         options?: never;
         head?: never;
-        /** Replace the title and items of a draft package */
-        patch: operations["ExamPackageController_update"];
+        /** Rename a package */
+        patch: operations["ExamPackageController_rename"];
+        trace?: never;
+    };
+    "/exam-packages/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve a submitted package */
+        post: operations["ExamPackageController_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/exam-packages/{id}/copy": {
@@ -186,7 +203,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Copy a package into a new draft */
+        /** Copy an approved or scheduled package into a new draft */
         post: operations["ExamPackageController_copy"];
         delete?: never;
         options?: never;
@@ -194,17 +211,103 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/exam-packages/candidates": {
+    "/exam-packages/{id}/questions": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Approved questions of a subject and grade a package may be built from */
-        get: operations["ExamPackageController_findCandidates"];
+        get?: never;
+        put?: never;
+        /** Write a new question inside a package */
+        post: operations["ExamPackageController_addQuestion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-packages/{id}/questions/{questionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
         put?: never;
         post?: never;
+        /** Remove a question from a package */
+        delete: operations["ExamPackageController_removeQuestion"];
+        options?: never;
+        head?: never;
+        /** Change a question of a package */
+        patch: operations["ExamPackageController_updateQuestion"];
+        trace?: never;
+    };
+    "/exam-packages/{id}/questions/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Put the questions of a package in a new order */
+        put: operations["ExamPackageController_reorderQuestions"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-packages/{id}/questions/take": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Copy questions from an approved or scheduled package */
+        post: operations["ExamPackageController_takeQuestions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-packages/{id}/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Return a submitted package with a note and notes on questions */
+        post: operations["ExamPackageController_returnPackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-packages/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit a package for review */
+        post: operations["ExamPackageController_submit"];
         delete?: never;
         options?: never;
         head?: never;
@@ -608,23 +711,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/student-exams/{sessionId}/violations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Tell the server how many times the student left the exam; it keeps the highest count and answers with it */
-        post: operations["SessionExamController_violations"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -634,10 +720,24 @@ export interface components {
             accessCode: string;
             rotation: number;
         };
+        AddPackageQuestionDto: {
+            /** Format: uuid */
+            authorEmployeeId?: string;
+            bodyHtml: string;
+            content: {
+                [key: string]: unknown;
+            };
+            points: number;
+            /** @enum {string} */
+            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
+        };
         ApprovalResultDto: {
             id: string;
             ok: boolean;
             reason?: string;
+        };
+        ApproveExamPackageDto: {
+            note?: string;
         };
         ApproveManyDto: {
             items: components["schemas"]["ApproveManyItemDto"][];
@@ -658,8 +758,6 @@ export interface components {
         CreateExamPackageDto: {
             /** Format: uuid */
             gradeId: string;
-            /** @description Question ids; the array order is the position in the package */
-            questionIds: string[];
             /** Format: uuid */
             subjectId: string;
             title: string;
@@ -686,6 +784,8 @@ export interface components {
             };
             /** Format: uuid */
             gradeId: string;
+            /** Format: uuid */
+            packageId: string;
             points: number;
             /** Format: uuid */
             subjectId: string;
@@ -711,7 +811,7 @@ export interface components {
             /** Format: date-time */
             lockedAt: string | null;
             /** @enum {string} */
-            status: "DRAFT" | "LOCKED";
+            status: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED" | "LOCKED";
             /** Format: uuid */
             subjectId: string;
             title: string;
@@ -725,6 +825,8 @@ export interface components {
             questionVersion: number;
         };
         ExamPackageItemViewDto: {
+            /** @enum {string} */
+            marker: "NEW" | "CHANGED" | "COPIED";
             points: number;
             position: number;
             /** Format: uuid */
@@ -753,7 +855,7 @@ export interface components {
             /** Format: date-time */
             lockedAt: string | null;
             /** @enum {string} */
-            status: "DRAFT" | "LOCKED";
+            status: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED" | "LOCKED";
             /** Format: uuid */
             subjectId: string;
             title: string;
@@ -772,8 +874,9 @@ export interface components {
             items: components["schemas"]["ExamPackageItemViewDto"][];
             /** Format: date-time */
             lockedAt: string | null;
+            reviews: components["schemas"]["PackageReviewDto"][];
             /** @enum {string} */
-            status: "DRAFT" | "LOCKED";
+            status: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED" | "LOCKED";
             /** Format: uuid */
             subjectId: string;
             title: string;
@@ -941,20 +1044,27 @@ export interface components {
             /** @enum {string} */
             type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
         };
-        PackageCandidateDto: {
-            approvedVersion: number;
+        PackageQuestionNoteDto: {
+            note: string;
+            /** Format: uuid */
+            questionId: string;
+        };
+        PackageQuestionNoteResponseDto: {
+            note: string;
+            /** Format: uuid */
+            questionId: string;
+        };
+        PackageReviewDto: {
+            /** @enum {string} */
+            action: "SUBMIT" | "APPROVE" | "RETURN";
+            /** Format: uuid */
+            byUserId: string;
+            /** Format: date-time */
+            createdAt: string;
             /** Format: uuid */
             id: string;
-            points: number;
-            summary: string;
-            /** @enum {string} */
-            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
-        };
-        PackageCandidateListResponseDto: {
-            data: components["schemas"]["PackageCandidateDto"][];
-            limit: number;
-            page: number;
-            total: number;
+            note: string | null;
+            questionNotes: components["schemas"]["PackageQuestionNoteResponseDto"][];
         };
         PaperChoiceDto: {
             html: string;
@@ -1068,9 +1178,16 @@ export interface components {
             /** Format: uuid */
             questionId: string;
         };
-        RecordViolationsRequestDto: {
-            /** @description How many times the app saw the student leave the exam so far; the server keeps the highest value it was told, so send 0 to only read it back */
-            count: number;
+        RenameExamPackageDto: {
+            title: string;
+        };
+        ReorderPackageQuestionsDto: {
+            /** @description Every question of the package, in the new order */
+            questionIds: string[];
+        };
+        ReturnExamPackageDto: {
+            note: string;
+            questionNotes: components["schemas"]["PackageQuestionNoteDto"][];
         };
         ReturnQuestionDto: {
             note: string;
@@ -1162,10 +1279,10 @@ export interface components {
             /** Format: date-time */
             submittedAt: string | null;
         };
-        UpdateExamPackageDto: {
-            /** @description Question ids; the array order is the position in the package */
+        TakePackageQuestionsDto: {
             questionIds: string[];
-            title: string;
+            /** Format: uuid */
+            sourcePackageId: string;
         };
         UpdateExamScheduleDto: {
             durationMinutes: number;
@@ -1182,9 +1299,6 @@ export interface components {
                 [key: string]: unknown;
             };
             points?: number;
-        };
-        ViolationCountDto: {
-            violationCount: number;
         };
     };
     responses: never;
@@ -1394,9 +1508,7 @@ export interface operations {
                     /** Format: binary */
                     file: string;
                     /** Format: uuid */
-                    gradeId: string;
-                    /** Format: uuid */
-                    subjectId: string;
+                    packageId: string;
                 };
             };
         };
@@ -1446,7 +1558,7 @@ export interface operations {
                 limit?: number;
                 page?: number;
                 search?: string;
-                status?: "DRAFT" | "LOCKED";
+                status?: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED" | "LOCKED";
                 subjectId?: string;
             };
             header?: never;
@@ -1551,7 +1663,7 @@ export interface operations {
             };
         };
     };
-    ExamPackageController_update: {
+    ExamPackageController_rename: {
         parameters: {
             query?: never;
             header?: never;
@@ -1562,7 +1674,38 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateExamPackageDto"];
+                "application/json": components["schemas"]["RenameExamPackageDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_approve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveExamPackageDto"];
             };
         };
         responses: {
@@ -1609,17 +1752,45 @@ export interface operations {
             };
         };
     };
-    ExamPackageController_findCandidates: {
+    ExamPackageController_addQuestion: {
         parameters: {
-            query: {
-                gradeId: string;
-                limit?: number;
-                page?: number;
-                search?: string;
-                subjectId: string;
-            };
+            query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddPackageQuestionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_removeQuestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                questionId: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -1630,14 +1801,161 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["PackageCandidateDto"][];
+                        data?: components["schemas"]["ExamPackageDetailDto"];
                         /** @example Success */
                         message?: string;
-                        meta?: {
-                            limit?: number;
-                            page?: number;
-                            total?: number;
-                        };
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_updateQuestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                questionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateQuestionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_reorderQuestions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderPackageQuestionsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_takeQuestions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TakePackageQuestionsDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_returnPackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnExamPackageDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
                         /** @example 200 */
                         statusCode?: number;
                     };
@@ -2610,40 +2928,6 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["SubmittedSessionDto"];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    SessionExamController_violations: {
-        parameters: {
-            query?: never;
-            header: {
-                /** @description The tablet the session was started on */
-                "X-Device-Id": string;
-            };
-            path: {
-                sessionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RecordViolationsRequestDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["ViolationCountDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */

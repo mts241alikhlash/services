@@ -91,9 +91,13 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     return Promise.resolve(updated)
   }
 
-  softDeleteDraft(id: string) {
+  softDeleteUnscheduled(id: string) {
     const row = this.packages.get(id)
-    if (row?.status !== 'DRAFT' || row.deletedAt !== null) {
+    if (
+      !row ||
+      row.deletedAt !== null ||
+      !['DRAFT', 'RETURNED', 'APPROVED'].includes(row.status)
+    ) {
       return Promise.resolve(false)
     }
     this.packages.set(id, { ...row, deletedAt: new Date() })
@@ -133,6 +137,12 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     )
   }
 
+  renamePackage(id: string, edit: PackageEdit, title: string) {
+    const row = this.claim(id, edit)
+    if (!row) return Promise.resolve(null)
+    return Promise.resolve(this.store(row, edit, row.items, title))
+  }
+
   private claim(id: string, edit: PackageEdit): ExamPackageDetail | null {
     const row = this.packages.get(id)
     if (!row || row.deletedAt !== null || row.status !== edit.expected) {
@@ -141,11 +151,17 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     return row
   }
 
-  private store(row: ExamPackageDetail, edit: PackageEdit, items = row.items) {
+  private store(
+    row: ExamPackageDetail,
+    edit: PackageEdit,
+    items = row.items,
+    title = row.title,
+  ) {
     const updated = {
       ...row,
       status: edit.next,
       items,
+      title,
       updatedAt: new Date(),
     }
     this.packages.set(row.id, updated)

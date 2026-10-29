@@ -117,12 +117,28 @@ export class PrismaExamPackageRepository extends IExamPackageRepository {
     })
   }
 
-  async softDeleteDraft(id: string): Promise<boolean> {
+  async softDeleteUnscheduled(id: string): Promise<boolean> {
     const result = await this.prisma.examPackage.updateMany({
-      where: { id, status: 'DRAFT', deletedAt: null },
+      where: {
+        id,
+        status: { in: ['DRAFT', 'RETURNED', 'APPROVED'] },
+        deletedAt: null,
+      },
       data: { deletedAt: new Date() },
     })
     return result.count > 0
+  }
+
+  async renamePackage(
+    id: string,
+    edit: PackageEdit,
+    title: string,
+  ): Promise<ExamPackageDetail | null> {
+    return this.prisma.$transaction(async (tx) => {
+      if (!(await this.claim(tx, id, edit))) return null
+      await tx.examPackage.update({ where: { id }, data: { title } })
+      return this.detail(tx, id)
+    })
   }
 
   async transition(

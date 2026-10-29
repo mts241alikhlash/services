@@ -41,4 +41,22 @@ describe('DeleteExamPackageUseCase', () => {
 
     await expect(remove.execute(packageId)).rejects.toThrow(ConflictException)
   })
+  it('deletes a returned or an approved package', async () => {
+    for (const status of ['RETURNED', 'APPROVED'] as const) {
+      const row = packages.packages.get(packageId)!
+      packages.packages.set(packageId, { ...row, status })
+
+      await remove.execute(packageId)
+
+      expect(await packages.findById(packageId)).toBeNull()
+      packages.packages.set(packageId, { ...row, status, deletedAt: null })
+    }
+  })
+
+  it('is refused while the package waits for review', async () => {
+    const row = packages.packages.get(packageId)!
+    packages.packages.set(packageId, { ...row, status: 'SUBMITTED' })
+
+    await expect(remove.execute(packageId)).rejects.toThrow(ConflictException)
+  })
 })
