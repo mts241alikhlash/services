@@ -325,4 +325,62 @@ describe('default roles', () => {
       ])
     })
   })
+
+  describe('exam packages and schedules', () => {
+    const codes = [
+      ...['read', 'create', 'update', 'delete'].map(
+        (action) => `exam-packages.${action}`,
+      ),
+      ...['read', 'create', 'update', 'cancel', 'access-code'].map(
+        (action) => `exam-schedules.${action}`,
+      ),
+    ]
+
+    it('gives every code to curriculum staff, the deputy for curriculum and the academic admin', () => {
+      for (const role of [
+        'CURRICULUM_STAFF',
+        'VICE_PRINCIPAL_CURRICULUM',
+        'ACADEMIC_ADMIN',
+      ]) {
+        for (const code of codes) expect(codesOf(role)).toContain(code)
+      }
+    })
+
+    it('keeps the codes away from teachers, students, applicants, employees and the operator', () => {
+      for (const role of [
+        'TEACHER',
+        'STUDENT',
+        'APPLICANT',
+        'EMPLOYEE',
+        'OPERATOR',
+      ]) {
+        expect(
+          [...codesOf(role)].filter(
+            (code) =>
+              code.startsWith('exam-packages.') ||
+              code.startsWith('exam-schedules.'),
+          ),
+        ).toEqual([])
+      }
+    })
+
+    it('never gives the changing codes through a broad grant', () => {
+      const changing = codes.filter((code) => !code.endsWith('.read'))
+      const holders = DEFAULT_ROLES.filter((role) =>
+        changing.some((code) => codesOf(role.code).has(code)),
+      ).map((role) => role.code)
+
+      expect(holders.sort()).toEqual([
+        'ACADEMIC_ADMIN',
+        'CURRICULUM_STAFF',
+        'VICE_PRINCIPAL_CURRICULUM',
+      ])
+    })
+
+    it('lets the principal read packages and schedules but not see the access code', () => {
+      expect(codesOf('PRINCIPAL')).toContain('exam-packages.read')
+      expect(codesOf('PRINCIPAL')).toContain('exam-schedules.read')
+      expect(codesOf('PRINCIPAL')).not.toContain('exam-schedules.access-code')
+    })
+  })
 })

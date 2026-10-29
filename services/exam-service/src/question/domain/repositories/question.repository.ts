@@ -1,6 +1,7 @@
 import type { PaginatedResult } from '../../../shared/domain/interfaces/repository.interface.js'
 import type { TeachingPair } from '../../../platform/academic-lookup/academic-lookup.port.js'
 import type {
+  ApprovedQuestionRef,
   Question,
   QuestionDetail,
   ReviewAction,
@@ -58,7 +59,22 @@ export interface ReviewInput {
   byUserId: string
 }
 
+export interface QuestionPin {
+  questionId: string
+  number: number
+}
+
+export interface PinnedQuestion {
+  questionId: string
+  number: number
+  type: QuestionType
+  bodyHtml: string
+  points: number
+}
+
 export abstract class IQuestionRepository {
+  abstract findApprovedRefs(ids: string[]): Promise<ApprovedQuestionRef[]>
+  abstract findPinned(pins: QuestionPin[]): Promise<PinnedQuestion[]>
   abstract findAll(
     query: QuestionListQuery,
   ): Promise<PaginatedResult<QuestionSummary>>

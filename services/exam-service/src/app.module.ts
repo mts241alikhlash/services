@@ -17,6 +17,8 @@ import { AuthModule } from './platform/auth/auth.module.js'
 import { AuthorLookupModule } from './platform/author-lookup/author-lookup.module.js'
 import { AcademicLookupModule } from './platform/academic-lookup/academic-lookup.module.js'
 import { ExamFileModule } from './exam-file/exam-file.module.js'
+import { ExamPackageModule } from './exam-package/exam-package.module.js'
+import { ExamScheduleModule } from './exam-schedule/exam-schedule.module.js'
 import { QuestionImportModule } from './question-import/question-import.module.js'
 import { QuestionModule } from './question/question.module.js'
 import { StorageModule } from './core/storage/storage.module.js'
@@ -34,6 +36,8 @@ import { PermissionGuard } from './platform/access-control/permission/guards/per
     AcademicLookupModule,
     AuthorLookupModule,
     QuestionModule,
+    ExamPackageModule,
+    ExamScheduleModule,
     ExamFileModule,
     QuestionImportModule,
     LoggerModule.forRoot(pinoLoggerConfig),

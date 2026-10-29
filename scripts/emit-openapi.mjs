@@ -24,6 +24,9 @@ const env = {
   PROVISIONING_SERVICE_TOKEN:
     process.env.PROVISIONING_SERVICE_TOKEN ??
     'build-only-provisioning-token-123456789',
+  EXAM_ACCESS_CODE_SECRET:
+    process.env.EXAM_ACCESS_CODE_SECRET ??
+    'build-only-exam-access-code-secret-123456789',
   IDENTITY_SERVICE_URL:
     process.env.IDENTITY_SERVICE_URL ?? 'http://identity-service:3000',
   ACADEMIC_SERVICE_URL:

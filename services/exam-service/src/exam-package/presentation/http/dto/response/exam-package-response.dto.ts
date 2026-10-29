@@ -1,0 +1,171 @@
+import { ApiProperty } from '@nestjs/swagger'
+import type { PackageCandidate } from '../../../../application/use-cases/list-package-candidates/list-package-candidates.use-case.js'
+import {
+  QUESTION_TYPES,
+  type QuestionType,
+} from '../../../../../question/domain/value-objects/question-content.js'
+import {
+  EXAM_PACKAGE_STATUSES,
+  type ExamPackage,
+  type ExamPackageDetail,
+  type ExamPackageStatus,
+  type ExamPackageSummary,
+  type ExamPackageView,
+  type PackageItem,
+  type PackageItemView,
+} from '../../../../domain/entities/exam-package.entity.js'
+
+abstract class ExamPackageBaseDto {
+  @ApiProperty({ format: 'uuid' }) id!: string
+  @ApiProperty() title!: string
+  @ApiProperty({ format: 'uuid' }) subjectId!: string
+  @ApiProperty({ format: 'uuid' }) gradeId!: string
+  @ApiProperty({ enum: EXAM_PACKAGE_STATUSES }) status!: ExamPackageStatus
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  lockedAt!: string | null
+  @ApiProperty({ format: 'uuid' }) createdById!: string
+  @ApiProperty({ format: 'date-time' }) createdAt!: string
+  @ApiProperty({ format: 'date-time' }) updatedAt!: string
+
+  protected fill(domain: ExamPackage): void {
+    this.id = domain.id
+    this.title = domain.title
+    this.subjectId = domain.subjectId
+    this.gradeId = domain.gradeId
+    this.status = domain.status
+    this.lockedAt = domain.lockedAt ? domain.lockedAt.toISOString() : null
+    this.createdById = domain.createdById
+    this.createdAt = domain.createdAt.toISOString()
+    this.updatedAt = domain.updatedAt.toISOString()
+  }
+}
+
+export class ExamPackageItemDto {
+  @ApiProperty({ format: 'uuid' }) questionId!: string
+  @ApiProperty() questionVersion!: number
+  @ApiProperty() position!: number
+
+  static fromDomain(domain: PackageItem): ExamPackageItemDto {
+    const dto = new ExamPackageItemDto()
+    dto.questionId = domain.questionId
+    dto.questionVersion = domain.questionVersion
+    dto.position = domain.position
+    return dto
+  }
+}
+
+export class ExamPackageItemViewDto extends ExamPackageItemDto {
+  @ApiProperty({ enum: QUESTION_TYPES }) type!: QuestionType
+  @ApiProperty() summary!: string
+  @ApiProperty() points!: number
+
+  static fromView(domain: PackageItemView): ExamPackageItemViewDto {
+    const dto = new ExamPackageItemViewDto()
+    dto.questionId = domain.questionId
+    dto.questionVersion = domain.questionVersion
+    dto.position = domain.position
+    dto.type = domain.type
+    dto.summary = domain.summary
+    dto.points = domain.points
+    return dto
+  }
+}
+
+export class ExamPackageSummaryDto extends ExamPackageBaseDto {
+  @ApiProperty() itemCount!: number
+
+  static fromDomain(domain: ExamPackageSummary): ExamPackageSummaryDto {
+    const dto = new ExamPackageSummaryDto()
+    dto.fill(domain)
+    dto.itemCount = domain.itemCount
+    return dto
+  }
+}
+
+export class ExamPackageDetailDto extends ExamPackageBaseDto {
+  @ApiProperty({ type: () => [ExamPackageItemDto] })
+  items!: ExamPackageItemDto[]
+
+  static fromDomain(domain: ExamPackageDetail): ExamPackageDetailDto {
+    const dto = new ExamPackageDetailDto()
+    dto.fill(domain)
+    dto.items = domain.items.map((item) => ExamPackageItemDto.fromDomain(item))
+    return dto
+  }
+}
+
+export class ExamPackageViewDto extends ExamPackageBaseDto {
+  @ApiProperty({ type: () => [ExamPackageItemViewDto] })
+  items!: ExamPackageItemViewDto[]
+
+  static fromDomain(domain: ExamPackageView): ExamPackageViewDto {
+    const dto = new ExamPackageViewDto()
+    dto.fill(domain)
+    dto.items = domain.items.map((item) =>
+      ExamPackageItemViewDto.fromView(item),
+    )
+    return dto
+  }
+}
+
+export class ExamPackageListResponseDto {
+  @ApiProperty({ type: () => [ExamPackageSummaryDto] })
+  data!: ExamPackageSummaryDto[]
+  @ApiProperty() total!: number
+  @ApiProperty() page!: number
+  @ApiProperty() limit!: number
+
+  static fromDomain(domain: {
+    data: ExamPackageSummary[]
+    total: number
+    page: number
+    limit: number
+  }): ExamPackageListResponseDto {
+    const dto = new ExamPackageListResponseDto()
+    dto.data = domain.data.map((row) => ExamPackageSummaryDto.fromDomain(row))
+    dto.total = domain.total
+    dto.page = domain.page
+    dto.limit = domain.limit
+    return dto
+  }
+}
+
+export class PackageCandidateDto {
+  @ApiProperty({ format: 'uuid' }) id!: string
+  @ApiProperty({ enum: QUESTION_TYPES }) type!: QuestionType
+  @ApiProperty() summary!: string
+  @ApiProperty() points!: number
+  @ApiProperty() approvedVersion!: number
+
+  static fromDomain(domain: PackageCandidate): PackageCandidateDto {
+    const dto = new PackageCandidateDto()
+    dto.id = domain.id
+    dto.type = domain.type
+    dto.summary = domain.summary
+    dto.points = domain.points
+    dto.approvedVersion = domain.approvedVersion
+    return dto
+  }
+}
+
+export class PackageCandidateListResponseDto {
+  @ApiProperty({ type: () => [PackageCandidateDto] })
+  data!: PackageCandidateDto[]
+  @ApiProperty() total!: number
+  @ApiProperty() page!: number
+  @ApiProperty() limit!: number
+
+  static fromDomain(domain: {
+    data: PackageCandidate[]
+    total: number
+    page: number
+    limit: number
+  }): PackageCandidateListResponseDto {
+    const dto = new PackageCandidateListResponseDto()
+    dto.data = domain.data.map((row) => PackageCandidateDto.fromDomain(row))
+    dto.total = domain.total
+    dto.page = domain.page
+    dto.limit = domain.limit
+    return dto
+  }
+}

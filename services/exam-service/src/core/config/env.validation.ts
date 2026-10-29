@@ -41,6 +41,9 @@ export const envSchema = z
     PROVISIONING_SERVICE_TOKEN: z
       .string()
       .min(16, 'PROVISIONING_SERVICE_TOKEN must be at least 16 characters'),
+    EXAM_ACCESS_CODE_SECRET: z
+      .string()
+      .min(32, 'EXAM_ACCESS_CODE_SECRET must be at least 32 characters'),
     IDENTITY_CACHE_TTL_MS: z.coerce.number().int().min(0).default(5000),
     IDENTITY_TIMEOUT_MS: z.coerce
       .number()
@@ -156,6 +159,19 @@ export const envSchema = z
         path: ['PROVISIONING_SERVICE_TOKEN'],
         message:
           'PROVISIONING_SERVICE_TOKEN looks like a placeholder; use a strong random value',
+      })
+    }
+
+    if (
+      /change[-_ ]?me|your[-_ ]?super[-_ ]?secret/i.test(
+        env.EXAM_ACCESS_CODE_SECRET,
+      )
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['EXAM_ACCESS_CODE_SECRET'],
+        message:
+          'EXAM_ACCESS_CODE_SECRET looks like a placeholder; use a strong random value',
       })
     }
   })
