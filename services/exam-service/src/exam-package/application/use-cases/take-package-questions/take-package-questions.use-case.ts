@@ -8,11 +8,13 @@ import { IEmployeeIdentityReadPort } from '../../../../platform/employee-identit
 import { resolveAuthor } from '../../../../question/application/resolve-author.js'
 import {
   TeacherScope,
+  canManageAll,
   type ScopeUser,
 } from '../../../../question/application/teacher-scope.service.js'
 import { IQuestionRepository } from '../../../../question/domain/repositories/question.repository.js'
 import type { ExamPackageDetail } from '../../../domain/entities/exam-package.entity.js'
 import {
+  assertCanChange,
   assertCanTakeFrom,
   assertEditable,
 } from '../../../domain/policies/package-lifecycle.policy.js'
@@ -52,6 +54,7 @@ export class TakePackageQuestionsUseCase {
 
     const scope = await this.scope.forUser(user)
     this.scope.assertCovers(scope, target.subjectId, target.gradeId)
+    assertCanChange(target.createdById, user.id, canManageAll(user))
     if (
       source.subjectId !== target.subjectId ||
       source.gradeId !== target.gradeId

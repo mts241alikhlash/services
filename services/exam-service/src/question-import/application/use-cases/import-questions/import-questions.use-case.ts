@@ -9,13 +9,17 @@ import {
 } from '@nestjs/common'
 import { PACKAGE_CHANGED_MESSAGE } from '../../../../exam-package/application/use-cases/add-package-question/add-package-question.use-case.js'
 import type { ExamPackageDetail } from '../../../../exam-package/domain/entities/exam-package.entity.js'
-import { assertEditable } from '../../../../exam-package/domain/policies/package-lifecycle.policy.js'
+import {
+  assertCanChange,
+  assertEditable,
+} from '../../../../exam-package/domain/policies/package-lifecycle.policy.js'
 import { IExamPackageRepository } from '../../../../exam-package/domain/repositories/exam-package.repository.js'
 import { UploadExamFileUseCase } from '../../../../exam-file/application/use-cases/upload-exam-file/upload-exam-file.use-case.js'
 import { IEmployeeIdentityReadPort } from '../../../../platform/employee-identity/employee-identity.port.js'
 import { resolveAuthor } from '../../../../question/application/resolve-author.js'
 import {
   TeacherScope,
+  canManageAll,
   type ScopeUser,
 } from '../../../../question/application/teacher-scope.service.js'
 import { prepareQuestion } from '../../../../question/domain/policies/prepare-question.policy.js'
@@ -70,6 +74,7 @@ export class ImportQuestionsUseCase {
     if (pkg === null) throw new NotFoundException('Paket tidak ditemukan')
     const scope = await this.scope.forUser(user)
     this.scope.assertCovers(scope, pkg.subjectId, pkg.gradeId)
+    assertCanChange(pkg.createdById, user.id, canManageAll(user))
     const next = assertEditable(pkg.status)
 
     const images = this.imageSaver(user)

@@ -3,6 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
+import {
+  canManageAll,
+  type ScopeUser,
+} from '../../../../question/application/teacher-scope.service.js'
+import { assertCanChange } from '../../../domain/policies/package-lifecycle.policy.js'
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
 
 const KEPT_MESSAGE =
@@ -12,9 +17,10 @@ const KEPT_MESSAGE =
 export class DeleteExamPackageUseCase {
   constructor(private readonly packages: IExamPackageRepository) {}
 
-  async execute(id: string): Promise<void> {
+  async execute(user: ScopeUser, id: string): Promise<void> {
     const existing = await this.packages.findById(id)
     if (existing === null) throw new NotFoundException('Paket tidak ditemukan')
+    assertCanChange(existing.createdById, user.id, canManageAll(user))
     if (!(await this.packages.softDeleteUnscheduled(id))) {
       throw new ConflictException(KEPT_MESSAGE)
     }

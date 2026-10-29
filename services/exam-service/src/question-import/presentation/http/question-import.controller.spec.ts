@@ -28,7 +28,7 @@ function build() {
     ...MATH_7,
     status: 'DRAFT',
     lockedAt: null,
-    createdById: 'user-9',
+    createdById: TEACHER.id,
     createdAt: now,
     updatedAt: now,
     deletedAt: null,

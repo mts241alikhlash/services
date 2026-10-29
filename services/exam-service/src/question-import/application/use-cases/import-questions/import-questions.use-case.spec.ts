@@ -70,7 +70,7 @@ function build(pairs = [MATH_7]) {
     ...MATH_7,
     status: 'DRAFT',
     lockedAt: null,
-    createdById: 'user-9',
+    createdById: TEACHER.id,
     createdAt: now,
     updatedAt: now,
     deletedAt: null,

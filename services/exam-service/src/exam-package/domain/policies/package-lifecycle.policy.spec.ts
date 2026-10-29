@@ -1,5 +1,6 @@
 import { ConflictException, ForbiddenException } from '@nestjs/common'
 import {
+  assertCanChange,
   assertCanReview,
   assertCanSchedule,
   assertCanSubmit,
@@ -57,6 +58,14 @@ describe('package lifecycle policy', () => {
     for (const status of ['DRAFT', 'SUBMITTED', 'RETURNED'] as const) {
       expect(() => assertCanTakeFrom(status)).toThrow(ConflictException)
     }
+  })
+
+  it('only the author or a manager changes a package', () => {
+    expect(() => assertCanChange('user-1', 'user-1', false)).not.toThrow()
+    expect(() => assertCanChange('user-1', 'user-2', true)).not.toThrow()
+    expect(() => assertCanChange('user-1', 'user-2', false)).toThrow(
+      ForbiddenException,
+    )
   })
 
   it('an approver cannot approve their own package unless they manage all', () => {

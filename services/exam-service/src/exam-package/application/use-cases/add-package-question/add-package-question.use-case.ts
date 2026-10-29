@@ -7,6 +7,7 @@ import { IEmployeeIdentityReadPort } from '../../../../platform/employee-identit
 import { resolveAuthor } from '../../../../question/application/resolve-author.js'
 import {
   TeacherScope,
+  canManageAll,
   type ScopeUser,
 } from '../../../../question/application/teacher-scope.service.js'
 import { prepareQuestion } from '../../../../question/domain/policies/prepare-question.policy.js'
@@ -14,7 +15,10 @@ import { assertValidPoints } from '../../../../question/domain/policies/validate
 import { IQuestionRepository } from '../../../../question/domain/repositories/question.repository.js'
 import type { QuestionType } from '../../../../question/domain/value-objects/question-content.js'
 import type { ExamPackageDetail } from '../../../domain/entities/exam-package.entity.js'
-import { assertEditable } from '../../../domain/policies/package-lifecycle.policy.js'
+import {
+  assertCanChange,
+  assertEditable,
+} from '../../../domain/policies/package-lifecycle.policy.js'
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
 
 export interface AddPackageQuestionInput {
@@ -46,6 +50,7 @@ export class AddPackageQuestionUseCase {
 
     const scope = await this.scope.forUser(user)
     this.scope.assertCovers(scope, pkg.subjectId, pkg.gradeId)
+    assertCanChange(pkg.createdById, user.id, canManageAll(user))
     const next = assertEditable(pkg.status)
     assertValidPoints(input.points)
 

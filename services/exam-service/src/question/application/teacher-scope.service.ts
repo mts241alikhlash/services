@@ -8,6 +8,9 @@ import { IEmployeeIdentityReadPort } from '../../platform/employee-identity/empl
 
 const MANAGE_ALL = 'exam-questions.manage-all'
 
+export const canManageAll = (user: ScopeUser): boolean =>
+  user.permissions.includes(MANAGE_ALL)
+
 export interface ScopeUser {
   id: string
   roles: string[]

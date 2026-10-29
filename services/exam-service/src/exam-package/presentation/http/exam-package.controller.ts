@@ -154,8 +154,11 @@ export class ExamPackageController {
   })
   @ApiResponse({ status: 204 })
   @ApiParam({ name: 'id', format: 'uuid' })
-  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    await this.deletePackage.execute(id)
+  async remove(
+    @CurrentUser() user: ScopeUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
+    await this.deletePackage.execute(user, id)
   }
 
   @Post(':id/copy')

@@ -39,6 +39,16 @@ export function assertCanTakeFrom(status: ExamPackageStatus): void {
   }
 }
 
+export function assertCanChange(
+  authorId: string,
+  userId: string,
+  canManageAll: boolean,
+): void {
+  if (authorId !== userId && !canManageAll) {
+    throw new ForbiddenException('Paket ini disusun guru lain')
+  }
+}
+
 export function assertNotOwnReview(
   authorId: string,
   reviewerId: string,

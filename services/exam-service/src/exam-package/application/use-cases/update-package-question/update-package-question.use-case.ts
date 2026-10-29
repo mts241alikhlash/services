@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common'
 import {
   TeacherScope,
+  canManageAll,
   type ScopeUser,
 } from '../../../../question/application/teacher-scope.service.js'
 import type { UpdatePackageQuestionInput } from './update-package-question.input.js'
@@ -13,7 +14,10 @@ import { prepareQuestion } from '../../../../question/domain/policies/prepare-qu
 import { assertValidPoints } from '../../../../question/domain/policies/validate-points.policy.js'
 import { IQuestionRepository } from '../../../../question/domain/repositories/question.repository.js'
 import type { ExamPackageDetail } from '../../../domain/entities/exam-package.entity.js'
-import { assertEditable } from '../../../domain/policies/package-lifecycle.policy.js'
+import {
+  assertCanChange,
+  assertEditable,
+} from '../../../domain/policies/package-lifecycle.policy.js'
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
 import { PACKAGE_CHANGED_MESSAGE } from '../add-package-question/add-package-question.use-case.js'
 
@@ -44,6 +48,7 @@ export class UpdatePackageQuestionUseCase {
     if (pkg === null) throw new NotFoundException('Paket tidak ditemukan')
     const scope = await this.scope.forUser(user)
     this.scope.assertCovers(scope, pkg.subjectId, pkg.gradeId)
+    assertCanChange(pkg.createdById, user.id, canManageAll(user))
     const next = assertEditable(pkg.status)
 
     const question = await this.questions.findById(questionId)

@@ -5,10 +5,14 @@ import {
 } from '@nestjs/common'
 import {
   TeacherScope,
+  canManageAll,
   type ScopeUser,
 } from '../../../../question/application/teacher-scope.service.js'
 import type { ExamPackageDetail } from '../../../domain/entities/exam-package.entity.js'
-import { assertEditable } from '../../../domain/policies/package-lifecycle.policy.js'
+import {
+  assertCanChange,
+  assertEditable,
+} from '../../../domain/policies/package-lifecycle.policy.js'
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
 import { normalizeTitle } from '../../package-title.js'
 import { PACKAGE_CHANGED_MESSAGE } from '../add-package-question/add-package-question.use-case.js'
@@ -33,6 +37,7 @@ export class RenameExamPackageUseCase {
       pkg.subjectId,
       pkg.gradeId,
     )
+    assertCanChange(pkg.createdById, user.id, canManageAll(user))
     const next = assertEditable(pkg.status)
 
     const updated = await this.packages.renamePackage(
