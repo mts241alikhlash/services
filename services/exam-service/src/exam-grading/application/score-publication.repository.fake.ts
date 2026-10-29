@@ -1,4 +1,5 @@
 import type { FakeExamSessionRepository } from '../../exam-session/application/exam-session.repository.fake.js'
+import { publicationWaitMs } from './use-cases/publish-scores/publish-scores.use-case.js'
 import {
   IScorePublicationRepository,
   type PublicationCandidate,
@@ -34,13 +35,20 @@ export class FakeScorePublicationRepository extends IScorePublicationRepository 
     return state
   }
 
-  findCandidates(limit: number, excludeSessionIds: string[]) {
+  findCandidates(now: Date, limit: number, excludeSessionIds: string[]) {
     const rows: PublicationCandidate[] = []
     for (const [sessionId, status] of this.sessions.publications) {
       if (status !== 'PENDING' || excludeSessionIds.includes(sessionId))
         continue
       const state = this.stateOf(sessionId)
       if (state.permanentFailures >= 10) continue
+      if (
+        state.lastAttemptAt !== null &&
+        now.getTime() - state.lastAttemptAt.getTime() <
+          publicationWaitMs(state.attempts)
+      ) {
+        continue
+      }
       rows.push({
         sessionId,
         attempts: state.attempts,

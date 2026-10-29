@@ -14,23 +14,24 @@ export class PrismaScorePublicationRepository extends IScorePublicationRepositor
   }
 
   async findCandidates(
+    now: Date,
     limit: number,
     excludeSessionIds: string[],
   ): Promise<PublicationCandidate[]> {
-    const rows = await this.prisma.scorePublication.findMany({
-      where: {
-        status: 'PENDING',
-        permanentFailures: { lt: MAX_PERMANENT_FAILURES },
-        sessionId: { notIn: excludeSessionIds },
-      },
-      orderBy: [
-        { lastAttemptAt: { sort: 'asc', nulls: 'first' } },
-        { id: 'asc' },
-      ],
-      take: limit,
-      select: { sessionId: true, attempts: true, lastAttemptAt: true },
-    })
-    return rows
+    return this.prisma.$queryRaw<PublicationCandidate[]>`
+      SELECT session_id AS "sessionId", attempts, last_attempt_at AS "lastAttemptAt"
+      FROM score_publications
+      WHERE status = 'PENDING'
+        AND permanent_failures < ${MAX_PERMANENT_FAILURES}
+        AND session_id <> ALL(${excludeSessionIds}::uuid[])
+        AND (
+          last_attempt_at IS NULL
+          OR last_attempt_at <= ${now}::timestamp
+            - LEAST(power(2, attempts), 60) * interval '1 minute'
+        )
+      ORDER BY last_attempt_at ASC NULLS FIRST, id ASC
+      LIMIT ${limit}
+    `
   }
 
   async markSent(

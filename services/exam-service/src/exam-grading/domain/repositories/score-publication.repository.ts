@@ -6,6 +6,7 @@ export interface PublicationCandidate {
 
 export abstract class IScorePublicationRepository {
   abstract findCandidates(
+    now: Date,
     limit: number,
     excludeSessionIds: string[],
   ): Promise<PublicationCandidate[]>

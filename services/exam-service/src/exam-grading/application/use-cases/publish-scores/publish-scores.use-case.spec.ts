@@ -326,4 +326,36 @@ describe('PublishScoresUseCase', () => {
     })
     expect(world.sessions.publications.get('ses-1')).toBe('SENT')
   })
+
+  it('reaches a due publication even behind more than a thousand that are still waiting', async () => {
+    const world = build()
+    for (let index = 0; index < 1100; index += 1) {
+      await graded(world, `w${index}`, `stu-${index}`)
+    }
+    const publications = new FakeScorePublicationRepository(world.sessions)
+    for (let index = 0; index < 1100; index += 1) {
+      publications.states.set(`w${index}`, {
+        attempts: 1,
+        permanentFailures: 0,
+        lastAttemptAt: new Date(NOW.getTime() - 30_000),
+        lastError: 'down',
+        sentAt: null,
+      })
+    }
+    await graded(world, 'due', 'stu-due')
+    const publisher = new FakePublisher()
+    const useCase = new PublishScoresUseCase(
+      publications,
+      world.sessions,
+      world.schedules,
+      new FakeEnrollment(),
+      world.academic,
+      publisher,
+      world.students,
+    )
+
+    await useCase.execute(NOW)
+
+    expect(publisher.sent.map((row) => row.examSessionId)).toEqual(['due'])
+  })
 })

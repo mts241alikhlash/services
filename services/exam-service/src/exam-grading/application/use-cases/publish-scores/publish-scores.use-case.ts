@@ -9,10 +9,7 @@ import {
   IScorePublisherPort,
   type ExamScorePayload,
 } from '../../../../platform/score-publisher/score-publisher.port.js'
-import {
-  IScorePublicationRepository,
-  type PublicationCandidate,
-} from '../../../domain/repositories/score-publication.repository.js'
+import { IScorePublicationRepository } from '../../../domain/repositories/score-publication.repository.js'
 
 export const PUBLISH_BATCH = 50
 const MAX_ROUNDS = 20
@@ -40,24 +37,19 @@ export class PublishScoresUseCase {
     const seen: string[] = []
     let attempted = 0
     for (let round = 0; round < MAX_ROUNDS; round += 1) {
-      const batch = await this.publications.findCandidates(PUBLISH_BATCH, seen)
+      const batch = await this.publications.findCandidates(
+        now,
+        PUBLISH_BATCH,
+        seen,
+      )
       for (const candidate of batch) {
         seen.push(candidate.sessionId)
-        if (!this.isDue(candidate, now)) continue
         attempted += 1
         await this.publishOne(candidate.sessionId, now)
       }
       if (batch.length < PUBLISH_BATCH) break
     }
     return attempted
-  }
-
-  private isDue(candidate: PublicationCandidate, now: Date): boolean {
-    return (
-      candidate.lastAttemptAt === null ||
-      now.getTime() - candidate.lastAttemptAt.getTime() >=
-        publicationWaitMs(candidate.attempts)
-    )
   }
 
   private async publishOne(sessionId: string, now: Date): Promise<void> {

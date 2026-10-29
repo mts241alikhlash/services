@@ -361,14 +361,29 @@ suite('Prisma queries against a real database', () => {
       ],
     })
 
-    const rows = await publications.findCandidates(500, [])
+    const rows = await publications.findCandidates(
+      new Date(NOW.getTime() + 3_600_000),
+      500,
+      [],
+    )
     const mine = rows.filter((row) =>
       [fresh.id, tried.id, exhausted.id].includes(row.sessionId),
     )
-    const skipped = await publications.findCandidates(500, [fresh.id])
+    const skipped = await publications.findCandidates(
+      new Date(NOW.getTime() + 3_600_000),
+      500,
+      [fresh.id],
+    )
+    const tooSoon = await publications.findCandidates(
+      new Date(NOW.getTime() + 30_000),
+      500,
+      [],
+    )
 
     expect(mine.map((row) => row.sessionId)).toEqual([fresh.id, tried.id])
     expect(skipped.map((row) => row.sessionId)).not.toContain(fresh.id)
+    expect(tooSoon.map((row) => row.sessionId)).toContain(fresh.id)
+    expect(tooSoon.map((row) => row.sessionId)).not.toContain(tried.id)
   })
 
   it('applies a mark only to the graded version that was sent', async () => {
