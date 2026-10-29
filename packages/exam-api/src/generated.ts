@@ -608,6 +608,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/student-exams/{sessionId}/violations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tell the server how many times the student left the exam; it keeps the highest count and answers with it */
+        post: operations["SessionExamController_violations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1051,6 +1068,10 @@ export interface components {
             /** Format: uuid */
             questionId: string;
         };
+        RecordViolationsRequestDto: {
+            /** @description How many times the app saw the student leave the exam so far; the server keeps the highest value it was told, so send 0 to only read it back */
+            count: number;
+        };
         ReturnQuestionDto: {
             note: string;
             /** @description The revision of the question the reviewer read */
@@ -1161,6 +1182,9 @@ export interface components {
                 [key: string]: unknown;
             };
             points?: number;
+        };
+        ViolationCountDto: {
+            violationCount: number;
         };
     };
     responses: never;
@@ -2586,6 +2610,40 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["SubmittedSessionDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    SessionExamController_violations: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The tablet the session was started on */
+                "X-Device-Id": string;
+            };
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordViolationsRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ViolationCountDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */

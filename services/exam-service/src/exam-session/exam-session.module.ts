@@ -15,6 +15,7 @@ import { ISessionFinalizer } from './domain/repositories/session-finalizer.port.
 import { FinalizeDueSessionsJob } from './infrastructure/jobs/finalize-due-sessions.job.js'
 import { FinalizeSessionService } from './application/finalize-session.service.js'
 import { FinalizeDueSessionsUseCase } from './application/use-cases/finalize-due-sessions/finalize-due-sessions.use-case.js'
+import { RecordViolationsUseCase } from './application/use-cases/record-violations/record-violations.use-case.js'
 import { SubmitExamSessionUseCase } from './application/use-cases/submit-exam-session/submit-exam-session.use-case.js'
 import { IExamSessionRepository } from './domain/repositories/exam-session.repository.js'
 import { PrismaExamAccessAttemptRepository } from './infrastructure/persistence/prisma/prisma-exam-access-attempt.repository.js'
@@ -46,6 +47,7 @@ import { StudentExamController } from './presentation/http/student-exam.controll
     FinalizeSessionService,
     { provide: ISessionFinalizer, useExisting: FinalizeSessionService },
     SubmitExamSessionUseCase,
+    RecordViolationsUseCase,
     ListScheduleSessionsUseCase,
     ReleaseSessionUseCase,
     FinalizeDueSessionsUseCase,

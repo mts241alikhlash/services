@@ -7,6 +7,7 @@ const expected: Record<string, string[]> = {
   answers: ['exam-sessions.take'],
   save: ['exam-sessions.take'],
   submit: ['exam-sessions.take'],
+  violations: ['exam-sessions.take'],
   file: ['exam-sessions.take'],
 }
 

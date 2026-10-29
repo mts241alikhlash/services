@@ -1868,6 +1868,75 @@
         ]
       }
     },
+    "/student-exams/{sessionId}/violations": {
+      "post": {
+        "operationId": "SessionExamController_violations",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordViolationsRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ViolationCountDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tell the server how many times the student left the exam; it keeps the highest count and answers with it",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
     "/student-exams/{sessionId}/submit": {
       "post": {
         "operationId": "SessionExamController_submit",
@@ -4293,6 +4362,32 @@
           "clientId",
           "receivedAfterDeadline",
           "updatedAt"
+        ]
+      },
+      "RecordViolationsRequestDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "description": "How many times the app saw the student leave the exam so far; the server keeps the highest value it was told, so send 0 to only read it back"
+          }
+        },
+        "required": [
+          "count"
+        ]
+      },
+      "ViolationCountDto": {
+        "type": "object",
+        "properties": {
+          "violationCount": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "violationCount"
         ]
       },
       "SubmitSessionRequestDto": {
