@@ -12,8 +12,6 @@ import {
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
 import { PACKAGE_CHANGED_MESSAGE } from '../add-package-question/add-package-question.use-case.js'
 
-const MANAGE_ALL = 'exam-questions.manage-all'
-
 @Injectable()
 export class ApproveExamPackageUseCase {
   constructor(private readonly packages: IExamPackageRepository) {}
@@ -26,11 +24,7 @@ export class ApproveExamPackageUseCase {
     const pkg = await this.packages.findById(id)
     if (pkg === null) throw new NotFoundException('Paket tidak ditemukan')
     assertCanReview(pkg.status)
-    assertNotOwnReview(
-      pkg.createdById,
-      user.id,
-      user.permissions.includes(MANAGE_ALL),
-    )
+    assertNotOwnReview(pkg.createdById, user.id)
 
     const moved = await this.packages.transition(
       id,

@@ -49,12 +49,8 @@ export function assertCanChange(
   }
 }
 
-export function assertNotOwnReview(
-  authorId: string,
-  reviewerId: string,
-  canManageAll: boolean,
-): void {
-  if (authorId === reviewerId && !canManageAll) {
+export function assertNotOwnReview(authorId: string, reviewerId: string): void {
+  if (authorId === reviewerId) {
     throw new ForbiddenException(
       'Anda tidak bisa menyetujui paket yang Anda susun sendiri',
     )

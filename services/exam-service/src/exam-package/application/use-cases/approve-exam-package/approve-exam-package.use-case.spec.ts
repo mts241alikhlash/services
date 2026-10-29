@@ -39,12 +39,25 @@ describe('ApproveExamPackageUseCase', () => {
     ).rejects.toThrow(ForbiddenException)
   })
 
-  it('an administrator can', async () => {
+  it('an administrator cannot approve a package they wrote either', async () => {
     const world = await reviewWorld()
     world.setStatus('SUBMITTED')
     const useCase = new ApproveExamPackageUseCase(world.packages)
 
-    const result = await useCase.execute(ADMIN, world.pkg.id)
+    await expect(
+      useCase.execute({ ...ADMIN, id: world.pkg.createdById }, world.pkg.id),
+    ).rejects.toThrow(ForbiddenException)
+  })
+
+  it('an administrator who did not write it can', async () => {
+    const world = await reviewWorld()
+    world.setStatus('SUBMITTED')
+    const useCase = new ApproveExamPackageUseCase(world.packages)
+
+    const result = await useCase.execute(
+      { ...ADMIN, id: 'someone-else' },
+      world.pkg.id,
+    )
 
     expect(result.status).toBe('APPROVED')
   })

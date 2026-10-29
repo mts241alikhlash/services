@@ -68,11 +68,10 @@ describe('package lifecycle policy', () => {
     )
   })
 
-  it('an approver cannot approve their own package unless they manage all', () => {
-    expect(() => assertNotOwnReview('user-1', 'user-1', false)).toThrow(
+  it('nobody approves their own package, not even someone who manages all', () => {
+    expect(() => assertNotOwnReview('user-1', 'user-1')).toThrow(
       ForbiddenException,
     )
-    expect(() => assertNotOwnReview('user-1', 'user-1', true)).not.toThrow()
-    expect(() => assertNotOwnReview('user-1', 'user-2', false)).not.toThrow()
+    expect(() => assertNotOwnReview('user-1', 'user-2')).not.toThrow()
   })
 })
