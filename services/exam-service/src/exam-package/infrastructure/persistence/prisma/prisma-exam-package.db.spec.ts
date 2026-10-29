@@ -124,6 +124,7 @@ suite('Prisma exam packages against a real database', () => {
       pkg.id,
       draft,
       questionId,
+      1,
       {
         bodyHtml: '<p>Baru</p>',
         content: { answer: { value: false } },
@@ -291,5 +292,110 @@ suite('Prisma exam packages against a real database', () => {
     scheduleIds.push(created!.id)
 
     expect((await packages.findById(pkg.id))?.status).toBe('LOCKED')
+  })
+
+  it('lets only one of two edits made from the same revision through', async () => {
+    const pkg = await newPackage()
+    const added = await packages.addQuestion(pkg.id, draft, question(pkg.id))
+    const questionId = added!.items[0].questionId
+    const fields = (bodyHtml: string) => ({
+      bodyHtml,
+      content: { answer: { value: true } },
+      points: 2,
+    })
+
+    const results = await Promise.all([
+      packages.changeQuestion(
+        pkg.id,
+        draft,
+        questionId,
+        1,
+        fields('<p>A</p>'),
+        userId,
+      ),
+      packages.changeQuestion(
+        pkg.id,
+        draft,
+        questionId,
+        1,
+        fields('<p>B</p>'),
+        userId,
+      ),
+    ])
+
+    expect(results.filter((result) => result !== null)).toHaveLength(1)
+    expect(await questions.findById(questionId)).toMatchObject({
+      currentVersion: 2,
+      revision: 2,
+    })
+  })
+
+  it('refuses an edit made from a revision that has since moved, and keeps the status', async () => {
+    const pkg = await newPackage()
+    const added = await packages.addQuestion(pkg.id, draft, question(pkg.id))
+    const questionId = added!.items[0].questionId
+    await packages.changeQuestion(
+      pkg.id,
+      draft,
+      questionId,
+      1,
+      { bodyHtml: '<p>A</p>', content: { answer: { value: true } }, points: 2 },
+      userId,
+    )
+    await prisma.examPackage.update({
+      where: { id: pkg.id },
+      data: { status: 'APPROVED' },
+    })
+
+    const stale = await packages.changeQuestion(
+      pkg.id,
+      { expected: 'APPROVED', next: 'DRAFT' },
+      questionId,
+      1,
+      { bodyHtml: '<p>B</p>', content: { answer: { value: true } }, points: 2 },
+      userId,
+    )
+
+    expect(stale).toBeNull()
+    expect((await packages.findById(pkg.id))?.status).toBe('APPROVED')
+    expect((await questions.findById(questionId))?.currentVersion).toBe(2)
+  })
+
+  it('refuses a reorder that does not name every item exactly once', async () => {
+    const pkg = await newPackage()
+    const added = await packages.addQuestions(pkg.id, draft, [
+      question(pkg.id, '<p>1</p>'),
+      question(pkg.id, '<p>2</p>'),
+    ])
+    const ids = added!.items.map((item) => item.questionId)
+
+    expect(await packages.reorderQuestions(pkg.id, draft, [ids[1]])).toBeNull()
+    expect(
+      await packages.reorderQuestions(pkg.id, draft, [ids[1], ids[0], id()]),
+    ).toBeNull()
+    expect(
+      (await packages.findById(pkg.id))?.items.map((item) => [
+        item.questionId,
+        item.position,
+      ]),
+    ).toEqual([
+      [ids[0], 1],
+      [ids[1], 2],
+    ])
+  })
+
+  it('refuses to submit a package that has no questions left', async () => {
+    const pkg = await newPackage()
+
+    const moved = await packages.transition(pkg.id, ['DRAFT'], 'SUBMITTED', {
+      action: 'SUBMIT',
+      byUserId: userId,
+      note: null,
+      questionNotes: [],
+    })
+
+    expect(moved).toBe(false)
+    expect((await packages.findById(pkg.id))?.status).toBe('DRAFT')
+    expect(await packages.listReviews(pkg.id)).toEqual([])
   })
 })

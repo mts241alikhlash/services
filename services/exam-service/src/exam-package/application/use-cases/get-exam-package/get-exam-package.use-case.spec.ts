@@ -74,6 +74,7 @@ describe('GetExamPackageUseCase', () => {
       world.pkg.id,
       { expected: 'DRAFT', next: 'DRAFT' },
       second,
+      world.questions.questions.get(second)!.revision,
       {
         bodyHtml: '<p>Diubah</p>',
         content: world.questions.questions.get(second)!.current.content,

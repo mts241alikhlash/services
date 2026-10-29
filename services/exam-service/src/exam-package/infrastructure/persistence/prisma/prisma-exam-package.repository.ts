@@ -47,6 +47,8 @@ function buildWhere(query: ExamPackageListQuery): Prisma.ExamPackageWhereInput {
   }
 }
 
+class AbortChange extends Error {}
+
 @Injectable()
 export class PrismaExamPackageRepository extends IExamPackageRepository {
   constructor(private readonly prisma: PrismaService) {
@@ -123,12 +125,18 @@ export class PrismaExamPackageRepository extends IExamPackageRepository {
     to: ExamPackageStatus,
     review: NewPackageReview,
   ): Promise<boolean> {
-    return this.prisma.$transaction(async (tx) => {
+    const moved = await this.inTransaction(async (tx) => {
       const result = await tx.examPackage.updateMany({
         where: { id, status: { in: from }, deletedAt: null },
         data: { status: to },
       })
       if (result.count === 0) return false
+      if (
+        review.action === 'SUBMIT' &&
+        (await tx.examPackageItem.count({ where: { packageId: id } })) === 0
+      ) {
+        throw new AbortChange()
+      }
       await tx.examPackageReview.create({
         data: {
           packageId: id,
@@ -141,6 +149,7 @@ export class PrismaExamPackageRepository extends IExamPackageRepository {
       })
       return true
     })
+    return moved === true
   }
 
   async listReviews(id: string): Promise<PackageReview[]> {
@@ -240,32 +249,39 @@ export class PrismaExamPackageRepository extends IExamPackageRepository {
     id: string,
     edit: PackageEdit,
     questionId: string,
+    expectedRevision: number,
     fields: VersionFields,
     createdById: string,
   ): Promise<ExamPackageDetail | null> {
-    return this.prisma.$transaction(async (tx) => {
-      const question = await tx.question.findFirst({
-        where: { id: questionId, packageId: id, deletedAt: null },
+    return this.inTransaction(async (tx) => {
+      const moved = await tx.question.updateMany({
+        where: {
+          id: questionId,
+          packageId: id,
+          deletedAt: null,
+          revision: expectedRevision,
+        },
+        data: { currentVersion: { increment: 1 }, revision: { increment: 1 } },
       })
-      if (question === null || !(await this.claim(tx, id, edit))) return null
-      const number = question.currentVersion + 1
+      if (moved.count === 0 || !(await this.claim(tx, id, edit))) {
+        throw new AbortChange()
+      }
+      const question = await tx.question.findUniqueOrThrow({
+        where: { id: questionId },
+      })
       await tx.questionVersion.create({
         data: {
           questionId,
-          number,
+          number: question.currentVersion,
           bodyHtml: fields.bodyHtml,
           content: fields.content as unknown as Prisma.InputJsonValue,
           points: fields.points,
           createdById,
         },
       })
-      await tx.question.update({
-        where: { id: questionId },
-        data: { currentVersion: number, revision: { increment: 1 } },
-      })
       await tx.examPackageItem.updateMany({
         where: { packageId: id, questionId },
-        data: { questionVersion: number },
+        data: { questionVersion: question.currentVersion },
       })
       return this.detail(tx, id)
     })
@@ -305,19 +321,35 @@ export class PrismaExamPackageRepository extends IExamPackageRepository {
     edit: PackageEdit,
     questionIds: string[],
   ): Promise<ExamPackageDetail | null> {
-    return this.prisma.$transaction(async (tx) => {
-      if (!(await this.claim(tx, id, edit))) return null
+    return this.inTransaction(async (tx) => {
+      if (!(await this.claim(tx, id, edit))) throw new AbortChange()
+      const total = await tx.examPackageItem.count({ where: { packageId: id } })
+      if (total !== questionIds.length) throw new AbortChange()
       await tx.examPackageItem.updateMany({
         where: { packageId: id },
         data: { position: { increment: 1_000_000 } },
       })
+      let placed = 0
       for (const [index, questionId] of questionIds.entries()) {
-        await tx.examPackageItem.updateMany({
-          where: { packageId: id, questionId },
+        const result = await tx.examPackageItem.updateMany({
+          where: { packageId: id, questionId, position: { gt: 1_000_000 } },
           data: { position: index + 1 },
         })
+        placed += result.count
       }
+      if (placed !== total) throw new AbortChange()
       return this.detail(tx, id)
     })
+  }
+
+  private async inTransaction<T>(
+    work: (tx: Prisma.TransactionClient) => Promise<T>,
+  ): Promise<T | null> {
+    try {
+      return await this.prisma.$transaction(work)
+    } catch (error) {
+      if (error instanceof AbortChange) return null
+      throw error
+    }
   }
 }

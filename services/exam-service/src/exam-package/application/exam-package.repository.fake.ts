@@ -105,6 +105,9 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     if (!row || row.deletedAt !== null || !from.includes(row.status)) {
       return Promise.resolve(false)
     }
+    if (review.action === 'SUBMIT' && row.items.length === 0) {
+      return Promise.resolve(false)
+    }
     this.packages.set(id, { ...row, status: to, updatedAt: new Date() })
     this.reviews.push({
       id: randomUUID(),
@@ -184,12 +187,13 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     id: string,
     edit: PackageEdit,
     questionId: string,
+    expectedRevision: number,
     fields: VersionFields,
     createdById: string,
   ) {
     const row = this.claim(id, edit)
     const existing = this.bank().questions.get(questionId)
-    if (!row || !existing) return null
+    if (!row || !existing || existing.revision !== expectedRevision) return null
     const changed = await this.bank().addVersion(
       questionId,
       fields,
@@ -224,6 +228,13 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
   reorderQuestions(id: string, edit: PackageEdit, questionIds: string[]) {
     const row = this.claim(id, edit)
     if (!row) return Promise.resolve(null)
+    const present = new Set(row.items.map((item) => item.questionId))
+    if (
+      questionIds.length !== present.size ||
+      !questionIds.every((questionId) => present.has(questionId))
+    ) {
+      return Promise.resolve(null)
+    }
     const byId = new Map(row.items.map((item) => [item.questionId, item]))
     const items = questionIds.map((questionId, index) => ({
       ...(byId.get(questionId) as ExamPackageDetail['items'][number]),

@@ -69,6 +69,7 @@ export class UpdatePackageQuestionUseCase {
       packageId,
       { expected: pkg.status, next },
       questionId,
+      question.revision,
       { bodyHtml, content, points: input.points ?? question.current.points },
       user.id,
     )

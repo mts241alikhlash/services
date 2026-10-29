@@ -76,6 +76,7 @@ export abstract class IExamPackageRepository {
     id: string,
     edit: PackageEdit,
     questionId: string,
+    expectedRevision: number,
     fields: VersionFields,
     createdById: string,
   ): Promise<ExamPackageDetail | null>
