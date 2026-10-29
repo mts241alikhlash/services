@@ -1,17 +1,28 @@
 import { randomUUID } from 'node:crypto'
+import type { FakeQuestionRepository } from '../../question/application/question.repository.fake.js'
+import type {
+  NewQuestionInput,
+  VersionFields,
+} from '../../question/domain/repositories/question.repository.js'
 import type {
   ExamPackageDetail,
+  ExamPackageStatus,
   ExamPackageSummary,
 } from '../domain/entities/exam-package.entity.js'
 import {
   IExamPackageRepository,
   type DraftFields,
+  type PackageEdit,
   type ExamPackageListQuery,
   type NewExamPackage,
 } from '../domain/repositories/exam-package.repository.js'
 
 export class FakeExamPackageRepository extends IExamPackageRepository {
   readonly packages = new Map<string, ExamPackageDetail>()
+
+  constructor(private readonly questions?: FakeQuestionRepository) {
+    super()
+  }
 
   findAll(query: ExamPackageListQuery) {
     const rows = [...this.packages.values()]
@@ -84,5 +95,104 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     if (row) {
       this.packages.set(id, { ...row, status: 'LOCKED', lockedAt: new Date() })
     }
+  }
+
+  setStatusIf(id: string, from: ExamPackageStatus[], to: ExamPackageStatus) {
+    const row = this.packages.get(id)
+    if (!row || row.deletedAt !== null || !from.includes(row.status)) {
+      return Promise.resolve(false)
+    }
+    this.packages.set(id, { ...row, status: to, updatedAt: new Date() })
+    return Promise.resolve(true)
+  }
+
+  private claim(id: string, edit: PackageEdit): ExamPackageDetail | null {
+    const row = this.packages.get(id)
+    if (!row || row.deletedAt !== null || row.status !== edit.expected) {
+      return null
+    }
+    return row
+  }
+
+  private store(row: ExamPackageDetail, edit: PackageEdit, items = row.items) {
+    const updated = {
+      ...row,
+      status: edit.next,
+      items,
+      updatedAt: new Date(),
+    }
+    this.packages.set(row.id, updated)
+    return updated
+  }
+
+  private bank(): FakeQuestionRepository {
+    if (!this.questions) throw new Error('Pass a FakeQuestionRepository')
+    return this.questions
+  }
+
+  async addQuestion(id: string, edit: PackageEdit, question: NewQuestionInput) {
+    const row = this.claim(id, edit)
+    if (!row) return null
+    const created = await this.bank().create(question)
+    return this.store(row, edit, [
+      ...row.items,
+      {
+        questionId: created.id,
+        questionVersion: 1,
+        position: row.items.length + 1,
+      },
+    ])
+  }
+
+  async changeQuestion(
+    id: string,
+    edit: PackageEdit,
+    questionId: string,
+    fields: VersionFields,
+    createdById: string,
+  ) {
+    const row = this.claim(id, edit)
+    const existing = this.bank().questions.get(questionId)
+    if (!row || !existing) return null
+    const changed = await this.bank().addVersion(
+      questionId,
+      fields,
+      createdById,
+    )
+    if (!changed) return null
+    return this.store(
+      row,
+      edit,
+      row.items.map((item) =>
+        item.questionId === questionId
+          ? { ...item, questionVersion: changed.currentVersion }
+          : item,
+      ),
+    )
+  }
+
+  removeQuestion(id: string, edit: PackageEdit, questionId: string) {
+    const row = this.claim(id, edit)
+    const existing = this.bank().questions.get(questionId)
+    if (!row || !existing) return Promise.resolve(null)
+    this.bank().questions.set(questionId, {
+      ...existing,
+      deletedAt: new Date(),
+    })
+    const items = row.items
+      .filter((item) => item.questionId !== questionId)
+      .map((item, index) => ({ ...item, position: index + 1 }))
+    return Promise.resolve(this.store(row, edit, items))
+  }
+
+  reorderQuestions(id: string, edit: PackageEdit, questionIds: string[]) {
+    const row = this.claim(id, edit)
+    if (!row) return Promise.resolve(null)
+    const byId = new Map(row.items.map((item) => [item.questionId, item]))
+    const items = questionIds.map((questionId, index) => ({
+      ...(byId.get(questionId) as ExamPackageDetail['items'][number]),
+      position: index + 1,
+    }))
+    return Promise.resolve(this.store(row, edit, items))
   }
 }

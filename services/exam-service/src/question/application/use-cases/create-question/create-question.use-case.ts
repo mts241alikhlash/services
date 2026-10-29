@@ -1,13 +1,10 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { IEmployeeIdentityReadPort } from '../../../../platform/employee-identity/employee-identity.port.js'
 import type { QuestionDetail } from '../../../domain/entities/question.entity.js'
 import { assertValidPoints } from '../../../domain/policies/validate-points.policy.js'
 import { prepareQuestion } from '../../../domain/policies/prepare-question.policy.js'
 import { IQuestionRepository } from '../../../domain/repositories/question.repository.js'
+import { resolveAuthor } from '../../resolve-author.js'
 import { TeacherScope, type ScopeUser } from '../../teacher-scope.service.js'
 import type { CreateQuestionInput } from './create-question.input.js'
 
@@ -27,7 +24,8 @@ export class CreateQuestionUseCase {
     this.scope.assertCovers(scope, input.subjectId, input.gradeId)
     assertValidPoints(input.points)
 
-    const authorEmployeeId = await this.resolveAuthor(
+    const authorEmployeeId = await resolveAuthor(
+      this.employees,
       user,
       scope.all,
       input.authorEmployeeId,
@@ -49,36 +47,5 @@ export class CreateQuestionUseCase {
       content,
       points: input.points,
     })
-  }
-
-  private async resolveAuthor(
-    user: ScopeUser,
-    manageAll: boolean,
-    requested: string | undefined,
-  ): Promise<string> {
-    const own = await this.employees.findEmployeeIdByUserId(user.id)
-
-    if (!manageAll) {
-      if (own === null) {
-        throw new ForbiddenException(
-          'Akun Anda belum terhubung ke data pegawai',
-        )
-      }
-      if (requested !== undefined && requested !== own) {
-        throw new ForbiddenException(
-          'Hanya pengelola yang bisa memilih penulis soal',
-        )
-      }
-      return own
-    }
-
-    if (requested !== undefined) {
-      if (!(await this.employees.employeeExists(requested))) {
-        throw new BadRequestException('Penulis soal tidak ditemukan')
-      }
-      return requested
-    }
-    if (own === null) throw new BadRequestException('Pilih guru penulis soal')
-    return own
   }
 }

@@ -1,5 +1,9 @@
 import type { PaginatedResult } from '../../../shared/domain/interfaces/repository.interface.js'
 import type {
+  NewQuestionInput,
+  VersionFields,
+} from '../../../question/domain/repositories/question.repository.js'
+import type {
   ExamPackageDetail,
   ExamPackageStatus,
   ExamPackageSummary,
@@ -28,6 +32,11 @@ export interface DraftFields {
   items: PackageItem[]
 }
 
+export interface PackageEdit {
+  expected: ExamPackageStatus
+  next: ExamPackageStatus
+}
+
 export abstract class IExamPackageRepository {
   abstract findAll(
     query: ExamPackageListQuery,
@@ -39,4 +48,31 @@ export abstract class IExamPackageRepository {
     fields: DraftFields,
   ): Promise<ExamPackageDetail | null>
   abstract softDeleteDraft(id: string): Promise<boolean>
+  abstract setStatusIf(
+    id: string,
+    from: ExamPackageStatus[],
+    to: ExamPackageStatus,
+  ): Promise<boolean>
+  abstract addQuestion(
+    id: string,
+    edit: PackageEdit,
+    question: NewQuestionInput,
+  ): Promise<ExamPackageDetail | null>
+  abstract changeQuestion(
+    id: string,
+    edit: PackageEdit,
+    questionId: string,
+    fields: VersionFields,
+    createdById: string,
+  ): Promise<ExamPackageDetail | null>
+  abstract removeQuestion(
+    id: string,
+    edit: PackageEdit,
+    questionId: string,
+  ): Promise<ExamPackageDetail | null>
+  abstract reorderQuestions(
+    id: string,
+    edit: PackageEdit,
+    questionIds: string[],
+  ): Promise<ExamPackageDetail | null>
 }
