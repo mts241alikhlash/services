@@ -114,8 +114,11 @@ suite('Prisma queries against a real database', () => {
     await prisma.examPackageItem.deleteMany({
       where: { packageId: { in: packageIds } },
     })
-    await prisma.examPackage.deleteMany({ where: { id: { in: packageIds } } })
+    await prisma.questionVersion.deleteMany({
+      where: { questionId: { in: questionIds } },
+    })
     await prisma.question.deleteMany({ where: { id: { in: questionIds } } })
+    await prisma.examPackage.deleteMany({ where: { id: { in: packageIds } } })
     await prisma.$disconnect()
   })
 
