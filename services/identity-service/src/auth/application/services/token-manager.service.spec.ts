@@ -263,3 +263,20 @@ describe('TokenManagerService', () => {
     })
   })
 })
+
+describe('TokenManagerService access lifetime', () => {
+  const build = (value?: string) =>
+    new TokenManagerService(
+      { get: (_key: string, fallback?: string) => value ?? fallback } as never,
+      {} as never,
+    )
+
+  it('reads the access token lifetime in seconds', () => {
+    expect(build('15m').getAccessExpirationSeconds()).toBe(900)
+    expect(build('1h').getAccessExpirationSeconds()).toBe(3600)
+  })
+
+  it('falls back to fifteen minutes', () => {
+    expect(build().getAccessExpirationSeconds()).toBe(900)
+  })
+})
