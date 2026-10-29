@@ -1,61 +1,84 @@
-import { FakeQuestionRepository } from '../../../../question/application/question.repository.fake.js'
-import { FakeExamPackageRepository } from '../../exam-package.repository.fake.js'
+import { ConflictException, ForbiddenException } from '@nestjs/common'
 import {
-  GRADE_ID,
-  SUBJECT_ID,
-  USER,
-  seedApprovedQuestion,
-} from '../../exam-package.test-support.js'
-import { CreateExamPackageUseCase } from '../create-exam-package/create-exam-package.use-case.js'
+  MATH_7,
+  TEACHER,
+} from '../../../../question/application/question.repository.fake.js'
+import { reviewWorld } from '../../package-review.test-support.js'
 import { CopyExamPackageUseCase } from './copy-exam-package.use-case.js'
 
-describe('CopyExamPackageUseCase', () => {
-  it('produces a draft with the same pinned versions, even from a locked package', async () => {
-    const packages = new FakeExamPackageRepository()
-    const questions = new FakeQuestionRepository()
-    const question = await seedApprovedQuestion(questions)
-    const original = await new CreateExamPackageUseCase(
-      packages,
-      questions,
-    ).execute(USER, {
-      title: 'UTS',
-      subjectId: SUBJECT_ID,
-      gradeId: GRADE_ID,
-      questionIds: [question.id],
-    })
-    packages.lockForTest(original.id)
-
-    const copy = await new CopyExamPackageUseCase(packages).execute(
-      { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' },
-      original.id,
+async function setup(status: 'APPROVED' | 'LOCKED' | 'DRAFT' = 'APPROVED') {
+  const world = await reviewWorld(2)
+  world.setStatus(status)
+  const copier = (pairs = [MATH_7]) => {
+    return new CopyExamPackageUseCase(
+      world.packages,
+      world.questions,
+      pairs.length === 0 ? world.deniedScope : world.scope,
+      world.employees,
     )
+  }
+  return { ...world, copier }
+}
 
-    expect(copy.id).not.toBe(original.id)
+describe('CopyExamPackageUseCase', () => {
+  it('copies an approved package into a draft with copies of its questions', async () => {
+    const { copier, pkg, questionIds, questions } = await setup('APPROVED')
+
+    const copy = await copier().execute(TEACHER, pkg.id)
+
+    expect(copy.id).not.toBe(pkg.id)
     expect(copy.status).toBe('DRAFT')
-    expect(copy.title).toBe('Salinan UTS')
-    expect(copy.createdById).toBe('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')
-    expect(copy.items).toEqual(original.items)
+    expect(copy.title).toBe('Salinan UTS Matematika')
+    expect(copy.createdById).toBe(TEACHER.id)
+    expect(copy.items.map((item) => item.position)).toEqual([1, 2])
+    expect(copy.items.map((item) => item.questionId)).not.toEqual(questionIds)
+    const lineage = copy.items.map(
+      (item) => questions.questions.get(item.questionId)?.copiedFromQuestionId,
+    )
+    expect(lineage).toEqual(questionIds)
+  })
+
+  it('copies a locked package too', async () => {
+    const { copier, pkg } = await setup('LOCKED')
+
+    expect((await copier().execute(TEACHER, pkg.id)).items).toHaveLength(2)
+  })
+
+  it('refuses a package that is not approved or locked', async () => {
+    const { copier, pkg } = await setup('DRAFT')
+
+    await expect(copier().execute(TEACHER, pkg.id)).rejects.toThrow(
+      ConflictException,
+    )
   })
 
   it('cuts the title to 200 characters', async () => {
-    const packages = new FakeExamPackageRepository()
-    const questions = new FakeQuestionRepository()
-    const question = await seedApprovedQuestion(questions)
-    const original = await new CreateExamPackageUseCase(
-      packages,
-      questions,
-    ).execute(USER, {
+    const { copier, pkg, packages } = await setup('APPROVED')
+    packages.packages.set(pkg.id, {
+      ...packages.packages.get(pkg.id)!,
       title: 'x'.repeat(200),
-      subjectId: SUBJECT_ID,
-      gradeId: GRADE_ID,
-      questionIds: [question.id],
     })
 
-    const copy = await new CopyExamPackageUseCase(packages).execute(
-      USER,
-      original.id,
-    )
+    const copy = await copier().execute(TEACHER, pkg.id)
 
     expect(copy.title).toHaveLength(200)
+  })
+
+  it('leaves no empty draft behind when the copy cannot be built', async () => {
+    const { copier, pkg, packages, questions } = await setup('APPROVED')
+    const before = packages.packages.size
+    jest.spyOn(questions, 'findPinned').mockResolvedValue([])
+
+    await expect(copier().execute(TEACHER, pkg.id)).rejects.toThrow()
+
+    expect(packages.packages.size).toBe(before)
+  })
+
+  it('refuses a teacher outside the subject and grade', async () => {
+    const { copier, pkg } = await setup('APPROVED')
+
+    await expect(copier([]).execute(TEACHER, pkg.id)).rejects.toThrow(
+      ForbiddenException,
+    )
   })
 })

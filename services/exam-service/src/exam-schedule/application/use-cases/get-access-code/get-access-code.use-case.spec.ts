@@ -12,7 +12,7 @@ import {
   FakeAcademicLookup,
   START,
   USER,
-  draftPackage,
+  approvedPackage,
 } from '../../exam-schedule.test-support.js'
 import { RotateAccessCodeUseCase } from '../rotate-access-code/rotate-access-code.use-case.js'
 import { GetAccessCodeUseCase } from './get-access-code.use-case.js'
@@ -28,7 +28,7 @@ describe('Access code use cases', () => {
   beforeEach(async () => {
     const packages = new FakeExamPackageRepository()
     schedules = new FakeExamScheduleRepository(packages)
-    const pkg = await draftPackage(packages, new FakeQuestionRepository())
+    const pkg = await approvedPackage(packages, new FakeQuestionRepository())
     scheduleId = (
       await new CreateExamScheduleUseCase(
         schedules,

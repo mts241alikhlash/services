@@ -2,8 +2,7 @@ export interface ImportQuestionsInput {
   buffer: Buffer
   size: number
   fileName: string
-  subjectId: string
-  gradeId: string
+  packageId: string
   authorEmployeeId?: string
 }
 

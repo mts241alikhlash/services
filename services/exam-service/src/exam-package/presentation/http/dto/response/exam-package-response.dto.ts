@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger'
-import type { PackageCandidate } from '../../../../application/use-cases/list-package-candidates/list-package-candidates.use-case.js'
 import {
   QUESTION_TYPES,
   type QuestionType,
@@ -13,7 +12,11 @@ import {
   type ExamPackageView,
   type PackageItem,
   type PackageItemView,
+  type PackageQuestionNote,
+  type PackageReview,
+  type PackageReviewAction,
 } from '../../../../domain/entities/exam-package.entity.js'
+import type { QuestionMarker } from '../../../../domain/policies/question-marker.policy.js'
 
 abstract class ExamPackageBaseDto {
   @ApiProperty({ format: 'uuid' }) id!: string
@@ -56,6 +59,7 @@ export class ExamPackageItemDto {
 
 export class ExamPackageItemViewDto extends ExamPackageItemDto {
   @ApiProperty({ enum: QUESTION_TYPES }) type!: QuestionType
+  @ApiProperty({ enum: ['NEW', 'CHANGED', 'COPIED'] }) marker!: QuestionMarker
   @ApiProperty() summary!: string
   @ApiProperty() points!: number
 
@@ -65,6 +69,7 @@ export class ExamPackageItemViewDto extends ExamPackageItemDto {
     dto.questionVersion = domain.questionVersion
     dto.position = domain.position
     dto.type = domain.type
+    dto.marker = domain.marker
     dto.summary = domain.summary
     dto.points = domain.points
     return dto
@@ -94,15 +99,48 @@ export class ExamPackageDetailDto extends ExamPackageBaseDto {
   }
 }
 
+export class PackageQuestionNoteResponseDto {
+  @ApiProperty({ format: 'uuid' }) questionId!: string
+  @ApiProperty() note!: string
+}
+
+export class PackageReviewDto {
+  @ApiProperty({ format: 'uuid' }) id!: string
+  @ApiProperty({ enum: ['SUBMIT', 'APPROVE', 'RETURN'] })
+  action!: PackageReviewAction
+  @ApiProperty({ format: 'uuid' }) byUserId!: string
+  @ApiProperty({ type: String, nullable: true }) note!: string | null
+  @ApiProperty({ type: () => [PackageQuestionNoteResponseDto] })
+  questionNotes!: PackageQuestionNote[]
+  @ApiProperty({ format: 'date-time' }) createdAt!: string
+
+  static fromDomain(domain: PackageReview): PackageReviewDto {
+    const dto = new PackageReviewDto()
+    dto.id = domain.id
+    dto.action = domain.action
+    dto.byUserId = domain.byUserId
+    dto.note = domain.note
+    dto.questionNotes = domain.questionNotes
+    dto.createdAt = domain.createdAt.toISOString()
+    return dto
+  }
+}
+
 export class ExamPackageViewDto extends ExamPackageBaseDto {
   @ApiProperty({ type: () => [ExamPackageItemViewDto] })
   items!: ExamPackageItemViewDto[]
+
+  @ApiProperty({ type: () => [PackageReviewDto] })
+  reviews!: PackageReviewDto[]
 
   static fromDomain(domain: ExamPackageView): ExamPackageViewDto {
     const dto = new ExamPackageViewDto()
     dto.fill(domain)
     dto.items = domain.items.map((item) =>
       ExamPackageItemViewDto.fromView(item),
+    )
+    dto.reviews = domain.reviews.map((review) =>
+      PackageReviewDto.fromDomain(review),
     )
     return dto
   }
@@ -123,46 +161,6 @@ export class ExamPackageListResponseDto {
   }): ExamPackageListResponseDto {
     const dto = new ExamPackageListResponseDto()
     dto.data = domain.data.map((row) => ExamPackageSummaryDto.fromDomain(row))
-    dto.total = domain.total
-    dto.page = domain.page
-    dto.limit = domain.limit
-    return dto
-  }
-}
-
-export class PackageCandidateDto {
-  @ApiProperty({ format: 'uuid' }) id!: string
-  @ApiProperty({ enum: QUESTION_TYPES }) type!: QuestionType
-  @ApiProperty() summary!: string
-  @ApiProperty() points!: number
-  @ApiProperty() approvedVersion!: number
-
-  static fromDomain(domain: PackageCandidate): PackageCandidateDto {
-    const dto = new PackageCandidateDto()
-    dto.id = domain.id
-    dto.type = domain.type
-    dto.summary = domain.summary
-    dto.points = domain.points
-    dto.approvedVersion = domain.approvedVersion
-    return dto
-  }
-}
-
-export class PackageCandidateListResponseDto {
-  @ApiProperty({ type: () => [PackageCandidateDto] })
-  data!: PackageCandidateDto[]
-  @ApiProperty() total!: number
-  @ApiProperty() page!: number
-  @ApiProperty() limit!: number
-
-  static fromDomain(domain: {
-    data: PackageCandidate[]
-    total: number
-    page: number
-    limit: number
-  }): PackageCandidateListResponseDto {
-    const dto = new PackageCandidateListResponseDto()
-    dto.data = domain.data.map((row) => PackageCandidateDto.fromDomain(row))
     dto.total = domain.total
     dto.page = domain.page
     dto.limit = domain.limit

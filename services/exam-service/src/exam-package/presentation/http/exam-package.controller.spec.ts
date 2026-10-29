@@ -4,12 +4,20 @@ import { ExamPackageController } from './exam-package.controller.js'
 
 const expected: Record<string, string[]> = {
   findAll: ['exam-packages.read'],
-  findCandidates: ['exam-packages.create'],
   findOne: ['exam-packages.read'],
   create: ['exam-packages.create'],
-  update: ['exam-packages.update'],
+  rename: ['exam-packages.update'],
   remove: ['exam-packages.delete'],
   copy: ['exam-packages.create'],
+  findQuestion: ['exam-packages.read'],
+  addQuestion: ['exam-packages.update'],
+  updateQuestion: ['exam-packages.update'],
+  removeQuestion: ['exam-packages.update'],
+  reorderQuestions: ['exam-packages.update'],
+  takeQuestions: ['exam-packages.update'],
+  submit: ['exam-packages.update'],
+  approve: ['exam-questions.approve'],
+  returnPackage: ['exam-questions.approve'],
 }
 
 describe('ExamPackageController permissions', () => {

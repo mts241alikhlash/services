@@ -1,6 +1,5 @@
 import type {
   QuestionContent,
-  QuestionStatus,
   QuestionType,
 } from '../value-objects/question-content.js'
 
@@ -15,27 +14,16 @@ export interface QuestionVersion {
   createdAt: Date
 }
 
-export type ReviewAction = 'SUBMITTED' | 'APPROVED' | 'RETURNED'
-
-export interface QuestionReview {
-  id: string
-  questionId: string
-  versionNumber: number
-  action: ReviewAction
-  note: string | null
-  byUserId: string
-  createdAt: Date
-}
-
 export interface Question {
   id: string
+  packageId: string
+  copiedFromQuestionId: string | null
+  copiedFromVersion: number | null
   subjectId: string
   gradeId: string
   authorEmployeeId: string
   type: QuestionType
-  status: QuestionStatus
   currentVersion: number
-  approvedVersion: number | null
   revision: number
   createdById: string
   createdAt: Date
@@ -45,15 +33,4 @@ export interface Question {
 
 export interface QuestionDetail extends Question {
   current: QuestionVersion
-  approved: QuestionVersion | null
-  reviews: QuestionReview[]
-}
-
-export interface ApprovedQuestionRef {
-  id: string
-  subjectId: string
-  gradeId: string
-  status: QuestionStatus
-  approvedVersion: number | null
-  deletedAt: Date | null
 }

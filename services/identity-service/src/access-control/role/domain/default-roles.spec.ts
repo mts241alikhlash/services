@@ -346,14 +346,19 @@ describe('default roles', () => {
       }
     })
 
-    it('keeps the codes away from teachers, students, applicants, employees and the operator', () => {
-      for (const role of [
-        'TEACHER',
-        'STUDENT',
-        'APPLICANT',
-        'EMPLOYEE',
-        'OPERATOR',
-      ]) {
+    it('lets a teacher build packages but not schedule them', () => {
+      for (const action of ['read', 'create', 'update', 'delete']) {
+        expect(codesOf('TEACHER')).toContain(`exam-packages.${action}`)
+      }
+      expect(
+        [...codesOf('TEACHER')].filter((code) =>
+          code.startsWith('exam-schedules.'),
+        ),
+      ).toEqual([])
+    })
+
+    it('keeps the codes away from students, applicants, employees and the operator', () => {
+      for (const role of ['STUDENT', 'APPLICANT', 'EMPLOYEE', 'OPERATOR']) {
         expect(
           [...codesOf(role)].filter(
             (code) =>
@@ -373,6 +378,7 @@ describe('default roles', () => {
       expect(holders.sort()).toEqual([
         'ACADEMIC_ADMIN',
         'CURRICULUM_STAFF',
+        'TEACHER',
         'VICE_PRINCIPAL_CURRICULUM',
       ])
     })

@@ -32,30 +32,29 @@ suite('Prisma queries against a real database', () => {
   const NOW = new Date('2026-11-03T02:00:00.000Z')
 
   async function schedule(sem = semesterId) {
+    const pkg = await prisma.examPackage.create({
+      data: { title: 'UTS DB', subjectId, gradeId, createdById: userId },
+    })
+    packageIds.push(pkg.id)
     const question = await prisma.question.create({
       data: {
+        packageId: pkg.id,
         subjectId,
         gradeId,
         authorEmployeeId: employeeId,
         type: 'ESSAY',
-        status: 'APPROVED',
-        approvedVersion: 1,
         createdById: userId,
       },
     })
     questionIds.push(question.id)
-    const pkg = await prisma.examPackage.create({
+    await prisma.examPackageItem.create({
       data: {
-        title: 'UTS DB',
-        subjectId,
-        gradeId,
-        createdById: userId,
-        items: {
-          create: { questionId: question.id, questionVersion: 1, position: 1 },
-        },
+        packageId: pkg.id,
+        questionId: question.id,
+        questionVersion: 1,
+        position: 1,
       },
     })
-    packageIds.push(pkg.id)
     const row = await prisma.examSchedule.create({
       data: {
         packageId: pkg.id,
@@ -68,7 +67,7 @@ suite('Prisma queries against a real database', () => {
       },
     })
     scheduleIds.push(row.id)
-    return { scheduleId: row.id, questionId: question.id }
+    return { scheduleId: row.id, questionId: question.id, packageId: pkg.id }
   }
 
   async function session(
@@ -115,8 +114,11 @@ suite('Prisma queries against a real database', () => {
     await prisma.examPackageItem.deleteMany({
       where: { packageId: { in: packageIds } },
     })
-    await prisma.examPackage.deleteMany({ where: { id: { in: packageIds } } })
+    await prisma.questionVersion.deleteMany({
+      where: { questionId: { in: questionIds } },
+    })
     await prisma.question.deleteMany({ where: { id: { in: questionIds } } })
+    await prisma.examPackage.deleteMany({ where: { id: { in: packageIds } } })
     await prisma.$disconnect()
   })
 
@@ -295,12 +297,11 @@ suite('Prisma queries against a real database', () => {
     const first = await schedule()
     const second = await prisma.question.create({
       data: {
+        packageId: first.packageId,
         subjectId,
         gradeId,
         authorEmployeeId: employeeId,
         type: 'ESSAY',
-        status: 'APPROVED',
-        approvedVersion: 1,
         createdById: userId,
       },
     })

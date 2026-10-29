@@ -147,10 +147,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List exam packages */
+        /** List packages: your own in every status and the approved or locked ones of others */
         get: operations["ExamPackageController_findAll"];
         put?: never;
-        /** Create a draft package from approved questions */
+        /** Create an empty draft package */
         post: operations["ExamPackageController_create"];
         delete?: never;
         options?: never;
@@ -165,16 +165,33 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a package with every item from its pinned version */
+        /** Get a package with its questions, their markers and the review history */
         get: operations["ExamPackageController_findOne"];
         put?: never;
         post?: never;
-        /** Delete a draft package */
+        /** Delete a package that is not waiting for review or scheduled */
         delete: operations["ExamPackageController_remove"];
         options?: never;
         head?: never;
-        /** Replace the title and items of a draft package */
-        patch: operations["ExamPackageController_update"];
+        /** Rename a package */
+        patch: operations["ExamPackageController_rename"];
+        trace?: never;
+    };
+    "/exam-packages/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve a submitted package */
+        post: operations["ExamPackageController_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/exam-packages/{id}/copy": {
@@ -186,7 +203,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Copy a package into a new draft */
+        /** Copy an approved or scheduled package into a new draft */
         post: operations["ExamPackageController_copy"];
         delete?: never;
         options?: never;
@@ -194,61 +211,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/exam-packages/candidates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Approved questions of a subject and grade a package may be built from */
-        get: operations["ExamPackageController_findCandidates"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List questions in the teacher scope */
-        get: operations["QuestionController_findAll"];
-        put?: never;
-        /** Create a draft question */
-        post: operations["QuestionController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a question with its current version */
-        get: operations["QuestionController_findOne"];
-        put?: never;
-        post?: never;
-        /** Delete a question that was never approved */
-        delete: operations["QuestionController_remove"];
-        options?: never;
-        head?: never;
-        /** Edit a question, or write a new version of an approved one */
-        patch: operations["QuestionController_update"];
-        trace?: never;
-    };
-    "/exam-questions/{id}/approve": {
+    "/exam-packages/{id}/questions": {
         parameters: {
             query?: never;
             header?: never;
@@ -257,15 +220,34 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Approve a submitted question */
-        post: operations["QuestionController_approve"];
+        /** Write a new question inside a package */
+        post: operations["ExamPackageController_addQuestion"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/exam-questions/{id}/return": {
+    "/exam-packages/{id}/questions/{questionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a question of a package with its current version */
+        get: operations["ExamPackageController_findQuestion"];
+        put?: never;
+        post?: never;
+        /** Remove a question from a package */
+        delete: operations["ExamPackageController_removeQuestion"];
+        options?: never;
+        head?: never;
+        /** Change a question of a package */
+        patch: operations["ExamPackageController_updateQuestion"];
+        trace?: never;
+    };
+    "/exam-packages/{id}/questions/order": {
         parameters: {
             query?: never;
             header?: never;
@@ -273,42 +255,8 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
-        /** Return a submitted question with a note */
-        post: operations["QuestionController_returnToAuthor"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions/{id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit a question for approval */
-        post: operations["QuestionController_submit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions/{id}/versions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List every version of a question */
-        get: operations["QuestionController_versions"];
-        put?: never;
+        /** Put the questions of a package in a new order */
+        put: operations["ExamPackageController_reorderQuestions"];
         post?: never;
         delete?: never;
         options?: never;
@@ -316,7 +264,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/exam-questions/approve-many": {
+    "/exam-packages/{id}/questions/take": {
         parameters: {
             query?: never;
             header?: never;
@@ -325,25 +273,42 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Approve several submitted questions at once */
-        post: operations["QuestionController_approveManyQuestions"];
+        /** Copy questions from an approved or scheduled package */
+        post: operations["ExamPackageController_takeQuestions"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/exam-questions/authors": {
+    "/exam-packages/{id}/return": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Authors of the questions the user may see */
-        get: operations["QuestionController_authors"];
+        get?: never;
         put?: never;
-        post?: never;
+        /** Return a submitted package with a note and notes on questions */
+        post: operations["ExamPackageController_returnPackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-packages/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit a package for review */
+        post: operations["ExamPackageController_submit"];
         delete?: never;
         options?: never;
         head?: never;
@@ -634,32 +599,23 @@ export interface components {
             accessCode: string;
             rotation: number;
         };
-        ApprovalResultDto: {
-            id: string;
-            ok: boolean;
-            reason?: string;
-        };
-        ApproveManyDto: {
-            items: components["schemas"]["ApproveManyItemDto"][];
-        };
-        ApproveManyItemDto: {
+        AddPackageQuestionDto: {
             /** Format: uuid */
-            id: string;
-            /** @description The revision of the question the reviewer read */
-            revision: number;
+            authorEmployeeId?: string;
+            bodyHtml: string;
+            content: {
+                [key: string]: unknown;
+            };
+            points: number;
+            /** @enum {string} */
+            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
         };
-        ApproveManyResponseDto: {
-            data: components["schemas"]["ApprovalResultDto"][];
-        };
-        ApproveQuestionDto: {
-            /** @description The revision of the question the reviewer read */
-            revision: number;
+        ApproveExamPackageDto: {
+            note?: string;
         };
         CreateExamPackageDto: {
             /** Format: uuid */
             gradeId: string;
-            /** @description Question ids; the array order is the position in the package */
-            questionIds: string[];
             /** Format: uuid */
             subjectId: string;
             title: string;
@@ -676,21 +632,6 @@ export interface components {
             startsAt: string;
             /** @enum {string} */
             type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
-        };
-        CreateQuestionDto: {
-            /** Format: uuid */
-            authorEmployeeId?: string;
-            bodyHtml: string;
-            content: {
-                [key: string]: unknown;
-            };
-            /** Format: uuid */
-            gradeId: string;
-            points: number;
-            /** Format: uuid */
-            subjectId: string;
-            /** @enum {string} */
-            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
         };
         ExamFileDto: {
             /** Format: uuid */
@@ -711,7 +652,7 @@ export interface components {
             /** Format: date-time */
             lockedAt: string | null;
             /** @enum {string} */
-            status: "DRAFT" | "LOCKED";
+            status: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED" | "LOCKED";
             /** Format: uuid */
             subjectId: string;
             title: string;
@@ -725,6 +666,8 @@ export interface components {
             questionVersion: number;
         };
         ExamPackageItemViewDto: {
+            /** @enum {string} */
+            marker: "NEW" | "CHANGED" | "COPIED";
             points: number;
             position: number;
             /** Format: uuid */
@@ -753,7 +696,7 @@ export interface components {
             /** Format: date-time */
             lockedAt: string | null;
             /** @enum {string} */
-            status: "DRAFT" | "LOCKED";
+            status: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED" | "LOCKED";
             /** Format: uuid */
             subjectId: string;
             title: string;
@@ -772,8 +715,9 @@ export interface components {
             items: components["schemas"]["ExamPackageItemViewDto"][];
             /** Format: date-time */
             lockedAt: string | null;
+            reviews: components["schemas"]["PackageReviewDto"][];
             /** @enum {string} */
-            status: "DRAFT" | "LOCKED";
+            status: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED" | "LOCKED";
             /** Format: uuid */
             subjectId: string;
             title: string;
@@ -941,20 +885,27 @@ export interface components {
             /** @enum {string} */
             type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
         };
-        PackageCandidateDto: {
-            approvedVersion: number;
+        PackageQuestionNoteDto: {
+            note: string;
+            /** Format: uuid */
+            questionId: string;
+        };
+        PackageQuestionNoteResponseDto: {
+            note: string;
+            /** Format: uuid */
+            questionId: string;
+        };
+        PackageReviewDto: {
+            /** @enum {string} */
+            action: "SUBMIT" | "APPROVE" | "RETURN";
+            /** Format: uuid */
+            byUserId: string;
+            /** Format: date-time */
+            createdAt: string;
             /** Format: uuid */
             id: string;
-            points: number;
-            summary: string;
-            /** @enum {string} */
-            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
-        };
-        PackageCandidateListResponseDto: {
-            data: components["schemas"]["PackageCandidateDto"][];
-            limit: number;
-            page: number;
-            total: number;
+            note: string | null;
+            questionNotes: components["schemas"]["PackageQuestionNoteResponseDto"][];
         };
         PaperChoiceDto: {
             html: string;
@@ -972,16 +923,11 @@ export interface components {
             /** @enum {string} */
             type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
         };
-        QuestionAuthorDto: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-        };
         QuestionDetailDto: {
-            approved: components["schemas"]["QuestionVersionDto"] | null;
-            approvedVersion: number | null;
             /** Format: uuid */
             authorEmployeeId: string;
+            /** Format: uuid */
+            copiedFromQuestionId: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: uuid */
@@ -992,65 +938,20 @@ export interface components {
             gradeId: string;
             /** Format: uuid */
             id: string;
-            reviews: components["schemas"]["QuestionReviewDto"][];
+            /** Format: uuid */
+            packageId: string;
             revision: number;
-            /** @enum {string} */
-            status: "DRAFT" | "SUBMITTED" | "APPROVED" | "RETURNED";
             /** Format: uuid */
             subjectId: string;
             /** @enum {string} */
             type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
             /** Format: date-time */
             updatedAt: string;
-        };
-        QuestionListResponseDto: {
-            data: components["schemas"]["QuestionSummaryDto"][];
-            limit: number;
-            page: number;
-            total: number;
-        };
-        QuestionReviewDto: {
-            /** @enum {string} */
-            action: "SUBMITTED" | "APPROVED" | "RETURNED";
-            /** Format: uuid */
-            byUserId: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: uuid */
-            id: string;
-            note: string | null;
-            /** Format: uuid */
-            questionId: string;
-            versionNumber: number;
         };
         QuestionScopeDto: {
             all: boolean;
             employeeId: string | null;
             pairs: components["schemas"]["ScopePairDto"][];
-        };
-        QuestionSummaryDto: {
-            approvedVersion: number | null;
-            /** Format: uuid */
-            authorEmployeeId: string;
-            authorName: string | null;
-            bodyHtml: string;
-            /** Format: date-time */
-            createdAt: string;
-            currentVersion: number;
-            /** Format: uuid */
-            gradeId: string;
-            /** Format: uuid */
-            id: string;
-            points: number;
-            revision: number;
-            /** @enum {string} */
-            status: "DRAFT" | "SUBMITTED" | "APPROVED" | "RETURNED";
-            /** Format: uuid */
-            subjectId: string;
-            /** @enum {string} */
-            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
-            /** Format: date-time */
-            updatedAt: string;
         };
         QuestionVersionDto: {
             bodyHtml: string;
@@ -1072,10 +973,16 @@ export interface components {
             /** @description How many times the app saw the student leave the exam so far; the server keeps the highest value it was told, so send 0 to only read it back */
             count: number;
         };
-        ReturnQuestionDto: {
+        RenameExamPackageDto: {
+            title: string;
+        };
+        ReorderPackageQuestionsDto: {
+            /** @description Every question of the package, in the new order */
+            questionIds: string[];
+        };
+        ReturnExamPackageDto: {
             note: string;
-            /** @description The revision of the question the reviewer read */
-            revision: number;
+            questionNotes: components["schemas"]["PackageQuestionNoteDto"][];
         };
         SaveAnswerDto: {
             /** @description One of { key } | { keys } | { value } | { text } */
@@ -1162,10 +1069,10 @@ export interface components {
             /** Format: date-time */
             submittedAt: string | null;
         };
-        UpdateExamPackageDto: {
-            /** @description Question ids; the array order is the position in the package */
+        TakePackageQuestionsDto: {
             questionIds: string[];
-            title: string;
+            /** Format: uuid */
+            sourcePackageId: string;
         };
         UpdateExamScheduleDto: {
             durationMinutes: number;
@@ -1394,9 +1301,7 @@ export interface operations {
                     /** Format: binary */
                     file: string;
                     /** Format: uuid */
-                    gradeId: string;
-                    /** Format: uuid */
-                    subjectId: string;
+                    packageId: string;
                 };
             };
         };
@@ -1446,7 +1351,7 @@ export interface operations {
                 limit?: number;
                 page?: number;
                 search?: string;
-                status?: "DRAFT" | "LOCKED";
+                status?: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED" | "LOCKED";
                 subjectId?: string;
             };
             header?: never;
@@ -1551,7 +1456,7 @@ export interface operations {
             };
         };
     };
-    ExamPackageController_update: {
+    ExamPackageController_rename: {
         parameters: {
             query?: never;
             header?: never;
@@ -1562,7 +1467,38 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateExamPackageDto"];
+                "application/json": components["schemas"]["RenameExamPackageDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_approve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveExamPackageDto"];
             };
         };
         responses: {
@@ -1609,91 +1545,18 @@ export interface operations {
             };
         };
     };
-    ExamPackageController_findCandidates: {
-        parameters: {
-            query: {
-                gradeId: string;
-                limit?: number;
-                page?: number;
-                search?: string;
-                subjectId: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["PackageCandidateDto"][];
-                        /** @example Success */
-                        message?: string;
-                        meta?: {
-                            limit?: number;
-                            page?: number;
-                            total?: number;
-                        };
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_findAll: {
-        parameters: {
-            query?: {
-                authorEmployeeId?: string;
-                gradeId?: string;
-                limit?: number;
-                page?: number;
-                search?: string;
-                status?: "DRAFT" | "SUBMITTED" | "APPROVED" | "RETURNED";
-                subjectId?: string;
-                type?: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionSummaryDto"][];
-                        /** @example Success */
-                        message?: string;
-                        meta?: {
-                            limit?: number;
-                            page?: number;
-                            total?: number;
-                        };
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_create: {
+    ExamPackageController_addQuestion: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateQuestionDto"];
+                "application/json": components["schemas"]["AddPackageQuestionDto"];
             };
         };
         responses: {
@@ -1703,7 +1566,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
+                        data?: components["schemas"]["ExamPackageDetailDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */
@@ -1713,12 +1576,13 @@ export interface operations {
             };
         };
     };
-    QuestionController_findOne: {
+    ExamPackageController_findQuestion: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 id: string;
+                questionId: string;
             };
             cookie?: never;
         };
@@ -1740,31 +1604,41 @@ export interface operations {
             };
         };
     };
-    QuestionController_remove: {
+    ExamPackageController_removeQuestion: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 id: string;
+                questionId: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
             };
         };
     };
-    QuestionController_update: {
+    ExamPackageController_updateQuestion: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 id: string;
+                questionId: string;
             };
             cookie?: never;
         };
@@ -1780,7 +1654,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
+                        data?: components["schemas"]["ExamPackageDetailDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */
@@ -1790,7 +1664,7 @@ export interface operations {
             };
         };
     };
-    QuestionController_approve: {
+    ExamPackageController_reorderQuestions: {
         parameters: {
             query?: never;
             header?: never;
@@ -1801,7 +1675,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ApproveQuestionDto"];
+                "application/json": components["schemas"]["ReorderPackageQuestionsDto"];
             };
         };
         responses: {
@@ -1811,7 +1685,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
+                        data?: components["schemas"]["ExamPackageDetailDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */
@@ -1821,7 +1695,7 @@ export interface operations {
             };
         };
     };
-    QuestionController_returnToAuthor: {
+    ExamPackageController_takeQuestions: {
         parameters: {
             query?: never;
             header?: never;
@@ -1832,17 +1706,17 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReturnQuestionDto"];
+                "application/json": components["schemas"]["TakePackageQuestionsDto"];
             };
         };
         responses: {
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
+                        data?: components["schemas"]["ExamPackageDetailDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */
@@ -1852,7 +1726,38 @@ export interface operations {
             };
         };
     };
-    QuestionController_submit: {
+    ExamPackageController_returnPackage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnExamPackageDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamPackageDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamPackageController_submit: {
         parameters: {
             query?: never;
             header?: never;
@@ -1869,90 +1774,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_versions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionVersionDto"][];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_approveManyQuestions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApproveManyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["ApprovalResultDto"][];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_authors: {
-        parameters: {
-            query?: {
-                status?: "DRAFT" | "SUBMITTED" | "APPROVED" | "RETURNED";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionAuthorDto"][];
+                        data?: components["schemas"]["ExamPackageDetailDto"];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   PayloadTooLargeException,
 } from '@nestjs/common'
@@ -12,7 +13,8 @@ import {
   FakeExamFileStorage,
 } from '../../../../exam-file/application/exam-file.fakes.fake.js'
 import { UploadExamFileUseCase } from '../../../../exam-file/application/use-cases/upload-exam-file/upload-exam-file.use-case.js'
-import { CreateQuestionUseCase } from '../../../../question/application/use-cases/create-question/create-question.use-case.js'
+import type { ExamPackageDetail } from '../../../../exam-package/domain/entities/exam-package.entity.js'
+import { FakeExamPackageRepository } from '../../../../exam-package/application/exam-package.repository.fake.js'
 import {
   FakeQuestionRepository,
   MATH_7,
@@ -56,24 +58,41 @@ async function xlsx(rows: (string | number | null)[][]) {
   return Buffer.from(await book.xlsx.writeBuffer())
 }
 
+const PACKAGE_ID = '33333333-3333-4333-8333-333333333333'
+
 function build(pairs = [MATH_7]) {
   const questions = new FakeQuestionRepository()
+  const packages = new FakeExamPackageRepository(questions)
+  const now = new Date()
+  packages.packages.set(PACKAGE_ID, {
+    id: PACKAGE_ID,
+    title: 'UTS Matematika',
+    ...MATH_7,
+    status: 'DRAFT',
+    lockedAt: null,
+    createdById: TEACHER.id,
+    createdAt: now,
+    updatedAt: now,
+    deletedAt: null,
+    items: [],
+  })
   const files = new FakeExamFileRepository()
   const storage = new FakeExamFileStorage()
   const { scope, employees } = buildTeacherScope({ employeeId: 'emp-1', pairs })
   const useCase = new ImportQuestionsUseCase(
     scope,
-    new CreateQuestionUseCase(questions, scope, employees),
+    packages,
+    employees,
     new UploadExamFileUseCase(files, storage),
   )
-  return { questions, files, storage, useCase }
+  return { questions, packages, files, storage, useCase }
 }
 
 const input = (buffer: Buffer, fileName = 'soal.xlsx') => ({
   buffer,
   size: buffer.length,
   fileName,
-  ...MATH_7,
+  packageId: PACKAGE_ID,
 })
 
 describe('ImportQuestionsUseCase', () => {
@@ -88,9 +107,6 @@ describe('ImportQuestionsUseCase', () => {
     expect(result.created).toBe(5)
     expect(result.errors).toEqual([])
     expect(result.questionIds).toHaveLength(5)
-    expect(
-      [...questions.questions.values()].every((q) => q.status === 'DRAFT'),
-    ).toBe(true)
     expect([...questions.questions.values()][0]?.authorEmployeeId).toBe('emp-1')
   })
 
@@ -345,5 +361,61 @@ describe('ImportQuestionsUseCase', () => {
       expect(files.files.size).toBeLessThanOrEqual(100)
       expect(questions.questions.size).toBe(0)
     })
+  })
+
+  it('puts every good row in the package, in file order', async () => {
+    const { packages, questions, useCase } = build()
+
+    const result = await useCase.execute(
+      TEACHER,
+      input(await xlsx([pg(1), pg(2), pg(3)])),
+    )
+
+    const stored = packages.packages.get(PACKAGE_ID)
+    expect(stored?.items.map((item) => item.position)).toEqual([1, 2, 3])
+    expect(stored?.items.map((item) => item.questionId)).toEqual(
+      result.questionIds,
+    )
+    expect(
+      [...questions.questions.values()].every(
+        (q) => q.packageId === PACKAGE_ID && q.subjectId === 'math',
+      ),
+    ).toBe(true)
+  })
+
+  it('imports into an approved package and sets it back to draft', async () => {
+    const { packages, useCase } = build()
+    packages.packages.set(PACKAGE_ID, {
+      ...packages.packages.get(PACKAGE_ID)!,
+      status: 'APPROVED',
+    })
+
+    await useCase.execute(TEACHER, input(await xlsx([pg(1)])))
+
+    expect(packages.packages.get(PACKAGE_ID)?.status).toBe('DRAFT')
+  })
+
+  it('refuses a submitted package and imports nothing', async () => {
+    const { packages, questions, useCase } = build()
+    packages.packages.set(PACKAGE_ID, {
+      ...packages.packages.get(PACKAGE_ID)!,
+      status: 'SUBMITTED',
+    })
+
+    await expect(
+      useCase.execute(TEACHER, input(await xlsx([pg(1)]))),
+    ).rejects.toThrow(ConflictException)
+    expect(questions.questions.size).toBe(0)
+  })
+
+  it('refuses a package that does not exist', async () => {
+    const { useCase } = build()
+
+    await expect(
+      useCase.execute(TEACHER, {
+        ...input(await xlsx([pg(1)])),
+        packageId: '00000000-0000-4000-8000-000000000000',
+      }),
+    ).rejects.toThrow('Paket tidak ditemukan')
   })
 })

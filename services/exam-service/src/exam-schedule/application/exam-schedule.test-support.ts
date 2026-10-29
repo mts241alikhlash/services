@@ -1,10 +1,7 @@
-import { CreateExamPackageUseCase } from '../../exam-package/application/use-cases/create-exam-package/create-exam-package.use-case.js'
 import type { FakeExamPackageRepository } from '../../exam-package/application/exam-package.repository.fake.js'
 import {
-  GRADE_ID,
-  SUBJECT_ID,
   USER,
-  seedApprovedQuestion,
+  seedPackage,
 } from '../../exam-package/application/exam-package.test-support.js'
 import type { FakeQuestionRepository } from '../../question/application/question.repository.fake.js'
 import {
@@ -89,17 +86,11 @@ export class FakeAcademicLookup extends IAcademicLookupPort {
 export const START = new Date('2026-11-02T01:00:00.000Z')
 export const END = new Date('2026-11-02T04:00:00.000Z')
 
-export async function draftPackage(
+export function approvedPackage(
   packages: FakeExamPackageRepository,
   questions: FakeQuestionRepository,
 ) {
-  const question = await seedApprovedQuestion(questions)
-  return new CreateExamPackageUseCase(packages, questions).execute(USER, {
-    title: 'UTS Matematika Kelas 7',
-    subjectId: SUBJECT_ID,
-    gradeId: GRADE_ID,
-    questionIds: [question.id],
-  })
+  return seedPackage(packages, questions)
 }
 
 export { USER }

@@ -8,6 +8,9 @@ import { IEmployeeIdentityReadPort } from '../../platform/employee-identity/empl
 
 const MANAGE_ALL = 'exam-questions.manage-all'
 
+export const canManageAll = (user: ScopeUser): boolean =>
+  user.permissions.includes(MANAGE_ALL)
+
 export interface ScopeUser {
   id: string
   roles: string[]
@@ -56,17 +59,5 @@ export class TeacherScope {
       throw new ForbiddenException('Akun Anda belum terhubung ke data pegawai')
     }
     return employeeId
-  }
-
-  async assertCanModify(
-    user: ScopeUser,
-    question: Pick<Question, 'subjectId' | 'gradeId' | 'authorEmployeeId'>,
-  ): Promise<void> {
-    const scope = await this.forUser(user)
-    if (scope.all) return
-    this.assertCovers(scope, question.subjectId, question.gradeId)
-    if ((await this.employeeIdOf(user)) !== question.authorEmployeeId) {
-      throw new ForbiddenException('Soal ini ditulis guru lain')
-    }
   }
 }

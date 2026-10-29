@@ -14,7 +14,7 @@ import {
   SEMESTER_ID,
   START,
   USER,
-  draftPackage,
+  approvedPackage,
 } from '../../exam-schedule.test-support.js'
 import { CreateExamScheduleUseCase } from './create-exam-schedule.use-case.js'
 
@@ -49,7 +49,8 @@ describe('CreateExamScheduleUseCase', () => {
   beforeEach(async () => {
     packages = new FakeExamPackageRepository()
     schedules = new FakeExamScheduleRepository(packages)
-    packageId = (await draftPackage(packages, new FakeQuestionRepository())).id
+    packageId = (await approvedPackage(packages, new FakeQuestionRepository()))
+      .id
   })
 
   it('creates the schedule and locks the package', async () => {
@@ -103,7 +104,7 @@ describe('CreateExamScheduleUseCase', () => {
     await expect(
       build().execute(USER, input({ startsAt: END, endsAt: START })),
     ).rejects.toThrow(BadRequestException)
-    expect((await packages.findById(packageId))?.status).toBe('DRAFT')
+    expect((await packages.findById(packageId))?.status).toBe('APPROVED')
   })
 
   it('fails with 409 when there is no active semester', async () => {
@@ -129,7 +130,8 @@ describe('CreateExamScheduleUseCase', () => {
   it('refuses a package deleted while the schedule is being created', async () => {
     class DeletesPackageMidway extends FakeAcademicLookup {
       override async activeSemester() {
-        await packages.softDeleteDraft(packageId)
+        const row = packages.packages.get(packageId)!
+        packages.packages.set(packageId, { ...row, deletedAt: new Date() })
         return super.activeSemester()
       }
     }
@@ -144,7 +146,7 @@ describe('CreateExamScheduleUseCase', () => {
     await expect(
       build().execute(USER, input(), new Date('2026-11-03T00:00:00.000Z')),
     ).rejects.toThrow('Jendela ujian sudah lewat')
-    expect((await packages.findById(packageId))?.status).toBe('DRAFT')
+    expect((await packages.findById(packageId))?.status).toBe('APPROVED')
   })
 
   it('refuses a classroom of another academic year', async () => {
@@ -161,5 +163,26 @@ describe('CreateExamScheduleUseCase', () => {
       'Kelas bukan kelas tahun ajaran aktif',
     )
     expect(schedules.schedules.size).toBe(0)
+  })
+
+  it('refuses a package that is not approved', async () => {
+    const { execute } = build()
+
+    for (const status of ['DRAFT', 'SUBMITTED', 'RETURNED'] as const) {
+      const row = packages.packages.get(packageId)!
+      packages.packages.set(packageId, { ...row, status })
+      await expect(execute({ id: 'u1' }, input())).rejects.toThrow(
+        ConflictException,
+      )
+    }
+  })
+
+  it('schedules a package that is already locked for another classroom', async () => {
+    const { execute } = build()
+    await execute({ id: 'u1' }, input())
+
+    const second = await execute({ id: 'u1' }, input())
+
+    expect(second.packageId).toBe(packageId)
   })
 })

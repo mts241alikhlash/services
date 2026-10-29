@@ -109,7 +109,7 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
   ): Promise<ExamSchedule | null> {
     return this.prisma.$transaction(async (tx) => {
       await tx.examPackage.updateMany({
-        where: { id: input.packageId, status: 'DRAFT', deletedAt: null },
+        where: { id: input.packageId, status: 'APPROVED', deletedAt: null },
         data: { status: 'LOCKED', lockedAt: new Date() },
       })
       const locked = await tx.examPackage.findFirst({

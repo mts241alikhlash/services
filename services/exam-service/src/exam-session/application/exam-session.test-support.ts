@@ -8,7 +8,7 @@ import {
   FakeAcademicLookup,
   SEMESTER_ID,
   USER,
-  draftPackage,
+  approvedPackage,
 } from '../../exam-schedule/application/exam-schedule.test-support.js'
 import type { ExamSchedule } from '../../exam-schedule/domain/entities/exam-schedule.entity.js'
 import {
@@ -17,12 +17,7 @@ import {
 } from '../../platform/enrollment-lookup/enrollment-lookup.port.js'
 import { IStudentDirectoryPort } from '../../platform/student-directory/student-directory.port.js'
 import { IStudentIdentityReadPort } from '../../platform/student-identity/student-identity.port.js'
-import { CreateExamPackageUseCase } from '../../exam-package/application/use-cases/create-exam-package/create-exam-package.use-case.js'
-import {
-  GRADE_ID,
-  SUBJECT_ID,
-  seedApprovedQuestion,
-} from '../../exam-package/application/exam-package.test-support.js'
+import { seedPackage } from '../../exam-package/application/exam-package.test-support.js'
 import type { FakeQuestionRepository } from '../../question/application/question.repository.fake.js'
 import type {
   ChoiceKey,
@@ -101,7 +96,7 @@ export async function scheduleExam(
     type?: ExamType
   } = {},
 ): Promise<ExamSchedule> {
-  const pkg = await draftPackage(fixtures.packages, fixtures.questions)
+  const pkg = await approvedPackage(fixtures.packages, fixtures.questions)
   return new CreateExamScheduleUseCase(
     fixtures.schedules,
     fixtures.packages,
@@ -180,25 +175,17 @@ export async function schedulePaper(
   },
   specs: PaperQuestionSpec[],
 ): Promise<{ schedule: ExamSchedule; questionIds: string[] }> {
-  const ids: string[] = []
-  for (const [index, spec] of specs.entries()) {
-    const question = await seedApprovedQuestion(fixtures.questions, {
+  const pkg = await seedPackage(
+    fixtures.packages,
+    fixtures.questions,
+    specs.map((spec, index) => ({
       type: spec.type,
       content: spec.content,
       bodyHtml: spec.bodyHtml ?? `<p>Soal ${index + 1}</p>`,
       points: spec.points ?? 2,
-    })
-    ids.push(question.id)
-  }
-  const pkg = await new CreateExamPackageUseCase(
-    fixtures.packages,
-    fixtures.questions,
-  ).execute(USER, {
-    title: 'UTS Matematika Kelas 7',
-    subjectId: SUBJECT_ID,
-    gradeId: GRADE_ID,
-    questionIds: ids,
-  })
+    })),
+  )
+  const ids = pkg.items.map((item) => item.questionId)
   const schedule = await new CreateExamScheduleUseCase(
     fixtures.schedules,
     fixtures.packages,

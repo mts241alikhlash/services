@@ -86,50 +86,6 @@ describe('TeacherScope.assertCovers', () => {
   })
 })
 
-describe('TeacherScope.assertCanModify', () => {
-  const question = {
-    subjectId: 'math',
-    gradeId: 'grade-7',
-    authorEmployeeId: 'emp-1',
-  }
-  const pairs = [{ subjectId: 'math', gradeId: 'grade-7' }]
-
-  it('lets the author change a question in their own pair', async () => {
-    const { scope } = build({ employeeId: 'emp-1', pairs })
-
-    await expect(
-      scope.assertCanModify(teacher, question),
-    ).resolves.toBeUndefined()
-  })
-
-  it('refuses a colleague who teaches the same pair', async () => {
-    const { scope } = build({ employeeId: 'emp-2', pairs })
-
-    await expect(scope.assertCanModify(teacher, question)).rejects.toThrow(
-      new ForbiddenException('Soal ini ditulis guru lain'),
-    )
-  })
-
-  it('refuses a pair outside the teacher scope even for the author', async () => {
-    const { scope } = build({ employeeId: 'emp-1', pairs: [] })
-
-    await expect(scope.assertCanModify(teacher, question)).rejects.toThrow(
-      new ForbiddenException('Mapel dan tingkat ini bukan ampuan Anda'),
-    )
-  })
-
-  it('lets a user with manage-all change any question', async () => {
-    const { scope } = build({ employeeId: 'emp-9' })
-
-    await expect(
-      scope.assertCanModify(
-        { ...teacher, permissions: ['exam-questions.manage-all'] },
-        question,
-      ),
-    ).resolves.toBeUndefined()
-  })
-})
-
 describe('TeacherScope.employeeIdOf', () => {
   it('refuses an account with no employee record', async () => {
     const { scope } = build({ employeeId: null })

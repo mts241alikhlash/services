@@ -1,42 +1,63 @@
 import { randomUUID } from 'node:crypto'
 import type { FakeQuestionRepository } from '../../question/application/question.repository.fake.js'
-import type { QuestionDetail } from '../../question/domain/entities/question.entity.js'
 import type {
   QuestionContent,
   QuestionType,
 } from '../../question/domain/value-objects/question-content.js'
+import type {
+  ExamPackageDetail,
+  ExamPackageStatus,
+  PackageItem,
+} from '../domain/entities/exam-package.entity.js'
+import type { FakeExamPackageRepository } from './exam-package.repository.fake.js'
 
 export const SUBJECT_ID = '11111111-1111-4111-8111-111111111111'
 export const GRADE_ID = '22222222-2222-4222-8222-222222222222'
 export const USER = { id: '99999999-9999-4999-8999-999999999999' }
 
-export async function seedApprovedQuestion(
+export interface QuestionSpec {
+  bodyHtml?: string
+  type?: QuestionType
+  content?: QuestionContent
+  points?: number
+}
+
+export async function seedPackage(
+  packages: FakeExamPackageRepository,
   questions: FakeQuestionRepository,
-  overrides: {
-    subjectId?: string
-    gradeId?: string
-    bodyHtml?: string
-    type?: QuestionType
-    content?: QuestionContent
-    points?: number
-  } = {},
-): Promise<QuestionDetail> {
-  const created = await questions.create({
-    subjectId: overrides.subjectId ?? SUBJECT_ID,
-    gradeId: overrides.gradeId ?? GRADE_ID,
-    authorEmployeeId: randomUUID(),
-    type: overrides.type ?? 'TRUE_FALSE',
+  specs: QuestionSpec[] = [{}],
+  status: ExamPackageStatus = 'APPROVED',
+  scope: { subjectId?: string; gradeId?: string; title?: string } = {},
+): Promise<ExamPackageDetail> {
+  const subjectId = scope.subjectId ?? SUBJECT_ID
+  const gradeId = scope.gradeId ?? GRADE_ID
+  const pkg = await packages.create({
+    title: scope.title ?? 'UTS Matematika Kelas 7',
+    subjectId,
+    gradeId,
     createdById: USER.id,
-    bodyHtml: overrides.bodyHtml ?? '<p>Langit berwarna biru</p>',
-    content: overrides.content ?? { answer: { value: true } },
-    points: overrides.points ?? 2,
+    items: [],
   })
-  const approved: QuestionDetail = {
-    ...created,
-    status: 'APPROVED',
-    approvedVersion: 1,
-    approved: created.current,
+  const items: PackageItem[] = []
+  for (const spec of specs) {
+    const question = await questions.create({
+      packageId: pkg.id,
+      subjectId,
+      gradeId,
+      authorEmployeeId: randomUUID(),
+      type: spec.type ?? 'TRUE_FALSE',
+      createdById: USER.id,
+      bodyHtml: spec.bodyHtml ?? '<p>Langit berwarna biru</p>',
+      content: spec.content ?? { answer: { value: true } },
+      points: spec.points ?? 2,
+    })
+    items.push({
+      questionId: question.id,
+      questionVersion: 1,
+      position: items.length + 1,
+    })
   }
-  questions.questions.set(approved.id, approved)
-  return approved
+  const seeded = { ...pkg, status, items }
+  packages.packages.set(pkg.id, seeded)
+  return seeded
 }
