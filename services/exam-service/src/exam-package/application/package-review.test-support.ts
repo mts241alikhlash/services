@@ -1,4 +1,7 @@
-import { MATH_7 } from '../../question/application/question.repository.fake.js'
+import {
+  MATH_7,
+  buildTeacherScope,
+} from '../../question/application/question.repository.fake.js'
 import { AddPackageQuestionUseCase } from './use-cases/add-package-question/add-package-question.use-case.js'
 import {
   TRUE_FALSE_INPUT,
@@ -35,8 +38,13 @@ export async function reviewWorld(questionCount = 2) {
   for (let index = 0; index < questionCount; index += 1) {
     last = await add.execute(AUTHOR, world.pkg.id, TRUE_FALSE_INPUT)
   }
+  const { scope: deniedScope } = buildTeacherScope({
+    employeeId: 'emp-1',
+    pairs: [],
+  })
   return {
     ...world,
+    deniedScope,
     subject: MATH_7,
     questionIds: last.items.map((item) => item.questionId),
   }

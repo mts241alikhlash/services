@@ -37,6 +37,14 @@ function buildWhere(query: ExamPackageListQuery): Prisma.ExamPackageWhereInput {
     ...(query.search
       ? { title: { contains: query.search, mode: 'insensitive' } }
       : {}),
+    ...(query.visibleTo
+      ? {
+          OR: [
+            { createdById: query.visibleTo },
+            { status: { in: ['APPROVED', 'LOCKED'] } },
+          ],
+        }
+      : {}),
   }
 }
 

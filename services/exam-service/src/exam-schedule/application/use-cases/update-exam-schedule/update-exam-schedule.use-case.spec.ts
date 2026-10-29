@@ -11,7 +11,7 @@ import {
   FakeAcademicLookup,
   START,
   USER,
-  draftPackage,
+  approvedPackage,
 } from '../../exam-schedule.test-support.js'
 import { UpdateExamScheduleUseCase } from './update-exam-schedule.use-case.js'
 
@@ -24,7 +24,7 @@ describe('Update and cancel exam schedule', () => {
     guard = new FakeScheduleSessionGuard()
     const packages = new FakeExamPackageRepository()
     schedules = new FakeExamScheduleRepository(packages)
-    const pkg = await draftPackage(packages, new FakeQuestionRepository())
+    const pkg = await approvedPackage(packages, new FakeQuestionRepository())
     scheduleId = (
       await new CreateExamScheduleUseCase(
         schedules,

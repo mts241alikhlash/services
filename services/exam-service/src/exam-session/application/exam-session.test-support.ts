@@ -8,7 +8,7 @@ import {
   FakeAcademicLookup,
   SEMESTER_ID,
   USER,
-  draftPackage,
+  approvedPackage,
 } from '../../exam-schedule/application/exam-schedule.test-support.js'
 import type { ExamSchedule } from '../../exam-schedule/domain/entities/exam-schedule.entity.js'
 import {
@@ -101,7 +101,7 @@ export async function scheduleExam(
     type?: ExamType
   } = {},
 ): Promise<ExamSchedule> {
-  const pkg = await draftPackage(fixtures.packages, fixtures.questions)
+  const pkg = await approvedPackage(fixtures.packages, fixtures.questions)
   return new CreateExamScheduleUseCase(
     fixtures.schedules,
     fixtures.packages,
@@ -199,6 +199,7 @@ export async function schedulePaper(
     gradeId: GRADE_ID,
     questionIds: ids,
   })
+  fixtures.packages.packages.set(pkg.id, { ...pkg, status: 'APPROVED' })
   const schedule = await new CreateExamScheduleUseCase(
     fixtures.schedules,
     fixtures.packages,

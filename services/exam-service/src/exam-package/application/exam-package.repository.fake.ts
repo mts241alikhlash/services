@@ -34,6 +34,13 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
       .filter((row) => !query.gradeId || row.gradeId === query.gradeId)
       .filter((row) => !query.status || row.status === query.status)
       .filter((row) => !query.search || row.title.includes(query.search))
+      .filter(
+        (row) =>
+          query.visibleTo === undefined ||
+          row.createdById === query.visibleTo ||
+          row.status === 'APPROVED' ||
+          row.status === 'LOCKED',
+      )
     const data: ExamPackageSummary[] = rows
       .slice((query.page - 1) * query.limit, query.page * query.limit)
       .map(({ items, ...row }) => ({ ...row, itemCount: items.length }))

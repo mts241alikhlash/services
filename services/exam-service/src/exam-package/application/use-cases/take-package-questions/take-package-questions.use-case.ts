@@ -10,16 +10,14 @@ import {
   TeacherScope,
   type ScopeUser,
 } from '../../../../question/application/teacher-scope.service.js'
-import {
-  IQuestionRepository,
-  type NewQuestionInput,
-} from '../../../../question/domain/repositories/question.repository.js'
+import { IQuestionRepository } from '../../../../question/domain/repositories/question.repository.js'
 import type { ExamPackageDetail } from '../../../domain/entities/exam-package.entity.js'
 import {
   assertCanTakeFrom,
   assertEditable,
 } from '../../../domain/policies/package-lifecycle.policy.js'
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
+import { buildQuestionCopies } from '../../build-question-copies.js'
 import { PACKAGE_CHANGED_MESSAGE } from '../add-package-question/add-package-question.use-case.js'
 
 @Injectable()
@@ -65,48 +63,20 @@ export class TakePackageQuestionsUseCase {
     assertCanTakeFrom(source.status)
     const next = assertEditable(target.status)
 
-    const pinOf = new Map(
-      source.items.map((item) => [item.questionId, item.questionVersion]),
-    )
-    const pins = questionIds.map((questionId) => {
-      const number = pinOf.get(questionId)
-      if (number === undefined) {
-        throw new NotFoundException('Soal tidak ditemukan di paket asal')
-      }
-      return { questionId, number }
-    })
-    const found = new Map(
-      (await this.questions.findPinned(pins)).map((row) => [
-        row.questionId,
-        row,
-      ]),
-    )
-
     const authorEmployeeId = await resolveAuthor(
       this.employees,
       user,
       scope.all,
       undefined,
     )
-    const copies = pins.map<NewQuestionInput>((pin) => {
-      const row = found.get(pin.questionId)
-      if (row === undefined) {
-        throw new NotFoundException('Soal tidak ditemukan di paket asal')
-      }
-      return {
-        packageId: targetId,
-        subjectId: target.subjectId,
-        gradeId: target.gradeId,
-        authorEmployeeId,
-        type: row.type,
-        createdById: user.id,
-        bodyHtml: row.bodyHtml,
-        content: row.content,
-        points: row.points,
-        copiedFromQuestionId: pin.questionId,
-        copiedFromVersion: pin.number,
-      }
-    })
+    const copies = await buildQuestionCopies(
+      this.questions,
+      source,
+      questionIds,
+      target,
+      authorEmployeeId,
+      user.id,
+    )
 
     const updated = await this.packages.addQuestions(
       targetId,

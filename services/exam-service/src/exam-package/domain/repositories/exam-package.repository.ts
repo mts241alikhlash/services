@@ -20,6 +20,7 @@ export interface ExamPackageListQuery {
   gradeId?: string
   status?: ExamPackageStatus
   search?: string
+  visibleTo?: string
 }
 
 export interface NewExamPackage {

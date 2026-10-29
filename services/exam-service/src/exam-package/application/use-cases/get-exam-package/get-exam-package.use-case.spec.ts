@@ -121,4 +121,32 @@ describe('GetExamPackageUseCase', () => {
       'RETURN',
     ])
   })
+  it('hides the draft of another teacher but shows an approved package', async () => {
+    const world = await reviewWorld(1)
+    const useCase = new GetExamPackageUseCase(world.packages, world.questions)
+    const stranger = { id: 'user-9', canSeeAll: false }
+
+    await expect(useCase.execute(world.pkg.id, stranger)).rejects.toThrow(
+      NotFoundException,
+    )
+
+    world.setStatus('APPROVED')
+    expect((await useCase.execute(world.pkg.id, stranger)).id).toBe(
+      world.pkg.id,
+    )
+  })
+
+  it('shows the author and a manager their own draft', async () => {
+    const world = await reviewWorld(1)
+    const useCase = new GetExamPackageUseCase(world.packages, world.questions)
+
+    expect(
+      (await useCase.execute(world.pkg.id, { id: 'user-1', canSeeAll: false }))
+        .id,
+    ).toBe(world.pkg.id)
+    expect(
+      (await useCase.execute(world.pkg.id, { id: 'user-9', canSeeAll: true }))
+        .id,
+    ).toBe(world.pkg.id)
+  })
 })

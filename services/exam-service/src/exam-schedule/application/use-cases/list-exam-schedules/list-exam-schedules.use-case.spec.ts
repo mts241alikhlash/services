@@ -10,7 +10,7 @@ import {
   FakeAcademicLookup,
   START,
   USER,
-  draftPackage,
+  approvedPackage,
 } from '../../exam-schedule.test-support.js'
 import { GetExamScheduleUseCase } from '../get-exam-schedule/get-exam-schedule.use-case.js'
 import { ListExamSchedulesUseCase } from './list-exam-schedules.use-case.js'
@@ -24,7 +24,7 @@ describe('List and get exam schedules', () => {
     guard = new FakeScheduleSessionGuard()
     const packages = new FakeExamPackageRepository()
     schedules = new FakeExamScheduleRepository(packages)
-    const pkg = await draftPackage(packages, new FakeQuestionRepository())
+    const pkg = await approvedPackage(packages, new FakeQuestionRepository())
     scheduleId = (
       await new CreateExamScheduleUseCase(
         schedules,

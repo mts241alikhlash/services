@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
+import { assertCanSchedule } from '../../../../exam-package/domain/policies/package-lifecycle.policy.js'
 import { IExamPackageRepository } from '../../../../exam-package/domain/repositories/exam-package.repository.js'
 import { IAcademicLookupPort } from '../../../../platform/academic-lookup/academic-lookup.port.js'
 import type {
@@ -44,6 +45,7 @@ export class CreateExamScheduleUseCase {
     const examPackage = await this.packages.findById(input.packageId)
     if (examPackage === null)
       throw new NotFoundException('Paket tidak ditemukan')
+    assertCanSchedule(examPackage.status)
 
     const semester = await this.academic.activeSemester()
     if (semester === null) {

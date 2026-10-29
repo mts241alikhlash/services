@@ -89,17 +89,23 @@ export class FakeAcademicLookup extends IAcademicLookupPort {
 export const START = new Date('2026-11-02T01:00:00.000Z')
 export const END = new Date('2026-11-02T04:00:00.000Z')
 
-export async function draftPackage(
+export async function approvedPackage(
   packages: FakeExamPackageRepository,
   questions: FakeQuestionRepository,
 ) {
   const question = await seedApprovedQuestion(questions)
-  return new CreateExamPackageUseCase(packages, questions).execute(USER, {
+  const created = await new CreateExamPackageUseCase(
+    packages,
+    questions,
+  ).execute(USER, {
     title: 'UTS Matematika Kelas 7',
     subjectId: SUBJECT_ID,
     gradeId: GRADE_ID,
     questionIds: [question.id],
   })
+  const approved = { ...created, status: 'APPROVED' as const }
+  packages.packages.set(created.id, approved)
+  return approved
 }
 
 export { USER }

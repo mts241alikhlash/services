@@ -43,14 +43,10 @@ describe('package lifecycle policy', () => {
     }
   })
 
-  it('only an approved package can be scheduled', () => {
+  it('only an approved or already scheduled package can be scheduled', () => {
     expect(() => assertCanSchedule('APPROVED')).not.toThrow()
-    for (const status of [
-      'DRAFT',
-      'SUBMITTED',
-      'RETURNED',
-      'LOCKED',
-    ] as const) {
+    expect(() => assertCanSchedule('LOCKED')).not.toThrow()
+    for (const status of ['DRAFT', 'SUBMITTED', 'RETURNED'] as const) {
       expect(() => assertCanSchedule(status)).toThrow(ConflictException)
     }
   })

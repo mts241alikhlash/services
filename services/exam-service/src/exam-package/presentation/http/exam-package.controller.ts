@@ -19,6 +19,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
+import type { ScopeUser } from '../../../question/application/teacher-scope.service.js'
 import { CurrentUser } from '../../../core/decorators/current-user.decorator.js'
 import { RequirePermissions } from '../../../platform/access-control/permission/decorators/require-permissions.decorator.js'
 import { JwtAuthGuard } from '../../../platform/auth/index.js'
@@ -62,10 +63,11 @@ export class ExamPackageController {
   @ApiOperation({ summary: 'List exam packages' })
   @ApiResponse({ status: 200, type: ExamPackageListResponseDto })
   async findAll(
+    @CurrentUser() user: ScopeUser,
     @Query() query: ExamPackageQueryDto,
   ): Promise<ExamPackageListResponseDto> {
     return ExamPackageListResponseDto.fromDomain(
-      await this.listPackages.execute(query),
+      await this.listPackages.execute(user, query),
     )
   }
 
@@ -92,9 +94,15 @@ export class ExamPackageController {
   @ApiResponse({ status: 200, type: ExamPackageViewDto })
   @ApiParam({ name: 'id', format: 'uuid' })
   async findOne(
+    @CurrentUser() user: ScopeUser,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ExamPackageViewDto> {
-    return ExamPackageViewDto.fromDomain(await this.getPackage.execute(id))
+    return ExamPackageViewDto.fromDomain(
+      await this.getPackage.execute(id, {
+        id: user.id,
+        canSeeAll: user.permissions.includes('exam-questions.manage-all'),
+      }),
+    )
   }
 
   @Post()
@@ -140,7 +148,7 @@ export class ExamPackageController {
   @ApiResponse({ status: 201, type: ExamPackageDetailDto })
   @ApiParam({ name: 'id', format: 'uuid' })
   async copy(
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: ScopeUser,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ExamPackageDetailDto> {
     return ExamPackageDetailDto.fromDomain(

@@ -28,7 +28,9 @@ export function assertCanReview(status: ExamPackageStatus): void {
 }
 
 export function assertCanSchedule(status: ExamPackageStatus): void {
-  if (status !== 'APPROVED') refuse('dijadwalkan', status)
+  if (status !== 'APPROVED' && status !== 'LOCKED') {
+    refuse('dijadwalkan', status)
+  }
 }
 
 export function assertCanTakeFrom(status: ExamPackageStatus): void {
