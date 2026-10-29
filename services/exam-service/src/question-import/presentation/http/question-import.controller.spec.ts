@@ -11,13 +11,29 @@ import {
   TEACHER,
   buildTeacherScope,
 } from '../../../question/application/question.repository.fake.js'
-import { CreateQuestionUseCase } from '../../../question/application/use-cases/create-question/create-question.use-case.js'
 import { GetImportTemplateUseCase } from '../../application/use-cases/get-import-template/get-import-template.use-case.js'
 import { ImportQuestionsUseCase } from '../../application/use-cases/import-questions/import-questions.use-case.js'
+import { FakeExamPackageRepository } from '../../../exam-package/application/exam-package.repository.fake.js'
 import { QuestionImportController } from './question-import.controller.js'
+
+const PACKAGE_ID = '33333333-3333-4333-8333-333333333333'
 
 function build() {
   const questions = new FakeQuestionRepository()
+  const packages = new FakeExamPackageRepository(questions)
+  const now = new Date()
+  packages.packages.set(PACKAGE_ID, {
+    id: PACKAGE_ID,
+    title: 'UTS Matematika',
+    ...MATH_7,
+    status: 'DRAFT',
+    lockedAt: null,
+    createdById: 'user-9',
+    createdAt: now,
+    updatedAt: now,
+    deletedAt: null,
+    items: [],
+  })
   const { scope, employees } = buildTeacherScope({
     employeeId: 'emp-1',
     pairs: [MATH_7],
@@ -28,7 +44,8 @@ function build() {
     controller: new QuestionImportController(
       new ImportQuestionsUseCase(
         scope,
-        new CreateQuestionUseCase(questions, scope, employees),
+        packages,
+        employees,
         new UploadExamFileUseCase(
           new FakeExamFileRepository(),
           new FakeExamFileStorage(),
@@ -55,7 +72,7 @@ describe('QuestionImportController', () => {
         size: buffer.length,
         originalname: 'template-soal.xlsx',
       } as Express.Multer.File,
-      { ...MATH_7, packageId: 'package-1' },
+      { packageId: PACKAGE_ID },
     )
 
     expect(streamed).toBeInstanceOf(StreamableFile)
@@ -70,10 +87,7 @@ describe('QuestionImportController', () => {
 
   it('refuses a request with no file', async () => {
     await expect(
-      build().controller.import(TEACHER, undefined, {
-        ...MATH_7,
-        packageId: 'package-1',
-      }),
+      build().controller.import(TEACHER, undefined, { packageId: PACKAGE_ID }),
     ).rejects.toThrow(BadRequestException)
   })
 })

@@ -3,8 +3,6 @@ export interface ImportQuestionsInput {
   size: number
   fileName: string
   packageId: string
-  subjectId: string
-  gradeId: string
   authorEmployeeId?: string
 }
 
