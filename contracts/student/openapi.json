@@ -5689,6 +5689,29 @@
           "name"
         ]
       },
+      "MyClassroomResponseSemesterDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "sequence": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "sequence",
+          "isActive"
+        ]
+      },
       "MyClassroomResponseStructureClassroomDto": {
         "type": "object",
         "properties": {
@@ -6759,6 +6782,15 @@
           "classroom": {
             "$ref": "#/components/schemas/MyClassroomResponseClassroomDto"
           },
+          "semester": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MyClassroomResponseSemesterDto"
+              }
+            ]
+          },
           "structure": {
             "nullable": true,
             "type": "object",
@@ -6792,6 +6824,7 @@
         },
         "required": [
           "classroom",
+          "semester",
           "structure",
           "supervisor",
           "classmates",

@@ -1708,9 +1708,37 @@ export class MyClassroomResponseSubjectsDto {
   }
 }
 
+export class MyClassroomResponseSemesterDto {
+  @ApiProperty({ type: String })
+  id!: string
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  name!: string | null
+
+  @ApiProperty({ type: Number })
+  sequence!: number
+
+  @ApiProperty({ type: Boolean })
+  isActive!: boolean
+
+  static fromDomain(
+    domain: NonNullable<MyClassroom['semester']>,
+  ): MyClassroomResponseSemesterDto {
+    const dto = new MyClassroomResponseSemesterDto()
+    dto.id = domain.id
+    dto.name = domain.typeName
+    dto.sequence = domain.sequence
+    dto.isActive = domain.isActive
+    return dto
+  }
+}
+
 export class MyClassroomResponseDto {
   @ApiProperty({ type: () => MyClassroomResponseClassroomDto })
   classroom!: MyClassroomResponseClassroomDto
+
+  @ApiProperty({ type: () => MyClassroomResponseSemesterDto, nullable: true })
+  semester!: MyClassroomResponseSemesterDto | null
 
   @ApiProperty({ type: () => MyClassroomResponseStructureDto, nullable: true })
   structure!: MyClassroomResponseStructureDto | null
@@ -1727,6 +1755,10 @@ export class MyClassroomResponseDto {
   static fromDomain(domain: MyClassroom): MyClassroomResponseDto {
     const dto = new MyClassroomResponseDto()
     dto.classroom = MyClassroomResponseClassroomDto.fromDomain(domain.classroom)
+    dto.semester =
+      domain.semester == null
+        ? null
+        : MyClassroomResponseSemesterDto.fromDomain(domain.semester)
     dto.structure =
       domain.structure == null
         ? domain.structure

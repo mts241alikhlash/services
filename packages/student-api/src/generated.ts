@@ -1406,9 +1406,16 @@ export interface components {
         MyClassroomResponseDto: {
             classmates: components["schemas"]["MyClassroomResponseClassmatesDto"][];
             classroom: components["schemas"]["MyClassroomResponseClassroomDto"];
+            semester: components["schemas"]["MyClassroomResponseSemesterDto"] | null;
             structure: components["schemas"]["MyClassroomResponseStructureDto"] | null;
             subjects: components["schemas"]["MyClassroomResponseSubjectsDto"][];
             supervisor: components["schemas"]["MyClassroomResponseSupervisorDto"] | null;
+        };
+        MyClassroomResponseSemesterDto: {
+            id: string;
+            isActive: boolean;
+            name?: string | null;
+            sequence: number;
         };
         MyClassroomResponseStructureClassroomDto: {
             academicYearId: string;
