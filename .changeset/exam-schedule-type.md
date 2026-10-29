@@ -1,5 +1,6 @@
 ---
 'exam-service': major
+'@mts241alikhlash/exam-api': major
 'academic-service': minor
 ---
 
