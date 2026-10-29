@@ -38,6 +38,6 @@ export class SubmitExamPackageUseCase {
       { action: 'SUBMIT', byUserId: user.id, note: null, questionNotes: [] },
     )
     if (!moved) throw new ConflictException(PACKAGE_CHANGED_MESSAGE)
-    return (await this.packages.findById(id)) as ExamPackageDetail
+    return (await this.packages.findById(id))!
   }
 }

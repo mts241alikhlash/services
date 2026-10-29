@@ -386,7 +386,7 @@ describe('ImportQuestionsUseCase', () => {
   it('imports into an approved package and sets it back to draft', async () => {
     const { packages, useCase } = build()
     packages.packages.set(PACKAGE_ID, {
-      ...(packages.packages.get(PACKAGE_ID) as ExamPackageDetail),
+      ...packages.packages.get(PACKAGE_ID)!,
       status: 'APPROVED',
     })
 
@@ -398,7 +398,7 @@ describe('ImportQuestionsUseCase', () => {
   it('refuses a submitted package and imports nothing', async () => {
     const { packages, questions, useCase } = build()
     packages.packages.set(PACKAGE_ID, {
-      ...(packages.packages.get(PACKAGE_ID) as ExamPackageDetail),
+      ...packages.packages.get(PACKAGE_ID)!,
       status: 'SUBMITTED',
     })
 

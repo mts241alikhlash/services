@@ -51,6 +51,6 @@ export class ReturnExamPackageUseCase {
       },
     )
     if (!moved) throw new ConflictException(PACKAGE_CHANGED_MESSAGE)
-    return (await this.packages.findById(id)) as ExamPackageDetail
+    return (await this.packages.findById(id))!
   }
 }

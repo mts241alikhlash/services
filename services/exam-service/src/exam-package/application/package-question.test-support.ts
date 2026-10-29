@@ -40,6 +40,6 @@ export async function packageWorld(
     })
   }
   const reload = async (): Promise<ExamPackageDetail> =>
-    (await packages.findById(pkg.id)) as ExamPackageDetail
+    (await packages.findById(pkg.id))!
   return { questions, packages, scope, employees, pkg, setStatus, reload }
 }

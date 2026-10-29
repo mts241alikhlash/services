@@ -78,8 +78,7 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
   softDeleteUnscheduled(id: string) {
     const row = this.packages.get(id)
     if (
-      !row ||
-      row.deletedAt !== null ||
+      row?.deletedAt !== null ||
       !['DRAFT', 'RETURNED', 'APPROVED'].includes(row.status)
     ) {
       return Promise.resolve(false)
@@ -102,7 +101,7 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     review: NewPackageReview,
   ) {
     const row = this.packages.get(id)
-    if (!row || row.deletedAt !== null || !from.includes(row.status)) {
+    if (row?.deletedAt !== null || !from.includes(row.status)) {
       return Promise.resolve(false)
     }
     if (review.action === 'SUBMIT' && row.items.length === 0) {
@@ -132,7 +131,7 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
 
   private claim(id: string, edit: PackageEdit): ExamPackageDetail | null {
     const row = this.packages.get(id)
-    if (!row || row.deletedAt !== null || row.status !== edit.expected) {
+    if (row?.deletedAt !== null || row.status !== edit.expected) {
       return null
     }
     return row
@@ -206,7 +205,7 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
   ) {
     const row = this.claim(id, edit)
     const existing = this.bank().questions.get(questionId)
-    if (!row || !existing || existing.revision !== expectedRevision) return null
+    if (!row || existing?.revision !== expectedRevision) return null
     const changed = await this.bank().addVersion(
       questionId,
       fields,
@@ -250,7 +249,7 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     }
     const byId = new Map(row.items.map((item) => [item.questionId, item]))
     const items = questionIds.map((questionId, index) => ({
-      ...(byId.get(questionId) as ExamPackageDetail['items'][number]),
+      ...byId.get(questionId)!,
       position: index + 1,
     }))
     return Promise.resolve(this.store(row, edit, items))
