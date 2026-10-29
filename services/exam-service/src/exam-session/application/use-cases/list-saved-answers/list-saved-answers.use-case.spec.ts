@@ -33,6 +33,9 @@ describe('ListSavedAnswersUseCase', () => {
       clientId: 'client-1',
       receivedAfterDeadline: false,
       score: null,
+      gradedById: null,
+      gradedAt: null,
+      gradeNote: null,
       createdAt: NOW,
       updatedAt: NOW,
     })

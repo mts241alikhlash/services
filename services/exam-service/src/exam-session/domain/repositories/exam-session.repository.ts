@@ -3,6 +3,7 @@ import type { AnswerPayload } from '../policies/validate-answer-shape.policy.js'
 import type {
   ExamAnswerRecord,
   ExamSession,
+  ExamSessionStatus,
 } from '../entities/exam-session.entity.js'
 
 export interface SaveAnswerInput {
@@ -13,9 +14,31 @@ export interface SaveAnswerInput {
   receivedAfterDeadline: boolean
 }
 
+export interface GradeAnswerInput {
+  sessionId: string
+  questionId: string
+  score: number
+  note: string | null
+  gradedById: string
+  at: Date
+}
+
+export interface GradeRecompute {
+  rawScore: number
+  maxScore: number
+  pendingManual: number
+}
+
+export interface ScheduleSessionCounts {
+  sessions: number
+  awaitingGrading: number
+  graded: number
+}
+
 export interface SessionClosure {
   status: 'SUBMITTED' | 'EXPIRED' | 'GRADED'
   submittedAt: Date | null
+  gradedAt: Date | null
   rawScore: number
   maxScore: number
   scores: { answerId: string; score: number | null }[]
@@ -26,6 +49,7 @@ export interface NewExamSession {
   studentId: string
   userId: string
   deviceId: string
+  enrollmentId: string
   shuffleSeed: string
   startedAt: Date
   deadline: Date
@@ -51,6 +75,10 @@ export abstract class IExamSessionRepository {
     id: string,
     build: (answers: ExamAnswerRecord[]) => SessionClosure,
   ): Promise<ExamSession | null>
+  abstract applyGrade(
+    input: GradeAnswerInput,
+    recompute: (answers: ExamAnswerRecord[]) => GradeRecompute,
+  ): Promise<{ answer: ExamAnswerRecord; session: ExamSession } | null>
   abstract findDueIds(
     now: Date,
     limit: number,
@@ -65,7 +93,14 @@ export abstract class IExamSessionRepository {
     scheduleId: string,
     page: number,
     limit: number,
+    status?: ExamSessionStatus,
   ): Promise<PaginatedResult<ExamSession>>
+  abstract countsBySchedule(
+    scheduleIds: string[],
+  ): Promise<Map<string, ScheduleSessionCounts>>
+  abstract publicationStatuses(
+    sessionIds: string[],
+  ): Promise<Map<string, 'PENDING' | 'SENT'>>
   abstract listAnswers(sessionId: string): Promise<ExamAnswerRecord[]>
   abstract listByStudentAndSchedules(
     studentId: string,

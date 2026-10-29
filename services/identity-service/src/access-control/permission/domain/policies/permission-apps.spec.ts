@@ -41,6 +41,8 @@ describe('permission applications', () => {
 
   it('files the exam session module under academic', () => {
     expect(appForModule('exam-sessions')).toBe('academic')
+    expect(appForModule('exam-grading')).toBe('academic')
+    expect(appForModule('exam-scores')).toBe('academic')
   })
 
   it('keeps the keys to the building in the system group', () => {

@@ -38,6 +38,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exam-grading/schedules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The exams the caller may grade, with grading counts */
+        get: operations["ExamGradingController_schedules"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-grading/schedules/{scheduleId}/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The sessions of one exam with their grading state */
+        get: operations["ExamGradingController_sessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-grading/sessions/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The short answers and essays of a session to grade */
+        get: operations["ExamGradingController_session"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-grading/sessions/{sessionId}/answers/{questionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Grade one short answer or essay */
+        patch: operations["ExamGradingController_grade"];
+        trace?: never;
+    };
     "/exam-imports": {
         parameters: {
             query?: never;
@@ -704,6 +772,8 @@ export interface components {
             durationMinutes: number;
             /** Format: date-time */
             endsAt: string;
+            /** @description True once a student started: it can no longer be cancelled */
+            hasSessions: boolean;
             /** Format: uuid */
             id: string;
             /** Format: uuid */
@@ -723,6 +793,97 @@ export interface components {
             limit: number;
             page: number;
             total: number;
+        };
+        GradeAnswerDto: {
+            note?: string;
+            /** @description From 0 up to the points of the question */
+            score: number;
+        };
+        GradingItemDto: {
+            acceptedAnswers: string[] | null;
+            answer: {
+                [key: string]: unknown;
+            } | null;
+            bodyHtml: string;
+            /** Format: date-time */
+            gradedAt: string | null;
+            guideHtml: string | null;
+            needsGrading: boolean;
+            note: string | null;
+            /** @description Position on the package, from 1 */
+            number: number;
+            points: number;
+            /** Format: uuid */
+            questionId: string;
+            score: number | null;
+            /** @enum {string} */
+            type: "SHORT_ANSWER" | "ESSAY";
+        };
+        GradingScheduleDto: {
+            awaitingGrading: number;
+            /** Format: uuid */
+            classroomId: string;
+            classroomName: string | null;
+            /** Format: date-time */
+            endsAt: string;
+            graded: number;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            semesterId: string;
+            sessions: number;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: uuid */
+            subjectId: string;
+            title: string;
+        };
+        GradingScheduleListResponseDto: {
+            data: components["schemas"]["GradingScheduleDto"][];
+            limit: number;
+            page: number;
+            total: number;
+        };
+        GradingSessionDetailDto: {
+            items: components["schemas"]["GradingItemDto"][];
+            session: components["schemas"]["GradingSessionSummaryDto"];
+        };
+        GradingSessionListResponseDto: {
+            data: components["schemas"]["GradingSessionRowDto"][];
+            limit: number;
+            page: number;
+            total: number;
+        };
+        GradingSessionRowDto: {
+            awaitingGrading: boolean;
+            maxScore: number | null;
+            /** @enum {string|null} */
+            publication: "PENDING" | "SENT" | null;
+            rawScore: number | null;
+            /** Format: uuid */
+            sessionId: string;
+            /** @enum {string} */
+            status: "IN_PROGRESS" | "SUBMITTED" | "EXPIRED" | "GRADED";
+            /** Format: uuid */
+            studentId: string;
+            studentName: string | null;
+            studentNis: string | null;
+            /** Format: date-time */
+            submittedAt: string | null;
+        };
+        GradingSessionSummaryDto: {
+            maxScore: number | null;
+            rawScore: number | null;
+            /** Format: uuid */
+            scheduleId: string;
+            /** Format: uuid */
+            sessionId: string;
+            /** @enum {string} */
+            status: "IN_PROGRESS" | "SUBMITTED" | "EXPIRED" | "GRADED";
+            /** Format: uuid */
+            studentId: string;
+            studentName: string | null;
+            studentNis: string | null;
         };
         ImportErrorDto: {
             reason: string;
@@ -923,6 +1084,8 @@ export interface components {
             status: "IN_PROGRESS" | "SUBMITTED" | "EXPIRED" | "GRADED";
             /** Format: uuid */
             studentId: string;
+            studentName: string | null;
+            studentNis: string | null;
             /** Format: date-time */
             submittedAt: string | null;
         };
@@ -1039,6 +1202,136 @@ export interface operations {
                 };
                 content: {
                     "image/png": string;
+                };
+            };
+        };
+    };
+    ExamGradingController_schedules: {
+        parameters: {
+            query?: {
+                limit?: number;
+                page?: number;
+                /** @description Defaults to the active semester */
+                semesterId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["GradingScheduleDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: {
+                            limit?: number;
+                            page?: number;
+                            total?: number;
+                        };
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamGradingController_sessions: {
+        parameters: {
+            query?: {
+                limit?: number;
+                page?: number;
+                status?: "IN_PROGRESS" | "SUBMITTED" | "EXPIRED" | "GRADED";
+            };
+            header?: never;
+            path: {
+                scheduleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["GradingSessionRowDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: {
+                            limit?: number;
+                            page?: number;
+                            total?: number;
+                        };
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamGradingController_session: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["GradingSessionDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamGradingController_grade: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                questionId: string;
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GradeAnswerDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["GradingItemDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
                 };
             };
         };

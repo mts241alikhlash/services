@@ -3,6 +3,7 @@ import type { FakeExamPackageRepository } from '../../exam-package/application/e
 import type { ExamSchedule } from '../domain/entities/exam-schedule.entity.js'
 import {
   IExamScheduleRepository,
+  type ExamScheduleGradingQuery,
   type ExamScheduleListQuery,
   type NewExamSchedule,
   type ScheduleWindowFields,
@@ -10,6 +11,7 @@ import {
 
 export class FakeExamScheduleRepository extends IExamScheduleRepository {
   readonly schedules = new Map<string, ExamSchedule>()
+  withSessions: (scheduleId: string) => boolean = () => true
 
   constructor(private readonly packages: FakeExamPackageRepository) {
     super()
@@ -24,6 +26,31 @@ export class FakeExamScheduleRepository extends IExamScheduleRepository {
       .filter((row) => !query.status || row.status === query.status)
       .filter((row) => !query.from || row.endsAt >= query.from)
       .filter((row) => !query.to || row.startsAt <= query.to)
+    return Promise.resolve({
+      data: rows.slice(
+        (query.page - 1) * query.limit,
+        query.page * query.limit,
+      ),
+      total: rows.length,
+      page: query.page,
+      limit: query.limit,
+    })
+  }
+
+  findForGrading(query: ExamScheduleGradingQuery) {
+    const rows = [...this.schedules.values()]
+      .filter((row) => row.semesterId === query.semesterId)
+      .filter((row) => this.withSessions(row.id))
+      .filter(
+        (row) =>
+          query.pairs === null ||
+          query.pairs.some(
+            (pair) =>
+              pair.subjectId === row.subjectId &&
+              pair.classroomId === row.classroomId,
+          ),
+      )
+      .sort((a, b) => b.startsAt.getTime() - a.startsAt.getTime())
     return Promise.resolve({
       data: rows.slice(
         (query.page - 1) * query.limit,
@@ -58,6 +85,7 @@ export class FakeExamScheduleRepository extends IExamScheduleRepository {
       id: randomUUID(),
       packageId: input.packageId,
       packageTitle: pkg.title,
+      subjectId: pkg.subjectId,
       classroomId: input.classroomId,
       semesterId: input.semesterId,
       startsAt: input.startsAt,

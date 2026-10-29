@@ -9,6 +9,7 @@ const base = {
   ACADEMIC_SERVICE_URL: 'http://academic-service:3200',
   HR_SERVICE_URL: 'http://hr-service:3800',
   STUDENT_SERVICE_URL: 'http://student-service:3900',
+  ASSESSMENT_SERVICE_URL: 'http://assessment-service:4000',
   PROVISIONING_SERVICE_TOKEN: 'a-strong-provisioning-token-0123456789',
   EXAM_ACCESS_CODE_SECRET: 'k3J9xQ2mV8pL5nR7tY1wZ4cB6dF0gHaS',
   S3_ENDPOINT: 'http://localhost:9000',

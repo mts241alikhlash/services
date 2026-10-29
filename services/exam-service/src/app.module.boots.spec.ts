@@ -3,6 +3,7 @@ process.env.JWT_SECRET ??= 'boots-test-secret-not-a-real-key'
 process.env.IDENTITY_SERVICE_URL ??= 'http://localhost:3000'
 process.env.HR_SERVICE_URL ??= 'http://localhost:3800'
 process.env.STUDENT_SERVICE_URL ??= 'http://localhost:3900'
+process.env.ASSESSMENT_SERVICE_URL ??= 'http://localhost:4000'
 process.env.PROVISIONING_SERVICE_TOKEN ??= 'boots-test-provisioning-token'
 process.env.EXAM_ACCESS_CODE_SECRET ??=
   'boots-test-exam-access-code-secret-32-chars'

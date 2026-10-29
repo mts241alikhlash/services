@@ -38,6 +38,9 @@ export const envSchema = z
     STUDENT_SERVICE_URL: z
       .string()
       .url('STUDENT_SERVICE_URL must be a valid URL'),
+    ASSESSMENT_SERVICE_URL: z
+      .string()
+      .url('ASSESSMENT_SERVICE_URL must be a valid URL'),
     PROVISIONING_SERVICE_TOKEN: z
       .string()
       .min(16, 'PROVISIONING_SERVICE_TOKEN must be at least 16 characters'),

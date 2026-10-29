@@ -204,6 +204,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exam-scores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Exam scores of the classes the caller teaches */
+        get: operations["ExamScoreController_findAll"];
+        put?: never;
+        /** Receive the final score of an exam from exam-service */
+        post: operations["ExamScoreInternalController_receive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -886,6 +904,42 @@ export interface components {
         EnrollmentIdsDto: {
             enrollmentIds: string[];
         };
+        ExamScoreDto: {
+            /** Format: uuid */
+            classroomId: string;
+            classroomName: string | null;
+            /** Format: uuid */
+            examSessionId: string;
+            examTitle: string;
+            /** Format: date-time */
+            gradedAt: string;
+            /** Format: uuid */
+            id: string;
+            maxScore: number;
+            rawScore: number;
+            /** @description 0 to 100 */
+            score: number;
+            /** Format: uuid */
+            semesterId: string;
+            /** Format: uuid */
+            studentId: string;
+            studentName: string | null;
+            studentNis: string | null;
+            /** Format: uuid */
+            subjectId: string;
+        };
+        ExamScoreListResponseDto: {
+            data: components["schemas"]["ExamScoreDto"][];
+            limit: number;
+            page: number;
+            total: number;
+        };
+        ExamScoreReceiptDto: {
+            /** Format: uuid */
+            examSessionId: string;
+            /** Format: uuid */
+            id: string;
+        };
         GenerateReportCardDto: {
             employeeNote?: string;
             /** Format: uuid */
@@ -923,6 +977,31 @@ export interface components {
             latestReportCard: components["schemas"]["DashboardReportCardResponseDto"] | null;
             latestScores: components["schemas"]["DashboardScoreResponseDto"][];
             todayLessons: components["schemas"]["DashboardLessonResponseDto"][];
+        };
+        ReceiveExamScoreDto: {
+            /** Format: uuid */
+            classroomId: string;
+            /** Format: uuid */
+            enrollmentId: string;
+            /** Format: uuid */
+            examSessionId: string;
+            examTitle: string;
+            /** Format: date-time */
+            gradedAt: string;
+            /** Format: uuid */
+            gradeId: string;
+            maxScore: number;
+            rawScore: number;
+            /** @description 0 to 100 */
+            score: number;
+            /** Format: uuid */
+            semesterId: string;
+            /** Format: uuid */
+            studentId: string;
+            studentName?: string | null;
+            studentNis?: string | null;
+            /** Format: uuid */
+            subjectId: string;
         };
         ReplaceAssessmentWeightsDto: {
             /**
@@ -1762,6 +1841,78 @@ export interface operations {
                         statusCode?: number;
                     };
                 };
+            };
+        };
+    };
+    ExamScoreController_findAll: {
+        parameters: {
+            query?: {
+                classroomId?: string;
+                limit?: number;
+                page?: number;
+                semesterId?: string;
+                subjectId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamScoreDto"][];
+                        /** @example Success */
+                        message?: string;
+                        meta?: {
+                            limit?: number;
+                            page?: number;
+                            total?: number;
+                        };
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamScoreInternalController_receive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReceiveExamScoreDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamScoreReceiptDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Missing or invalid provisioning token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -2,11 +2,15 @@ import { randomUUID } from 'node:crypto'
 import type {
   ExamAnswerRecord,
   ExamSession,
+  ExamSessionStatus,
 } from '../domain/entities/exam-session.entity.js'
 import {
   IExamSessionRepository,
+  type GradeAnswerInput,
+  type GradeRecompute,
   type NewExamSession,
   type SaveAnswerInput,
+  type ScheduleSessionCounts,
   type SessionClosure,
 } from '../domain/repositories/exam-session.repository.js'
 
@@ -42,6 +46,7 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
       maxScore: null,
       releasedAt: null,
       releasedById: null,
+      gradedAt: null,
       createdAt: now,
       updatedAt: now,
     }
@@ -58,6 +63,7 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
   }
 
   readonly answers = new Map<string, ExamAnswerRecord>()
+  readonly publications = new Map<string, 'PENDING' | 'SENT'>()
 
   findAnswerByClientId(sessionId: string, clientId: string) {
     const found = [...this.answers.values()].find(
@@ -80,6 +86,9 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
     const record: ExamAnswerRecord = {
       id: existing?.id ?? randomUUID(),
       score: null,
+      gradedById: null,
+      gradedAt: null,
+      gradeNote: null,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
       ...input,
@@ -98,15 +107,54 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
       ...session,
       status: closure.status,
       submittedAt: closure.submittedAt,
+      gradedAt: closure.gradedAt,
       rawScore: closure.rawScore,
       maxScore: closure.maxScore,
     }
     this.sessions.set(id, closed)
+    if (closure.status === 'GRADED') this.publications.set(id, 'PENDING')
     for (const { answerId, score } of closure.scores) {
       const answer = this.answers.get(answerId)
       if (answer) this.answers.set(answerId, { ...answer, score })
     }
     return Promise.resolve(closed)
+  }
+
+  applyGrade(
+    input: GradeAnswerInput,
+    recompute: (answers: ExamAnswerRecord[]) => GradeRecompute,
+  ) {
+    const session = this.sessions.get(input.sessionId)
+    const existing = [...this.answers.values()].find(
+      (row) =>
+        row.sessionId === input.sessionId &&
+        row.questionId === input.questionId,
+    )
+    if (!session || !existing) return Promise.resolve(null)
+
+    const answer: ExamAnswerRecord = {
+      ...existing,
+      score: input.score,
+      gradeNote: input.note,
+      gradedById: input.gradedById,
+      gradedAt: input.at,
+    }
+    this.answers.set(answer.id, answer)
+
+    const result = recompute(
+      [...this.answers.values()].filter((row) => row.sessionId === session.id),
+    )
+    const graded = result.pendingManual === 0
+    const updated: ExamSession = {
+      ...session,
+      rawScore: result.rawScore,
+      maxScore: result.maxScore,
+      status: graded ? 'GRADED' : session.status,
+      gradedAt: graded ? input.at : null,
+    }
+    this.sessions.set(session.id, updated)
+    if (graded) this.publications.set(session.id, 'PENDING')
+    return Promise.resolve({ answer, session: updated })
   }
 
   findDueIds(now: Date, limit: number, excludeIds: string[]) {
@@ -136,9 +184,40 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
     return Promise.resolve(released)
   }
 
-  findPageBySchedule(scheduleId: string, page: number, limit: number) {
+  countsBySchedule(scheduleIds: string[]) {
+    const counts = new Map<string, ScheduleSessionCounts>()
+    for (const session of this.sessions.values()) {
+      if (!scheduleIds.includes(session.scheduleId)) continue
+      const entry = counts.get(session.scheduleId) ?? {
+        sessions: 0,
+        awaitingGrading: 0,
+        graded: 0,
+      }
+      entry.sessions += 1
+      if (session.status === 'GRADED') entry.graded += 1
+      if (session.status === 'SUBMITTED' || session.status === 'EXPIRED') {
+        entry.awaitingGrading += 1
+      }
+      counts.set(session.scheduleId, entry)
+    }
+    return Promise.resolve(counts)
+  }
+
+  publicationStatuses(sessionIds: string[]) {
+    return Promise.resolve(
+      new Map([...this.publications].filter(([id]) => sessionIds.includes(id))),
+    )
+  }
+
+  findPageBySchedule(
+    scheduleId: string,
+    page: number,
+    limit: number,
+    status?: ExamSessionStatus,
+  ) {
     const rows = [...this.sessions.values()]
       .filter((session) => session.scheduleId === scheduleId)
+      .filter((session) => !status || session.status === status)
       .sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime())
     return Promise.resolve({
       data: rows.slice((page - 1) * limit, page * limit),

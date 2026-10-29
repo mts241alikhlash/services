@@ -5,6 +5,11 @@ enum ExamSessionStatus {
   GRADED
 }
 
+enum ScorePublicationStatus {
+  PENDING
+  SENT
+}
+
 /// One student's sitting of one schedule. `shuffleSeed` fixes the order of the
 /// questions and choices for this student; `deadline` is the end of the
 /// working time and `finalizeAt` the end of the period in which late answers
@@ -15,6 +20,7 @@ model ExamSession {
   studentId    String            @map("student_id") @db.Uuid
   userId       String            @map("user_id") @db.Uuid
   deviceId     String?           @map("device_id") @db.VarChar(100)
+  enrollmentId String?           @map("enrollment_id") @db.Uuid
   shuffleSeed  String            @map("shuffle_seed") @db.VarChar(32)
   startedAt    DateTime          @map("started_at")
   deadline     DateTime
@@ -25,11 +31,13 @@ model ExamSession {
   maxScore     Float?            @map("max_score")
   releasedAt   DateTime?         @map("released_at")
   releasedById String?           @map("released_by_id") @db.Uuid
+  gradedAt     DateTime?         @map("graded_at")
   createdAt    DateTime          @default(now()) @map("created_at")
   updatedAt    DateTime          @updatedAt @map("updated_at")
 
-  schedule ExamSchedule @relation(fields: [scheduleId], references: [id])
-  answers  ExamAnswer[]
+  schedule    ExamSchedule      @relation(fields: [scheduleId], references: [id])
+  answers     ExamAnswer[]
+  publication ScorePublication?
 
   @@unique([scheduleId, studentId])
   @@index([status, finalizeAt])
@@ -37,15 +45,18 @@ model ExamSession {
 }
 
 model ExamAnswer {
-  id                    String   @id @default(uuid()) @db.Uuid
-  sessionId             String   @map("session_id") @db.Uuid
-  questionId            String   @map("question_id") @db.Uuid
+  id                    String    @id @default(uuid()) @db.Uuid
+  sessionId             String    @map("session_id") @db.Uuid
+  questionId            String    @map("question_id") @db.Uuid
   answer                Json
-  clientId              String   @map("client_id") @db.VarChar(64)
-  receivedAfterDeadline Boolean  @default(false) @map("received_after_deadline")
+  clientId              String    @map("client_id") @db.VarChar(64)
+  receivedAfterDeadline Boolean   @default(false) @map("received_after_deadline")
   score                 Float?
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @updatedAt @map("updated_at")
+  gradedById            String?   @map("graded_by_id") @db.Uuid
+  gradedAt              DateTime? @map("graded_at")
+  gradeNote             String?   @map("grade_note") @db.VarChar(500)
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
 
   session  ExamSession @relation(fields: [sessionId], references: [id])
   question Question    @relation(fields: [questionId], references: [id])
@@ -68,4 +79,25 @@ model ExamAccessAttempt {
 
   @@unique([scheduleId, studentId])
   @@map("exam_access_attempts")
+}
+
+/// The final score of a graded session waiting to reach assessment-service.
+/// Created PENDING when the session becomes GRADED, set back to PENDING when a
+/// teacher changes a grade afterwards, and SENT once assessment-service stored it.
+model ScorePublication {
+  id                String                 @id @default(uuid()) @db.Uuid
+  sessionId         String                 @unique @map("session_id") @db.Uuid
+  status            ScorePublicationStatus @default(PENDING)
+  attempts          Int                    @default(0)
+  permanentFailures Int                    @default(0) @map("permanent_failures")
+  lastError         String?                @map("last_error") @db.VarChar(300)
+  lastAttemptAt     DateTime?              @map("last_attempt_at")
+  sentAt            DateTime?              @map("sent_at")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  updatedAt         DateTime               @updatedAt @map("updated_at")
+
+  session ExamSession @relation(fields: [sessionId], references: [id])
+
+  @@index([status, lastAttemptAt])
+  @@map("score_publications")
 }

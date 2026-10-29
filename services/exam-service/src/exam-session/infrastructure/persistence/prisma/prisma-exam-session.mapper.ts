@@ -15,6 +15,7 @@ export function toSession(row: SessionRow): ExamSession {
     studentId: row.studentId,
     userId: row.userId,
     deviceId: row.deviceId,
+    enrollmentId: row.enrollmentId,
     shuffleSeed: row.shuffleSeed,
     startedAt: row.startedAt,
     deadline: row.deadline,
@@ -25,6 +26,7 @@ export function toSession(row: SessionRow): ExamSession {
     maxScore: row.maxScore,
     releasedAt: row.releasedAt,
     releasedById: row.releasedById,
+    gradedAt: row.gradedAt,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }
@@ -39,6 +41,9 @@ export function toAnswer(row: AnswerRow): ExamAnswerRecord {
     clientId: row.clientId,
     receivedAfterDeadline: row.receivedAfterDeadline,
     score: row.score,
+    gradedById: row.gradedById,
+    gradedAt: row.gradedAt,
+    gradeNote: row.gradeNote,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }

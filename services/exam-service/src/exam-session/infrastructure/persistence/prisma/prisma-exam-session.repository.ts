@@ -5,11 +5,15 @@ import type { PaginatedResult } from '../../../../shared/domain/interfaces/repos
 import type {
   ExamAnswerRecord,
   ExamSession,
+  ExamSessionStatus,
 } from '../../../domain/entities/exam-session.entity.js'
 import {
   IExamSessionRepository,
   type NewExamSession,
+  type GradeAnswerInput,
+  type GradeRecompute,
   type SaveAnswerInput,
+  type ScheduleSessionCounts,
   type SessionClosure,
 } from '../../../domain/repositories/exam-session.repository.js'
 import { toAnswer, toSession } from './prisma-exam-session.mapper.js'
@@ -126,10 +130,18 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
         data: {
           status: closure.status,
           submittedAt: closure.submittedAt,
+          gradedAt: closure.gradedAt,
           rawScore: closure.rawScore,
           maxScore: closure.maxScore,
         },
       })
+      if (closure.status === 'GRADED') {
+        await tx.scorePublication.upsert({
+          where: { sessionId: id },
+          create: { sessionId: id },
+          update: {},
+        })
+      }
       for (const { answerId, score } of closure.scores) {
         await tx.examAnswer.update({
           where: { id: answerId },
@@ -137,6 +149,66 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
         })
       }
       return toSession(row)
+    })
+  }
+
+  async applyGrade(
+    input: GradeAnswerInput,
+    recompute: (answers: ExamAnswerRecord[]) => GradeRecompute,
+  ): Promise<{ answer: ExamAnswerRecord; session: ExamSession } | null> {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM exam_sessions WHERE id = ${input.sessionId}::uuid FOR UPDATE`
+      const current = await tx.examSession.findUnique({
+        where: { id: input.sessionId },
+      })
+      const target = await tx.examAnswer.findUnique({
+        where: {
+          sessionId_questionId: {
+            sessionId: input.sessionId,
+            questionId: input.questionId,
+          },
+        },
+      })
+      if (current === null || target === null) return null
+
+      const graded = await tx.examAnswer.update({
+        where: { id: target.id },
+        data: {
+          score: input.score,
+          gradeNote: input.note,
+          gradedById: input.gradedById,
+          gradedAt: input.at,
+        },
+      })
+      const rows = await tx.examAnswer.findMany({
+        where: { sessionId: input.sessionId },
+      })
+      const result = recompute(rows.map(toAnswer))
+      const done = result.pendingManual === 0
+      const session = await tx.examSession.update({
+        where: { id: input.sessionId },
+        data: {
+          rawScore: result.rawScore,
+          maxScore: result.maxScore,
+          status: done ? 'GRADED' : current.status,
+          gradedAt: done ? input.at : null,
+        },
+      })
+      if (done) {
+        await tx.scorePublication.upsert({
+          where: { sessionId: input.sessionId },
+          create: { sessionId: input.sessionId },
+          update: {
+            status: 'PENDING',
+            attempts: 0,
+            permanentFailures: 0,
+            lastError: null,
+            lastAttemptAt: null,
+            sentAt: null,
+          },
+        })
+      }
+      return { answer: toAnswer(graded), session: toSession(session) }
     })
   }
 
@@ -171,19 +243,56 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
     return this.findById(id)
   }
 
+  async countsBySchedule(
+    scheduleIds: string[],
+  ): Promise<Map<string, ScheduleSessionCounts>> {
+    const grouped = await this.prisma.examSession.groupBy({
+      by: ['scheduleId', 'status'],
+      where: { scheduleId: { in: scheduleIds } },
+      _count: { _all: true },
+    })
+    const counts = new Map<string, ScheduleSessionCounts>()
+    for (const row of grouped) {
+      const entry = counts.get(row.scheduleId) ?? {
+        sessions: 0,
+        awaitingGrading: 0,
+        graded: 0,
+      }
+      entry.sessions += row._count._all
+      if (row.status === 'GRADED') entry.graded += row._count._all
+      if (row.status === 'SUBMITTED' || row.status === 'EXPIRED') {
+        entry.awaitingGrading += row._count._all
+      }
+      counts.set(row.scheduleId, entry)
+    }
+    return counts
+  }
+
+  async publicationStatuses(
+    sessionIds: string[],
+  ): Promise<Map<string, 'PENDING' | 'SENT'>> {
+    const rows = await this.prisma.scorePublication.findMany({
+      where: { sessionId: { in: sessionIds } },
+      select: { sessionId: true, status: true },
+    })
+    return new Map(rows.map((row) => [row.sessionId, row.status]))
+  }
+
   async findPageBySchedule(
     scheduleId: string,
     page: number,
     limit: number,
+    status?: ExamSessionStatus,
   ): Promise<PaginatedResult<ExamSession>> {
+    const where = { scheduleId, ...(status ? { status } : {}) }
     const [rows, total] = await Promise.all([
       this.prisma.examSession.findMany({
-        where: { scheduleId },
+        where,
         orderBy: [{ startedAt: 'asc' }, { id: 'asc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),
-      this.prisma.examSession.count({ where: { scheduleId } }),
+      this.prisma.examSession.count({ where }),
     ])
     return { data: rows.map(toSession), total, page, limit }
   }

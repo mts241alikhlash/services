@@ -5,6 +5,7 @@ import {
   type ActiveSemester,
   type ClassroomRef,
   type GradeRef,
+  type TeachingAssignmentRef,
   type TeachingPair,
 } from './academic-lookup.port.js'
 
@@ -14,6 +15,30 @@ const URL_KEY = 'ACADEMIC_SERVICE_URL'
 export class HttpAcademicLookupAdapter extends IAcademicLookupPort {
   constructor(private readonly client: ServiceClient) {
     super()
+  }
+
+  async teachingAssignmentsOf(
+    employeeId: string,
+    semesterId: string,
+  ): Promise<TeachingAssignmentRef[]> {
+    const data = await this.client.getData(
+      URL_KEY,
+      '/teaching-assignments/by-employee' +
+        `?employeeId=${encodeURIComponent(employeeId)}` +
+        `&semesterId=${encodeURIComponent(semesterId)}`,
+    )
+    if (!Array.isArray(data)) return this.client.malformed(URL_KEY)
+
+    return (data as unknown[]).map((row) => {
+      if (
+        !isRecord(row) ||
+        typeof row.subjectId !== 'string' ||
+        typeof row.classroomId !== 'string'
+      ) {
+        return this.client.malformed(URL_KEY)
+      }
+      return { subjectId: row.subjectId, classroomId: row.classroomId }
+    })
   }
 
   async teachingPairsOf(employeeId: string): Promise<TeachingPair[]> {

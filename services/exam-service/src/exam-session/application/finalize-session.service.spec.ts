@@ -59,6 +59,9 @@ describe('FinalizeSessionService', () => {
       clientId: `c-${id}`,
       receivedAfterDeadline: false,
       score: null,
+      gradedById: null,
+      gradedAt: null,
+      gradeNote: null,
       createdAt: NOW,
       updatedAt: NOW,
     })
@@ -112,11 +115,12 @@ describe('FinalizeSessionService', () => {
     )
   })
 
-  it('keeps it submitted when a manual question exists', async () => {
-    await start([
+  it('keeps it submitted when a manual question has text to grade', async () => {
+    const [, essay] = await start([
       choiceSpec('B'),
       { type: 'ESSAY', content: { guideHtml: null } },
     ])
+    answer(essay, { text: 'jawaban' })
 
     expect((await service.finalize('a', 'SUBMITTED', NOW)).status).toBe(
       'SUBMITTED',
@@ -220,5 +224,40 @@ describe('FinalizeSessionService', () => {
     expect(closed).toBe(120)
     expect(sessions.sessions.get('poison')?.status).toBe('IN_PROGRESS')
     expect(sessions.sessions.get('s119')?.status).toBe('GRADED')
+  })
+
+  it('a blank essay scores zero and does not hold the session', async () => {
+    const [, essay] = await start([
+      choiceSpec('B'),
+      { type: 'ESSAY', content: { guideHtml: null } },
+    ])
+    answer(essay, { text: '  ' })
+
+    const closed = await service.finalize('a', 'SUBMITTED', NOW)
+
+    expect(closed.status).toBe('GRADED')
+    expect(sessions.answers.get(essay)?.score).toBe(0)
+  })
+
+  it('creates a pending publication when nothing is left to grade', async () => {
+    await start([choiceSpec('B')])
+
+    const closed = await service.finalize('a', 'SUBMITTED', NOW)
+
+    expect(closed.gradedAt).toEqual(NOW)
+    expect([...sessions.publications.keys()]).toEqual(['a'])
+  })
+
+  it('leaves no publication while a manual answer waits', async () => {
+    const [essay] = await start([
+      { type: 'ESSAY', content: { guideHtml: null } },
+    ])
+    answer(essay, { text: 'jawaban' })
+
+    const closed = await service.finalize('a', 'SUBMITTED', NOW)
+
+    expect(closed.status).toBe('SUBMITTED')
+    expect(closed.gradedAt).toBeNull()
+    expect(sessions.publications.size).toBe(0)
   })
 })

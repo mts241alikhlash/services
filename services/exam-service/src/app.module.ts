@@ -19,6 +19,9 @@ import { AcademicLookupModule } from './platform/academic-lookup/academic-lookup
 import { ExamFileModule } from './exam-file/exam-file.module.js'
 import { ExamPackageModule } from './exam-package/exam-package.module.js'
 import { ExamScheduleModule } from './exam-schedule/exam-schedule.module.js'
+import { ScorePublisherModule } from './platform/score-publisher/score-publisher.module.js'
+import { StudentDirectoryModule } from './platform/student-directory/student-directory.module.js'
+import { ExamGradingModule } from './exam-grading/exam-grading.module.js'
 import { ExamSessionModule } from './exam-session/exam-session.module.js'
 import { QuestionImportModule } from './question-import/question-import.module.js'
 import { QuestionModule } from './question/question.module.js'
@@ -42,6 +45,9 @@ import { PermissionGuard } from './platform/access-control/permission/guards/per
     ExamPackageModule,
     ExamScheduleModule,
     ExamSessionModule,
+    ExamGradingModule,
+    ScorePublisherModule,
+    StudentDirectoryModule,
     ExamFileModule,
     QuestionImportModule,
     LoggerModule.forRoot(pinoLoggerConfig),

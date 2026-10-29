@@ -4,6 +4,11 @@ export interface TeachingPair {
   subjectName?: string
 }
 
+export interface TeachingAssignmentRef {
+  subjectId: string
+  classroomId: string
+}
+
 export interface GradeRef {
   id: string
   level: number
@@ -27,4 +32,8 @@ export abstract class IAcademicLookupPort {
   abstract activeSemester(): Promise<ActiveSemester | null>
   abstract teachingPairsOf(employeeId: string): Promise<TeachingPair[]>
   abstract gradesByIds(ids: string[]): Promise<GradeRef[]>
+  abstract teachingAssignmentsOf(
+    employeeId: string,
+    semesterId: string,
+  ): Promise<TeachingAssignmentRef[]>
 }

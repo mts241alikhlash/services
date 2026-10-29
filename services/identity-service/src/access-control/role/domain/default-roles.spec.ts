@@ -421,4 +421,55 @@ describe('default roles', () => {
       }
     })
   })
+
+  describe('exam grading and exam scores', () => {
+    const holders = (code: string) =>
+      DEFAULT_ROLES.filter((role) => codesOf(role.code).has(code))
+        .map((role) => role.code)
+        .sort()
+
+    it('lets teachers grade and read the scores of their classes', () => {
+      expect(holders('exam-grading.read')).toContain('TEACHER')
+      expect(holders('exam-grading.grade')).toContain('TEACHER')
+      expect(holders('exam-scores.read')).toContain('TEACHER')
+    })
+
+    it('gives manage-all and read-all only to curriculum staff, the deputy and the academic admin', () => {
+      const staff = [
+        'ACADEMIC_ADMIN',
+        'CURRICULUM_STAFF',
+        'VICE_PRINCIPAL_CURRICULUM',
+      ]
+      expect(holders('exam-grading.manage-all')).toEqual(staff)
+      expect(holders('exam-scores.read-all')).toEqual(staff)
+    })
+
+    it('gives that staff the base codes too, because the guard wants every code of a route', () => {
+      for (const role of [
+        'ACADEMIC_ADMIN',
+        'CURRICULUM_STAFF',
+        'VICE_PRINCIPAL_CURRICULUM',
+      ]) {
+        for (const code of [
+          'exam-grading.read',
+          'exam-grading.grade',
+          'exam-scores.read',
+        ]) {
+          expect(codesOf(role).has(code)).toBe(true)
+        }
+      }
+    })
+
+    it('keeps students, applicants, employees and the operator away from both', () => {
+      for (const role of ['STUDENT', 'APPLICANT', 'EMPLOYEE', 'OPERATOR']) {
+        expect(
+          [...codesOf(role)].filter(
+            (code) =>
+              code.startsWith('exam-grading.') ||
+              code.startsWith('exam-scores.'),
+          ),
+        ).toEqual([])
+      }
+    })
+  })
 })
