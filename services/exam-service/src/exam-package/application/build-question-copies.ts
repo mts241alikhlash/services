@@ -9,10 +9,10 @@ export async function buildQuestionCopies(
   questions: IQuestionRepository,
   source: ExamPackageDetail,
   questionIds: string[],
-  target: { id: string; subjectId: string; gradeId: string },
+  target: { subjectId: string; gradeId: string },
   authorEmployeeId: string,
   createdById: string,
-): Promise<NewQuestionInput[]> {
+): Promise<Omit<NewQuestionInput, 'packageId'>[]> {
   const pinOf = new Map(
     source.items.map((item) => [item.questionId, item.questionVersion]),
   )
@@ -27,13 +27,12 @@ export async function buildQuestionCopies(
     (await questions.findPinned(pins)).map((row) => [row.questionId, row]),
   )
 
-  return pins.map<NewQuestionInput>((pin) => {
+  return pins.map((pin) => {
     const row = found.get(pin.questionId)
     if (row === undefined) {
       throw new NotFoundException('Soal tidak ditemukan di paket asal')
     }
     return {
-      packageId: target.id,
       subjectId: target.subjectId,
       gradeId: target.gradeId,
       authorEmployeeId,

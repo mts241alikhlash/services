@@ -398,4 +398,47 @@ suite('Prisma exam packages against a real database', () => {
     expect((await packages.findById(pkg.id))?.status).toBe('DRAFT')
     expect(await packages.listReviews(pkg.id)).toEqual([])
   })
+
+  it('creates a package with its questions in one go, or not at all', async () => {
+    const title = `Salinan ${id()}`
+    const { packageId: _unused, ...good } = question(id())
+
+    const made = await packages.createWithQuestions(
+      { title, subjectId, gradeId, createdById: userId },
+      [good, { ...good, bodyHtml: '<p>Dua</p>' }],
+    )
+    packageIds.push(made.id)
+    expect(made.items.map((item) => item.position)).toEqual([1, 2])
+
+    const failing = `Gagal ${id()}`
+    await expect(
+      packages.createWithQuestions(
+        { title: failing, subjectId, gradeId, createdById: userId },
+        [good, { ...good, authorEmployeeId: 'not-a-uuid' }],
+      ),
+    ).rejects.toThrow()
+    expect(await prisma.examPackage.count({ where: { title: failing } })).toBe(
+      0,
+    )
+  })
+
+  it('survives a question being added while the items are reordered', async () => {
+    const pkg = await newPackage()
+    const added = await packages.addQuestions(pkg.id, draft, [
+      question(pkg.id, '<p>1</p>'),
+      question(pkg.id, '<p>2</p>'),
+    ])
+    const ids = added!.items.map((item) => item.questionId)
+
+    const [, reordered] = await Promise.all([
+      packages.addQuestion(pkg.id, draft, question(pkg.id, '<p>3</p>')),
+      packages.reorderQuestions(pkg.id, draft, [ids[1], ids[0]]),
+    ])
+
+    const items = (await packages.findById(pkg.id))!.items
+    expect(items).toHaveLength(3)
+    expect(new Set(items.map((item) => item.position)).size).toBe(3)
+    expect(items.every((item) => item.position < 1_000_000)).toBe(true)
+    expect(reordered === null || reordered.items.length >= 2).toBe(true)
+  })
 })

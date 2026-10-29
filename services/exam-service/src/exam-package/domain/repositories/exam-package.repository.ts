@@ -67,6 +67,10 @@ export abstract class IExamPackageRepository {
     edit: PackageEdit,
     question: NewQuestionInput,
   ): Promise<ExamPackageDetail | null>
+  abstract createWithQuestions(
+    input: Omit<NewExamPackage, 'items'>,
+    questions: Omit<NewQuestionInput, 'packageId'>[],
+  ): Promise<ExamPackageDetail>
   abstract addQuestions(
     id: string,
     edit: PackageEdit,

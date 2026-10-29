@@ -124,6 +124,15 @@ describe('TakePackageQuestionsUseCase', () => {
     ).rejects.toThrow(BadRequestException)
   })
 
+  it('refuses taking questions from the package itself', async () => {
+    const { useCase, source } = await setup()
+    const from = await source()
+
+    await expect(
+      useCase.execute(TEACHER, from.id, from.id, from.ids),
+    ).rejects.toThrow(BadRequestException)
+  })
+
   it('refuses a question that is not in the source', async () => {
     const { useCase, pkg, source } = await setup()
     const from = await source()

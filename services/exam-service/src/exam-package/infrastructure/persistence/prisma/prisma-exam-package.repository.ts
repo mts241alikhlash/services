@@ -206,43 +206,71 @@ export class PrismaExamPackageRepository extends IExamPackageRepository {
   ): Promise<ExamPackageDetail | null> {
     return this.prisma.$transaction(async (tx) => {
       if (!(await this.claim(tx, id, edit))) return null
-      let position = await tx.examPackageItem.count({
-        where: { packageId: id },
-      })
-      for (const question of questions) {
-        const created = await tx.question.create({
-          data: {
-            packageId: id,
-            subjectId: question.subjectId,
-            gradeId: question.gradeId,
-            authorEmployeeId: question.authorEmployeeId,
-            type: question.type,
-            createdById: question.createdById,
-            copiedFromQuestionId: question.copiedFromQuestionId ?? null,
-            copiedFromVersion: question.copiedFromVersion ?? null,
-            versions: {
-              create: {
-                number: 1,
-                bodyHtml: question.bodyHtml,
-                content: question.content as unknown as Prisma.InputJsonValue,
-                points: question.points,
-                createdById: question.createdById,
-              },
-            },
-          },
-        })
-        position += 1
-        await tx.examPackageItem.create({
-          data: {
-            packageId: id,
-            questionId: created.id,
-            questionVersion: 1,
-            position,
-          },
-        })
-      }
+      await this.insertQuestions(tx, id, questions)
       return this.detail(tx, id)
     })
+  }
+
+  async createWithQuestions(
+    input: Omit<NewExamPackage, 'items'>,
+    questions: Omit<NewQuestionInput, 'packageId'>[],
+  ): Promise<ExamPackageDetail> {
+    return this.prisma.$transaction(async (tx) => {
+      const created = await tx.examPackage.create({
+        data: {
+          title: input.title,
+          subjectId: input.subjectId,
+          gradeId: input.gradeId,
+          createdById: input.createdById,
+        },
+      })
+      await this.insertQuestions(
+        tx,
+        created.id,
+        questions.map((question) => ({ ...question, packageId: created.id })),
+      )
+      return this.detail(tx, created.id)
+    })
+  }
+
+  private async insertQuestions(
+    tx: Prisma.TransactionClient,
+    id: string,
+    questions: NewQuestionInput[],
+  ): Promise<void> {
+    let position = await tx.examPackageItem.count({ where: { packageId: id } })
+    for (const question of questions) {
+      const created = await tx.question.create({
+        data: {
+          packageId: id,
+          subjectId: question.subjectId,
+          gradeId: question.gradeId,
+          authorEmployeeId: question.authorEmployeeId,
+          type: question.type,
+          createdById: question.createdById,
+          copiedFromQuestionId: question.copiedFromQuestionId ?? null,
+          copiedFromVersion: question.copiedFromVersion ?? null,
+          versions: {
+            create: {
+              number: 1,
+              bodyHtml: question.bodyHtml,
+              content: question.content as unknown as Prisma.InputJsonValue,
+              points: question.points,
+              createdById: question.createdById,
+            },
+          },
+        },
+      })
+      position += 1
+      await tx.examPackageItem.create({
+        data: {
+          packageId: id,
+          questionId: created.id,
+          questionVersion: 1,
+          position,
+        },
+      })
+    }
   }
 
   async changeQuestion(

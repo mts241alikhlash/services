@@ -64,6 +64,16 @@ describe('CopyExamPackageUseCase', () => {
     expect(copy.title).toHaveLength(200)
   })
 
+  it('leaves no empty draft behind when the copy cannot be built', async () => {
+    const { copier, pkg, packages, questions } = await setup('APPROVED')
+    const before = packages.packages.size
+    jest.spyOn(questions, 'findPinned').mockResolvedValue([])
+
+    await expect(copier().execute(TEACHER, pkg.id)).rejects.toThrow()
+
+    expect(packages.packages.size).toBe(before)
+  })
+
   it('refuses a teacher outside the subject and grade', async () => {
     const { copier, pkg } = await setup('APPROVED')
 

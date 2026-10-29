@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { IEmployeeIdentityReadPort } from '../../../../platform/employee-identity/employee-identity.port.js'
 import { resolveAuthor } from '../../../../question/application/resolve-author.js'
 import {
@@ -15,7 +11,6 @@ import { assertCanTakeFrom } from '../../../domain/policies/package-lifecycle.po
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
 import { MAX_TITLE_LENGTH } from '../../package-title.js'
 import { buildQuestionCopies } from '../../build-question-copies.js'
-import { PACKAGE_CHANGED_MESSAGE } from '../add-package-question/add-package-question.use-case.js'
 
 @Injectable()
 export class CopyExamPackageUseCase {
@@ -34,13 +29,6 @@ export class CopyExamPackageUseCase {
     this.scope.assertCovers(scope, source.subjectId, source.gradeId)
     assertCanTakeFrom(source.status)
 
-    const draft = await this.packages.create({
-      title: `Salinan ${source.title}`.slice(0, MAX_TITLE_LENGTH),
-      subjectId: source.subjectId,
-      gradeId: source.gradeId,
-      createdById: user.id,
-      items: [],
-    })
     const authorEmployeeId = await resolveAuthor(
       this.employees,
       user,
@@ -51,16 +39,18 @@ export class CopyExamPackageUseCase {
       this.questions,
       source,
       source.items.map((item) => item.questionId),
-      draft,
+      source,
       authorEmployeeId,
       user.id,
     )
-    const filled = await this.packages.addQuestions(
-      draft.id,
-      { expected: 'DRAFT', next: 'DRAFT' },
+    return this.packages.createWithQuestions(
+      {
+        title: `Salinan ${source.title}`.slice(0, MAX_TITLE_LENGTH),
+        subjectId: source.subjectId,
+        gradeId: source.gradeId,
+        createdById: user.id,
+      },
       copies,
     )
-    if (filled === null) throw new ConflictException(PACKAGE_CHANGED_MESSAGE)
-    return filled
   }
 }

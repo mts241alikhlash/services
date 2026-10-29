@@ -37,6 +37,11 @@ export class TakePackageQuestionsUseCase {
     sourceId: string,
     questionIds: string[],
   ): Promise<ExamPackageDetail> {
+    if (targetId === sourceId) {
+      throw new BadRequestException(
+        'Paket asal harus berbeda dari paket tujuan',
+      )
+    }
     if (questionIds.length === 0) {
       throw new BadRequestException('Pilih minimal satu soal')
     }
@@ -84,7 +89,7 @@ export class TakePackageQuestionsUseCase {
     const updated = await this.packages.addQuestions(
       targetId,
       { expected: target.status, next },
-      copies,
+      copies.map((copy) => ({ ...copy, packageId: targetId })),
     )
     if (updated === null) throw new ConflictException(PACKAGE_CHANGED_MESSAGE)
     return updated

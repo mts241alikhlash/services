@@ -52,11 +52,7 @@ export class UpdatePackageQuestionUseCase {
     const next = assertEditable(pkg.status)
 
     const question = await this.questions.findById(questionId)
-    if (
-      question === null ||
-      question.packageId !== packageId ||
-      question.deletedAt !== null
-    ) {
+    if (question === null || question.packageId !== packageId) {
       throw new NotFoundException('Soal tidak ditemukan di paket ini')
     }
 

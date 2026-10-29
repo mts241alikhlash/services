@@ -164,6 +164,19 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     return this.addQuestions(id, edit, [question])
   }
 
+  async createWithQuestions(
+    input: Omit<NewExamPackage, 'items'>,
+    questions: Omit<NewQuestionInput, 'packageId'>[],
+  ) {
+    const draft = await this.create({ ...input, items: [] })
+    const filled = await this.addQuestions(
+      draft.id,
+      { expected: 'DRAFT', next: 'DRAFT' },
+      questions.map((question) => ({ ...question, packageId: draft.id })),
+    )
+    return filled as ExamPackageDetail
+  }
+
   async addQuestions(
     id: string,
     edit: PackageEdit,
