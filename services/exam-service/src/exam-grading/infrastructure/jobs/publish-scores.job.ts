@@ -4,10 +4,18 @@ import { PublishScoresUseCase } from '../../application/use-cases/publish-scores
 
 @Injectable()
 export class PublishScoresJob {
+  private running = false
+
   constructor(private readonly useCase: PublishScoresUseCase) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async run(): Promise<void> {
-    await this.useCase.execute()
+    if (this.running) return
+    this.running = true
+    try {
+      await this.useCase.execute()
+    } finally {
+      this.running = false
+    }
   }
 }
