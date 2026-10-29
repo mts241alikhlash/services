@@ -56,6 +56,7 @@ export class FakeQuestionRepository extends IQuestionRepository {
           number: pin.number,
           type: question.type,
           bodyHtml: version.bodyHtml,
+          content: version.content,
           points: version.points,
         })
       }
@@ -326,6 +327,7 @@ export function buildTeacherScope(fixture: ScopeFixture): {
     teachingPairsOf: () => Promise.resolve(fixture.pairs ?? []),
     classroomsByIds: () => Promise.resolve([]),
     activeSemester: () => Promise.resolve(null),
+    teachingAssignmentsOf: () => Promise.resolve([]),
     gradesByIds: (ids: string[]) =>
       Promise.resolve(
         (fixture.grades ?? []).filter((grade) => ids.includes(grade.id)),

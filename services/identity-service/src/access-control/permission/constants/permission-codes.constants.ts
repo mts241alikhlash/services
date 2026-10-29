@@ -881,6 +881,56 @@ export const SYSTEM_PERMISSIONS: SystemPermission[] = [
   },
 
   {
+    module: 'exam-grading',
+    action: 'read',
+    code: 'exam-grading.read',
+    description: 'Read exam answers waiting for grading in the classes taught',
+  },
+  {
+    module: 'exam-grading',
+    action: 'grade',
+    code: 'exam-grading.grade',
+    description: 'Grade short answer and essay answers of the classes taught',
+  },
+  {
+    module: 'exam-grading',
+    action: 'manage-all',
+    code: 'exam-grading.manage-all',
+    description: 'Grade or read the exam answers of every class',
+  },
+  {
+    module: 'exam-scores',
+    action: 'read',
+    code: 'exam-scores.read',
+    description: 'Read exam scores of the classes taught',
+  },
+  {
+    module: 'exam-scores',
+    action: 'read-all',
+    code: 'exam-scores.read-all',
+    description: 'Read the exam scores of every class',
+  },
+
+  {
+    module: 'exam-sessions',
+    action: 'read',
+    code: 'exam-sessions.read',
+    description: 'Read exam sessions of a schedule',
+  },
+  {
+    module: 'exam-sessions',
+    action: 'release',
+    code: 'exam-sessions.release',
+    description: 'Release the device of an exam session',
+  },
+  {
+    module: 'exam-sessions',
+    action: 'take',
+    code: 'exam-sessions.take',
+    description: 'Take an exam as a student',
+  },
+
+  {
     module: 'files',
     action: 'create',
     code: 'files.create',

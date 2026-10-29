@@ -18,7 +18,10 @@ import {
   type ReviewInput,
   type VersionFields,
 } from '../../../domain/repositories/question.repository.js'
-import type { QuestionStatus } from '../../../domain/value-objects/question-content.js'
+import type {
+  QuestionContent,
+  QuestionStatus,
+} from '../../../domain/value-objects/question-content.js'
 import {
   QUESTION_INCLUDE,
   toDetail,
@@ -64,6 +67,7 @@ export class PrismaQuestionRepository extends IQuestionRepository {
       number: row.number,
       type: row.question.type,
       bodyHtml: row.bodyHtml,
+      content: row.content as unknown as QuestionContent,
       points: row.points,
     }))
   }

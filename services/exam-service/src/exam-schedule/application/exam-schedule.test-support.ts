@@ -29,9 +29,23 @@ export class FakeAcademicLookup extends IAcademicLookupPort {
       classrooms?: ClassroomRef[]
       semesterId?: string | null
       failWith?: Error
+      assignments?: { subjectId: string; classroomId: string }[]
+      assignmentsBySemester?: Record<
+        string,
+        { subjectId: string; classroomId: string }[]
+      >
     } = {},
   ) {
     super()
+  }
+
+  teachingAssignmentsOf(_employeeId: string, semesterId: string) {
+    if (this.options.failWith) return Promise.reject(this.options.failWith)
+    return Promise.resolve(
+      this.options.assignmentsBySemester?.[semesterId] ??
+        this.options.assignments ??
+        [],
+    )
   }
 
   classroomsByIds(ids: string[]) {

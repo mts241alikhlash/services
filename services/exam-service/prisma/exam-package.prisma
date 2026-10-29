@@ -65,7 +65,8 @@ model ExamSchedule {
   createdAt       DateTime           @default(now()) @map("created_at")
   updatedAt       DateTime           @updatedAt @map("updated_at")
 
-  package ExamPackage @relation(fields: [packageId], references: [id])
+  package  ExamPackage   @relation(fields: [packageId], references: [id])
+  sessions ExamSession[]
 
   @@index([classroomId, startsAt])
   @@index([packageId])

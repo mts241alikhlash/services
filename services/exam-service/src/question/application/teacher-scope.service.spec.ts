@@ -22,6 +22,7 @@ function build(options: {
       gradesByIds: jest.fn(),
       classroomsByIds: jest.fn(),
       activeSemester: jest.fn(),
+      teachingAssignmentsOf: jest.fn(),
     },
   )
   return { scope, findEmployeeIdByUserId, teachingPairsOf }

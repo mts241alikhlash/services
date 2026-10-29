@@ -99,7 +99,7 @@ model ReportCard {
   enrollmentId String    @unique @map("enrollment_id") @db.Uuid
   totalAverage Float?    @map("total_average")
   rank         Int?
-  employeeNote  String?   @map("employee_note") @db.Text
+  employeeNote String?   @map("employee_note") @db.Text
   isPublished  Boolean   @default(false) @map("is_published")
   deletedAt    DateTime? @map("deleted_at")
 
@@ -141,4 +141,31 @@ model ReportCardSubject {
   @@index([reportCardId])
   @@index([subjectId])
   @@map("report_card_subjects")
+}
+
+/// The final score of one student's exam, pushed by exam-service once every
+/// answer is graded. It is deliberately not linked to `StudentScore` or the
+/// report card: the teacher decides what goes into the report card.
+model ExamScore {
+  id            String   @id @default(uuid()) @db.Uuid
+  examSessionId String   @unique @map("exam_session_id") @db.Uuid
+  enrollmentId  String   @map("enrollment_id") @db.Uuid
+  studentId     String   @map("student_id") @db.Uuid
+  studentName   String?  @map("student_name") @db.VarChar(200)
+  studentNis    String?  @map("student_nis") @db.VarChar(50)
+  subjectId     String   @map("subject_id") @db.Uuid
+  gradeId       String   @map("grade_id") @db.Uuid
+  classroomId   String   @map("classroom_id") @db.Uuid
+  semesterId    String   @map("semester_id") @db.Uuid
+  examTitle     String   @map("exam_title") @db.VarChar(200)
+  rawScore      Float    @map("raw_score")
+  maxScore      Float    @map("max_score")
+  score         Float
+  gradedAt      DateTime @map("graded_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([classroomId, subjectId, semesterId])
+  @@index([studentId])
+  @@map("exam_scores")
 }

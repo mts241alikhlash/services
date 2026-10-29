@@ -216,3 +216,49 @@ describe('HttpAcademicLookupAdapter.activeSemester', () => {
     await expect(adapter.activeSemester()).rejects.toThrow('malformed')
   })
 })
+
+describe('HttpAcademicLookupAdapter.teachingAssignmentsOf', () => {
+  it('reads what an employee teaches in the given semester', async () => {
+    const getData = jest.fn((_key: string, _path: string) =>
+      Promise.resolve([
+        assignment('a1', 'room-7a', 'math', 'grade-7'),
+        assignment('a2', 'room-7b', 'math', 'grade-7'),
+      ]),
+    )
+    const malformed = jest.fn((): never => {
+      throw new ServiceUnavailableException('malformed')
+    })
+    const adapter = new HttpAcademicLookupAdapter({
+      getData,
+      malformed,
+    } as unknown as ServiceClient)
+
+    await expect(
+      adapter.teachingAssignmentsOf('emp 1', 'sem-1'),
+    ).resolves.toEqual([
+      { subjectId: 'math', classroomId: 'room-7a' },
+      { subjectId: 'math', classroomId: 'room-7b' },
+    ])
+    expect(getData).toHaveBeenCalledWith(
+      'ACADEMIC_SERVICE_URL',
+      '/teaching-assignments/by-employee?employeeId=emp%201&semesterId=sem-1',
+    )
+  })
+
+  it('fails closed on a malformed answer', async () => {
+    const getData = jest.fn((_key: string, _path: string) =>
+      Promise.resolve({ nope: 1 }),
+    )
+    const malformed = jest.fn((): never => {
+      throw new ServiceUnavailableException('malformed')
+    })
+    const adapter = new HttpAcademicLookupAdapter({
+      getData,
+      malformed,
+    } as unknown as ServiceClient)
+
+    await expect(
+      adapter.teachingAssignmentsOf('emp-1', 'sem-1'),
+    ).rejects.toThrow(ServiceUnavailableException)
+  })
+})

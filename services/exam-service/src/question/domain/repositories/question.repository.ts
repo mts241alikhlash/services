@@ -69,6 +69,7 @@ export interface PinnedQuestion {
   number: number
   type: QuestionType
   bodyHtml: string
+  content: QuestionContent
   points: number
 }
 
