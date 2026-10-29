@@ -2433,6 +2433,26 @@ export interface paths {
         patch: operations["SubjectController_update"];
         trace?: never;
     };
+    "/subjects/by-ids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Subjects for a batch of ids
+         * @description Labels rows that carry a subjectId. Ids that match nothing are absent from the response rather than returned as null.
+         */
+        post: operations["SubjectInternalController_byIds"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/teaching-assignments": {
         parameters: {
             query?: never;
@@ -5339,6 +5359,9 @@ export interface components {
         StudentResidenceSummaryResponseDto: {
             data: components["schemas"]["StudentResidenceSummaryDto"] | null;
         };
+        SubjectIdsDto: {
+            ids: string[];
+        };
         SubjectItemResponseCountDto: {
             teachingAssignments?: number;
         };
@@ -5419,6 +5442,14 @@ export interface components {
             id: string;
             isActive?: boolean;
             name: string;
+        };
+        SubjectSummaryDto: {
+            code: Record<string, never> | null;
+            id: string;
+            name: string;
+        };
+        SubjectSummaryListResponseDto: {
+            data: components["schemas"]["SubjectSummaryDto"][];
         };
         SupervisedClassroomDto: {
             code: string;
@@ -14318,6 +14349,42 @@ export interface operations {
             };
             /** @description Duplicate subject name */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SubjectInternalController_byIds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubjectIdsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["SubjectSummaryDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+            /** @description Missing or invalid provisioning token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

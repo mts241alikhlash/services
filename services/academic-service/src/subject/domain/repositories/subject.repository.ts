@@ -30,6 +30,8 @@ export abstract class ISubjectRepository {
 
   abstract findById(id: string): Promise<SubjectWithEmployees | null>
 
+  abstract findManyByIds(ids: string[]): Promise<SubjectEntity[]>
+
   abstract findByCode(
     code: string,
     excludeId?: string,
