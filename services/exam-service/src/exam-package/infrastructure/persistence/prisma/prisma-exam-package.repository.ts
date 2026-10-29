@@ -149,42 +149,56 @@ export class PrismaExamPackageRepository extends IExamPackageRepository {
     return toDetail(row)
   }
 
-  async addQuestion(
+  addQuestion(
     id: string,
     edit: PackageEdit,
     question: NewQuestionInput,
   ): Promise<ExamPackageDetail | null> {
+    return this.addQuestions(id, edit, [question])
+  }
+
+  async addQuestions(
+    id: string,
+    edit: PackageEdit,
+    questions: NewQuestionInput[],
+  ): Promise<ExamPackageDetail | null> {
     return this.prisma.$transaction(async (tx) => {
       if (!(await this.claim(tx, id, edit))) return null
-      const position =
-        (await tx.examPackageItem.count({ where: { packageId: id } })) + 1
-      const created = await tx.question.create({
-        data: {
-          packageId: id,
-          subjectId: question.subjectId,
-          gradeId: question.gradeId,
-          authorEmployeeId: question.authorEmployeeId,
-          type: question.type,
-          createdById: question.createdById,
-          versions: {
-            create: {
-              number: 1,
-              bodyHtml: question.bodyHtml,
-              content: question.content as unknown as Prisma.InputJsonValue,
-              points: question.points,
-              createdById: question.createdById,
+      let position = await tx.examPackageItem.count({
+        where: { packageId: id },
+      })
+      for (const question of questions) {
+        const created = await tx.question.create({
+          data: {
+            packageId: id,
+            subjectId: question.subjectId,
+            gradeId: question.gradeId,
+            authorEmployeeId: question.authorEmployeeId,
+            type: question.type,
+            createdById: question.createdById,
+            copiedFromQuestionId: question.copiedFromQuestionId ?? null,
+            copiedFromVersion: question.copiedFromVersion ?? null,
+            versions: {
+              create: {
+                number: 1,
+                bodyHtml: question.bodyHtml,
+                content: question.content as unknown as Prisma.InputJsonValue,
+                points: question.points,
+                createdById: question.createdById,
+              },
             },
           },
-        },
-      })
-      await tx.examPackageItem.create({
-        data: {
-          packageId: id,
-          questionId: created.id,
-          questionVersion: 1,
-          position,
-        },
-      })
+        })
+        position += 1
+        await tx.examPackageItem.create({
+          data: {
+            packageId: id,
+            questionId: created.id,
+            questionVersion: 1,
+            position,
+          },
+        })
+      }
       return this.detail(tx, id)
     })
   }

@@ -38,6 +38,8 @@ export interface VersionFields {
 
 export interface NewQuestionInput extends VersionFields {
   packageId: string
+  copiedFromQuestionId?: string
+  copiedFromVersion?: number
   subjectId: string
   gradeId: string
   authorEmployeeId: string

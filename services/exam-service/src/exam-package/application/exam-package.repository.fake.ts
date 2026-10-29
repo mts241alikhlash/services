@@ -130,18 +130,27 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     return this.questions
   }
 
-  async addQuestion(id: string, edit: PackageEdit, question: NewQuestionInput) {
+  addQuestion(id: string, edit: PackageEdit, question: NewQuestionInput) {
+    return this.addQuestions(id, edit, [question])
+  }
+
+  async addQuestions(
+    id: string,
+    edit: PackageEdit,
+    questions: NewQuestionInput[],
+  ) {
     const row = this.claim(id, edit)
     if (!row) return null
-    const created = await this.bank().create(question)
-    return this.store(row, edit, [
-      ...row.items,
-      {
+    const items = [...row.items]
+    for (const question of questions) {
+      const created = await this.bank().create(question)
+      items.push({
         questionId: created.id,
         questionVersion: 1,
-        position: row.items.length + 1,
-      },
-    ])
+        position: items.length + 1,
+      })
+    }
+    return this.store(row, edit, items)
   }
 
   async changeQuestion(

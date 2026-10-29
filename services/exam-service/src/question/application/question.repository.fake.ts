@@ -145,8 +145,8 @@ export class FakeQuestionRepository extends IQuestionRepository {
     const question: QuestionDetail = {
       id,
       packageId: input.packageId,
-      copiedFromQuestionId: null,
-      copiedFromVersion: null,
+      copiedFromQuestionId: input.copiedFromQuestionId ?? null,
+      copiedFromVersion: input.copiedFromVersion ?? null,
       subjectId: input.subjectId,
       gradeId: input.gradeId,
       authorEmployeeId: input.authorEmployeeId,
