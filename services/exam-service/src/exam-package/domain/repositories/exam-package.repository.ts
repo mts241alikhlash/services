@@ -8,6 +8,9 @@ import type {
   ExamPackageStatus,
   ExamPackageSummary,
   PackageItem,
+  PackageQuestionNote,
+  PackageReview,
+  PackageReviewAction,
 } from '../entities/exam-package.entity.js'
 
 export interface ExamPackageListQuery {
@@ -32,6 +35,13 @@ export interface DraftFields {
   items: PackageItem[]
 }
 
+export interface NewPackageReview {
+  action: PackageReviewAction
+  byUserId: string
+  note: string | null
+  questionNotes: PackageQuestionNote[]
+}
+
 export interface PackageEdit {
   expected: ExamPackageStatus
   next: ExamPackageStatus
@@ -48,11 +58,13 @@ export abstract class IExamPackageRepository {
     fields: DraftFields,
   ): Promise<ExamPackageDetail | null>
   abstract softDeleteDraft(id: string): Promise<boolean>
-  abstract setStatusIf(
+  abstract transition(
     id: string,
     from: ExamPackageStatus[],
     to: ExamPackageStatus,
+    review: NewPackageReview,
   ): Promise<boolean>
+  abstract listReviews(id: string): Promise<PackageReview[]>
   abstract addQuestion(
     id: string,
     edit: PackageEdit,

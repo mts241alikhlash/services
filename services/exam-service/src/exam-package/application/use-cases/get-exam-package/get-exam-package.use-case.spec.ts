@@ -8,6 +8,9 @@ import {
   seedApprovedQuestion,
 } from '../../exam-package.test-support.js'
 import { CreateExamPackageUseCase } from '../create-exam-package/create-exam-package.use-case.js'
+import { REVIEWER, reviewWorld } from '../../package-review.test-support.js'
+import { SubmitExamPackageUseCase } from '../submit-exam-package/submit-exam-package.use-case.js'
+import { ReturnExamPackageUseCase } from '../return-exam-package/return-exam-package.use-case.js'
 import { GetExamPackageUseCase } from './get-exam-package.use-case.js'
 
 describe('GetExamPackageUseCase', () => {
@@ -46,6 +49,7 @@ describe('GetExamPackageUseCase', () => {
         questionVersion: 1,
         position: 1,
         type: 'TRUE_FALSE',
+        marker: 'NEW',
         summary: 'Versi satu',
         points: 2,
       },
@@ -59,5 +63,62 @@ describe('GetExamPackageUseCase', () => {
         new FakeQuestionRepository(),
       ).execute('00000000-0000-4000-8000-000000000000'),
     ).rejects.toThrow(NotFoundException)
+  })
+  it('marks copies as copied or changed and lists the review history', async () => {
+    const world = await reviewWorld(3)
+    const [first, second] = world.questionIds
+    for (const id of [first, second]) {
+      const question = world.questions.questions.get(id)!
+      world.questions.questions.set(id, {
+        ...question,
+        copiedFromQuestionId: '00000000-0000-4000-8000-000000000001',
+        copiedFromVersion: 1,
+      })
+    }
+    await world.questions.addVersion(
+      second,
+      {
+        bodyHtml: '<p>Diubah</p>',
+        content: world.questions.questions.get(second)!.current.content,
+        points: 1,
+      },
+      'user-1',
+    )
+    await world.packages.changeQuestion(
+      world.pkg.id,
+      { expected: 'DRAFT', next: 'DRAFT' },
+      second,
+      {
+        bodyHtml: '<p>Diubah</p>',
+        content: world.questions.questions.get(second)!.current.content,
+        points: 1,
+      },
+      'user-1',
+    )
+    await new SubmitExamPackageUseCase(world.packages, world.scope).execute(
+      { id: 'user-1', roles: [], permissions: [] },
+      world.pkg.id,
+    )
+    await new ReturnExamPackageUseCase(world.packages).execute(
+      REVIEWER,
+      world.pkg.id,
+      'Perbaiki',
+      [],
+    )
+
+    const view = await new GetExamPackageUseCase(
+      world.packages,
+      world.questions,
+    ).execute(world.pkg.id)
+
+    expect(view.items.map((item) => item.marker)).toEqual([
+      'COPIED',
+      'CHANGED',
+      'NEW',
+    ])
+    expect(view.reviews.map((review) => review.action)).toEqual([
+      'SUBMIT',
+      'RETURN',
+    ])
   })
 })

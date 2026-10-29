@@ -8,10 +8,12 @@ import type {
   ExamPackageDetail,
   ExamPackageStatus,
   ExamPackageSummary,
+  PackageReview,
 } from '../domain/entities/exam-package.entity.js'
 import {
   IExamPackageRepository,
   type DraftFields,
+  type NewPackageReview,
   type PackageEdit,
   type ExamPackageListQuery,
   type NewExamPackage,
@@ -19,6 +21,7 @@ import {
 
 export class FakeExamPackageRepository extends IExamPackageRepository {
   readonly packages = new Map<string, ExamPackageDetail>()
+  readonly reviews: PackageReview[] = []
 
   constructor(private readonly questions?: FakeQuestionRepository) {
     super()
@@ -97,13 +100,30 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     }
   }
 
-  setStatusIf(id: string, from: ExamPackageStatus[], to: ExamPackageStatus) {
+  transition(
+    id: string,
+    from: ExamPackageStatus[],
+    to: ExamPackageStatus,
+    review: NewPackageReview,
+  ) {
     const row = this.packages.get(id)
     if (!row || row.deletedAt !== null || !from.includes(row.status)) {
       return Promise.resolve(false)
     }
     this.packages.set(id, { ...row, status: to, updatedAt: new Date() })
+    this.reviews.push({
+      id: randomUUID(),
+      packageId: id,
+      createdAt: new Date(),
+      ...review,
+    })
     return Promise.resolve(true)
+  }
+
+  listReviews(id: string) {
+    return Promise.resolve(
+      this.reviews.filter((review) => review.packageId === id),
+    )
   }
 
   private claim(id: string, edit: PackageEdit): ExamPackageDetail | null {

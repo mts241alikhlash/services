@@ -69,6 +69,8 @@ export interface QuestionPin {
 
 export interface PinnedQuestion {
   questionId: string
+  copiedFromQuestionId: string | null
+  currentVersion: number
   number: number
   type: QuestionType
   bodyHtml: string

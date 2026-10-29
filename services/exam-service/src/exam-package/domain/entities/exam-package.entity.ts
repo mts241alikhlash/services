@@ -1,4 +1,5 @@
 import type { QuestionType } from '../../../question/domain/value-objects/question-content.js'
+import type { QuestionMarker } from '../policies/question-marker.policy.js'
 
 export const EXAM_PACKAGE_STATUSES = [
   'DRAFT',
@@ -39,12 +40,14 @@ export interface ExamPackageSummary extends ExamPackage {
 
 export interface PackageItemView extends PackageItem {
   type: QuestionType
+  marker: QuestionMarker
   summary: string
   points: number
 }
 
 export interface ExamPackageView extends ExamPackage {
   items: PackageItemView[]
+  reviews: PackageReview[]
 }
 
 export type PackageReviewAction = 'SUBMIT' | 'APPROVE' | 'RETURN'

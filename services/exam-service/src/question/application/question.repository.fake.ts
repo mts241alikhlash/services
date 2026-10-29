@@ -53,6 +53,8 @@ export class FakeQuestionRepository extends IQuestionRepository {
       if (question && version) {
         found.push({
           questionId: pin.questionId,
+          copiedFromQuestionId: question.copiedFromQuestionId,
+          currentVersion: question.currentVersion,
           number: pin.number,
           type: question.type,
           bodyHtml: version.bodyHtml,

@@ -60,10 +60,20 @@ export class PrismaQuestionRepository extends IQuestionRepository {
           number: pin.number,
         })),
       },
-      include: { question: { select: { type: true } } },
+      include: {
+        question: {
+          select: {
+            type: true,
+            copiedFromQuestionId: true,
+            currentVersion: true,
+          },
+        },
+      },
     })
     return rows.map((row) => ({
       questionId: row.questionId,
+      copiedFromQuestionId: row.question.copiedFromQuestionId,
+      currentVersion: row.question.currentVersion,
       number: row.number,
       type: row.question.type,
       bodyHtml: row.bodyHtml,

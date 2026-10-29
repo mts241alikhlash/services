@@ -10,12 +10,15 @@ import type {
   ExamPackageDetail,
   ExamPackageStatus,
   ExamPackageSummary,
+  PackageQuestionNote,
+  PackageReview,
 } from '../../../domain/entities/exam-package.entity.js'
 import {
   IExamPackageRepository,
   type DraftFields,
   type ExamPackageListQuery,
   type NewExamPackage,
+  type NewPackageReview,
   type PackageEdit,
 } from '../../../domain/repositories/exam-package.repository.js'
 import {
@@ -114,16 +117,46 @@ export class PrismaExamPackageRepository extends IExamPackageRepository {
     return result.count > 0
   }
 
-  async setStatusIf(
+  async transition(
     id: string,
     from: ExamPackageStatus[],
     to: ExamPackageStatus,
+    review: NewPackageReview,
   ): Promise<boolean> {
-    const result = await this.prisma.examPackage.updateMany({
-      where: { id, status: { in: from }, deletedAt: null },
-      data: { status: to },
+    return this.prisma.$transaction(async (tx) => {
+      const result = await tx.examPackage.updateMany({
+        where: { id, status: { in: from }, deletedAt: null },
+        data: { status: to },
+      })
+      if (result.count === 0) return false
+      await tx.examPackageReview.create({
+        data: {
+          packageId: id,
+          action: review.action,
+          byUserId: review.byUserId,
+          note: review.note,
+          questionNotes:
+            review.questionNotes as unknown as Prisma.InputJsonValue,
+        },
+      })
+      return true
     })
-    return result.count > 0
+  }
+
+  async listReviews(id: string): Promise<PackageReview[]> {
+    const rows = await this.prisma.examPackageReview.findMany({
+      where: { packageId: id },
+      orderBy: { createdAt: 'asc' },
+    })
+    return rows.map((row) => ({
+      id: row.id,
+      packageId: row.packageId,
+      action: row.action,
+      byUserId: row.byUserId,
+      note: row.note,
+      questionNotes: row.questionNotes as unknown as PackageQuestionNote[],
+      createdAt: row.createdAt,
+    }))
   }
 
   private async claim(
