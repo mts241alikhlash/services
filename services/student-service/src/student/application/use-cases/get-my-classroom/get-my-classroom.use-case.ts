@@ -7,6 +7,7 @@ import { IStudentIdentityReadPort } from '../../../domain/repositories/student-i
 import {
   type ClassroomContext,
   IAcademicLookupPort,
+  SemesterContext,
 } from '../../../../platform/academic-lookup/academic-lookup.port.js'
 import {
   CLASSMATE_LIMIT,
@@ -15,6 +16,7 @@ import {
 
 export interface MyClassroom {
   classroom: ClassroomContext['classroom']
+  semester: SemesterContext | null
   structure: ClassroomContext['structure']
   supervisor: ClassroomContext['supervisor']
   classmates: EnrollmentWithDetails[]
@@ -37,12 +39,15 @@ export class GetMyClassroomUseCase {
       await this.enrollmentRepository.findActiveEnrollment(studentId)
     if (!enrollment?.classroomId) return null
 
-    const [context, classmates] = await Promise.all([
+    const [context, semester, classmates] = await Promise.all([
       this.academicLookup.findClassroomContext(
         enrollment.classroomId,
         enrollment.semesterId,
         SUBJECT_LIMIT,
       ),
+      enrollment.semesterId
+        ? this.academicLookup.findSemesterContext(enrollment.semesterId)
+        : null,
       this.enrollmentRepository.findAll({
         classroomId: enrollment.classroomId,
         semesterId: enrollment.semesterId,
@@ -54,6 +59,7 @@ export class GetMyClassroomUseCase {
 
     return {
       classroom: context.classroom,
+      semester,
       structure: context.structure,
       supervisor: context.supervisor,
       classmates: classmates.data,
