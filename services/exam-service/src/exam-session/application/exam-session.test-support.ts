@@ -123,6 +123,7 @@ export function sessionFor(
     studentId: STUDENT_ID,
     userId: STUDENT_USER.id,
     deviceId: 'device-1',
+    enrollmentId: 'enr-1',
     shuffleSeed: 'seed-1',
     startedAt: NOW,
     deadline: new Date('2026-11-02T03:30:00.000Z'),

@@ -112,6 +112,7 @@ export class StartExamSessionUseCase {
       studentId,
       userId: user.id,
       deviceId: input.deviceId,
+      enrollmentId: enrollment.id,
       shuffleSeed: randomBytes(16).toString('hex'),
       startedAt: now,
       deadline,

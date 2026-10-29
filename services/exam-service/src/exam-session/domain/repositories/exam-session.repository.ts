@@ -49,6 +49,7 @@ export interface NewExamSession {
   studentId: string
   userId: string
   deviceId: string
+  enrollmentId: string
   shuffleSeed: string
   startedAt: Date
   deadline: Date

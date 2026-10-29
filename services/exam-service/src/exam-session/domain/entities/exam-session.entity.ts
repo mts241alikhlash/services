@@ -15,6 +15,7 @@ export interface ExamSession {
   studentId: string
   userId: string
   deviceId: string | null
+  enrollmentId: string | null
   shuffleSeed: string
   startedAt: Date
   deadline: Date

@@ -20,6 +20,7 @@ model ExamSession {
   studentId    String            @map("student_id") @db.Uuid
   userId       String            @map("user_id") @db.Uuid
   deviceId     String?           @map("device_id") @db.VarChar(100)
+  enrollmentId String?           @map("enrollment_id") @db.Uuid
   shuffleSeed  String            @map("shuffle_seed") @db.VarChar(32)
   startedAt    DateTime          @map("started_at")
   deadline     DateTime

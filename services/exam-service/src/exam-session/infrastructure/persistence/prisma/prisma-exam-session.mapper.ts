@@ -15,6 +15,7 @@ export function toSession(row: SessionRow): ExamSession {
     studentId: row.studentId,
     userId: row.userId,
     deviceId: row.deviceId,
+    enrollmentId: row.enrollmentId,
     shuffleSeed: row.shuffleSeed,
     startedAt: row.startedAt,
     deadline: row.deadline,

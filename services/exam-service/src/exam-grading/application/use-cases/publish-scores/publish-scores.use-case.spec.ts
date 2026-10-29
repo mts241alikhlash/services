@@ -179,9 +179,13 @@ describe('PublishScoresUseCase', () => {
     })
   })
 
-  it('records a missing enrollment as a failed attempt with the reason', async () => {
+  it('records a missing enrollment of an older session as a failed attempt with the reason', async () => {
     const world = build()
     await graded(world)
+    world.sessions.sessions.set('ses-1', {
+      ...world.sessions.sessions.get('ses-1')!,
+      enrollmentId: null,
+    })
     const { useCase, publisher, publications } = make(
       world,
       undefined,
@@ -286,5 +290,24 @@ describe('PublishScoresUseCase', () => {
     await useCase.execute(NOW)
 
     expect(publications.states.get('ses-1')?.attempts ?? 0).toBe(0)
+  })
+
+  it('publishes a student who left the class after the exam from the enrollment stored at the start', async () => {
+    const world = build()
+    await graded(world)
+    world.sessions.sessions.set('ses-1', {
+      ...world.sessions.sessions.get('ses-1')!,
+      enrollmentId: 'enr-at-start',
+    })
+    const { useCase, publisher } = make(
+      world,
+      undefined,
+      new FakeEnrollment({ enrollment: null }),
+    )
+
+    await useCase.execute(NOW)
+
+    expect(publisher.sent[0].enrollmentId).toBe('enr-at-start')
+    expect(world.sessions.publications.get('ses-1')).toBe('SENT')
   })
 })

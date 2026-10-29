@@ -110,6 +110,22 @@ export class PublishScoresUseCase {
     }
   }
 
+  private async activeEnrollmentId(
+    session: ExamSession,
+    semesterId: string,
+  ): Promise<string> {
+    const enrollment = await this.enrollments.findActiveByStudent(
+      session.studentId,
+      semesterId,
+    )
+    if (enrollment === null) {
+      throw new Unpublishable(
+        'Pendaftaran siswa di semester ini tidak ditemukan',
+      )
+    }
+    return enrollment.id
+  }
+
   private async payloadOf(
     session: ExamSession,
     now: Date,
@@ -118,15 +134,9 @@ export class PublishScoresUseCase {
     if (schedule === null)
       throw new Unpublishable('Jadwal ujian tidak ditemukan')
 
-    const enrollment = await this.enrollments.findActiveByStudent(
-      session.studentId,
-      schedule.semesterId,
-    )
-    if (enrollment === null) {
-      throw new Unpublishable(
-        'Pendaftaran siswa di semester ini tidak ditemukan',
-      )
-    }
+    const enrollmentId =
+      session.enrollmentId ??
+      (await this.activeEnrollmentId(session, schedule.semesterId))
     const [classroom] = await this.academic.classroomsByIds([
       schedule.classroomId,
     ])
@@ -138,7 +148,7 @@ export class PublishScoresUseCase {
     const maxScore = session.maxScore ?? 0
     return {
       examSessionId: session.id,
-      enrollmentId: enrollment.id,
+      enrollmentId,
       studentId: session.studentId,
       studentName: student?.name ?? null,
       studentNis: student?.nis ?? null,

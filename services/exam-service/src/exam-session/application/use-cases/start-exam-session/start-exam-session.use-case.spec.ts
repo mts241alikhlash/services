@@ -85,6 +85,7 @@ describe('StartExamSessionUseCase', () => {
       studentId: STUDENT_ID,
       userId: STUDENT_USER.id,
       deviceId: 'device-1',
+      enrollmentId: 'enr-1',
       status: 'IN_PROGRESS',
       finalizeAt: new Date('2026-11-02T03:40:00.000Z'),
     })
