@@ -27,6 +27,7 @@ export function toSession(row: SessionRow): ExamSession {
     releasedAt: row.releasedAt,
     releasedById: row.releasedById,
     gradedAt: row.gradedAt,
+    violationCount: row.violationCount,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }

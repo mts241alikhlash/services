@@ -22,6 +22,11 @@ export interface ClassroomRef {
   name: string | null
 }
 
+export interface SubjectRef {
+  id: string
+  name: string
+}
+
 export interface ActiveSemester {
   id: string
   academicYearId: string
@@ -32,6 +37,7 @@ export abstract class IAcademicLookupPort {
   abstract activeSemester(): Promise<ActiveSemester | null>
   abstract teachingPairsOf(employeeId: string): Promise<TeachingPair[]>
   abstract gradesByIds(ids: string[]): Promise<GradeRef[]>
+  abstract subjectsByIds(ids: string[]): Promise<SubjectRef[]>
   abstract teachingAssignmentsOf(
     employeeId: string,
     semesterId: string,

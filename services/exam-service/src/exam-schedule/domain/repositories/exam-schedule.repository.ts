@@ -2,6 +2,7 @@ import type { PaginatedResult } from '../../../shared/domain/interfaces/reposito
 import type {
   ExamSchedule,
   ExamScheduleStatus,
+  ExamType,
 } from '../entities/exam-schedule.entity.js'
 
 export interface ExamScheduleListQuery {
@@ -28,6 +29,7 @@ export interface NewExamSchedule {
   startsAt: Date
   endsAt: Date
   durationMinutes: number
+  type: ExamType
   createdById: string
 }
 
@@ -35,6 +37,7 @@ export interface ScheduleWindowFields {
   startsAt: Date
   endsAt: Date
   durationMinutes: number
+  type: ExamType
 }
 
 export abstract class IExamScheduleRepository {

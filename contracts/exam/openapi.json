@@ -1868,6 +1868,75 @@
         ]
       }
     },
+    "/student-exams/{sessionId}/violations": {
+      "post": {
+        "operationId": "SessionExamController_violations",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordViolationsRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ViolationCountDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tell the server how many times the student left the exam; it keeps the highest count and answers with it",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
     "/student-exams/{sessionId}/submit": {
       "post": {
         "operationId": "SessionExamController_submit",
@@ -1891,6 +1960,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitSessionRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "",
@@ -3867,6 +3946,16 @@
           "durationMinutes": {
             "type": "number"
           },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
+          },
           "status": {
             "enum": [
               "SCHEDULED",
@@ -3901,6 +3990,7 @@
           "startsAt",
           "endsAt",
           "durationMinutes",
+          "type",
           "status",
           "createdById",
           "hasSessions",
@@ -3950,6 +4040,16 @@
             "minimum": 1,
             "maximum": 1440
           },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
+          },
           "packageId": {
             "type": "string",
             "format": "uuid"
@@ -3963,6 +4063,7 @@
           "startsAt",
           "endsAt",
           "durationMinutes",
+          "type",
           "packageId",
           "classroomId"
         ]
@@ -3982,12 +4083,23 @@
             "type": "number",
             "minimum": 1,
             "maximum": 1440
+          },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
           }
         },
         "required": [
           "startsAt",
           "endsAt",
-          "durationMinutes"
+          "durationMinutes",
+          "type"
         ]
       },
       "AccessCodeDto": {
@@ -4021,6 +4133,21 @@
             "type": "string",
             "format": "uuid"
           },
+          "subjectName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Null when academic-service cannot name the subject right now"
+          },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
+          },
           "startsAt": {
             "type": "string",
             "format": "date-time"
@@ -4051,6 +4178,8 @@
           "id",
           "title",
           "subjectId",
+          "subjectName",
+          "type",
           "startsAt",
           "endsAt",
           "durationMinutes",
@@ -4235,6 +4364,43 @@
           "updatedAt"
         ]
       },
+      "RecordViolationsRequestDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "description": "How many times the app saw the student leave the exam so far; the server keeps the highest value it was told, so send 0 to only read it back"
+          }
+        },
+        "required": [
+          "count"
+        ]
+      },
+      "ViolationCountDto": {
+        "type": "object",
+        "properties": {
+          "violationCount": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "violationCount"
+        ]
+      },
+      "SubmitSessionRequestDto": {
+        "type": "object",
+        "properties": {
+          "violations": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "description": "Times the app saw the student leave the exam; four or more is what made the app hand the exam in"
+          }
+        }
+      },
       "SubmittedSessionDto": {
         "type": "object",
         "properties": {
@@ -4305,6 +4471,10 @@
           "deviceBound": {
             "type": "boolean",
             "description": "False once a supervisor released the device"
+          },
+          "violationCount": {
+            "type": "number",
+            "description": "Times the app reported the student leaving the exam"
           }
         },
         "required": [
@@ -4317,7 +4487,8 @@
           "submittedAt",
           "rawScore",
           "maxScore",
-          "deviceBound"
+          "deviceBound",
+          "violationCount"
         ]
       },
       "ScheduleSessionListResponseDto": {
@@ -4392,6 +4563,16 @@
             "type": "string",
             "format": "uuid"
           },
+          "type": {
+            "enum": [
+              "UH",
+              "QUIZ",
+              "TUGAS",
+              "UTS",
+              "UAS"
+            ],
+            "type": "string"
+          },
           "startsAt": {
             "type": "string",
             "format": "date-time"
@@ -4417,6 +4598,7 @@
           "classroomId",
           "classroomName",
           "semesterId",
+          "type",
           "startsAt",
           "endsAt",
           "sessions",
@@ -4494,6 +4676,9 @@
           "awaitingGrading": {
             "type": "boolean"
           },
+          "violationCount": {
+            "type": "number"
+          },
           "publication": {
             "nullable": true,
             "enum": [
@@ -4513,6 +4698,7 @@
           "rawScore",
           "maxScore",
           "awaitingGrading",
+          "violationCount",
           "publication"
         ]
       },

@@ -1,5 +1,9 @@
 export const EXAM_SCHEDULE_STATUSES = ['SCHEDULED', 'CANCELLED'] as const
 
+export const EXAM_TYPES = ['UH', 'QUIZ', 'TUGAS', 'UTS', 'UAS'] as const
+
+export type ExamType = (typeof EXAM_TYPES)[number]
+
 export type ExamScheduleStatus = (typeof EXAM_SCHEDULE_STATUSES)[number]
 
 export interface ExamSchedule {
@@ -12,6 +16,7 @@ export interface ExamSchedule {
   startsAt: Date
   endsAt: Date
   durationMinutes: number
+  type: ExamType
   tokenRotation: number
   status: ExamScheduleStatus
   createdById: string

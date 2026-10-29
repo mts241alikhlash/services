@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { IExamSessionRepository } from '../../../domain/repositories/exam-session.repository.js'
 import { FinalizeSessionService } from '../../finalize-session.service.js'
 import {
   SessionAccessService,
@@ -14,6 +15,7 @@ export interface SubmitResult {
 export class SubmitExamSessionUseCase {
   constructor(
     private readonly access: SessionAccessService,
+    private readonly sessions: IExamSessionRepository,
     private readonly finalizer: FinalizeSessionService,
   ) {}
 
@@ -21,8 +23,12 @@ export class SubmitExamSessionUseCase {
     user: SessionActor,
     sessionId: string,
     now: Date = new Date(),
+    violations = 0,
   ): Promise<SubmitResult> {
     const session = await this.access.loadOwned(user, sessionId, now)
+    if (session.status === 'IN_PROGRESS' && violations > 0) {
+      await this.sessions.recordViolations(session.id, violations)
+    }
     const closed =
       session.status === 'IN_PROGRESS'
         ? await this.finalizer.finalize(session.id, 'SUBMITTED', now)

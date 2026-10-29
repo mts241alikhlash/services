@@ -22,6 +22,7 @@ export interface GradingSessionRow {
   rawScore: number | null
   maxScore: number | null
   awaitingGrading: boolean
+  violationCount: number
   publication: 'PENDING' | 'SENT' | null
 }
 
@@ -76,6 +77,7 @@ export class ListGradingSessionsUseCase {
         rawScore: row.rawScore,
         maxScore: row.maxScore,
         awaitingGrading: row.status === 'SUBMITTED' || row.status === 'EXPIRED',
+        violationCount: row.violationCount,
         publication: publications.get(row.id) ?? null,
       })),
     }

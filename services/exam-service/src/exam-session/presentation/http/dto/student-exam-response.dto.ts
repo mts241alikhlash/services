@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { EXAM_TYPES } from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
 import type { MyExam } from '../../../application/use-cases/list-my-exams/list-my-exams.use-case.js'
 
 const MY_EXAM_STATUSES = [
@@ -12,6 +13,13 @@ export class MyExamDto {
   @ApiProperty({ format: 'uuid', description: 'The schedule id' }) id!: string
   @ApiProperty() title!: string
   @ApiProperty({ format: 'uuid' }) subjectId!: string
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Null when academic-service cannot name the subject right now',
+  })
+  subjectName!: string | null
+  @ApiProperty({ enum: EXAM_TYPES }) type!: MyExam['type']
   @ApiProperty({ format: 'date-time' }) startsAt!: string
   @ApiProperty({ format: 'date-time' }) endsAt!: string
   @ApiProperty() durationMinutes!: number
@@ -24,6 +32,8 @@ export class MyExamDto {
     dto.id = domain.id
     dto.title = domain.title
     dto.subjectId = domain.subjectId
+    dto.subjectName = domain.subjectName
+    dto.type = domain.type
     dto.startsAt = domain.startsAt.toISOString()
     dto.endsAt = domain.endsAt.toISOString()
     dto.durationMinutes = domain.durationMinutes

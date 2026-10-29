@@ -32,6 +32,62 @@ describe('buildPaper', () => {
     expect(new Set(paper.map((question) => question.questionId)).size).toBe(12)
   })
 
+  describe('type order', () => {
+    const typed = (id: string, type: PaperSource['type']) =>
+      source(id, { type })
+    const mixed = [
+      ...Array.from({ length: 4 }, (_, i) => typed(`essay${i}`, 'ESSAY')),
+      ...Array.from({ length: 4 }, (_, i) =>
+        typed(`short${i}`, 'SHORT_ANSWER'),
+      ),
+      ...Array.from({ length: 4 }, (_, i) => typed(`tf${i}`, 'TRUE_FALSE')),
+      ...Array.from({ length: 4 }, (_, i) =>
+        typed(`multi${i}`, 'MULTIPLE_RESPONSE'),
+      ),
+      ...Array.from({ length: 4 }, (_, i) =>
+        typed(`mc${i}`, 'MULTIPLE_CHOICE'),
+      ),
+    ]
+
+    it('puts multiple choice first, then true/false, short answer and essay', () => {
+      const paper = buildPaper(mixed, 'seed-a')
+
+      expect(paper.map((question) => question.type)).toEqual([
+        ...Array(4).fill('MULTIPLE_CHOICE'),
+        ...Array(4).fill('MULTIPLE_RESPONSE'),
+        ...Array(4).fill('TRUE_FALSE'),
+        ...Array(4).fill('SHORT_ANSWER'),
+        ...Array(4).fill('ESSAY'),
+      ])
+      expect(paper.map((question) => question.number)).toEqual(
+        Array.from({ length: 20 }, (_, index) => index + 1),
+      )
+    })
+
+    it('still shuffles the questions inside each type', () => {
+      const orders = new Set(
+        ['seed-a', 'seed-b', 'seed-c', 'seed-d'].map((seed) =>
+          buildPaper(mixed, seed)
+            .filter((question) => question.type === 'MULTIPLE_CHOICE')
+            .map((question) => question.questionId)
+            .join(),
+        ),
+      )
+
+      expect(orders.size).toBeGreaterThan(1)
+    })
+
+    it('leaves no gap when a type is missing', () => {
+      const paper = buildPaper(
+        [typed('e1', 'ESSAY'), typed('m1', 'MULTIPLE_CHOICE')],
+        'seed-a',
+      )
+
+      expect(paper.map((question) => question.questionId)).toEqual(['m1', 'e1'])
+      expect(paper.map((question) => question.number)).toEqual([1, 2])
+    })
+  })
+
   it('gives the same paper for the same seed and another for another seed', () => {
     expect(buildPaper(many, 'seed-a')).toEqual(buildPaper(many, 'seed-a'))
     expect(buildPaper(many, 'seed-a').map((q) => q.questionId)).not.toEqual(

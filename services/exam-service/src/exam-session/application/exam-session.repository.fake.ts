@@ -47,6 +47,7 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
       releasedAt: null,
       releasedById: null,
       gradedAt: null,
+      violationCount: 0,
       createdAt: now,
       updatedAt: now,
     }
@@ -182,6 +183,14 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
     }
     this.sessions.set(id, released)
     return Promise.resolve(released)
+  }
+
+  recordViolations(id: string, count: number) {
+    const session = this.sessions.get(id)
+    if (session?.status === 'IN_PROGRESS' && session.violationCount < count) {
+      this.sessions.set(id, { ...session, violationCount: count })
+    }
+    return Promise.resolve()
   }
 
   countsBySchedule(scheduleIds: string[]) {

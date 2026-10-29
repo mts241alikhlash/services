@@ -6,7 +6,10 @@ import {
 } from '@nestjs/common'
 import { IExamPackageRepository } from '../../../../exam-package/domain/repositories/exam-package.repository.js'
 import { IAcademicLookupPort } from '../../../../platform/academic-lookup/academic-lookup.port.js'
-import type { ExamSchedule } from '../../../domain/entities/exam-schedule.entity.js'
+import type {
+  ExamSchedule,
+  ExamType,
+} from '../../../domain/entities/exam-schedule.entity.js'
 import {
   assertWindowNotPast,
   validateScheduleWindow,
@@ -19,6 +22,7 @@ export interface CreateExamScheduleInput {
   startsAt: Date
   endsAt: Date
   durationMinutes: number
+  type: ExamType
 }
 
 @Injectable()
@@ -66,6 +70,7 @@ export class CreateExamScheduleUseCase {
       startsAt: input.startsAt,
       endsAt: input.endsAt,
       durationMinutes: input.durationMinutes,
+      type: input.type,
       createdById: user.id,
     })
     if (created === null) throw new NotFoundException('Paket tidak ditemukan')

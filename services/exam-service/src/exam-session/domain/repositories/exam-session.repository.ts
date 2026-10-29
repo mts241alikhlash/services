@@ -95,6 +95,7 @@ export abstract class IExamSessionRepository {
     limit: number,
     status?: ExamSessionStatus,
   ): Promise<PaginatedResult<ExamSession>>
+  abstract recordViolations(id: string, count: number): Promise<void>
   abstract countsBySchedule(
     scheduleIds: string[],
   ): Promise<Map<string, ScheduleSessionCounts>>

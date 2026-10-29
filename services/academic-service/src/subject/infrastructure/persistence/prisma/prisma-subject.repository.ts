@@ -106,6 +106,13 @@ export class PrismaSubjectRepository extends ISubjectRepository {
     return withEmployees
   }
 
+  async findManyByIds(ids: string[]): Promise<Subject[]> {
+    if (ids.length === 0) return []
+    return this.prisma.subject.findMany({
+      where: { id: { in: ids }, deletedAt: null },
+    })
+  }
+
   async findByCode(code: string, excludeId?: string): Promise<Subject | null> {
     return this.prisma.subject.findFirst({
       where: {

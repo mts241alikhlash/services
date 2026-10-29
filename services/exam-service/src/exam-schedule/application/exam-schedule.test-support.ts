@@ -10,6 +10,7 @@ import type { FakeQuestionRepository } from '../../question/application/question
 import {
   IAcademicLookupPort,
   type ClassroomRef,
+  type SubjectRef,
 } from '../../platform/academic-lookup/academic-lookup.port.js'
 
 export const YEAR_ID = '12121212-1212-4212-8212-121212121212'
@@ -27,6 +28,7 @@ export class FakeAcademicLookup extends IAcademicLookupPort {
   constructor(
     private readonly options: {
       classrooms?: ClassroomRef[]
+      subjects?: SubjectRef[]
       semesterId?: string | null
       failWith?: Error
       assignments?: { subjectId: string; classroomId: string }[]
@@ -72,6 +74,15 @@ export class FakeAcademicLookup extends IAcademicLookupPort {
 
   gradesByIds() {
     return Promise.resolve([])
+  }
+
+  subjectsByIds(ids: string[]) {
+    if (this.options.failWith) return Promise.reject(this.options.failWith)
+    return Promise.resolve(
+      (this.options.subjects ?? []).filter((subject) =>
+        ids.includes(subject.id),
+      ),
+    )
   }
 }
 

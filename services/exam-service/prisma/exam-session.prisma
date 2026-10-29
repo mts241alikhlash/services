@@ -32,6 +32,7 @@ model ExamSession {
   releasedAt   DateTime?         @map("released_at")
   releasedById String?           @map("released_by_id") @db.Uuid
   gradedAt     DateTime?         @map("graded_at")
+  violationCount Int             @default(0) @map("violation_count")
   createdAt    DateTime          @default(now()) @map("created_at")
   updatedAt    DateTime          @updatedAt @map("updated_at")
 

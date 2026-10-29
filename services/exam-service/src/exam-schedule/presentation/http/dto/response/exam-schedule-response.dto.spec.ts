@@ -11,6 +11,7 @@ const view = {
   startsAt: new Date('2026-11-02T01:00:00.000Z'),
   endsAt: new Date('2026-11-02T04:00:00.000Z'),
   durationMinutes: 90,
+  type: 'UH' as const,
   tokenRotation: 3,
   status: 'SCHEDULED' as const,
   createdById: '99999999-9999-4999-8999-999999999999',
