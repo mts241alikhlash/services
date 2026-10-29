@@ -10,7 +10,7 @@ import {
 import type { ExamPackageDetail } from '../../../domain/entities/exam-package.entity.js'
 import { assertEditable } from '../../../domain/policies/package-lifecycle.policy.js'
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
-import { normalizeTitle } from '../../build-package-items.js'
+import { normalizeTitle } from '../../package-title.js'
 import { PACKAGE_CHANGED_MESSAGE } from '../add-package-question/add-package-question.use-case.js'
 
 @Injectable()

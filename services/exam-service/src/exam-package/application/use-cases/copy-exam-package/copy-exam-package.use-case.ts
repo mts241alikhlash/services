@@ -13,7 +13,7 @@ import { IQuestionRepository } from '../../../../question/domain/repositories/qu
 import type { ExamPackageDetail } from '../../../domain/entities/exam-package.entity.js'
 import { assertCanTakeFrom } from '../../../domain/policies/package-lifecycle.policy.js'
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
-import { MAX_TITLE_LENGTH } from '../../build-package-items.js'
+import { MAX_TITLE_LENGTH } from '../../package-title.js'
 import { buildQuestionCopies } from '../../build-question-copies.js'
 import { PACKAGE_CHANGED_MESSAGE } from '../add-package-question/add-package-question.use-case.js'
 

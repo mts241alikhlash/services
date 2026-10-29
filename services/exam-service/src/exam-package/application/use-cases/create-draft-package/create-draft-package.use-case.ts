@@ -5,7 +5,7 @@ import {
 } from '../../../../question/application/teacher-scope.service.js'
 import type { ExamPackageDetail } from '../../../domain/entities/exam-package.entity.js'
 import { IExamPackageRepository } from '../../../domain/repositories/exam-package.repository.js'
-import { normalizeTitle } from '../../build-package-items.js'
+import { normalizeTitle } from '../../package-title.js'
 
 export interface CreateDraftPackageInput {
   title: string

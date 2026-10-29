@@ -1,13 +1,7 @@
 import { ConflictException } from '@nestjs/common'
 import { FakeQuestionRepository } from '../../../../question/application/question.repository.fake.js'
 import { FakeExamPackageRepository } from '../../exam-package.repository.fake.js'
-import {
-  GRADE_ID,
-  SUBJECT_ID,
-  USER,
-  seedApprovedQuestion,
-} from '../../exam-package.test-support.js'
-import { CreateExamPackageUseCase } from '../create-exam-package/create-exam-package.use-case.js'
+import { seedPackage } from '../../exam-package.test-support.js'
 import { DeleteExamPackageUseCase } from './delete-exam-package.use-case.js'
 
 describe('DeleteExamPackageUseCase', () => {
@@ -16,18 +10,10 @@ describe('DeleteExamPackageUseCase', () => {
   let packageId: string
 
   beforeEach(async () => {
-    packages = new FakeExamPackageRepository()
+    packages = new FakeExamPackageRepository(new FakeQuestionRepository())
     const questions = new FakeQuestionRepository()
     remove = new DeleteExamPackageUseCase(packages)
-    const question = await seedApprovedQuestion(questions)
-    packageId = (
-      await new CreateExamPackageUseCase(packages, questions).execute(USER, {
-        title: 'Paket',
-        subjectId: SUBJECT_ID,
-        gradeId: GRADE_ID,
-        questionIds: [question.id],
-      })
-    ).id
+    packageId = (await seedPackage(packages, questions, [{}], 'DRAFT')).id
   })
 
   it('deletes a draft package', async () => {

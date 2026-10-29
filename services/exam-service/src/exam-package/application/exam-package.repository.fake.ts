@@ -12,7 +12,6 @@ import type {
 } from '../domain/entities/exam-package.entity.js'
 import {
   IExamPackageRepository,
-  type DraftFields,
   type NewPackageReview,
   type PackageEdit,
   type ExamPackageListQuery,
@@ -74,21 +73,6 @@ export class FakeExamPackageRepository extends IExamPackageRepository {
     }
     this.packages.set(row.id, row)
     return Promise.resolve(row)
-  }
-
-  replaceDraftItems(id: string, fields: DraftFields) {
-    const row = this.packages.get(id)
-    if (row?.status !== 'DRAFT' || row.deletedAt !== null) {
-      return Promise.resolve(null)
-    }
-    const updated = {
-      ...row,
-      title: fields.title,
-      items: fields.items,
-      updatedAt: new Date(),
-    }
-    this.packages.set(id, updated)
-    return Promise.resolve(updated)
   }
 
   softDeleteUnscheduled(id: string) {

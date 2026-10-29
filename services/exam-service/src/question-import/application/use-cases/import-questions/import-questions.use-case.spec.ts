@@ -107,9 +107,6 @@ describe('ImportQuestionsUseCase', () => {
     expect(result.created).toBe(5)
     expect(result.errors).toEqual([])
     expect(result.questionIds).toHaveLength(5)
-    expect(
-      [...questions.questions.values()].every((q) => q.status === 'DRAFT'),
-    ).toBe(true)
     expect([...questions.questions.values()][0]?.authorEmployeeId).toBe('emp-1')
   })
 

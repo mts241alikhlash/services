@@ -31,11 +31,6 @@ export interface NewExamPackage {
   items: PackageItem[]
 }
 
-export interface DraftFields {
-  title: string
-  items: PackageItem[]
-}
-
 export interface NewPackageReview {
   action: PackageReviewAction
   byUserId: string
@@ -54,10 +49,6 @@ export abstract class IExamPackageRepository {
   ): Promise<PaginatedResult<ExamPackageSummary>>
   abstract findById(id: string): Promise<ExamPackageDetail | null>
   abstract create(input: NewExamPackage): Promise<ExamPackageDetail>
-  abstract replaceDraftItems(
-    id: string,
-    fields: DraftFields,
-  ): Promise<ExamPackageDetail | null>
   abstract softDeleteUnscheduled(id: string): Promise<boolean>
   abstract renamePackage(
     id: string,

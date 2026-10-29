@@ -15,7 +15,6 @@ import type {
 } from '../../../domain/entities/exam-package.entity.js'
 import {
   IExamPackageRepository,
-  type DraftFields,
   type ExamPackageListQuery,
   type NewExamPackage,
   type NewPackageReview,
@@ -92,29 +91,6 @@ export class PrismaExamPackageRepository extends IExamPackageRepository {
       include: DETAIL_INCLUDE,
     })
     return toDetail(row)
-  }
-
-  async replaceDraftItems(
-    id: string,
-    fields: DraftFields,
-  ): Promise<ExamPackageDetail | null> {
-    return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.examPackage.updateMany({
-        where: { id, status: 'DRAFT', deletedAt: null },
-        data: { title: fields.title },
-      })
-      if (updated.count === 0) return null
-
-      await tx.examPackageItem.deleteMany({ where: { packageId: id } })
-      await tx.examPackageItem.createMany({
-        data: fields.items.map((item) => ({ ...item, packageId: id })),
-      })
-      const row = await tx.examPackage.findFirstOrThrow({
-        where: { id },
-        include: DETAIL_INCLUDE,
-      })
-      return toDetail(row)
-    })
   }
 
   async softDeleteUnscheduled(id: string): Promise<boolean> {

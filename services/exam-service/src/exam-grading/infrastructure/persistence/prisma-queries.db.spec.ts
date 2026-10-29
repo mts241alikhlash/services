@@ -43,8 +43,6 @@ suite('Prisma queries against a real database', () => {
         gradeId,
         authorEmployeeId: employeeId,
         type: 'ESSAY',
-        status: 'APPROVED',
-        approvedVersion: 1,
         createdById: userId,
       },
     })
@@ -301,8 +299,6 @@ suite('Prisma queries against a real database', () => {
         gradeId,
         authorEmployeeId: employeeId,
         type: 'ESSAY',
-        status: 'APPROVED',
-        approvedVersion: 1,
         createdById: userId,
       },
     })

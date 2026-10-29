@@ -1,13 +1,7 @@
 import { NotFoundException } from '@nestjs/common'
 import { FakeQuestionRepository } from '../../../../question/application/question.repository.fake.js'
 import { FakeExamPackageRepository } from '../../exam-package.repository.fake.js'
-import {
-  GRADE_ID,
-  SUBJECT_ID,
-  USER,
-  seedApprovedQuestion,
-} from '../../exam-package.test-support.js'
-import { CreateExamPackageUseCase } from '../create-exam-package/create-exam-package.use-case.js'
+import { USER, seedPackage } from '../../exam-package.test-support.js'
 import { REVIEWER, reviewWorld } from '../../package-review.test-support.js'
 import { SubmitExamPackageUseCase } from '../submit-exam-package/submit-exam-package.use-case.js'
 import { ReturnExamPackageUseCase } from '../return-exam-package/return-exam-package.use-case.js'
@@ -17,18 +11,10 @@ describe('GetExamPackageUseCase', () => {
   it('shows each item from the version that was pinned, not the latest one', async () => {
     const packages = new FakeExamPackageRepository()
     const questions = new FakeQuestionRepository()
-    const question = await seedApprovedQuestion(questions, {
-      bodyHtml: '<p>Versi <b>satu</b></p>',
-    })
-    const created = await new CreateExamPackageUseCase(
-      packages,
-      questions,
-    ).execute(USER, {
-      title: 'Paket',
-      subjectId: SUBJECT_ID,
-      gradeId: GRADE_ID,
-      questionIds: [question.id],
-    })
+    const pkg = await seedPackage(packages, questions, [
+      { bodyHtml: '<p>Versi <b>satu</b></p>' },
+    ])
+    const question = questions.questions.get(pkg.items[0].questionId)!
     await questions.addVersion(
       question.id,
       {
@@ -40,7 +26,7 @@ describe('GetExamPackageUseCase', () => {
     )
 
     const view = await new GetExamPackageUseCase(packages, questions).execute(
-      created.id,
+      pkg.id,
     )
 
     expect(view.items).toEqual([

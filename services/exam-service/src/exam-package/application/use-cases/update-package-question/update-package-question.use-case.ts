@@ -8,7 +8,7 @@ import {
   TeacherScope,
   type ScopeUser,
 } from '../../../../question/application/teacher-scope.service.js'
-import type { UpdateQuestionInput } from '../../../../question/application/use-cases/update-question/update-question.input.js'
+import type { UpdatePackageQuestionInput } from './update-package-question.input.js'
 import { prepareQuestion } from '../../../../question/domain/policies/prepare-question.policy.js'
 import { assertValidPoints } from '../../../../question/domain/policies/validate-points.policy.js'
 import { IQuestionRepository } from '../../../../question/domain/repositories/question.repository.js'
@@ -29,7 +29,7 @@ export class UpdatePackageQuestionUseCase {
     user: ScopeUser,
     packageId: string,
     questionId: string,
-    input: UpdateQuestionInput,
+    input: UpdatePackageQuestionInput,
   ): Promise<ExamPackageDetail> {
     if (
       input.bodyHtml === undefined &&

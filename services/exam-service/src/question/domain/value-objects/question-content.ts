@@ -8,15 +8,6 @@ export const QUESTION_TYPES = [
 
 export type QuestionType = (typeof QUESTION_TYPES)[number]
 
-export const QUESTION_STATUSES = [
-  'DRAFT',
-  'SUBMITTED',
-  'APPROVED',
-  'RETURNED',
-] as const
-
-export type QuestionStatus = (typeof QUESTION_STATUSES)[number]
-
 export type ChoiceKey = 'A' | 'B' | 'C' | 'D' | 'E'
 
 export const CHOICE_KEYS: readonly ChoiceKey[] = ['A', 'B', 'C', 'D', 'E']

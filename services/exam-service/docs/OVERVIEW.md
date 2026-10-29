@@ -14,31 +14,31 @@ import and analysis.
 
 ## What this service owns
 
-- **Questions** (`src/question/`): a question belongs to a subject and a grade
-  level, has a type (multiple choice, multiple response, true/false, short
-  answer, essay), a status (draft, submitted, approved, returned) and
-  immutable versions. Editing an approved question writes a new version that
-  needs approval again; the approved version stays usable meanwhile.
-- **Reviews**: the history of submit, approve and return with notes.
+- **Questions** (`src/question/`): a question belongs to exactly one package, to
+  the subject and grade of that package, has a type (multiple choice, multiple
+  response, true/false, short answer, essay) and immutable versions. A copy made
+  from another package remembers its source (`copiedFromQuestionId`).
 - **Images** (`src/exam-file/`): question images in object storage under
   `exam/questions/<fileId>`.
-- **Import** (`src/question-import/`): Excel and Word templates; every
-  imported question is a draft.
-- **Packages** (`src/exam-package/`): a fixed set of approved questions for one
-  subject and grade. Each item pins the approved version number it had when it
-  was added, so editing a question later never changes a package. A package is
-  a draft until it is scheduled, then locked; a locked package can only be
-  copied.
+- **Import** (`src/question-import/`): Excel and Word templates; the file is
+  imported into a package and every good row becomes a question of it.
+- **Packages** (`src/exam-package/`): the unit teachers work in and the
+  curriculum reviews. A package is created empty, then gets questions written,
+  imported or copied from an approved or scheduled package of the same subject
+  and grade. It is DRAFT while built, SUBMITTED while the deputy for curriculum
+  reviews it, RETURNED with a note (and notes on single questions) or APPROVED,
+  and LOCKED once scheduled; editing an approved package sends it back to
+  DRAFT. Each item pins the version number of its question. Submitting,
+  approving and returning keep a review history; an approver cannot approve a
+  package they wrote unless they hold `exam-questions.manage-all`. The package
+  view marks each question NEW, CHANGED (a copy edited since) or COPIED. A
+  teacher lists their own packages in every status and the approved or locked
+  packages of others; drafts of others stay hidden.
 - **Schedules** (`src/exam-schedule/`): one package for one classroom inside a
   time window with a duration, for the active semester at creation. The access
   code students enter is derived with HMAC from the schedule id and
   `tokenRotation` (secret `EXAM_ACCESS_CODE_SECRET`) and is never stored; it
   appears only in the `access-code` endpoints.
-- **Package candidates** (`GET /exam-packages/candidates`, `exam-packages.create`):
-  the approved questions of one subject and grade, for the people who build
-  packages. It ignores the teacher scope of the question bank on purpose, so
-  the deputy for curriculum and the admin can pick any teacher's question.
-
 - **Sessions** (`src/exam-session/`): a student starts a session with the
   access code (`POST /me/exams/:scheduleId/sessions`). The server owns the
   clock: `deadline = min(startedAt + duration, schedule end)` and the session
@@ -99,12 +99,13 @@ import and analysis.
 
 ## Permissions
 
-`exam-questions.read|create|update|delete` for teachers (own subjects and grade
-levels only), `exam-questions.approve` (explicit-only, Wakamad Kurikulum) and
-`exam-questions.manage-all` (explicit-only, curriculum staff and Wakamad
-Kurikulum) to work on any teacher's questions.
+`exam-packages.read|create|update|delete` for teachers (own subjects and grade
+levels only; a teacher changes only the packages they started),
+`exam-questions.approve` (explicit-only, Wakamad Kurikulum) to approve or return
+a package, and `exam-questions.manage-all` (explicit-only, curriculum staff and
+Wakamad Kurikulum) to see and work on any teacher's package.
+`exam-questions.read|create` still guard the image upload and the import.
 
-`exam-packages.read|create|update|delete` and
 `exam-schedules.read|create|update|cancel|access-code` are explicit-only,
 declared in identity-service and granted to curriculum staff, Wakamad
 Kurikulum and the academic admin. Principal reads packages and schedules

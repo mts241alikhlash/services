@@ -57,16 +57,4 @@ export class TeacherScope {
     }
     return employeeId
   }
-
-  async assertCanModify(
-    user: ScopeUser,
-    question: Pick<Question, 'subjectId' | 'gradeId' | 'authorEmployeeId'>,
-  ): Promise<void> {
-    const scope = await this.forUser(user)
-    if (scope.all) return
-    this.assertCovers(scope, question.subjectId, question.gradeId)
-    if ((await this.employeeIdOf(user)) !== question.authorEmployeeId) {
-      throw new ForbiddenException('Soal ini ditulis guru lain')
-    }
-  }
 }

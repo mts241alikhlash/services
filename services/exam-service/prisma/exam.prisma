@@ -6,24 +6,9 @@ enum QuestionType {
   ESSAY
 }
 
-enum QuestionStatus {
-  DRAFT
-  SUBMITTED
-  APPROVED
-  RETURNED
-}
-
-enum ReviewAction {
-  SUBMITTED
-  APPROVED
-  RETURNED
-}
-
-/// One question of the bank. The subject and grade are ids owned by
-/// academic-service. `currentVersion` is the version being edited or reviewed;
-/// `approvedVersion` is the last one a reviewer approved, and stays usable
-/// while a newer version waits for approval again. `revision` counts every
-/// edit, so a reviewer can approve exactly the text they read.
+/// One question of a package. The subject and grade are ids owned by
+/// academic-service and equal those of the package. `currentVersion` is the
+/// version being edited; `revision` counts every edit.
 model Question {
   id               String         @id @default(uuid()) @db.Uuid
   packageId        String         @map("package_id") @db.Uuid
@@ -31,9 +16,7 @@ model Question {
   gradeId          String         @map("grade_id") @db.Uuid
   authorEmployeeId String         @map("author_employee_id") @db.Uuid
   type             QuestionType
-  status           QuestionStatus @default(DRAFT)
   currentVersion   Int            @default(1) @map("current_version")
-  approvedVersion  Int?           @map("approved_version")
   revision         Int            @default(1)
   /// Plain lineage of a copy, not a foreign key: deleting the source never blocks a copy.
   copiedFromQuestionId String?    @map("copied_from_question_id") @db.Uuid
@@ -45,13 +28,11 @@ model Question {
 
   package      ExamPackage       @relation(fields: [packageId], references: [id])
   versions     QuestionVersion[]
-  reviews      QuestionReview[]
   packageItems ExamPackageItem[]
   answers      ExamAnswer[]
 
-  @@index([subjectId, gradeId, status])
+  @@index([subjectId, gradeId])
   @@index([authorEmployeeId])
-  @@index([status])
   @@index([packageId])
   @@map("questions")
 }
@@ -72,21 +53,6 @@ model QuestionVersion {
 
   @@unique([questionId, number])
   @@map("question_versions")
-}
-
-model QuestionReview {
-  id            String       @id @default(uuid()) @db.Uuid
-  questionId    String       @map("question_id") @db.Uuid
-  versionNumber Int          @map("version_number")
-  action        ReviewAction
-  note          String?
-  byUserId      String       @map("by_user_id") @db.Uuid
-  createdAt     DateTime     @default(now()) @map("created_at")
-
-  question Question @relation(fields: [questionId], references: [id])
-
-  @@index([questionId])
-  @@map("question_reviews")
 }
 
 /// An image used by a question, stored in object storage under `storageKey`.

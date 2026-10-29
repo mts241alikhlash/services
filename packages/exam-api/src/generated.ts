@@ -235,7 +235,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get a question of a package with its current version */
+        get: operations["ExamPackageController_findQuestion"];
         put?: never;
         post?: never;
         /** Remove a question from a package */
@@ -308,145 +309,6 @@ export interface paths {
         put?: never;
         /** Submit a package for review */
         post: operations["ExamPackageController_submit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List questions in the teacher scope */
-        get: operations["QuestionController_findAll"];
-        put?: never;
-        /** Create a draft question */
-        post: operations["QuestionController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a question with its current version */
-        get: operations["QuestionController_findOne"];
-        put?: never;
-        post?: never;
-        /** Delete a question that was never approved */
-        delete: operations["QuestionController_remove"];
-        options?: never;
-        head?: never;
-        /** Edit a question, or write a new version of an approved one */
-        patch: operations["QuestionController_update"];
-        trace?: never;
-    };
-    "/exam-questions/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Approve a submitted question */
-        post: operations["QuestionController_approve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions/{id}/return": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Return a submitted question with a note */
-        post: operations["QuestionController_returnToAuthor"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions/{id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit a question for approval */
-        post: operations["QuestionController_submit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions/{id}/versions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List every version of a question */
-        get: operations["QuestionController_versions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions/approve-many": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Approve several submitted questions at once */
-        post: operations["QuestionController_approveManyQuestions"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exam-questions/authors": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Authors of the questions the user may see */
-        get: operations["QuestionController_authors"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -731,29 +593,8 @@ export interface components {
             /** @enum {string} */
             type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
         };
-        ApprovalResultDto: {
-            id: string;
-            ok: boolean;
-            reason?: string;
-        };
         ApproveExamPackageDto: {
             note?: string;
-        };
-        ApproveManyDto: {
-            items: components["schemas"]["ApproveManyItemDto"][];
-        };
-        ApproveManyItemDto: {
-            /** Format: uuid */
-            id: string;
-            /** @description The revision of the question the reviewer read */
-            revision: number;
-        };
-        ApproveManyResponseDto: {
-            data: components["schemas"]["ApprovalResultDto"][];
-        };
-        ApproveQuestionDto: {
-            /** @description The revision of the question the reviewer read */
-            revision: number;
         };
         CreateExamPackageDto: {
             /** Format: uuid */
@@ -774,23 +615,6 @@ export interface components {
             startsAt: string;
             /** @enum {string} */
             type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
-        };
-        CreateQuestionDto: {
-            /** Format: uuid */
-            authorEmployeeId?: string;
-            bodyHtml: string;
-            content: {
-                [key: string]: unknown;
-            };
-            /** Format: uuid */
-            gradeId: string;
-            /** Format: uuid */
-            packageId: string;
-            points: number;
-            /** Format: uuid */
-            subjectId: string;
-            /** @enum {string} */
-            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
         };
         ExamFileDto: {
             /** Format: uuid */
@@ -1082,16 +906,11 @@ export interface components {
             /** @enum {string} */
             type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
         };
-        QuestionAuthorDto: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-        };
         QuestionDetailDto: {
-            approved: components["schemas"]["QuestionVersionDto"] | null;
-            approvedVersion: number | null;
             /** Format: uuid */
             authorEmployeeId: string;
+            /** Format: uuid */
+            copiedFromQuestionId: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: uuid */
@@ -1102,65 +921,20 @@ export interface components {
             gradeId: string;
             /** Format: uuid */
             id: string;
-            reviews: components["schemas"]["QuestionReviewDto"][];
+            /** Format: uuid */
+            packageId: string;
             revision: number;
-            /** @enum {string} */
-            status: "DRAFT" | "SUBMITTED" | "APPROVED" | "RETURNED";
             /** Format: uuid */
             subjectId: string;
             /** @enum {string} */
             type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
             /** Format: date-time */
             updatedAt: string;
-        };
-        QuestionListResponseDto: {
-            data: components["schemas"]["QuestionSummaryDto"][];
-            limit: number;
-            page: number;
-            total: number;
-        };
-        QuestionReviewDto: {
-            /** @enum {string} */
-            action: "SUBMITTED" | "APPROVED" | "RETURNED";
-            /** Format: uuid */
-            byUserId: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: uuid */
-            id: string;
-            note: string | null;
-            /** Format: uuid */
-            questionId: string;
-            versionNumber: number;
         };
         QuestionScopeDto: {
             all: boolean;
             employeeId: string | null;
             pairs: components["schemas"]["ScopePairDto"][];
-        };
-        QuestionSummaryDto: {
-            approvedVersion: number | null;
-            /** Format: uuid */
-            authorEmployeeId: string;
-            authorName: string | null;
-            bodyHtml: string;
-            /** Format: date-time */
-            createdAt: string;
-            currentVersion: number;
-            /** Format: uuid */
-            gradeId: string;
-            /** Format: uuid */
-            id: string;
-            points: number;
-            revision: number;
-            /** @enum {string} */
-            status: "DRAFT" | "SUBMITTED" | "APPROVED" | "RETURNED";
-            /** Format: uuid */
-            subjectId: string;
-            /** @enum {string} */
-            type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
-            /** Format: date-time */
-            updatedAt: string;
         };
         QuestionVersionDto: {
             bodyHtml: string;
@@ -1188,11 +962,6 @@ export interface components {
         ReturnExamPackageDto: {
             note: string;
             questionNotes: components["schemas"]["PackageQuestionNoteDto"][];
-        };
-        ReturnQuestionDto: {
-            note: string;
-            /** @description The revision of the question the reviewer read */
-            revision: number;
         };
         SaveAnswerDto: {
             /** @description One of { key } | { keys } | { value } | { text } */
@@ -1783,6 +1552,34 @@ export interface operations {
             };
         };
     };
+    ExamPackageController_findQuestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                questionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["QuestionDetailDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
     ExamPackageController_removeQuestion: {
         parameters: {
             query?: never;
@@ -1954,323 +1751,6 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["ExamPackageDetailDto"];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_findAll: {
-        parameters: {
-            query?: {
-                authorEmployeeId?: string;
-                gradeId?: string;
-                limit?: number;
-                page?: number;
-                search?: string;
-                status?: "DRAFT" | "SUBMITTED" | "APPROVED" | "RETURNED";
-                subjectId?: string;
-                type?: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionSummaryDto"][];
-                        /** @example Success */
-                        message?: string;
-                        meta?: {
-                            limit?: number;
-                            page?: number;
-                            total?: number;
-                        };
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateQuestionDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    QuestionController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateQuestionDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_approve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApproveQuestionDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_returnToAuthor: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReturnQuestionDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_submit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionDetailDto"];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_versions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionVersionDto"][];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_approveManyQuestions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApproveManyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["ApprovalResultDto"][];
-                        /** @example Success */
-                        message?: string;
-                        /** @example 200 */
-                        statusCode?: number;
-                    };
-                };
-            };
-        };
-    };
-    QuestionController_authors: {
-        parameters: {
-            query?: {
-                status?: "DRAFT" | "SUBMITTED" | "APPROVED" | "RETURNED";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["QuestionAuthorDto"][];
                         /** @example Success */
                         message?: string;
                         /** @example 200 */

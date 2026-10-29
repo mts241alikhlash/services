@@ -23,6 +23,7 @@ import {
 import { CurrentUser } from '../../../core/decorators/current-user.decorator.js'
 import { RequirePermissions } from '../../../platform/access-control/permission/decorators/require-permissions.decorator.js'
 import { JwtAuthGuard } from '../../../platform/auth/index.js'
+import { QuestionDetailDto } from '../../../question/presentation/http/dto/response/question-response.dto.js'
 import type { ScopeUser } from '../../../question/application/teacher-scope.service.js'
 import { UpdateQuestionDto } from '../../../question/presentation/http/dto/request/update-question.dto.js'
 import { AddPackageQuestionUseCase } from '../../application/use-cases/add-package-question/add-package-question.use-case.js'
@@ -30,6 +31,7 @@ import { ApproveExamPackageUseCase } from '../../application/use-cases/approve-e
 import { CopyExamPackageUseCase } from '../../application/use-cases/copy-exam-package/copy-exam-package.use-case.js'
 import { CreateDraftPackageUseCase } from '../../application/use-cases/create-draft-package/create-draft-package.use-case.js'
 import { DeleteExamPackageUseCase } from '../../application/use-cases/delete-exam-package/delete-exam-package.use-case.js'
+import { GetPackageQuestionUseCase } from '../../application/use-cases/get-package-question/get-package-question.use-case.js'
 import { GetExamPackageUseCase } from '../../application/use-cases/get-exam-package/get-exam-package.use-case.js'
 import { ListExamPackagesUseCase } from '../../application/use-cases/list-exam-packages/list-exam-packages.use-case.js'
 import { RemovePackageQuestionUseCase } from '../../application/use-cases/remove-package-question/remove-package-question.use-case.js'
@@ -65,6 +67,7 @@ export class ExamPackageController {
   constructor(
     private readonly listPackages: ListExamPackagesUseCase,
     private readonly getPackage: GetExamPackageUseCase,
+    private readonly getPackageQuestion: GetPackageQuestionUseCase,
     private readonly createPackage: CreateDraftPackageUseCase,
     private readonly renamePackage: RenameExamPackageUseCase,
     private readonly deletePackage: DeleteExamPackageUseCase,
@@ -168,6 +171,28 @@ export class ExamPackageController {
   ): Promise<ExamPackageDetailDto> {
     return ExamPackageDetailDto.fromDomain(
       await this.copyPackage.execute(user, id),
+    )
+  }
+
+  @Get(':id/questions/:questionId')
+  @RequirePermissions('exam-packages.read')
+  @ApiOperation({
+    summary: 'Get a question of a package with its current version',
+  })
+  @ApiResponse({ status: 200, type: QuestionDetailDto })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiParam({ name: 'questionId', format: 'uuid' })
+  async findQuestion(
+    @CurrentUser() user: ScopeUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('questionId', ParseUUIDPipe) questionId: string,
+  ): Promise<QuestionDetailDto> {
+    return QuestionDetailDto.fromDomain(
+      await this.getPackageQuestion.execute(
+        { id: user.id, canSeeAll: user.permissions.includes(MANAGE_ALL) },
+        id,
+        questionId,
+      ),
     )
   }
 

@@ -9,6 +9,7 @@ const expected: Record<string, string[]> = {
   rename: ['exam-packages.update'],
   remove: ['exam-packages.delete'],
   copy: ['exam-packages.create'],
+  findQuestion: ['exam-packages.read'],
   addQuestion: ['exam-packages.update'],
   updateQuestion: ['exam-packages.update'],
   removeQuestion: ['exam-packages.update'],
