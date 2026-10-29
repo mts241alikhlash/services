@@ -876,6 +876,7 @@ export interface components {
             studentNis: string | null;
             /** Format: date-time */
             submittedAt: string | null;
+            violationCount: number;
         };
         GradingSessionSummaryDto: {
             maxScore: number | null;
@@ -1098,6 +1099,8 @@ export interface components {
             studentNis: string | null;
             /** Format: date-time */
             submittedAt: string | null;
+            /** @description Times the app reported the student leaving the exam */
+            violationCount: number;
         };
         ScheduleSessionListResponseDto: {
             data: components["schemas"]["ScheduleSessionDto"][];
@@ -1127,6 +1130,10 @@ export interface components {
             accessCode: string;
             /** @description Identifier of the tablet starting the exam */
             deviceId: string;
+        };
+        SubmitSessionRequestDto: {
+            /** @description Times the app saw the student leave the exam; four or more is what made the app hand the exam in */
+            violations?: number;
         };
         SubmittedSessionDto: {
             /** @enum {string} */
@@ -2566,7 +2573,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitSessionRequestDto"];
+            };
+        };
         responses: {
             201: {
                 headers: {

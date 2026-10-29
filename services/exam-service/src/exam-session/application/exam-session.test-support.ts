@@ -142,6 +142,7 @@ export function sessionFor(
     releasedAt: null,
     releasedById: null,
     gradedAt: null,
+    violationCount: 0,
     createdAt: NOW,
     updatedAt: NOW,
     ...overrides,

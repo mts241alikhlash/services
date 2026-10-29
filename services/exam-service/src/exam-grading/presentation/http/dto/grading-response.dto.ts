@@ -77,6 +77,7 @@ export class GradingSessionRowDto {
   @ApiProperty({ type: Number, nullable: true }) rawScore!: number | null
   @ApiProperty({ type: Number, nullable: true }) maxScore!: number | null
   @ApiProperty() awaitingGrading!: boolean
+  @ApiProperty() violationCount!: number
   @ApiProperty({ type: String, enum: ['PENDING', 'SENT'], nullable: true })
   publication!: 'PENDING' | 'SENT' | null
 
@@ -91,6 +92,7 @@ export class GradingSessionRowDto {
     dto.rawScore = domain.rawScore
     dto.maxScore = domain.maxScore
     dto.awaitingGrading = domain.awaitingGrading
+    dto.violationCount = domain.violationCount
     dto.publication = domain.publication
     return dto
   }

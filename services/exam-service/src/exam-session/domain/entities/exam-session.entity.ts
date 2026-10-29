@@ -27,6 +27,7 @@ export interface ExamSession {
   releasedAt: Date | null
   releasedById: string | null
   gradedAt: Date | null
+  violationCount: number
   createdAt: Date
   updatedAt: Date
 }

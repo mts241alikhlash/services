@@ -1891,6 +1891,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitSessionRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "",
@@ -4285,6 +4295,17 @@
           "updatedAt"
         ]
       },
+      "SubmitSessionRequestDto": {
+        "type": "object",
+        "properties": {
+          "violations": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "description": "Times the app saw the student leave the exam; four or more is what made the app hand the exam in"
+          }
+        }
+      },
       "SubmittedSessionDto": {
         "type": "object",
         "properties": {
@@ -4355,6 +4376,10 @@
           "deviceBound": {
             "type": "boolean",
             "description": "False once a supervisor released the device"
+          },
+          "violationCount": {
+            "type": "number",
+            "description": "Times the app reported the student leaving the exam"
           }
         },
         "required": [
@@ -4367,7 +4392,8 @@
           "submittedAt",
           "rawScore",
           "maxScore",
-          "deviceBound"
+          "deviceBound",
+          "violationCount"
         ]
       },
       "ScheduleSessionListResponseDto": {
@@ -4555,6 +4581,9 @@
           "awaitingGrading": {
             "type": "boolean"
           },
+          "violationCount": {
+            "type": "number"
+          },
           "publication": {
             "nullable": true,
             "enum": [
@@ -4574,6 +4603,7 @@
           "rawScore",
           "maxScore",
           "awaitingGrading",
+          "violationCount",
           "publication"
         ]
       },

@@ -17,6 +17,10 @@ export class ScheduleSessionDto {
   @ApiProperty({ type: Number, nullable: true }) maxScore!: number | null
   @ApiProperty({ description: 'False once a supervisor released the device' })
   deviceBound!: boolean
+  @ApiProperty({
+    description: 'Times the app reported the student leaving the exam',
+  })
+  violationCount!: number
 
   static fromDomain(
     domain: ExamSession & {
@@ -35,6 +39,7 @@ export class ScheduleSessionDto {
     dto.rawScore = domain.rawScore
     dto.maxScore = domain.maxScore
     dto.deviceBound = domain.deviceId !== null
+    dto.violationCount = domain.violationCount
     return dto
   }
 }

@@ -243,6 +243,13 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
     return this.findById(id)
   }
 
+  async recordViolations(id: string, count: number): Promise<void> {
+    await this.prisma.examSession.updateMany({
+      where: { id, status: 'IN_PROGRESS', violationCount: { lt: count } },
+      data: { violationCount: count },
+    })
+  }
+
   async countsBySchedule(
     scheduleIds: string[],
   ): Promise<Map<string, ScheduleSessionCounts>> {

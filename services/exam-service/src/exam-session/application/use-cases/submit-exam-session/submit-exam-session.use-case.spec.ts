@@ -35,6 +35,7 @@ describe('SubmitExamSessionUseCase', () => {
       sessions,
       useCase: new SubmitExamSessionUseCase(
         new SessionAccessService(sessions, finalizer),
+        sessions,
         finalizer,
       ),
     }
@@ -60,6 +61,23 @@ describe('SubmitExamSessionUseCase', () => {
         new Date(NOW.getTime() + 60_000),
       ),
     ).toEqual(first)
+  })
+
+  it('keeps the violations the app reports with the hand-in', async () => {
+    const { useCase, sessions } = await setup()
+
+    await useCase.execute(STUDENT_USER, 'a', NOW, 4)
+
+    expect(sessions.sessions.get('a')?.violationCount).toBe(4)
+  })
+
+  it('does not lower the violations a repeat reports', async () => {
+    const { useCase, sessions } = await setup()
+    await useCase.execute(STUDENT_USER, 'a', NOW, 4)
+
+    await useCase.execute(STUDENT_USER, 'a', NOW, 0)
+
+    expect(sessions.sessions.get('a')?.violationCount).toBe(4)
   })
 
   it('refuses to hand in the session of someone else', async () => {
