@@ -4541,6 +4541,20 @@
             ],
             "type": "string"
           },
+          "packageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "durationMinutes": {
+            "type": "number"
+          },
+          "kind": {
+            "enum": [
+              "REGULAR",
+              "MAKEUP"
+            ],
+            "type": "string"
+          },
           "startsAt": {
             "type": "string",
             "format": "date-time"
@@ -4567,6 +4581,9 @@
           "classroomName",
           "semesterId",
           "type",
+          "packageId",
+          "durationMinutes",
+          "kind",
           "startsAt",
           "endsAt",
           "sessions",

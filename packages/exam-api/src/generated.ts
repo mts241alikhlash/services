@@ -884,11 +884,16 @@ export interface components {
             /** Format: uuid */
             classroomId: string;
             classroomName: string | null;
+            durationMinutes: number;
             /** Format: date-time */
             endsAt: string;
             graded: number;
             /** Format: uuid */
             id: string;
+            /** @enum {string} */
+            kind: "REGULAR" | "MAKEUP";
+            /** Format: uuid */
+            packageId: string;
             /** Format: uuid */
             semesterId: string;
             sessions: number;
