@@ -27,6 +27,7 @@ import { GetSessionFileUseCase } from '../../application/use-cases/get-session-f
 import { RecordViolationsUseCase } from '../../application/use-cases/record-violations/record-violations.use-case.js'
 import { IssueStreamTokenUseCase } from '../../application/use-cases/issue-stream-token/issue-stream-token.use-case.js'
 import { ReportCameraBlockedUseCase } from '../../application/use-cases/report-camera-blocked/report-camera-blocked.use-case.js'
+import { HeartbeatStreamUseCase } from '../../application/use-cases/heartbeat-stream/heartbeat-stream.use-case.js'
 import { SubmitExamSessionUseCase } from '../../application/use-cases/submit-exam-session/submit-exam-session.use-case.js'
 import { SaveAnswerUseCase } from '../../application/use-cases/save-answer/save-answer.use-case.js'
 import { ListSavedAnswersUseCase } from '../../application/use-cases/list-saved-answers/list-saved-answers.use-case.js'
@@ -62,6 +63,7 @@ export class SessionExamController {
     private readonly recordViolations: RecordViolationsUseCase,
     private readonly issueStreamToken: IssueStreamTokenUseCase,
     private readonly reportCameraBlocked: ReportCameraBlockedUseCase,
+    private readonly heartbeatStream: HeartbeatStreamUseCase,
   ) {}
 
   @Get('questions')
@@ -156,6 +158,23 @@ export class SessionExamController {
         new Date(),
       ),
     )
+  }
+
+  @Post('stream-heartbeat')
+  @HttpCode(204)
+  @RequirePermissions('exam-sessions.take')
+  @ApiOperation({
+    summary:
+      'Keep the seat live without rotating the publish token the stream is using',
+  })
+  @ApiParam({ name: 'sessionId', format: 'uuid' })
+  @ApiResponse({ status: 204 })
+  async streamHeartbeat(
+    @CurrentUser() user: { id: string },
+    @DeviceId() deviceId: string,
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+  ): Promise<void> {
+    await this.heartbeatStream.execute({ id: user.id, deviceId }, sessionId, new Date())
   }
 
   @Post('camera-blocked')

@@ -20,7 +20,7 @@ const config = {
   getOrThrow: (key: string) =>
     key === 'JWT_SECRET' ? 'a'.repeat(48) : 'https://stream.test',
   get: (key: string, fallback?: string) =>
-    key === 'STREAM_RTMP_URL' ? 'rtmps://stream.test:1936' : fallback,
+    key === 'STREAM_WHIP_URL' ? 'https://stream.test' : fallback,
 } as unknown as ConfigService
 
 describe('IssueStreamTokenUseCase', () => {
@@ -95,7 +95,7 @@ describe('IssueStreamTokenUseCase', () => {
     const result = await useCase.execute(STUDENT_USER, 'a', NOW)
 
     expect(result.publishUrl).toMatch(
-      /^rtmps:\/\/stream\.test:1936\/a\?token=/,
+      /^https:\/\/stream\.test\/a\/whip\?token=/,
     )
     expect(result.heartbeatSeconds).toBe(20)
   })

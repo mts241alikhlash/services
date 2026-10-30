@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
-import { ProvisioningTokenGuard } from '../core/guards/provisioning-token.guard.js'
+import { InternalMediaGuard } from '../core/guards/internal-media.guard.js'
 import { ExamFileModule } from '../exam-file/exam-file.module.js'
 import { ExamPackageModule } from '../exam-package/exam-package.module.js'
 import { QuestionModule } from '../question/question.module.js'
@@ -22,6 +22,7 @@ import { RecordViolationsUseCase } from './application/use-cases/record-violatio
 import { IssueStreamTokenUseCase } from './application/use-cases/issue-stream-token/issue-stream-token.use-case.js'
 import { ReportCameraBlockedUseCase } from './application/use-cases/report-camera-blocked/report-camera-blocked.use-case.js'
 import { CheckStreamTokenUseCase } from './application/use-cases/check-stream-token/check-stream-token.use-case.js'
+import { HeartbeatStreamUseCase } from './application/use-cases/heartbeat-stream/heartbeat-stream.use-case.js'
 import { SubmitExamSessionUseCase } from './application/use-cases/submit-exam-session/submit-exam-session.use-case.js'
 import { IExamSessionRepository } from './domain/repositories/exam-session.repository.js'
 import { PrismaExamAccessAttemptRepository } from './infrastructure/persistence/prisma/prisma-exam-access-attempt.repository.js'
@@ -66,7 +67,8 @@ import { StreamAuthController } from './presentation/http/stream-auth.controller
     IssueStreamTokenUseCase,
     ReportCameraBlockedUseCase,
     CheckStreamTokenUseCase,
-    ProvisioningTokenGuard,
+    HeartbeatStreamUseCase,
+    InternalMediaGuard,
     ListScheduleSessionsUseCase,
     ListScheduleStreamsUseCase,
     ReleaseSessionUseCase,

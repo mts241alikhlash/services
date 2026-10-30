@@ -8,12 +8,12 @@ import {
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
-  ApiHeader,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
-import { ProvisioningTokenGuard } from '../../../core/guards/provisioning-token.guard.js'
+import { Public } from '../../../core/decorators/public.decorator.js'
+import { InternalMediaGuard } from '../../../core/guards/internal-media.guard.js'
 import { CheckStreamTokenUseCase } from '../../application/use-cases/check-stream-token/check-stream-token.use-case.js'
 import { StreamAuthDto, StreamAuthResponseDto } from './dto/stream-token.dto.js'
 
@@ -24,14 +24,15 @@ import { StreamAuthDto, StreamAuthResponseDto } from './dto/stream-token.dto.js'
  * only `expireAt`, so a denial must be a status code — answering 200 with
  * `{ok:false}` would authorise every request.
  *
- * Machine-to-machine: the shared provisioning token guards it, and
- * `ProvisioningTokenGuard` already refuses anything that arrived through the
- * public gateway (it rejects X-Forwarded-For).
+ * Machine-to-machine: MediaMTX cannot send custom headers, so the shared
+ * provisioning token is not usable here. `InternalMediaGuard` refuses anything
+ * that came through the public gateway, and the service itself is only reachable
+ * on the internal docker network. The real check is the publish token.
  */
 @ApiTags('Internal')
-@ApiHeader({ name: 'x-provisioning-token', required: true })
 @ApiBearerAuth()
-@UseGuards(ProvisioningTokenGuard)
+@Public()
+@UseGuards(InternalMediaGuard)
 @Controller('internal/stream-auth')
 export class StreamAuthController {
   constructor(private readonly checkStreamToken: CheckStreamTokenUseCase) {}
@@ -44,7 +45,19 @@ export class StreamAuthController {
   @ApiResponse({ status: 200, type: StreamAuthResponseDto })
   @ApiResponse({ status: 403, description: 'Denied' })
   async check(@Body() dto: StreamAuthDto): Promise<StreamAuthResponseDto> {
-    const token = dto.token ?? tokenFromQuery(dto.query)
+    // MediaMTX sends `"token": ""` when it did not lift the query token, so a
+    // nullish check is not enough: an empty string has to fall through too. An SRT
+    // publisher puts the session and token in `streamid=publish:<session>:<jwt>`,
+    // which MediaMTX passes through the query.
+    const token =
+      dto.token ||
+      tokenFromQuery(dto.query) ||
+      tokenFromStreamId(dto.query) ||
+      // MediaMTX hands an SRT `streamid`'s third segment to the hook as the bare
+      // `query`, so a value that is already a JWT is the token itself.
+      jwtIn(dto.query) ||
+      dto.password ||
+      ''
     if (!token || !dto.path) throw new ForbiddenException()
 
     const result = await this.checkStreamToken.execute(
@@ -69,4 +82,18 @@ function tokenFromQuery(query: string | undefined): string | undefined {
   if (!query) return undefined
   const value = new URLSearchParams(query).get('token')
   return value ?? undefined
+}
+
+function jwtIn(value: string | undefined): string | undefined {
+  if (!value) return undefined
+  return value.split('.').length === 3 ? value : undefined
+}
+
+/** SRT carries credentials as `streamid=publish:<session>:<jwt>`. */
+function tokenFromStreamId(query: string | undefined): string | undefined {
+  if (!query) return undefined
+  const value = new URLSearchParams(query).get('streamid')
+  if (!value) return undefined
+  const parts = value.split(':')
+  return parts.length >= 3 ? parts.slice(2).join(':') : undefined
 }

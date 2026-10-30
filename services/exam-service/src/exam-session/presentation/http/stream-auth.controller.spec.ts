@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { ProvisioningTokenGuard } from '../../../core/guards/provisioning-token.guard.js'
+import { InternalMediaGuard } from '../../../core/guards/internal-media.guard.js'
 import { FakeExamSessionRepository } from '../../application/exam-session.repository.fake.js'
 import { sessionFor } from '../../application/exam-session.test-support.js'
 import { CheckStreamTokenUseCase } from '../../application/use-cases/check-stream-token/check-stream-token.use-case.js'
@@ -91,10 +91,8 @@ describe('StreamAuthController', () => {
   })
 })
 
-describe('ProvisioningTokenGuard', () => {
-  const guard = new ProvisioningTokenGuard({
-    get: () => 'the-provisioning-token',
-  } as unknown as ConfigService)
+describe('InternalMediaGuard', () => {
+  const guard = new InternalMediaGuard()
 
   function contextWith(headers: Record<string, string>) {
     return {
@@ -102,28 +100,13 @@ describe('ProvisioningTokenGuard', () => {
     } as never
   }
 
-  it('rejects a request that came through the public gateway', () => {
+  it('refuses anything that came through the public gateway', () => {
     expect(() =>
-      guard.canActivate(
-        contextWith({
-          'x-forwarded-for': '203.0.113.1',
-          'x-provisioning-token': 'the-provisioning-token',
-        }),
-      ),
+      guard.canActivate(contextWith({ 'x-forwarded-for': '203.0.113.1' })),
     ).toThrow(NotFoundException)
   })
 
-  it('rejects a wrong token', () => {
-    expect(() =>
-      guard.canActivate(contextWith({ 'x-provisioning-token': 'wrong' })),
-    ).toThrow(UnauthorizedException)
-  })
-
-  it('accepts the shared token from inside the network', () => {
-    expect(
-      guard.canActivate(
-        contextWith({ 'x-provisioning-token': 'the-provisioning-token' }),
-      ),
-    ).toBe(true)
+  it('accepts a call from inside the network', () => {
+    expect(guard.canActivate(contextWith({}))).toBe(true)
   })
 })

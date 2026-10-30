@@ -55,15 +55,15 @@ export class IssueStreamTokenUseCase {
       },
     )
 
-    // RTMPS, not WHIP: WHIP only exists in RootEncoder 2.8.x, which needs AGP 9.
-    // MediaMTX listens for RTMPS on 1936 with a certificate, so a home router has
-    // nothing to block and the stream is still encrypted end to end.
+    // WHIP: RTMP and SRT both opened a socket, reported success and sent no media.
+    // WHIP publishes over HTTP, so the token rides in the query and MediaMTX reads
+    // it from there. MediaMTX serves WHIP at /<path>/whip.
     const base = this.config
-      .get<string>('STREAM_RTMP_URL', 'rtmps://stream.invalid:1936')
+      .get<string>('STREAM_WHIP_URL', 'https://stream.invalid')
       .replace(/\/$/, '')
 
     return {
-      publishUrl: `${base}/${session.id}?token=${encodeURIComponent(token)}`,
+      publishUrl: `${base}/${session.id}/whip?token=${encodeURIComponent(token)}`,
       expiresAt,
       heartbeatSeconds: 20,
     }
