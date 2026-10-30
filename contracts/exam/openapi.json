@@ -2026,6 +2026,56 @@
         ]
       }
     },
+    "/exam-schedules/{id}/streams": {
+      "get": {
+        "operationId": "ExamSessionAdminController_streams",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ScheduleStreamListResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Per-session camera stream status for the supervisor grid of a schedule",
+        "tags": [
+          "Exam Sessions"
+        ]
+      }
+    },
     "/exam-sessions/{id}/release": {
       "post": {
         "operationId": "ExamSessionAdminController_release",
@@ -4532,6 +4582,90 @@
           "total",
           "page",
           "limit"
+        ]
+      },
+      "ScheduleStreamDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentNis": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "IN_PROGRESS",
+              "SUBMITTED",
+              "EXPIRED",
+              "GRADED"
+            ],
+            "type": "string"
+          },
+          "violationCount": {
+            "type": "number"
+          },
+          "cameraBlocked": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "network",
+              "permission",
+              "battery",
+              "stopped"
+            ],
+            "description": "Why the camera is not streaming; null once it streams again"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "Last heartbeat; older than 60 s means the seat is drawn red"
+          },
+          "playbackUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "HLS URL, or null when the seat is not streaming"
+          }
+        },
+        "required": [
+          "sessionId",
+          "studentId",
+          "studentName",
+          "studentNis",
+          "status",
+          "violationCount",
+          "cameraBlocked",
+          "lastSeenAt",
+          "playbackUrl"
+        ]
+      },
+      "ScheduleStreamListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScheduleStreamDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total"
         ]
       },
       "StreamAuthDto": {
