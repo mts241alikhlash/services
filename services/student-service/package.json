@@ -1,6 +1,6 @@
 {
   "name": "student-service",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "241 Academic — student lifecycle: students, parents, enrollment, graduation, promotion",
   "author": "mhrmnvl",
   "private": true,

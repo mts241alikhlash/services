@@ -1,5 +1,12 @@
 # admission-service
 
+## 3.2.2
+
+### Patch Changes
+
+- b71621f: A proof upload or a rejection can no longer undo a payment verified at the same moment.
+- 78ab363: Images run with `NODE_ENV=production` unless the environment overrides it, so a missing variable can no longer expose reset tokens or skip the production checks.
+
 ## 3.2.1
 
 ### Patch Changes

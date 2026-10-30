@@ -1,5 +1,11 @@
 # presence-service
 
+## 1.0.3
+
+### Patch Changes
+
+- 78ab363: Images run with `NODE_ENV=production` unless the environment overrides it, so a missing variable can no longer expose reset tokens or skip the production checks.
+
 ## 1.0.2
 
 ### Patch Changes
