@@ -161,7 +161,11 @@ describe('StartExamSessionUseCase', () => {
   it('refuses a session that was already handed in', async () => {
     sessions.sessions.set(
       'done',
-      sessionFor(schedule, { id: 'done', status: 'SUBMITTED' }),
+      sessionFor(schedule, {
+        id: 'done',
+        status: 'SUBMITTED',
+        submittedAt: NOW,
+      }),
     )
 
     await expect(start(build())).rejects.toThrow('Ujian sudah dikumpulkan')
@@ -292,5 +296,176 @@ describe('StartExamSessionUseCase', () => {
 
     await expect(start(build())).rejects.toThrow('Ujian sudah dikumpulkan')
     expect(sessions.sessions.get('late')?.status).not.toBe('IN_PROGRESS')
+  })
+
+  describe('makeups', () => {
+    const MAKEUP_NOW = new Date('2026-11-05T02:00:00.000Z')
+
+    async function withMakeup(participants: string[] = [STUDENT_ID]) {
+      const makeup = await schedules.createMakeup({
+        packageId: schedule.packageId,
+        classroomId: schedule.classroomId,
+        semesterId: schedule.semesterId,
+        startsAt: new Date('2026-11-05T01:00:00.000Z'),
+        endsAt: new Date('2026-11-05T04:00:00.000Z'),
+        durationMinutes: 90,
+        type: schedule.type,
+        createdById: schedule.createdById,
+        makeupOfId: schedule.id,
+        participants: participants.map((studentId) => ({
+          studentId,
+          reason: 'SICK' as const,
+          note: null,
+        })),
+      })
+      if (makeup === null) throw new Error('makeup not created')
+      return makeup
+    }
+
+    const startMakeup = (
+      makeup: ExamSchedule,
+      enrollments = new FakeEnrollment(),
+    ) =>
+      build(new FakeStudentIdentity(), enrollments).execute(
+        STUDENT_USER,
+        makeup.id,
+        {
+          accessCode: codes.codeFor(makeup.id, makeup.tokenRotation),
+          deviceId: 'device-1',
+        },
+        MAKEUP_NOW,
+      )
+
+    it('lets a participant start with the token of the makeup', async () => {
+      const makeup = await withMakeup()
+
+      const started = await startMakeup(makeup)
+
+      expect((await sessions.findById(started.sessionId))?.scheduleId).toBe(
+        makeup.id,
+      )
+    })
+
+    it('does not accept the token of the regular exam', async () => {
+      const makeup = await withMakeup()
+
+      await expect(
+        build().execute(
+          STUDENT_USER,
+          makeup.id,
+          {
+            accessCode: codes.codeFor(schedule.id, schedule.tokenRotation),
+            deviceId: 'device-1',
+          },
+          MAKEUP_NOW,
+        ),
+      ).rejects.toThrow('Token ujian salah')
+    })
+
+    it('refuses a student who is not a participant', async () => {
+      const makeup = await withMakeup(['someone-else'])
+
+      await expect(startMakeup(makeup)).rejects.toThrow(
+        'Anda tidak terdaftar di ujian susulan ini',
+      )
+    })
+
+    it('refuses a student who already sat the regular exam', async () => {
+      const makeup = await withMakeup()
+      sessions.sessions.set(
+        'r',
+        sessionFor(schedule, {
+          id: 'r',
+          status: 'SUBMITTED',
+          submittedAt: NOW,
+        }),
+      )
+
+      await expect(startMakeup(makeup)).rejects.toThrow(
+        'Anda sudah mengikuti ujian ini',
+      )
+    })
+
+    it('lets a participant who moved to another classroom start', async () => {
+      const makeup = await withMakeup()
+      const moved = new FakeEnrollment({
+        enrollment: {
+          id: 'enr-2',
+          studentId: STUDENT_ID,
+          classroomId: 'other-room',
+          semesterId: makeup.semesterId,
+        },
+      })
+
+      await expect(startMakeup(makeup, moved)).resolves.toBeDefined()
+    })
+
+    it('refuses a student who already sat an earlier makeup of the same exam', async () => {
+      const earlier = await schedules.createMakeup({
+        packageId: schedule.packageId,
+        classroomId: schedule.classroomId,
+        semesterId: schedule.semesterId,
+        startsAt: new Date('2026-11-03T01:00:00.000Z'),
+        endsAt: new Date('2026-11-03T04:00:00.000Z'),
+        durationMinutes: 90,
+        type: schedule.type,
+        createdById: schedule.createdById,
+        makeupOfId: schedule.id,
+        participants: [
+          { studentId: STUDENT_ID, reason: 'SICK' as const, note: null },
+        ],
+      })
+      sessions.sessions.set(
+        'e',
+        sessionFor(earlier!, {
+          id: 'e',
+          status: 'GRADED',
+          submittedAt: NOW,
+        }),
+      )
+      const makeup = await withMakeup()
+
+      await expect(startMakeup(makeup)).rejects.toThrow(
+        'Anda sudah mengikuti ujian ini',
+      )
+    })
+
+    it('lets a student whose regular session was closed by the clock with no answers sit the makeup', async () => {
+      const makeup = await withMakeup()
+      sessions.sessions.set(
+        'g',
+        sessionFor(schedule, { id: 'g', status: 'GRADED' }),
+      )
+
+      await expect(startMakeup(makeup)).resolves.toBeDefined()
+    })
+
+    it('refuses a makeup whose regular exam was cancelled', async () => {
+      const makeup = await withMakeup()
+      await schedules.cancel(schedule.id)
+
+      await expect(startMakeup(makeup)).rejects.toThrow(
+        'Ujian utama sudah dibatalkan',
+      )
+    })
+
+    it('refuses to start the regular exam once the student has a session on a makeup of it', async () => {
+      const makeup = await withMakeup()
+      sessions.sessions.set(
+        'm',
+        sessionFor(makeup, { id: 'm', status: 'IN_PROGRESS' }),
+      )
+
+      await expect(start(build())).rejects.toThrow(
+        'Anda sudah mengikuti ujian ini',
+      )
+    })
+
+    it('refuses a cancelled makeup', async () => {
+      const makeup = await withMakeup()
+      await schedules.cancel(makeup.id)
+
+      await expect(startMakeup(makeup)).rejects.toThrow(ForbiddenException)
+    })
   })
 })

@@ -35,6 +35,32 @@ export class HttpEnrollmentLookupAdapter extends IEnrollmentLookupPort {
     }
     return this.client.malformed(URL_KEY)
   }
+
+  async listActiveByClassroom(
+    classroomId: string,
+    semesterId: string,
+  ): Promise<ActiveEnrollment[]> {
+    const data = await this.client.getData(
+      URL_KEY,
+      `/student-enrollments/by-classroom/${encodeURIComponent(classroomId)}?semesterId=${encodeURIComponent(semesterId)}&limit=500`,
+    )
+    const rows = Array.isArray(data)
+      ? (data as unknown[])
+      : data !== null &&
+          typeof data === 'object' &&
+          Array.isArray((data as { data?: unknown }).data)
+        ? (data as { data: unknown[] }).data
+        : this.client.malformed(URL_KEY)
+    return rows.map((row) => {
+      if (!isEnrollment(row)) return this.client.malformed(URL_KEY)
+      return {
+        id: row.id,
+        studentId: row.studentId,
+        classroomId: row.classroomId,
+        semesterId: row.semesterId,
+      }
+    })
+  }
 }
 
 function isEnrollment(row: unknown): row is ActiveEnrollment {

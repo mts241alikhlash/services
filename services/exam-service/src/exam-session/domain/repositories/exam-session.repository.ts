@@ -42,6 +42,7 @@ export interface SessionClosure {
   rawScore: number
   maxScore: number
   scores: { answerId: string; score: number | null }[]
+  publish?: boolean
 }
 
 export interface NewExamSession {

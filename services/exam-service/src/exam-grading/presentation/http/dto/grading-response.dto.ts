@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
+  EXAM_SCHEDULE_KINDS,
   EXAM_TYPES,
+  type ExamScheduleKind,
   type ExamType,
 } from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
 import type { PaginatedResult } from '../../../../shared/domain/interfaces/repository.interface.js'
@@ -24,6 +26,9 @@ export class GradingScheduleDto {
   @ApiProperty({ type: String, nullable: true }) classroomName!: string | null
   @ApiProperty({ format: 'uuid' }) semesterId!: string
   @ApiProperty({ enum: EXAM_TYPES }) type!: ExamType
+  @ApiProperty({ format: 'uuid' }) packageId!: string
+  @ApiProperty() durationMinutes!: number
+  @ApiProperty({ enum: EXAM_SCHEDULE_KINDS }) kind!: ExamScheduleKind
   @ApiProperty({ format: 'date-time' }) startsAt!: string
   @ApiProperty({ format: 'date-time' }) endsAt!: string
   @ApiProperty() sessions!: number
@@ -33,12 +38,18 @@ export class GradingScheduleDto {
   static fromDomain(domain: GradingSchedule): GradingScheduleDto {
     const dto = new GradingScheduleDto()
     dto.id = domain.id
-    dto.title = domain.packageTitle
+    dto.title =
+      domain.kind === 'MAKEUP'
+        ? `${domain.packageTitle} (Susulan)`
+        : domain.packageTitle
     dto.subjectId = domain.subjectId
     dto.classroomId = domain.classroomId
     dto.classroomName = domain.classroomName
     dto.semesterId = domain.semesterId
     dto.type = domain.type
+    dto.packageId = domain.packageId
+    dto.durationMinutes = domain.durationMinutes
+    dto.kind = domain.kind
     dto.startsAt = domain.startsAt.toISOString()
     dto.endsAt = domain.endsAt.toISOString()
     dto.sessions = domain.sessions

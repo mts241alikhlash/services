@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
+  EXAM_SCHEDULE_KINDS,
   EXAM_SCHEDULE_STATUSES,
   EXAM_TYPES,
+  type ExamScheduleKind,
   type ExamScheduleStatus,
   type ExamType,
   type ExamScheduleView,
@@ -18,6 +20,9 @@ export class ExamScheduleDto {
   @ApiProperty({ format: 'date-time' }) endsAt!: string
   @ApiProperty() durationMinutes!: number
   @ApiProperty({ enum: EXAM_TYPES }) type!: ExamType
+  @ApiProperty({ enum: EXAM_SCHEDULE_KINDS }) kind!: ExamScheduleKind
+  @ApiProperty({ type: String, format: 'uuid', nullable: true })
+  makeupOfId!: string | null
   @ApiProperty({ enum: EXAM_SCHEDULE_STATUSES }) status!: ExamScheduleStatus
   @ApiProperty({ format: 'uuid' }) createdById!: string
   @ApiProperty({
@@ -43,6 +48,8 @@ export class ExamScheduleDto {
     dto.endsAt = domain.endsAt.toISOString()
     dto.durationMinutes = domain.durationMinutes
     dto.type = domain.type
+    dto.kind = domain.kind
+    dto.makeupOfId = domain.makeupOfId
     dto.status = domain.status
     dto.hasSessions = domain.hasSessions ?? false
     dto.createdById = domain.createdById

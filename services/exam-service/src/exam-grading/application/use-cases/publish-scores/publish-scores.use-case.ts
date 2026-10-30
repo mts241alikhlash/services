@@ -159,7 +159,10 @@ export class PublishScoresUseCase {
       gradeId: classroom.gradeId,
       classroomId: schedule.classroomId,
       semesterId: schedule.semesterId,
-      examTitle: schedule.packageTitle,
+      examTitle:
+        schedule.kind === 'MAKEUP'
+          ? `${schedule.packageTitle} (Susulan)`
+          : schedule.packageTitle,
       rawScore,
       maxScore,
       score: maxScore > 0 ? Math.round((rawScore / maxScore) * 10000) / 100 : 0,

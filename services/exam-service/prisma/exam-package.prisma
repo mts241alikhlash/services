@@ -84,6 +84,18 @@ model ExamPackageItem {
   @@map("exam_package_items")
 }
 
+enum ExamScheduleKind {
+  REGULAR
+  MAKEUP
+}
+
+enum MakeupReason {
+  SICK
+  PERMITTED
+  ABSENT
+  OTHER
+}
+
 /// One package scheduled for one classroom inside a time window. The access
 /// code is never stored: it is derived from the schedule id and
 /// `tokenRotation`, which only ever grows.
@@ -96,16 +108,40 @@ model ExamSchedule {
   endsAt          DateTime           @map("ends_at")
   durationMinutes Int                @map("duration_minutes")
   type            ExamType           @default(UH)
+  kind            ExamScheduleKind   @default(REGULAR)
+  makeupOfId      String?            @map("makeup_of_id") @db.Uuid
   tokenRotation   Int                @default(0) @map("token_rotation")
   status          ExamScheduleStatus @default(SCHEDULED)
   createdById     String             @map("created_by_id") @db.Uuid
   createdAt       DateTime           @default(now()) @map("created_at")
   updatedAt       DateTime           @updatedAt @map("updated_at")
 
-  package  ExamPackage   @relation(fields: [packageId], references: [id])
-  sessions ExamSession[]
+  package      ExamPackage               @relation(fields: [packageId], references: [id])
+  makeupOf     ExamSchedule?             @relation("Makeups", fields: [makeupOfId], references: [id])
+  makeups      ExamSchedule[]            @relation("Makeups")
+  sessions     ExamSession[]
+  participants ExamScheduleParticipant[]
 
   @@index([classroomId, startsAt])
   @@index([packageId])
+  @@index([makeupOfId])
   @@map("exam_schedules")
+}
+
+/// A student allowed to sit a makeup schedule, with why they missed the
+/// regular one.
+model ExamScheduleParticipant {
+  id         String       @id @default(uuid()) @db.Uuid
+  scheduleId String       @map("schedule_id") @db.Uuid
+  studentId  String       @map("student_id") @db.Uuid
+  reason     MakeupReason
+  note       String?      @db.VarChar(200)
+  addedById  String       @map("added_by_id") @db.Uuid
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  schedule ExamSchedule @relation(fields: [scheduleId], references: [id])
+
+  @@unique([scheduleId, studentId])
+  @@index([studentId])
+  @@map("exam_schedule_participants")
 }

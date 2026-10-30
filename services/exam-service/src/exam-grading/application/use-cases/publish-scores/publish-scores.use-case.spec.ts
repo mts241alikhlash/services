@@ -103,6 +103,23 @@ describe('PublishScoresUseCase', () => {
     expect(publications.states.get('ses-1')?.sentAt).toEqual(NOW)
   })
 
+  it('marks the title of a makeup so the teacher can tell it from the regular exam', async () => {
+    const world = build()
+    const { schedule } = await graded(world)
+    world.schedules.schedules.set(schedule.id, {
+      ...schedule,
+      kind: 'MAKEUP',
+      makeupOfId: 'original-schedule',
+    })
+    const { useCase, publisher } = make(world)
+
+    await useCase.execute(NOW)
+
+    expect(publisher.sent[0].examTitle).toBe(
+      `${schedule.packageTitle} (Susulan)`,
+    )
+  })
+
   it('does not send a sent publication again', async () => {
     const world = build()
     await graded(world)

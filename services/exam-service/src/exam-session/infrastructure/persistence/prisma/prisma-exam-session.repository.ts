@@ -135,7 +135,7 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
           maxScore: closure.maxScore,
         },
       })
-      if (closure.status === 'GRADED') {
+      if (closure.status === 'GRADED' && closure.publish !== false) {
         await tx.scorePublication.upsert({
           where: { sessionId: id },
           create: { sessionId: id },

@@ -8,6 +8,9 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { AccessCodeService } from '../../../../exam-schedule/application/access-code.service.js'
+import type { ExamSchedule } from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
+import { loadSittings } from '../../../../exam-schedule/application/student-sittings.js'
+import { assessMakeupEligibility } from '../../../../exam-schedule/domain/policies/makeup-eligibility.policy.js'
 import { IExamScheduleRepository } from '../../../../exam-schedule/domain/repositories/exam-schedule.repository.js'
 import { IEnrollmentLookupPort } from '../../../../platform/enrollment-lookup/enrollment-lookup.port.js'
 import { IStudentIdentityReadPort } from '../../../../platform/student-identity/student-identity.port.js'
@@ -55,11 +58,15 @@ export class StartExamSessionUseCase {
     if (schedule === null) {
       throw new NotFoundException('Jadwal ujian tidak ditemukan')
     }
-    if (
+    if (schedule.kind === 'MAKEUP') {
+      await this.assertMakeupAccess(schedule, studentId)
+    } else if (
       schedule.classroomId !== enrollment.classroomId ||
       schedule.semesterId !== enrollment.semesterId
     ) {
       throw new ForbiddenException('Ujian ini bukan untuk kelas Anda')
+    } else {
+      await this.assertNoMakeupSitting(schedule.id, studentId)
     }
     if (schedule.status !== 'SCHEDULED') {
       throw new ForbiddenException('Jadwal ujian sudah dibatalkan')
@@ -132,6 +139,59 @@ export class StartExamSessionUseCase {
       input.deviceId,
       now,
     )
+  }
+
+  private async assertMakeupAccess(
+    schedule: ExamSchedule,
+    studentId: string,
+  ): Promise<void> {
+    const participation = await this.schedules.findParticipation(
+      schedule.id,
+      studentId,
+    )
+    if (participation === null) {
+      throw new ForbiddenException('Anda tidak terdaftar di ujian susulan ini')
+    }
+    if (schedule.makeupOfId === null) return
+    const original = await this.schedules.findById(schedule.makeupOfId)
+    if (original?.status !== 'SCHEDULED') {
+      throw new ForbiddenException('Ujian utama sudah dibatalkan')
+    }
+    await this.assertNotSat(original.id, studentId, schedule.id)
+  }
+
+  private async assertNoMakeupSitting(
+    scheduleId: string,
+    studentId: string,
+  ): Promise<void> {
+    const makeups = (await this.schedules.findMakeupsOf(scheduleId)).filter(
+      (makeup) => makeup.status === 'SCHEDULED',
+    )
+    if (makeups.length === 0) return
+    const found = await this.sessions.listByStudentAndSchedules(
+      studentId,
+      makeups.map((makeup) => makeup.id),
+    )
+    if (found.length > 0) {
+      throw new ForbiddenException('Anda sudah mengikuti ujian ini')
+    }
+  }
+
+  private async assertNotSat(
+    originalId: string,
+    studentId: string,
+    excludeScheduleId: string,
+  ): Promise<void> {
+    const sittings = await loadSittings(
+      this.schedules,
+      this.sessions,
+      originalId,
+      studentId,
+      excludeScheduleId,
+    )
+    if (!assessMakeupEligibility({ sittings, onLiveMakeup: false }).eligible) {
+      throw new ForbiddenException('Anda sudah mengikuti ujian ini')
+    }
   }
 
   private async resume(

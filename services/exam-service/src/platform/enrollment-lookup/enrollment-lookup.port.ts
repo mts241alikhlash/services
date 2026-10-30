@@ -10,4 +10,8 @@ export abstract class IEnrollmentLookupPort {
     studentId: string,
     semesterId?: string,
   ): Promise<ActiveEnrollment | null>
+  abstract listActiveByClassroom(
+    classroomId: string,
+    semesterId: string,
+  ): Promise<ActiveEnrollment[]>
 }

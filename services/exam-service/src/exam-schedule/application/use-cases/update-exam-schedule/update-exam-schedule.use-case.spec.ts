@@ -210,4 +210,90 @@ describe('Update and cancel exam schedule', () => {
       )
     })
   })
+
+  describe('makeups', () => {
+    async function withMakeup() {
+      const original = (await schedules.findById(scheduleId))!
+      const makeup = await schedules.createMakeup({
+        packageId: original.packageId,
+        classroomId: original.classroomId,
+        semesterId: original.semesterId,
+        startsAt: new Date('2026-11-03T01:00:00.000Z'),
+        endsAt: new Date('2026-11-03T04:00:00.000Z'),
+        durationMinutes: 60,
+        type: original.type,
+        createdById: USER.id,
+        makeupOfId: original.id,
+        participants: [
+          { studentId: 'st1', reason: 'SICK' as const, note: null },
+        ],
+      })
+      return { original, makeup: makeup! }
+    }
+
+    const update = (
+      id: string,
+      fields: Parameters<UpdateExamScheduleUseCase['execute']>[1],
+    ) => new UpdateExamScheduleUseCase(schedules, guard).execute(id, fields)
+
+    it('keeps a makeup from opening before the regular exam ends', async () => {
+      const { makeup } = await withMakeup()
+
+      await expect(
+        update(makeup.id, {
+          startsAt: new Date(END.getTime() - 60_000),
+          endsAt: new Date('2026-11-03T04:00:00.000Z'),
+          durationMinutes: 60,
+          type: 'UH',
+        }),
+      ).rejects.toThrow('Susulan harus dimulai setelah ujian utama berakhir')
+    })
+
+    it('keeps the type of a makeup the same as the original', async () => {
+      const { makeup } = await withMakeup()
+
+      await expect(
+        update(makeup.id, {
+          startsAt: makeup.startsAt,
+          endsAt: makeup.endsAt,
+          durationMinutes: 60,
+          type: 'UAS',
+        }),
+      ).rejects.toThrow('Jenis ujian susulan sama dengan ujian utama')
+    })
+
+    it('still lets a makeup move later', async () => {
+      const { makeup } = await withMakeup()
+
+      const moved = await update(makeup.id, {
+        startsAt: new Date('2026-11-03T02:00:00.000Z'),
+        endsAt: new Date('2026-11-03T05:00:00.000Z'),
+        durationMinutes: 60,
+        type: 'UH',
+      })
+
+      expect(moved.startsAt).toEqual(new Date('2026-11-03T02:00:00.000Z'))
+    })
+
+    it('refuses to extend the regular exam into a live makeup', async () => {
+      await withMakeup()
+
+      await expect(
+        update(scheduleId, {
+          startsAt: START,
+          endsAt: new Date('2026-11-03T02:00:00.000Z'),
+          durationMinutes: 90,
+          type: 'UH',
+        }),
+      ).rejects.toThrow('Ujian utama tidak bisa diperpanjang melewati susulan')
+      await expect(
+        update(scheduleId, {
+          startsAt: START,
+          endsAt: new Date('2026-11-03T00:30:00.000Z'),
+          durationMinutes: 90,
+          type: 'UH',
+        }),
+      ).resolves.toBeDefined()
+    })
+  })
 })

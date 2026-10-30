@@ -4,7 +4,12 @@ import { IExamScheduleRepository } from '../../../../exam-schedule/domain/reposi
 import { IAcademicLookupPort } from '../../../../platform/academic-lookup/academic-lookup.port.js'
 import { IEnrollmentLookupPort } from '../../../../platform/enrollment-lookup/enrollment-lookup.port.js'
 import { IStudentIdentityReadPort } from '../../../../platform/student-identity/student-identity.port.js'
-import type { ExamType } from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
+import type {
+  ExamSchedule,
+  ExamType,
+} from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
+import { loadSittings } from '../../../../exam-schedule/application/student-sittings.js'
+import { assessMakeupEligibility } from '../../../../exam-schedule/domain/policies/makeup-eligibility.policy.js'
 import type { MyExamStatus } from '../../../domain/entities/exam-session.entity.js'
 import { myExamStatus } from '../../../domain/policies/my-exam-status.policy.js'
 import { IExamSessionRepository } from '../../../domain/repositories/exam-session.repository.js'
@@ -49,10 +54,15 @@ export class ListMyExamsUseCase {
     const enrollment = await this.enrollments.findActiveByStudent(studentId)
     if (enrollment === null) return []
 
-    const schedules = await this.schedules.findForClassroom(
+    const regular = await this.schedules.findForClassroom(
       enrollment.classroomId,
       enrollment.semesterId,
     )
+    const makeups = await this.schedules.findMakeupsForStudent(
+      studentId,
+      enrollment.semesterId,
+    )
+    const schedules = [...regular, ...makeups]
     if (schedules.length === 0) return []
 
     const sessions = await this.sessions.listByStudentAndSchedules(
@@ -63,12 +73,21 @@ export class ListMyExamsUseCase {
 
     const rows: MyExam[] = []
     for (const schedule of schedules) {
+      if (
+        schedule.kind === 'MAKEUP' &&
+        !(await this.canSitMakeup(schedule, studentId))
+      ) {
+        continue
+      }
       const pkg = await this.packages.findById(schedule.packageId)
       if (pkg === null) continue
       const session = sessionOf.get(schedule.id) ?? null
       rows.push({
         id: schedule.id,
-        title: schedule.packageTitle,
+        title:
+          schedule.kind === 'MAKEUP'
+            ? `${schedule.packageTitle} (Susulan)`
+            : schedule.packageTitle,
         subjectId: pkg.subjectId,
         subjectName: null,
         type: schedule.type,
@@ -89,6 +108,23 @@ export class ListMyExamsUseCase {
           ? b.endsAt.getTime() - a.endsAt.getTime()
           : a.startsAt.getTime() - b.startsAt.getTime()),
     )
+  }
+
+  private async canSitMakeup(
+    makeup: ExamSchedule,
+    studentId: string,
+  ): Promise<boolean> {
+    if (makeup.makeupOfId === null) return false
+    const original = await this.schedules.findById(makeup.makeupOfId)
+    if (original?.status !== 'SCHEDULED') return false
+    const sittings = await loadSittings(
+      this.schedules,
+      this.sessions,
+      original.id,
+      studentId,
+      makeup.id,
+    )
+    return assessMakeupEligibility({ sittings, onLiveMakeup: false }).eligible
   }
 
   private async subjectNames(ids: string[]): Promise<Map<string, string>> {

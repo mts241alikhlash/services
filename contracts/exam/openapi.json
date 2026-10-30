@@ -2065,6 +2065,249 @@
         ]
       }
     },
+    "/exam-schedules/{id}/absentees": {
+      "get": {
+        "operationId": "ExamMakeupController_absentees",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AbsenteeDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The students of the classroom who can still sit a makeup",
+        "tags": [
+          "Exam Makeups"
+        ]
+      }
+    },
+    "/exam-schedules/{id}/makeups": {
+      "post": {
+        "operationId": "ExamMakeupController_makeup",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMakeupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ExamScheduleDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a makeup of an exam for students who did not sit it",
+        "tags": [
+          "Exam Makeups"
+        ]
+      }
+    },
+    "/exam-schedules/{id}/participants": {
+      "get": {
+        "operationId": "ExamMakeupController_participants",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ParticipantDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The students on a makeup, with live status",
+        "tags": [
+          "Exam Makeups"
+        ]
+      },
+      "post": {
+        "operationId": "ExamMakeupController_addToMakeup",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddParticipantsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add students to a makeup",
+        "tags": [
+          "Exam Makeups"
+        ]
+      }
+    },
+    "/exam-schedules/{id}/participants/{studentId}": {
+      "delete": {
+        "operationId": "ExamMakeupController_removeFromMakeup",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove a student who has not started the makeup",
+        "tags": [
+          "Exam Makeups"
+        ]
+      }
+    },
     "/exam-grading/schedules": {
       "get": {
         "operationId": "ExamGradingController_schedules",
@@ -3507,6 +3750,18 @@
             ],
             "type": "string"
           },
+          "kind": {
+            "enum": [
+              "REGULAR",
+              "MAKEUP"
+            ],
+            "type": "string"
+          },
+          "makeupOfId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
           "status": {
             "enum": [
               "SCHEDULED",
@@ -3542,6 +3797,8 @@
           "endsAt",
           "durationMinutes",
           "type",
+          "kind",
+          "makeupOfId",
           "status",
           "createdById",
           "hasSessions",
@@ -4088,6 +4345,166 @@
           "sizeBytes"
         ]
       },
+      "AbsenteeDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "nis": {
+            "type": "string",
+            "nullable": true
+          },
+          "eligible": {
+            "type": "boolean"
+          },
+          "reason": {
+            "nullable": true,
+            "enum": [
+              "ALREADY_SAT",
+              "IN_PROGRESS",
+              "ON_LIVE_MAKEUP"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "studentId",
+          "name",
+          "nis",
+          "eligible",
+          "reason"
+        ]
+      },
+      "MakeupParticipantDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "enum": [
+              "SICK",
+              "PERMITTED",
+              "ABSENT",
+              "OTHER"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "studentId",
+          "reason"
+        ]
+      },
+      "CreateMakeupDto": {
+        "type": "object",
+        "properties": {
+          "packageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMinutes": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 1440
+          },
+          "participants": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MakeupParticipantDto"
+            }
+          }
+        },
+        "required": [
+          "startsAt",
+          "endsAt",
+          "durationMinutes",
+          "participants"
+        ]
+      },
+      "ParticipantDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "nis": {
+            "type": "string",
+            "nullable": true
+          },
+          "reason": {
+            "enum": [
+              "SICK",
+              "PERMITTED",
+              "ABSENT",
+              "OTHER"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "WAITING",
+              "SAT_REGULAR",
+              "IN_PROGRESS",
+              "DONE"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "studentId",
+          "name",
+          "nis",
+          "reason",
+          "note",
+          "status"
+        ]
+      },
+      "AddParticipantsDto": {
+        "type": "object",
+        "properties": {
+          "participants": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MakeupParticipantDto"
+            }
+          }
+        },
+        "required": [
+          "participants"
+        ]
+      },
       "GradingScheduleDto": {
         "type": "object",
         "properties": {
@@ -4124,6 +4541,20 @@
             ],
             "type": "string"
           },
+          "packageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "durationMinutes": {
+            "type": "number"
+          },
+          "kind": {
+            "enum": [
+              "REGULAR",
+              "MAKEUP"
+            ],
+            "type": "string"
+          },
           "startsAt": {
             "type": "string",
             "format": "date-time"
@@ -4150,6 +4581,9 @@
           "classroomName",
           "semesterId",
           "type",
+          "packageId",
+          "durationMinutes",
+          "kind",
           "startsAt",
           "endsAt",
           "sessions",
