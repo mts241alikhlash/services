@@ -59,10 +59,16 @@ export class FakeEnrollment extends IEnrollmentLookupPort {
   constructor(
     private readonly options: {
       enrollment?: ActiveEnrollment | null
+      roster?: ActiveEnrollment[]
       failWith?: Error
     } = {},
   ) {
     super()
+  }
+
+  listActiveByClassroom() {
+    if (this.options.failWith) return Promise.reject(this.options.failWith)
+    return Promise.resolve(this.options.roster ?? [])
   }
 
   findActiveByStudent() {

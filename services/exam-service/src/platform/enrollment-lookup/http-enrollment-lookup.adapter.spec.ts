@@ -62,3 +62,39 @@ describe('HttpEnrollmentLookupAdapter.findActiveByStudent', () => {
     ).rejects.toThrow('malformed')
   })
 })
+
+describe('HttpEnrollmentLookupAdapter.listActiveByClassroom', () => {
+  it('asks for the roster of a classroom in a semester', async () => {
+    const { adapter, getData } = build([summary, { ...summary, id: 'enr-2' }])
+
+    const rows = await adapter.listActiveByClassroom('room 7a', 'sem-1')
+
+    expect(rows.map((row) => row.id)).toEqual(['enr-1', 'enr-2'])
+    expect(getData).toHaveBeenCalledWith(
+      'STUDENT_SERVICE_URL',
+      '/student-enrollments/by-classroom/room%207a?semesterId=sem-1&limit=500',
+    )
+  })
+
+  it('reads a list wrapped in data', async () => {
+    const { adapter } = build({ data: [summary] })
+
+    await expect(
+      adapter.listActiveByClassroom('room-7a', 'sem-1'),
+    ).resolves.toEqual([summary])
+  })
+
+  it('answers an empty roster when there is nothing', async () => {
+    await expect(
+      build([]).adapter.listActiveByClassroom('room-7a', 'sem-1'),
+    ).resolves.toEqual([])
+  })
+
+  it('treats a row without a student as malformed', async () => {
+    await expect(
+      build([
+        { id: 'enr-1', classroomId: 'room-7a', semesterId: 'sem-1' },
+      ]).adapter.listActiveByClassroom('room-7a', 'sem-1'),
+    ).rejects.toThrow('malformed')
+  })
+})
