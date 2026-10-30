@@ -28,6 +28,7 @@ import { PrismaExamAccessAttemptRepository } from './infrastructure/persistence/
 import { PrismaExamSessionRepository } from './infrastructure/persistence/prisma/prisma-exam-session.repository.js'
 import { ExamSessionAdminController } from './presentation/http/exam-session-admin.controller.js'
 import { ListScheduleSessionsUseCase } from './application/use-cases/list-schedule-sessions/list-schedule-sessions.use-case.js'
+import { ListScheduleStreamsUseCase } from './application/use-cases/list-schedule-streams/list-schedule-streams.use-case.js'
 import { ReleaseSessionUseCase } from './application/use-cases/release-session/release-session.use-case.js'
 import { SessionExamController } from './presentation/http/session-exam.controller.js'
 import { StudentExamController } from './presentation/http/student-exam.controller.js'
@@ -67,6 +68,7 @@ import { StreamAuthController } from './presentation/http/stream-auth.controller
     CheckStreamTokenUseCase,
     ProvisioningTokenGuard,
     ListScheduleSessionsUseCase,
+    ListScheduleStreamsUseCase,
     ReleaseSessionUseCase,
     FinalizeDueSessionsUseCase,
     FinalizeDueSessionsJob,

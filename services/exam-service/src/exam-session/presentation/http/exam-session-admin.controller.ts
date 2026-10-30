@@ -20,10 +20,12 @@ import { JwtAuthGuard } from '../../../platform/auth/index.js'
 import { PaginationQueryDto } from '../../../shared/dto/pagination.dto.js'
 import { ListScheduleSessionsUseCase } from '../../application/use-cases/list-schedule-sessions/list-schedule-sessions.use-case.js'
 import { ReleaseSessionUseCase } from '../../application/use-cases/release-session/release-session.use-case.js'
+import { ListScheduleStreamsUseCase } from '../../application/use-cases/list-schedule-streams/list-schedule-streams.use-case.js'
 import {
   ScheduleSessionDto,
   ScheduleSessionListResponseDto,
 } from './dto/schedule-session.dto.js'
+import { ScheduleStreamListResponseDto } from './dto/schedule-stream.dto.js'
 
 @ApiTags('Exam Sessions')
 @ApiBearerAuth()
@@ -33,6 +35,7 @@ export class ExamSessionAdminController {
   constructor(
     private readonly listSessions: ListScheduleSessionsUseCase,
     private readonly releaseSession: ReleaseSessionUseCase,
+    private readonly listStreams: ListScheduleStreamsUseCase,
   ) {}
 
   @Get('exam-schedules/:id/sessions')
@@ -46,6 +49,22 @@ export class ExamSessionAdminController {
   ): Promise<ScheduleSessionListResponseDto> {
     return ScheduleSessionListResponseDto.fromDomain(
       await this.listSessions.execute(id, query.page, query.limit),
+    )
+  }
+
+  @Get('exam-schedules/:id/streams')
+  @RequirePermissions('exam-sessions.read')
+  @ApiOperation({
+    summary:
+      'Per-session camera stream status for the supervisor grid of a schedule',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiResponse({ status: 200, type: ScheduleStreamListResponseDto })
+  async streams(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<ScheduleStreamListResponseDto> {
+    return ScheduleStreamListResponseDto.fromDomain(
+      await this.listStreams.execute(id, new Date()),
     )
   }
 
