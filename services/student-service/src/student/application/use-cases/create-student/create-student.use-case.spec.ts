@@ -1,4 +1,5 @@
 import { ConflictException } from '@nestjs/common'
+import * as bcrypt from 'bcrypt'
 import { Test, TestingModule } from '@nestjs/testing'
 import { UserGender } from '../../../../shared/domain/enums/user-gender.enum.js'
 import { CreateStudentInput } from './create-student.input.js'
@@ -100,6 +101,26 @@ describe('CreateStudentUseCase', () => {
         gradeId: '550e8400-e29b-41d4-a716-446655440099',
       })
     })
+
+    it.each([undefined, ''])(
+      'never uses the NIS or an empty string as password when none is given (%p)',
+      async (password) => {
+        mockStudentRepository.findByNis.mockResolvedValue(null)
+        mockStudentRepository.findByNisn.mockResolvedValue(null)
+        mockStudentRepository.create.mockResolvedValue({ student: mockStudent })
+
+        await useCase.execute({
+          ...input,
+          identifier: undefined,
+          password,
+          nis: '2627001',
+        })
+
+        const hash = mockStudentRepository.create.mock.calls[0][1] as string
+        expect(await bcrypt.compare('2627001', hash)).toBe(false)
+        expect(await bcrypt.compare('', hash)).toBe(false)
+      },
+    )
 
     it('should create a student without ensuring enrollment (no classroomId)', async () => {
       const ppdbInput: CreateStudentInput = { ...input, classroomId: undefined }

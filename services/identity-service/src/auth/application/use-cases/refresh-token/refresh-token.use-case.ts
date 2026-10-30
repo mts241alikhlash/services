@@ -89,13 +89,23 @@ export class RefreshTokenUseCase {
       this.tokenManagerService.hashToken(rotatedRefreshToken)
     const idleMs = this.tokenManagerService.getRefreshExpirationMs()
     const expiresAt = slidExpiry(now, idleMs, session.absoluteExpiresAt)
-    await this.authRepository.updateSessionToken(session.id, {
-      tokenHash: newRefreshHash,
-      previousTokenHash: session.tokenHash,
-      previousRotatedAt: now,
-      lastUsedAt: now,
-      expiresAt,
-    })
+    const rotated = await this.authRepository.updateSessionToken(
+      session.id,
+      session.tokenHash,
+      {
+        tokenHash: newRefreshHash,
+        previousTokenHash: session.tokenHash,
+        previousRotatedAt: now,
+        lastUsedAt: now,
+        expiresAt,
+      },
+    )
+    if (!rotated) {
+      this.logger.log(
+        `Refresh raced a refresh for session ${session.id}; access token issued, refresh token kept.`,
+      )
+      return { accessToken, user }
+    }
     if (session.parentSessionId && session.parent) {
       await this.authRepository.slideSession(
         session.parentSessionId,

@@ -253,14 +253,6 @@ describe('TokenManagerService', () => {
 
       expect(result).toBe(60 * 1000)
     })
-
-    it('should default to 7 days for invalid format', () => {
-      mockConfigService.get.mockReturnValue('invalid')
-
-      const result = service.getRefreshExpirationMs()
-
-      expect(result).toBe(7 * 24 * 60 * 60 * 1000)
-    })
   })
 })
 

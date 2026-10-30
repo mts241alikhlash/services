@@ -1,7 +1,10 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common'
 import { CreateEmployeeInput } from './create-employee.input.js'
 import { IEmployeeRepository } from '../../../domain/repositories/employee.repository.js'
-import { hashPassword } from '../../../../shared/utils/hash.helper.js'
+import {
+  hashPassword,
+  randomPassword,
+} from '../../../../shared/utils/hash.helper.js'
 
 @Injectable()
 export class CreateEmployeeUseCase {
@@ -12,7 +15,7 @@ export class CreateEmployeeUseCase {
   async execute(input: CreateEmployeeInput) {
     const fallback = input.nip || input.nuptk || input.nik
     input.identifier ||= fallback
-    input.password ||= fallback
+    input.password ||= randomPassword()
 
     const [existingUsername, existingNik, existingNip, existingNuptk] =
       await Promise.all([

@@ -32,8 +32,4 @@ export class RoundingService {
 
     return { gross, deductions, net: gross - deductions }
   }
-
-  format(value: number): string {
-    return String(Math.round(value))
-  }
 }

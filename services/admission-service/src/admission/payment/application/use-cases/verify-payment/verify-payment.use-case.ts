@@ -46,6 +46,11 @@ export class VerifyPaymentUseCase {
         note: input.note ?? null,
         adminId: input.adminId,
       })
+      if (!rejected) {
+        throw new ConflictException(
+          'Pembayaran sudah diverifikasi, batalkan verifikasi terlebih dahulu',
+        )
+      }
       await this.notifications.notify(
         input.applicationId,
         'PAYMENT',

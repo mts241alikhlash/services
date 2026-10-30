@@ -28,16 +28,26 @@ export class RequestPasswordResetUseCase {
 
   async execute(identifier: string): Promise<RequestPasswordResetResult> {
     const user = await this.authRepository.findUserByIdentifier(identifier)
+    const generic = {
+      success: true,
+      message:
+        'Jika akun Anda terdaftar, email instruksi reset password telah dikirim.',
+    }
 
     if (!user || !user.isActive || user.deletedAt) {
       this.logger.warn(
         `Password reset requested for non-existent or inactive user: ${identifier}`,
       )
-      return {
-        success: true,
-        message:
-          'Jika akun Anda terdaftar, email instruksi reset password telah dikirim.',
-      }
+      return generic
+    }
+    const email =
+      user.profile?.email ||
+      (user.identifier.includes('@') ? user.identifier : null)
+    if (!email) {
+      this.logger.warn(
+        `Password reset requested for user ${user.id} without a profile email`,
+      )
+      return generic
     }
 
     const token = crypto.randomBytes(32).toString('hex')
@@ -72,16 +82,12 @@ export class RequestPasswordResetUseCase {
     `
 
     const emailSent = await this.emailService.sendEmail(
-      user.identifier,
+      email,
       subject,
       htmlContent,
     )
 
-    const result: RequestPasswordResetResult = {
-      success: true,
-      message:
-        'Jika akun Anda terdaftar, email instruksi reset password telah dikirim.',
-    }
+    const result: RequestPasswordResetResult = { ...generic }
 
     const isNotProduction =
       this.configService.get<string>('NODE_ENV') !== 'production'

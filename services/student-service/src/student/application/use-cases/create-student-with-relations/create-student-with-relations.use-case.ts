@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common'
 import { CreateStudentWithRelationsInput } from './create-student-with-relations.input.js'
 import { IStudentRepository } from '../../../domain/repositories/student.repository.js'
 import { StudentWithDetails } from '../../../domain/repositories/student.repository.js'
-import { hashPassword } from '../../../../shared/utils/hash.helper.js'
+import {
+  hashPassword,
+  randomPassword,
+} from '../../../../shared/utils/hash.helper.js'
 import {
   StudentNisAlreadyExistsException,
   StudentNisnAlreadyExistsException,
@@ -25,7 +28,7 @@ export class CreateStudentWithRelationsUseCase {
     input.identifier ??= nis
       ? nis
       : input.name.toLowerCase().replace(/\s+/g, '.')
-    input.password ??= nis ? nis : input.identifier
+    input.password ||= randomPassword()
 
     const [dupNis, dupNisn] = await Promise.all([
       nis ? this.studentRepository.findByNis(nis) : null,

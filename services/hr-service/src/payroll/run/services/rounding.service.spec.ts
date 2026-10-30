@@ -109,9 +109,4 @@ describe('RoundingService', () => {
       expect(service.total([])).toEqual({ gross: 0, deductions: 0, net: 0 })
     })
   })
-
-  it('formats as a whole-rupiah string, never a float', () => {
-    expect(service.format(3500000)).toBe('3500000')
-    expect(service.format(0)).toBe('0')
-  })
 })

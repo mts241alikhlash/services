@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common'
 import ExcelJS from 'exceljs'
 import { EmployeeImportRow } from '../../domain/entities/employee-import-row.entity.js'
 import { ExcelEmployeeParser as IExcelEmployeeParser } from '../../domain/repositories/employee-excel-parser.interface.js'
+import { randomPassword } from '../../../shared/utils/hash.helper.js'
 
 type ExcelRow = Record<string, ExcelJS.CellValue>
 
@@ -43,7 +44,7 @@ export class ExcelEmployeeParser implements IExcelEmployeeParser {
     const fallback = nip ?? nuptk ?? nik
     const identifier =
       str('Identifier', 'identifier') || str('Username', 'username') || fallback
-    const password = str('Password', 'password') || fallback
+    const password = str('Password', 'password') || randomPassword()
 
     return {
       identifier,

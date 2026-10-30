@@ -111,6 +111,9 @@ export class UploadPaymentProofUseCase {
       senderAccountName: input.senderAccountName,
       transferDate: input.transferDate ?? null,
     })
+    if (!payment) {
+      throw new ConflictException('Pembayaran sudah diverifikasi')
+    }
 
     return serializePayment(payment)
   }

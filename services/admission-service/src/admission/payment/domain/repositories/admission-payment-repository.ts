@@ -69,14 +69,14 @@ export abstract class IAdmissionPaymentRepository {
   ): Promise<AdmissionPaymentApplicationRef | null>
   abstract savePaymentProof(
     input: SavePaymentProofInput,
-  ): Promise<AdmissionPaymentWithProof>
+  ): Promise<AdmissionPaymentWithProof | null>
   abstract findPayment(
     applicationId: string,
   ): Promise<AdmissionPaymentWithProof | null>
   abstract updatePaymentStatus(
     paymentId: string,
     input: UpdatePaymentStatusInput,
-  ): Promise<AdmissionPaymentWithProof>
+  ): Promise<AdmissionPaymentWithProof | null>
   abstract verifyWithinQuota(
     input: VerifyWithinQuotaInput,
   ): Promise<VerifyWithinQuotaResult>

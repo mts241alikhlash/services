@@ -37,6 +37,7 @@ export class PrismaAuthRepository extends IAuthRepository {
       where: { identifier, deletedAt: null },
       include: {
         userRoles: { include: { role: true } },
+        profile: { select: { email: true } },
       },
     })
   }
@@ -149,10 +150,11 @@ export class PrismaAuthRepository extends IAuthRepository {
 
   async updateSessionToken(
     sessionId: string,
+    currentTokenHash: string,
     data: UpdateSessionTokenRepositoryInput,
   ) {
-    return this.prisma.authSession.update({
-      where: { id: sessionId },
+    const rotated = await this.prisma.authSession.updateMany({
+      where: { id: sessionId, tokenHash: currentTokenHash },
       data: {
         tokenHash: data.tokenHash,
         previousTokenHash: data.previousTokenHash,
@@ -161,6 +163,7 @@ export class PrismaAuthRepository extends IAuthRepository {
         expiresAt: data.expiresAt,
       },
     })
+    return rotated.count === 1
   }
 
   async revokeSession(sessionId: string) {
