@@ -1764,6 +1764,45 @@
         ]
       }
     },
+    "/student-exams/{sessionId}/stream-heartbeat": {
+      "post": {
+        "operationId": "SessionExamController_streamHeartbeat",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Keep the seat live without rotating the publish token the stream is using",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
     "/student-exams/{sessionId}/camera-blocked": {
       "post": {
         "operationId": "SessionExamController_cameraBlocked",
@@ -2129,16 +2168,7 @@
     "/internal/stream-auth": {
       "post": {
         "operationId": "StreamAuthController_check",
-        "parameters": [
-          {
-            "name": "x-provisioning-token",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -4448,7 +4478,8 @@
               "network",
               "permission",
               "battery",
-              "stopped"
+              "stopped",
+              "cameraBusy"
             ],
             "type": "string"
           }
@@ -4622,7 +4653,8 @@
               "network",
               "permission",
               "battery",
-              "stopped"
+              "stopped",
+              "cameraBusy"
             ],
             "description": "Why the camera is not streaming; null once it streams again"
           },
@@ -4711,6 +4743,10 @@
           },
           "userAgent": {
             "type": "string"
+          },
+          "uuid": {
+            "type": "string",
+            "description": "Session id of the request, when MediaMTX sends one"
           }
         }
       },
