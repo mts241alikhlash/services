@@ -20,4 +20,34 @@ describe('GradingScheduleDto', () => {
 
     expect(GradingScheduleDto.fromDomain(schedule).type).toBe('UTS')
   })
+
+  it('marks the title of a makeup', () => {
+    const base = {
+      id: 's2',
+      packageTitle: 'Bilangan',
+      subjectId: 'subject-1',
+      classroomId: 'c1',
+      classroomName: 'VII A',
+      semesterId: 'sem',
+      type: 'UTS',
+      startsAt: new Date('2026-11-05T01:00:00.000Z'),
+      endsAt: new Date('2026-11-05T03:00:00.000Z'),
+      sessions: 1,
+      awaitingGrading: 0,
+      graded: 1,
+    }
+
+    expect(
+      GradingScheduleDto.fromDomain({
+        ...base,
+        kind: 'MAKEUP',
+      } as GradingSchedule).title,
+    ).toBe('Bilangan (Susulan)')
+    expect(
+      GradingScheduleDto.fromDomain({
+        ...base,
+        kind: 'REGULAR',
+      } as GradingSchedule).title,
+    ).toBe('Bilangan')
+  })
 })

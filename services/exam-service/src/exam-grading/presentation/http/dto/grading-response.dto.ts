@@ -33,7 +33,10 @@ export class GradingScheduleDto {
   static fromDomain(domain: GradingSchedule): GradingScheduleDto {
     const dto = new GradingScheduleDto()
     dto.id = domain.id
-    dto.title = domain.packageTitle
+    dto.title =
+      domain.kind === 'MAKEUP'
+        ? `${domain.packageTitle} (Susulan)`
+        : domain.packageTitle
     dto.subjectId = domain.subjectId
     dto.classroomId = domain.classroomId
     dto.classroomName = domain.classroomName

@@ -368,6 +368,23 @@ export interface paths {
         patch: operations["ExamScheduleController_update"];
         trace?: never;
     };
+    "/exam-schedules/{id}/absentees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The students of the classroom who can still sit a makeup */
+        get: operations["ExamMakeupController_absentees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/exam-schedules/{id}/access-code": {
         parameters: {
             query?: never;
@@ -414,6 +431,58 @@ export interface paths {
         /** Cancel a schedule */
         post: operations["ExamScheduleController_cancel"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-schedules/{id}/makeups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a makeup of an exam for students who did not sit it */
+        post: operations["ExamMakeupController_makeup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-schedules/{id}/participants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The students on a makeup, with live status */
+        get: operations["ExamMakeupController_participants"];
+        put?: never;
+        /** Add students to a makeup */
+        post: operations["ExamMakeupController_addToMakeup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exam-schedules/{id}/participants/{studentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a student who has not started the makeup */
+        delete: operations["ExamMakeupController_removeFromMakeup"];
         options?: never;
         head?: never;
         patch?: never;
@@ -594,6 +663,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AbsenteeDto: {
+            eligible: boolean;
+            name: string | null;
+            nis: string | null;
+            /** @enum {string|null} */
+            reason: "ALREADY_SAT" | "IN_PROGRESS" | "ON_LIVE_MAKEUP" | null;
+            /** Format: uuid */
+            studentId: string;
+        };
         AccessCodeDto: {
             /** @example K7M2QX */
             accessCode: string;
@@ -609,6 +687,9 @@ export interface components {
             points: number;
             /** @enum {string} */
             type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
+        };
+        AddParticipantsDto: {
+            participants: components["schemas"]["MakeupParticipantDto"][];
         };
         ApproveExamPackageDto: {
             note?: string;
@@ -632,6 +713,16 @@ export interface components {
             startsAt: string;
             /** @enum {string} */
             type: "UH" | "QUIZ" | "TUGAS" | "UTS" | "UAS";
+        };
+        CreateMakeupDto: {
+            durationMinutes: number;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: uuid */
+            packageId?: string;
+            participants: components["schemas"]["MakeupParticipantDto"][];
+            /** Format: date-time */
+            startsAt: string;
         };
         ExamFileDto: {
             /** Format: uuid */
@@ -739,6 +830,10 @@ export interface components {
             hasSessions: boolean;
             /** Format: uuid */
             id: string;
+            /** @enum {string} */
+            kind: "REGULAR" | "MAKEUP";
+            /** Format: uuid */
+            makeupOfId: string | null;
             /** Format: uuid */
             packageId: string;
             packageTitle: string;
@@ -862,6 +957,13 @@ export interface components {
             errors: components["schemas"]["ImportErrorDto"][];
             questionIds: string[];
         };
+        MakeupParticipantDto: {
+            note?: string | null;
+            /** @enum {string} */
+            reason: "SICK" | "PERMITTED" | "ABSENT" | "OTHER";
+            /** Format: uuid */
+            studentId: string;
+        };
         MyExamDto: {
             durationMinutes: number;
             /** Format: date-time */
@@ -922,6 +1024,17 @@ export interface components {
             points: number;
             /** @enum {string} */
             type: "MULTIPLE_CHOICE" | "MULTIPLE_RESPONSE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
+        };
+        ParticipantDto: {
+            name: string | null;
+            nis: string | null;
+            note: string | null;
+            /** @enum {string} */
+            reason: "SICK" | "PERMITTED" | "ABSENT" | "OTHER";
+            /** @enum {string} */
+            status: "WAITING" | "SAT_REGULAR" | "IN_PROGRESS" | "DONE";
+            /** Format: uuid */
+            studentId: string;
         };
         QuestionDetailDto: {
             /** Format: uuid */
@@ -1934,6 +2047,33 @@ export interface operations {
             };
         };
     };
+    ExamMakeupController_absentees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["AbsenteeDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
     ExamScheduleController_accessCode: {
         parameters: {
             query?: never;
@@ -1994,6 +2134,107 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ExamMakeupController_makeup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMakeupDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ExamScheduleDto"];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamMakeupController_participants: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["ParticipantDto"][];
+                        /** @example Success */
+                        message?: string;
+                        /** @example 200 */
+                        statusCode?: number;
+                    };
+                };
+            };
+        };
+    };
+    ExamMakeupController_addToMakeup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddParticipantsDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ExamMakeupController_removeFromMakeup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                studentId: string;
             };
             cookie?: never;
         };
