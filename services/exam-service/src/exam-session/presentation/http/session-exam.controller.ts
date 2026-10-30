@@ -174,7 +174,11 @@ export class SessionExamController {
     @DeviceId() deviceId: string,
     @Param('sessionId', ParseUUIDPipe) sessionId: string,
   ): Promise<void> {
-    await this.heartbeatStream.execute({ id: user.id, deviceId }, sessionId, new Date())
+    await this.heartbeatStream.execute(
+      { id: user.id, deviceId },
+      sessionId,
+      new Date(),
+    )
   }
 
   @Post('camera-blocked')

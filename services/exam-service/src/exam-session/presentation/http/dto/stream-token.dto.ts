@@ -97,7 +97,10 @@ export class StreamAuthDto {
   @IsString()
   userAgent?: string
 
-  @ApiProperty({ required: false, description: 'Session id of the request, when MediaMTX sends one' })
+  @ApiProperty({
+    required: false,
+    description: 'Session id of the request, when MediaMTX sends one',
+  })
   @IsOptional()
   @IsString()
   uuid?: string
