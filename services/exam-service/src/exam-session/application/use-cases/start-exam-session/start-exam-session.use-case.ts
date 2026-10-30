@@ -8,6 +8,8 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { AccessCodeService } from '../../../../exam-schedule/application/access-code.service.js'
+import type { ExamSchedule } from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
+import { assessMakeupEligibility } from '../../../../exam-schedule/domain/policies/makeup-eligibility.policy.js'
 import { IExamScheduleRepository } from '../../../../exam-schedule/domain/repositories/exam-schedule.repository.js'
 import { IEnrollmentLookupPort } from '../../../../platform/enrollment-lookup/enrollment-lookup.port.js'
 import { IStudentIdentityReadPort } from '../../../../platform/student-identity/student-identity.port.js'
@@ -55,7 +57,9 @@ export class StartExamSessionUseCase {
     if (schedule === null) {
       throw new NotFoundException('Jadwal ujian tidak ditemukan')
     }
-    if (
+    if (schedule.kind === 'MAKEUP') {
+      await this.assertMakeupAccess(schedule, studentId)
+    } else if (
       schedule.classroomId !== enrollment.classroomId ||
       schedule.semesterId !== enrollment.semesterId
     ) {
@@ -132,6 +136,33 @@ export class StartExamSessionUseCase {
       input.deviceId,
       now,
     )
+  }
+
+  private async assertMakeupAccess(
+    schedule: ExamSchedule,
+    studentId: string,
+  ): Promise<void> {
+    const participation = await this.schedules.findParticipation(
+      schedule.id,
+      studentId,
+    )
+    if (participation === null) {
+      throw new ForbiddenException('Anda tidak terdaftar di ujian susulan ini')
+    }
+    if (schedule.makeupOfId === null) return
+    const [regular] = await this.sessions.listByStudentAndSchedules(studentId, [
+      schedule.makeupOfId,
+    ])
+    if (regular === undefined) return
+    const answers = await this.sessions.listAnswers(regular.id)
+    const verdict = assessMakeupEligibility({
+      session: regular,
+      answerCount: answers.length,
+      onLiveMakeup: false,
+    })
+    if (!verdict.eligible) {
+      throw new ForbiddenException('Anda sudah mengikuti ujian ini')
+    }
   }
 
   private async resume(

@@ -4,8 +4,15 @@ import { IExamScheduleRepository } from '../../../../exam-schedule/domain/reposi
 import { IAcademicLookupPort } from '../../../../platform/academic-lookup/academic-lookup.port.js'
 import { IEnrollmentLookupPort } from '../../../../platform/enrollment-lookup/enrollment-lookup.port.js'
 import { IStudentIdentityReadPort } from '../../../../platform/student-identity/student-identity.port.js'
-import type { ExamType } from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
-import type { MyExamStatus } from '../../../domain/entities/exam-session.entity.js'
+import type {
+  ExamSchedule,
+  ExamType,
+} from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
+import { assessMakeupEligibility } from '../../../../exam-schedule/domain/policies/makeup-eligibility.policy.js'
+import type {
+  ExamSession,
+  MyExamStatus,
+} from '../../../domain/entities/exam-session.entity.js'
 import { myExamStatus } from '../../../domain/policies/my-exam-status.policy.js'
 import { IExamSessionRepository } from '../../../domain/repositories/exam-session.repository.js'
 
@@ -49,26 +56,43 @@ export class ListMyExamsUseCase {
     const enrollment = await this.enrollments.findActiveByStudent(studentId)
     if (enrollment === null) return []
 
-    const schedules = await this.schedules.findForClassroom(
+    const regular = await this.schedules.findForClassroom(
       enrollment.classroomId,
       enrollment.semesterId,
     )
+    const makeups = await this.schedules.findMakeupsForStudent(
+      studentId,
+      enrollment.semesterId,
+    )
+    const schedules = [...regular, ...makeups]
     if (schedules.length === 0) return []
 
-    const sessions = await this.sessions.listByStudentAndSchedules(
-      studentId,
-      schedules.map((schedule) => schedule.id),
+    const originalIds = makeups.flatMap((makeup) =>
+      makeup.makeupOfId === null ? [] : [makeup.makeupOfId],
     )
+    const sessions = await this.sessions.listByStudentAndSchedules(studentId, [
+      ...schedules.map((schedule) => schedule.id),
+      ...originalIds,
+    ])
     const sessionOf = new Map(sessions.map((s) => [s.scheduleId, s]))
 
     const rows: MyExam[] = []
     for (const schedule of schedules) {
+      if (
+        schedule.kind === 'MAKEUP' &&
+        (await this.satRegular(sessionOf, schedule))
+      ) {
+        continue
+      }
       const pkg = await this.packages.findById(schedule.packageId)
       if (pkg === null) continue
       const session = sessionOf.get(schedule.id) ?? null
       rows.push({
         id: schedule.id,
-        title: schedule.packageTitle,
+        title:
+          schedule.kind === 'MAKEUP'
+            ? `${schedule.packageTitle} (Susulan)`
+            : schedule.packageTitle,
         subjectId: pkg.subjectId,
         subjectName: null,
         type: schedule.type,
@@ -89,6 +113,21 @@ export class ListMyExamsUseCase {
           ? b.endsAt.getTime() - a.endsAt.getTime()
           : a.startsAt.getTime() - b.startsAt.getTime()),
     )
+  }
+
+  private async satRegular(
+    sessionOf: Map<string, ExamSession>,
+    makeup: ExamSchedule,
+  ): Promise<boolean> {
+    if (makeup.makeupOfId === null) return false
+    const session = sessionOf.get(makeup.makeupOfId) ?? null
+    if (session === null) return false
+    const answers = await this.sessions.listAnswers(session.id)
+    return !assessMakeupEligibility({
+      session,
+      answerCount: answers.length,
+      onLiveMakeup: false,
+    }).eligible
   }
 
   private async subjectNames(ids: string[]): Promise<Map<string, string>> {

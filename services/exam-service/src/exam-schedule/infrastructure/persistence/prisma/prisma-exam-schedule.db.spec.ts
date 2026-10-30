@@ -169,4 +169,27 @@ suite('Prisma makeup schedules against a real database', () => {
       false,
     )
   })
+
+  it('keeps makeups out of the regular listing of a classroom', async () => {
+    const base = await original()
+    const makeup = await schedules.createMakeup({
+      packageId: base.packageId,
+      classroomId,
+      semesterId,
+      startsAt: new Date('2026-11-04T01:00:00Z'),
+      endsAt: new Date('2026-11-04T03:00:00Z'),
+      durationMinutes: 90,
+      type: 'UTS',
+      createdById: userId,
+      makeupOfId: base.id,
+      participants: [{ studentId: students[0], reason: 'SICK', note: null }],
+    })
+    if (makeup === null) throw new Error('makeup was not created')
+    scheduleIds.push(makeup.id)
+
+    const listed = await schedules.findForClassroom(classroomId, semesterId)
+
+    expect(listed.map((row) => row.id)).toContain(base.id)
+    expect(listed.map((row) => row.id)).not.toContain(makeup.id)
+  })
 })

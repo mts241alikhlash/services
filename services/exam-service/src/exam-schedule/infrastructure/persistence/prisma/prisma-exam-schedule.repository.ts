@@ -98,7 +98,7 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
     semesterId: string,
   ): Promise<ExamSchedule[]> {
     const rows = await this.prisma.examSchedule.findMany({
-      where: { classroomId, semesterId, status: 'SCHEDULED' },
+      where: { classroomId, semesterId, status: 'SCHEDULED', kind: 'REGULAR' },
       include: SCHEDULE_INCLUDE,
       orderBy: { startsAt: 'asc' },
     })

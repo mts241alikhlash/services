@@ -14,6 +14,7 @@ import {
   FakeStudentIdentity,
   NOW,
   STARTS,
+  STUDENT_ID,
   STUDENT_USER,
   down,
   scheduleExam,
@@ -182,5 +183,95 @@ describe('ListMyExamsUseCase', () => {
         NOW,
       ),
     ).rejects.toThrow(ServiceUnavailableException)
+  })
+
+  describe('makeups', () => {
+    const MAKEUP_NOW = new Date('2026-11-05T02:00:00.000Z')
+
+    async function withMakeup(participants: string[] = [STUDENT_ID]) {
+      const original = await scheduleExam(fixtures())
+      const makeup = await schedules.createMakeup({
+        packageId: original.packageId,
+        classroomId: original.classroomId,
+        semesterId: original.semesterId,
+        startsAt: new Date('2026-11-05T01:00:00.000Z'),
+        endsAt: new Date('2026-11-05T04:00:00.000Z'),
+        durationMinutes: 90,
+        type: original.type,
+        createdById: original.createdById,
+        makeupOfId: original.id,
+        participants: participants.map((studentId) => ({
+          studentId,
+          reason: 'SICK' as const,
+          note: null,
+        })),
+      })
+      if (makeup === null) throw new Error('makeup not created')
+      return { original, makeup }
+    }
+
+    it('shows the makeup to a participant, with Susulan in the title', async () => {
+      const { makeup } = await withMakeup()
+
+      const list = await build().execute(STUDENT_USER, MAKEUP_NOW)
+
+      const row = list.find((exam) => exam.id === makeup.id)
+      expect(row?.title).toBe('UTS Matematika Kelas 7 (Susulan)')
+      expect(row?.status).toBe('OPEN')
+    })
+
+    it('does not show a makeup to the rest of the classroom', async () => {
+      const { makeup } = await withMakeup(['someone-else'])
+
+      const list = await build().execute(STUDENT_USER, MAKEUP_NOW)
+
+      expect(list.map((exam) => exam.id)).not.toContain(makeup.id)
+    })
+
+    it('hides the makeup once the student sat the regular exam, and shows it after an empty expired session', async () => {
+      const { original, makeup } = await withMakeup()
+      sessions.sessions.set(
+        'r',
+        sessionFor(original, { id: 'r', status: 'SUBMITTED' }),
+      )
+
+      const hidden = await build().execute(STUDENT_USER, MAKEUP_NOW)
+      expect(hidden.map((exam) => exam.id)).not.toContain(makeup.id)
+
+      sessions.sessions.set(
+        'r',
+        sessionFor(original, { id: 'r', status: 'EXPIRED' }),
+      )
+      const shown = await build().execute(STUDENT_USER, MAKEUP_NOW)
+      expect(shown.map((exam) => exam.id)).toContain(makeup.id)
+    })
+
+    it('still shows a makeup to a student who moved to another classroom', async () => {
+      const { makeup } = await withMakeup()
+      const moved = new FakeEnrollment({
+        enrollment: {
+          id: 'enr-2',
+          studentId: STUDENT_ID,
+          classroomId: 'other-room',
+          semesterId: makeup.semesterId,
+        },
+      })
+
+      const list = await build(undefined, moved).execute(
+        STUDENT_USER,
+        MAKEUP_NOW,
+      )
+
+      expect(list.map((exam) => exam.id)).toEqual([makeup.id])
+    })
+
+    it('does not show a cancelled makeup', async () => {
+      const { makeup } = await withMakeup()
+      await schedules.cancel(makeup.id)
+
+      const list = await build().execute(STUDENT_USER, MAKEUP_NOW)
+
+      expect(list.map((exam) => exam.id)).not.toContain(makeup.id)
+    })
   })
 })

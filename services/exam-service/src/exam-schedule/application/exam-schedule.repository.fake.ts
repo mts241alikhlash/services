@@ -74,6 +74,7 @@ export class FakeExamScheduleRepository extends IExamScheduleRepository {
         (row) =>
           row.classroomId === classroomId &&
           row.semesterId === semesterId &&
+          row.kind === 'REGULAR' &&
           row.status === 'SCHEDULED',
       ),
     )
