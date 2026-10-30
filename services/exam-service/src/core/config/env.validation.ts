@@ -47,6 +47,16 @@ export const envSchema = z
     EXAM_ACCESS_CODE_SECRET: z
       .string()
       .min(32, 'EXAM_ACCESS_CODE_SECRET must be at least 32 characters'),
+    // Exam camera streaming. Both default to an unroutable host so a deployment
+    // that never sets them fails visibly instead of pointing at production.
+    STREAM_WHIP_URL: z
+      .string()
+      .url('STREAM_WHIP_URL must be a valid URL')
+      .default('https://stream.invalid'),
+    STREAM_HLS_URL: z
+      .string()
+      .url('STREAM_HLS_URL must be a valid URL')
+      .default('https://stream.invalid'),
     IDENTITY_CACHE_TTL_MS: z.coerce.number().int().min(0).default(5000),
     IDENTITY_TIMEOUT_MS: z.coerce
       .number()

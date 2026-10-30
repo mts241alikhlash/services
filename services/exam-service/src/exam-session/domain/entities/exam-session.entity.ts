@@ -28,6 +28,9 @@ export interface ExamSession {
   releasedById: string | null
   gradedAt: Date | null
   violationCount: number
+  streamNonce: string | null
+  lastSeenAt: Date | null
+  cameraBlocked: string | null
   createdAt: Date
   updatedAt: Date
 }

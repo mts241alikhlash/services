@@ -33,7 +33,13 @@ model ExamSession {
   releasedById String?           @map("released_by_id") @db.Uuid
   gradedAt     DateTime?         @map("graded_at")
   violationCount Int             @default(0) @map("violation_count")
-  createdAt    DateTime          @default(now()) @map("created_at")
+  /// Nonce of the last publish token issued; rotating it invalidates older tokens.
+  streamNonce    String?         @map("stream_nonce") @db.VarChar(64)
+  /// Written when a publish is authorised; a stale value turns the seat red.
+  lastSeenAt     DateTime?       @map("last_seen_at")
+  /// Why the camera is not streaming: network, permission, battery, stopped.
+  cameraBlocked  String?         @map("camera_blocked") @db.VarChar(32)
+  createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt    DateTime          @updatedAt @map("updated_at")
 
   schedule    ExamSchedule      @relation(fields: [scheduleId], references: [id])

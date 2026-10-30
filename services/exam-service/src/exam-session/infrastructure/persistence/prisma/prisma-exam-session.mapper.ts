@@ -28,6 +28,9 @@ export function toSession(row: SessionRow): ExamSession {
     releasedById: row.releasedById,
     gradedAt: row.gradedAt,
     violationCount: row.violationCount,
+    streamNonce: row.streamNonce,
+    lastSeenAt: row.lastSeenAt,
+    cameraBlocked: row.cameraBlocked,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }

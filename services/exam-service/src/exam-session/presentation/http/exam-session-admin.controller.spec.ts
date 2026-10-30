@@ -5,6 +5,7 @@ import { ExamSessionAdminController } from './exam-session-admin.controller.js'
 const expected: Record<string, string[]> = {
   findBySchedule: ['exam-sessions.read'],
   release: ['exam-sessions.release'],
+  streams: ['exam-sessions.read'],
 }
 
 describe('ExamSessionAdminController permissions', () => {

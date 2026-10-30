@@ -48,6 +48,9 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
       releasedById: null,
       gradedAt: null,
       violationCount: 0,
+      streamNonce: null,
+      lastSeenAt: null,
+      cameraBlocked: null,
       createdAt: now,
       updatedAt: now,
     }
@@ -191,6 +194,27 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
     const session = this.sessions.get(id)
     if (session?.status === 'IN_PROGRESS' && session.violationCount < count) {
       this.sessions.set(id, { ...session, violationCount: count })
+    }
+    return Promise.resolve()
+  }
+
+  touchStream(id: string, nonce: string, at: Date) {
+    const session = this.sessions.get(id)
+    if (session?.status === 'IN_PROGRESS') {
+      this.sessions.set(id, {
+        ...session,
+        streamNonce: nonce,
+        lastSeenAt: at,
+        cameraBlocked: null,
+      })
+    }
+    return Promise.resolve()
+  }
+
+  setCameraBlocked(id: string, reason: string) {
+    const session = this.sessions.get(id)
+    if (session?.status === 'IN_PROGRESS' && session.cameraBlocked === null) {
+      this.sessions.set(id, { ...session, cameraBlocked: reason })
     }
     return Promise.resolve()
   }

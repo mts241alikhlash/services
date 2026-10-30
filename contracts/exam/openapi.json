@@ -1705,6 +1705,153 @@
         ]
       }
     },
+    "/student-exams/{sessionId}/stream-token": {
+      "post": {
+        "operationId": "SessionExamController_streamToken",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StreamTokenDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Authorise the camera stream of this session; calling it again is the heartbeat",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
+    "/student-exams/{sessionId}/stream-heartbeat": {
+      "post": {
+        "operationId": "SessionExamController_streamHeartbeat",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Keep the seat live without rotating the publish token the stream is using",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
+    "/student-exams/{sessionId}/camera-blocked": {
+      "post": {
+        "operationId": "SessionExamController_cameraBlocked",
+        "parameters": [
+          {
+            "name": "X-Device-Id",
+            "in": "header",
+            "description": "The tablet the session was started on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CameraBlockedDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Record why the camera is not streaming",
+        "tags": [
+          "Student Exams"
+        ]
+      }
+    },
     "/student-exams/{sessionId}/submit": {
       "post": {
         "operationId": "SessionExamController_submit",
@@ -1918,6 +2065,56 @@
         ]
       }
     },
+    "/exam-schedules/{id}/streams": {
+      "get": {
+        "operationId": "ExamSessionAdminController_streams",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ScheduleStreamListResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Per-session camera stream status for the supervisor grid of a schedule",
+        "tags": [
+          "Exam Sessions"
+        ]
+      }
+    },
     "/exam-sessions/{id}/release": {
       "post": {
         "operationId": "ExamSessionAdminController_release",
@@ -1965,6 +2162,59 @@
         "summary": "Free the device of a session so the student can continue elsewhere",
         "tags": [
           "Exam Sessions"
+        ]
+      }
+    },
+    "/internal/stream-auth": {
+      "post": {
+        "operationId": "StreamAuthController_check",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamAuthDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StreamAuthResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Whether this token may publish or read this stream path",
+        "tags": [
+          "Internal"
         ]
       }
     },
@@ -4198,6 +4448,46 @@
           "violationCount"
         ]
       },
+      "StreamTokenDto": {
+        "type": "object",
+        "properties": {
+          "publishUrl": {
+            "type": "string",
+            "description": "WHIP endpoint to publish to; the token is already in the URL"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "heartbeatSeconds": {
+            "type": "number",
+            "description": "Seconds after which the app must fetch a new token; that call is also the heartbeat"
+          }
+        },
+        "required": [
+          "publishUrl",
+          "expiresAt",
+          "heartbeatSeconds"
+        ]
+      },
+      "CameraBlockedDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "enum": [
+              "network",
+              "permission",
+              "battery",
+              "stopped",
+              "cameraBusy"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
       "SubmitSessionRequestDto": {
         "type": "object",
         "properties": {
@@ -4324,6 +4614,151 @@
           "page",
           "limit"
         ]
+      },
+      "ScheduleStreamDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentNis": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "IN_PROGRESS",
+              "SUBMITTED",
+              "EXPIRED",
+              "GRADED"
+            ],
+            "type": "string"
+          },
+          "violationCount": {
+            "type": "number"
+          },
+          "cameraBlocked": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "network",
+              "permission",
+              "battery",
+              "stopped",
+              "cameraBusy"
+            ],
+            "description": "Why the camera is not streaming; null once it streams again"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "Last heartbeat; older than 60 s means the seat is drawn red"
+          },
+          "playbackUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "HLS URL, or null when the seat is not streaming"
+          }
+        },
+        "required": [
+          "sessionId",
+          "studentId",
+          "studentName",
+          "studentNis",
+          "status",
+          "violationCount",
+          "cameraBlocked",
+          "lastSeenAt",
+          "playbackUrl"
+        ]
+      },
+      "ScheduleStreamListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScheduleStreamDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total"
+        ]
+      },
+      "StreamAuthDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string",
+            "description": "Only set when authJWTInHTTPQuery is on"
+          },
+          "ip": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "publish",
+              "read",
+              "playback",
+              "api",
+              "metrics",
+              "pprof"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "The stream path"
+          },
+          "protocol": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string",
+            "description": "Raw query string, e.g. token=abc"
+          },
+          "userAgent": {
+            "type": "string"
+          },
+          "uuid": {
+            "type": "string",
+            "description": "Session id of the request, when MediaMTX sends one"
+          }
+        }
+      },
+      "StreamAuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "expireAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When MediaMTX must close this session; omitted means no bound"
+          }
+        }
       },
       "ExamFileDto": {
         "type": "object",

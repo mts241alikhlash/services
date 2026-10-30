@@ -25,6 +25,9 @@ import { JwtAuthGuard } from '../../../platform/auth/index.js'
 import { GetPaperUseCase } from '../../application/use-cases/get-paper/get-paper.use-case.js'
 import { GetSessionFileUseCase } from '../../application/use-cases/get-session-file/get-session-file.use-case.js'
 import { RecordViolationsUseCase } from '../../application/use-cases/record-violations/record-violations.use-case.js'
+import { IssueStreamTokenUseCase } from '../../application/use-cases/issue-stream-token/issue-stream-token.use-case.js'
+import { ReportCameraBlockedUseCase } from '../../application/use-cases/report-camera-blocked/report-camera-blocked.use-case.js'
+import { HeartbeatStreamUseCase } from '../../application/use-cases/heartbeat-stream/heartbeat-stream.use-case.js'
 import { SubmitExamSessionUseCase } from '../../application/use-cases/submit-exam-session/submit-exam-session.use-case.js'
 import { SaveAnswerUseCase } from '../../application/use-cases/save-answer/save-answer.use-case.js'
 import { ListSavedAnswersUseCase } from '../../application/use-cases/list-saved-answers/list-saved-answers.use-case.js'
@@ -39,6 +42,7 @@ import {
   SubmitSessionRequestDto,
   SubmittedSessionDto,
 } from './dto/submit-session.dto.js'
+import { CameraBlockedDto, StreamTokenDto } from './dto/stream-token.dto.js'
 
 @ApiTags('Student Exams')
 @ApiHeader({
@@ -57,6 +61,9 @@ export class SessionExamController {
     private readonly saveAnswer: SaveAnswerUseCase,
     private readonly submitSession: SubmitExamSessionUseCase,
     private readonly recordViolations: RecordViolationsUseCase,
+    private readonly issueStreamToken: IssueStreamTokenUseCase,
+    private readonly reportCameraBlocked: ReportCameraBlockedUseCase,
+    private readonly heartbeatStream: HeartbeatStreamUseCase,
   ) {}
 
   @Get('questions')
@@ -128,6 +135,69 @@ export class SessionExamController {
         sessionId,
         body.count,
       ),
+    )
+  }
+
+  @Post('stream-token')
+  @RequirePermissions('exam-sessions.take')
+  @ApiOperation({
+    summary:
+      'Authorise the camera stream of this session; calling it again is the heartbeat',
+  })
+  @ApiParam({ name: 'sessionId', format: 'uuid' })
+  @ApiResponse({ status: 201, type: StreamTokenDto })
+  async streamToken(
+    @CurrentUser() user: { id: string },
+    @DeviceId() deviceId: string,
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+  ): Promise<StreamTokenDto> {
+    return StreamTokenDto.from(
+      await this.issueStreamToken.execute(
+        { id: user.id, deviceId },
+        sessionId,
+        new Date(),
+      ),
+    )
+  }
+
+  @Post('stream-heartbeat')
+  @HttpCode(204)
+  @RequirePermissions('exam-sessions.take')
+  @ApiOperation({
+    summary:
+      'Keep the seat live without rotating the publish token the stream is using',
+  })
+  @ApiParam({ name: 'sessionId', format: 'uuid' })
+  @ApiResponse({ status: 204 })
+  async streamHeartbeat(
+    @CurrentUser() user: { id: string },
+    @DeviceId() deviceId: string,
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+  ): Promise<void> {
+    await this.heartbeatStream.execute(
+      { id: user.id, deviceId },
+      sessionId,
+      new Date(),
+    )
+  }
+
+  @Post('camera-blocked')
+  @HttpCode(204)
+  @RequirePermissions('exam-sessions.take')
+  @ApiOperation({ summary: 'Record why the camera is not streaming' })
+  @ApiParam({ name: 'sessionId', format: 'uuid' })
+  @ApiResponse({ status: 204 })
+  async cameraBlocked(
+    @CurrentUser() user: { id: string },
+    @DeviceId() deviceId: string,
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+    @Body() body: CameraBlockedDto,
+  ): Promise<void> {
+    await this.reportCameraBlocked.execute(
+      { id: user.id, deviceId },
+      sessionId,
+      body.reason,
+      new Date(),
     )
   }
 
