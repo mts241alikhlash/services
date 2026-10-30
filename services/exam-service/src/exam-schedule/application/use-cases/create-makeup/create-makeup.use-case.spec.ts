@@ -68,6 +68,7 @@ describe('CreateMakeupUseCase', () => {
           schedules,
         ),
         directory,
+        schedules,
       ),
     )
     return { schedule, schedules, packages, questions, sessions, useCase }
@@ -194,6 +195,7 @@ describe('CreateMakeupUseCase', () => {
         id: 'a',
         studentId: ids.budi,
         status: 'SUBMITTED',
+        submittedAt: NOW,
       }),
     )
 

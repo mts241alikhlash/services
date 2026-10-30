@@ -34,6 +34,10 @@ export class AddMakeupParticipantsUseCase {
 
     const original = await this.schedules.findById(makeup.makeupOfId)
     if (original === null) throw new NotFoundException('Jadwal tidak ditemukan')
+    if (original.status !== 'SCHEDULED') {
+      throw new ConflictException('Ujian utama sudah dibatalkan')
+    }
+    await this.participants.assertNotOnMakeup(scheduleId, rows)
     await this.participants.assertEligible(original, rows, now)
     await this.schedules.addParticipants(scheduleId, rows, user.id)
   }

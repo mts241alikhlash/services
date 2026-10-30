@@ -192,4 +192,69 @@ suite('Prisma makeup schedules against a real database', () => {
     expect(listed.map((row) => row.id)).toContain(base.id)
     expect(listed.map((row) => row.id)).not.toContain(makeup.id)
   })
+
+  it('puts a student on only one live makeup even when two are created at the same moment', async () => {
+    const base = await original()
+    const create = () =>
+      schedules.createMakeup({
+        packageId: base.packageId,
+        classroomId,
+        semesterId,
+        startsAt: new Date('2099-11-04T01:00:00Z'),
+        endsAt: new Date('2099-11-04T03:00:00Z'),
+        durationMinutes: 90,
+        type: 'UTS',
+        createdById: userId,
+        makeupOfId: base.id,
+        participants: [{ studentId: students[0], reason: 'SICK', note: null }],
+      })
+
+    const results = await Promise.allSettled([create(), create()])
+
+    const made = results.flatMap((result) =>
+      result.status === 'fulfilled' && result.value !== null
+        ? [result.value]
+        : [],
+    )
+    scheduleIds.push(...made.map((row) => row.id))
+    expect(made).toHaveLength(1)
+    expect(
+      results.filter((result) => result.status === 'rejected'),
+    ).toHaveLength(1)
+  })
+
+  it('refuses to add a student who is on another live makeup of the same exam, and a duplicate on the same one', async () => {
+    const base = await original()
+    const makeup = (studentId: string) =>
+      schedules.createMakeup({
+        packageId: base.packageId,
+        classroomId,
+        semesterId,
+        startsAt: new Date('2099-11-04T01:00:00Z'),
+        endsAt: new Date('2099-11-04T03:00:00Z'),
+        durationMinutes: 90,
+        type: 'UTS',
+        createdById: userId,
+        makeupOfId: base.id,
+        participants: [{ studentId, reason: 'SICK', note: null }],
+      })
+    const first = await makeup(students[0])
+    const second = await makeup(students[1])
+    scheduleIds.push(first!.id, second!.id)
+
+    await expect(
+      schedules.addParticipants(
+        second!.id,
+        [{ studentId: students[0], reason: 'SICK', note: null }],
+        userId,
+      ),
+    ).rejects.toThrow('Siswa sudah terdaftar di susulan lain')
+    await expect(
+      schedules.addParticipants(
+        first!.id,
+        [{ studentId: students[0], reason: 'SICK', note: null }],
+        userId,
+      ),
+    ).rejects.toBeDefined()
+  })
 })

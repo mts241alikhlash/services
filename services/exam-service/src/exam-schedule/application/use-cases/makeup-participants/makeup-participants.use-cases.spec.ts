@@ -78,6 +78,7 @@ describe('makeup participants', () => {
     const participants = new MakeupParticipantsService(
       new MakeupCandidatesService(enrollments, sessions, schedules),
       directory,
+      schedules,
     )
     return {
       schedule,
@@ -110,12 +111,30 @@ describe('makeup participants', () => {
           id: 'a',
           studentId: ids.dewi,
           status: 'SUBMITTED',
+          submittedAt: NOW,
         }),
       )
 
       await expect(
         add.execute(USER, makeup.id, [person(ids.dewi)], NOW),
       ).rejects.toThrow('Dewi sudah mengikuti ujian ini')
+    })
+
+    it('refuses a student who is already on this makeup, saying so', async () => {
+      const { makeup, add } = await setup()
+
+      await expect(
+        add.execute(USER, makeup.id, [person(ids.ani)], NOW),
+      ).rejects.toThrow('Ani sudah terdaftar di susulan ini')
+    })
+
+    it('refuses to add anyone once the regular exam was cancelled', async () => {
+      const { schedule, makeup, schedules, add } = await setup()
+      await schedules.cancel(schedule.id)
+
+      await expect(
+        add.execute(USER, makeup.id, [person(ids.citra)], NOW),
+      ).rejects.toThrow('Ujian utama sudah dibatalkan')
     })
 
     it('only works on a schedule that is a live makeup', async () => {
@@ -192,6 +211,7 @@ describe('makeup participants', () => {
           id: 'r',
           studentId: ids.ani,
           status: 'SUBMITTED',
+          submittedAt: NOW,
         }),
       )
       sessions.sessions.set(

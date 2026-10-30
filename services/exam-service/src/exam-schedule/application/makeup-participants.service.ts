@@ -3,6 +3,7 @@ import { IStudentDirectoryPort } from '../../platform/student-directory/student-
 import type { ExamSchedule } from '../domain/entities/exam-schedule.entity.js'
 import type { NewParticipant } from '../domain/entities/schedule-participant.entity.js'
 import type { MakeupRefusal } from '../domain/policies/makeup-eligibility.policy.js'
+import { IExamScheduleRepository } from '../domain/repositories/exam-schedule.repository.js'
 import { MakeupCandidatesService } from './makeup-candidates.service.js'
 
 export const REFUSAL_TEXT: Record<MakeupRefusal, string> = {
@@ -18,7 +19,25 @@ export class MakeupParticipantsService {
   constructor(
     private readonly candidates: MakeupCandidatesService,
     private readonly students: IStudentDirectoryPort,
+    private readonly schedules: IExamScheduleRepository,
   ) {}
+
+  async assertNotOnMakeup(
+    makeupId: string,
+    participants: NewParticipant[],
+  ): Promise<void> {
+    const current = new Set(
+      (await this.schedules.listParticipants(makeupId)).map(
+        (row) => row.studentId,
+      ),
+    )
+    const dupe = participants.find((row) => current.has(row.studentId))
+    if (dupe === undefined) return
+    const [ref] = await this.students.refsByIds([dupe.studentId])
+    throw new BadRequestException(
+      `${ref?.name ?? ref?.nis ?? 'Siswa'} sudah terdaftar di susulan ini`,
+    )
+  }
 
   async assertEligible(
     original: ExamSchedule,

@@ -7,6 +7,7 @@ import {
   type Eligibility,
 } from '../domain/policies/makeup-eligibility.policy.js'
 import { IExamScheduleRepository } from '../domain/repositories/exam-schedule.repository.js'
+import { loadSittings } from './student-sittings.js'
 
 export interface MakeupCandidate {
   studentId: string
@@ -41,17 +42,15 @@ export class MakeupCandidatesService {
 
     const candidates: MakeupCandidate[] = []
     for (const enrollment of roster) {
-      const [session] = await this.sessions.listByStudentAndSchedules(
-        enrollment.studentId,
-        [original.id],
-      )
-      const answers =
-        session === undefined ? [] : await this.sessions.listAnswers(session.id)
       candidates.push({
         studentId: enrollment.studentId,
         eligibility: assessMakeupEligibility({
-          session: session ?? null,
-          answerCount: answers.length,
+          sittings: await loadSittings(
+            this.schedules,
+            this.sessions,
+            original.id,
+            enrollment.studentId,
+          ),
           onLiveMakeup: onLive.has(enrollment.studentId),
         }),
       })

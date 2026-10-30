@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -42,6 +43,7 @@ export class UpdateExamScheduleUseCase {
     }
 
     validateScheduleWindow(fields)
+    await this.assertMakeupRules(existing, fields)
     const updated = await this.schedules.updateWindow(id, fields)
     if (updated === null) {
       throw new ConflictException(
@@ -51,5 +53,38 @@ export class UpdateExamScheduleUseCase {
       )
     }
     return updated
+  }
+
+  private async assertMakeupRules(
+    existing: ExamSchedule,
+    fields: ScheduleWindowFields,
+  ): Promise<void> {
+    if (existing.kind === 'MAKEUP' && existing.makeupOfId !== null) {
+      if (fields.type !== existing.type) {
+        throw new BadRequestException(
+          'Jenis ujian susulan sama dengan ujian utama',
+        )
+      }
+      const original = await this.schedules.findById(existing.makeupOfId)
+      if (
+        original !== null &&
+        fields.startsAt.getTime() < original.endsAt.getTime()
+      ) {
+        throw new BadRequestException(
+          'Susulan harus dimulai setelah ujian utama berakhir',
+        )
+      }
+      return
+    }
+    const live = (await this.schedules.findMakeupsOf(existing.id)).filter(
+      (makeup) => makeup.status === 'SCHEDULED',
+    )
+    if (
+      live.some((makeup) => fields.endsAt.getTime() > makeup.startsAt.getTime())
+    ) {
+      throw new ConflictException(
+        'Ujian utama tidak bisa diperpanjang melewati susulan',
+      )
+    }
   }
 }

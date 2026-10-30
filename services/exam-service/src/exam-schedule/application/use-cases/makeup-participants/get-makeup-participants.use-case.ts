@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { IExamSessionRepository } from '../../../../exam-session/domain/repositories/exam-session.repository.js'
 import { IStudentDirectoryPort } from '../../../../platform/student-directory/student-directory.port.js'
 import type { MakeupReason } from '../../../domain/entities/exam-schedule.entity.js'
+import { sittingOutcome } from '../../../domain/policies/makeup-eligibility.policy.js'
+import { loadSittings } from '../../student-sittings.js'
 import { IExamScheduleRepository } from '../../../domain/repositories/exam-schedule.repository.js'
 
 export type ParticipantStatus =
@@ -68,12 +70,15 @@ export class GetMakeupParticipantsUseCase {
     if (own !== undefined) {
       return own.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : 'DONE'
     }
-    const [regular] = await this.sessions.listByStudentAndSchedules(studentId, [
+    const sittings = await loadSittings(
+      this.schedules,
+      this.sessions,
       originalId,
-    ])
-    if (regular === undefined) return 'WAITING'
-    if (regular.status !== 'EXPIRED') return 'SAT_REGULAR'
-    const answers = await this.sessions.listAnswers(regular.id)
-    return answers.length > 0 ? 'SAT_REGULAR' : 'WAITING'
+      studentId,
+      makeupId,
+    )
+    return sittings.some((sitting) => sittingOutcome(sitting) !== 'NONE')
+      ? 'SAT_REGULAR'
+      : 'WAITING'
   }
 }

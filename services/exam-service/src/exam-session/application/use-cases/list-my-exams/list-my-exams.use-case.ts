@@ -8,11 +8,9 @@ import type {
   ExamSchedule,
   ExamType,
 } from '../../../../exam-schedule/domain/entities/exam-schedule.entity.js'
+import { loadSittings } from '../../../../exam-schedule/application/student-sittings.js'
 import { assessMakeupEligibility } from '../../../../exam-schedule/domain/policies/makeup-eligibility.policy.js'
-import type {
-  ExamSession,
-  MyExamStatus,
-} from '../../../domain/entities/exam-session.entity.js'
+import type { MyExamStatus } from '../../../domain/entities/exam-session.entity.js'
 import { myExamStatus } from '../../../domain/policies/my-exam-status.policy.js'
 import { IExamSessionRepository } from '../../../domain/repositories/exam-session.repository.js'
 
@@ -67,20 +65,17 @@ export class ListMyExamsUseCase {
     const schedules = [...regular, ...makeups]
     if (schedules.length === 0) return []
 
-    const originalIds = makeups.flatMap((makeup) =>
-      makeup.makeupOfId === null ? [] : [makeup.makeupOfId],
+    const sessions = await this.sessions.listByStudentAndSchedules(
+      studentId,
+      schedules.map((schedule) => schedule.id),
     )
-    const sessions = await this.sessions.listByStudentAndSchedules(studentId, [
-      ...schedules.map((schedule) => schedule.id),
-      ...originalIds,
-    ])
     const sessionOf = new Map(sessions.map((s) => [s.scheduleId, s]))
 
     const rows: MyExam[] = []
     for (const schedule of schedules) {
       if (
         schedule.kind === 'MAKEUP' &&
-        (await this.satRegular(sessionOf, schedule))
+        !(await this.canSitMakeup(schedule, studentId))
       ) {
         continue
       }
@@ -115,19 +110,21 @@ export class ListMyExamsUseCase {
     )
   }
 
-  private async satRegular(
-    sessionOf: Map<string, ExamSession>,
+  private async canSitMakeup(
     makeup: ExamSchedule,
+    studentId: string,
   ): Promise<boolean> {
     if (makeup.makeupOfId === null) return false
-    const session = sessionOf.get(makeup.makeupOfId) ?? null
-    if (session === null) return false
-    const answers = await this.sessions.listAnswers(session.id)
-    return !assessMakeupEligibility({
-      session,
-      answerCount: answers.length,
-      onLiveMakeup: false,
-    }).eligible
+    const original = await this.schedules.findById(makeup.makeupOfId)
+    if (original?.status !== 'SCHEDULED') return false
+    const sittings = await loadSittings(
+      this.schedules,
+      this.sessions,
+      original.id,
+      studentId,
+      makeup.id,
+    )
+    return assessMakeupEligibility({ sittings, onLiveMakeup: false }).eligible
   }
 
   private async subjectNames(ids: string[]): Promise<Map<string, string>> {

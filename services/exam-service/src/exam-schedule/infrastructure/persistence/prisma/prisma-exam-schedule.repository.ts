@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
 import { PrismaService } from '../../../../core/database/prisma.service.js'
 import type { Prisma } from '../../../../generated/prisma/client.js'
 import type { PaginatedResult } from '../../../../shared/domain/interfaces/repository.interface.js'
@@ -150,6 +150,11 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
         select: { id: true },
       })
       if (locked === null) return null
+      await this.assertNotOnLiveMakeup(
+        tx,
+        input.makeupOfId,
+        participants.map((participant) => participant.studentId),
+      )
       const row = await tx.examSchedule.create({
         data: {
           ...fields,
@@ -180,9 +185,44 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
     rows: NewParticipant[],
     addedById: string,
   ): Promise<void> {
-    await this.prisma.examScheduleParticipant.createMany({
-      data: rows.map((row) => ({ ...row, scheduleId, addedById })),
+    await this.prisma.$transaction(async (tx) => {
+      const makeup = await tx.examSchedule.findUnique({
+        where: { id: scheduleId },
+        select: { makeupOfId: true },
+      })
+      if (makeup?.makeupOfId) {
+        await this.assertNotOnLiveMakeup(
+          tx,
+          makeup.makeupOfId,
+          rows.map((row) => row.studentId),
+        )
+      }
+      await tx.examScheduleParticipant.createMany({
+        data: rows.map((row) => ({ ...row, scheduleId, addedById })),
+      })
     })
+  }
+
+  private async assertNotOnLiveMakeup(
+    tx: Prisma.TransactionClient,
+    originalId: string,
+    studentIds: string[],
+  ): Promise<void> {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${originalId}))`
+    const clash = await tx.examScheduleParticipant.findFirst({
+      where: {
+        studentId: { in: studentIds },
+        schedule: {
+          makeupOfId: originalId,
+          status: 'SCHEDULED',
+          endsAt: { gt: new Date() },
+        },
+      },
+      select: { id: true },
+    })
+    if (clash !== null) {
+      throw new ConflictException('Siswa sudah terdaftar di susulan lain')
+    }
   }
 
   async removeParticipant(

@@ -82,10 +82,10 @@ export class CreateMakeupUseCase {
     if (target === null) throw new NotFoundException('Paket tidak ditemukan')
     assertCanSchedule(target.status)
     const source = await this.packages.findById(original.packageId)
+    if (source === null) throw new NotFoundException('Paket tidak ditemukan')
     if (
-      source !== null &&
-      (source.subjectId !== target.subjectId ||
-        source.gradeId !== target.gradeId)
+      source.subjectId !== target.subjectId ||
+      source.gradeId !== target.gradeId
     ) {
       throw new BadRequestException(
         'Paket susulan harus untuk mapel dan tingkat yang sama',

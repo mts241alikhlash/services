@@ -116,7 +116,7 @@ describe('ListMyExamsUseCase', () => {
     sessions.sessions.set('a', sessionFor(running, { id: 'a' }))
     sessions.sessions.set(
       'b',
-      sessionFor(submitted, { id: 'b', status: 'SUBMITTED' }),
+      sessionFor(submitted, { id: 'b', status: 'SUBMITTED', submittedAt: NOW }),
     )
 
     const list = await build().execute(STUDENT_USER, NOW)
@@ -232,7 +232,11 @@ describe('ListMyExamsUseCase', () => {
       const { original, makeup } = await withMakeup()
       sessions.sessions.set(
         'r',
-        sessionFor(original, { id: 'r', status: 'SUBMITTED' }),
+        sessionFor(original, {
+          id: 'r',
+          status: 'SUBMITTED',
+          submittedAt: NOW,
+        }),
       )
 
       const hidden = await build().execute(STUDENT_USER, MAKEUP_NOW)
@@ -263,6 +267,53 @@ describe('ListMyExamsUseCase', () => {
       )
 
       expect(list.map((exam) => exam.id)).toEqual([makeup.id])
+    })
+
+    it('hides a makeup once the student sat an earlier makeup of the same exam', async () => {
+      const { original, makeup } = await withMakeup()
+      const earlier = await schedules.createMakeup({
+        packageId: original.packageId,
+        classroomId: original.classroomId,
+        semesterId: original.semesterId,
+        startsAt: new Date('2026-11-03T01:00:00.000Z'),
+        endsAt: new Date('2026-11-03T04:00:00.000Z'),
+        durationMinutes: 90,
+        type: original.type,
+        createdById: original.createdById,
+        makeupOfId: original.id,
+        participants: [
+          { studentId: STUDENT_ID, reason: 'SICK' as const, note: null },
+        ],
+      })
+      sessions.sessions.set(
+        'e',
+        sessionFor(earlier!, { id: 'e', status: 'GRADED', submittedAt: NOW }),
+      )
+
+      const list = await build().execute(STUDENT_USER, MAKEUP_NOW)
+
+      expect(list.map((exam) => exam.id)).not.toContain(makeup.id)
+    })
+
+    it('shows a makeup after a regular session closed by the clock with no answers', async () => {
+      const { original, makeup } = await withMakeup()
+      sessions.sessions.set(
+        'g',
+        sessionFor(original, { id: 'g', status: 'GRADED' }),
+      )
+
+      const list = await build().execute(STUDENT_USER, MAKEUP_NOW)
+
+      expect(list.map((exam) => exam.id)).toContain(makeup.id)
+    })
+
+    it('hides a makeup whose regular exam was cancelled', async () => {
+      const { original, makeup } = await withMakeup()
+      await schedules.cancel(original.id)
+
+      const list = await build().execute(STUDENT_USER, MAKEUP_NOW)
+
+      expect(list.map((exam) => exam.id)).not.toContain(makeup.id)
     })
 
     it('does not show a cancelled makeup', async () => {

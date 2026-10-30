@@ -64,6 +64,7 @@ describe('ListAbsenteesUseCase', () => {
         id: 'a',
         studentId: ids.budi,
         status: 'SUBMITTED',
+        submittedAt: NOW,
       }),
     )
     sessions.sessions.set(
@@ -137,5 +138,60 @@ describe('ListAbsenteesUseCase', () => {
     await expect(useCase.execute(makeup?.id ?? '', NOW)).rejects.toThrow(
       BadRequestException,
     )
+  })
+
+  it('keeps out a student who already sat an earlier makeup that has ended', async () => {
+    const { schedule, schedules, sessions, useCase } = await setup()
+    const first = await schedules.createMakeup({
+      packageId: schedule.packageId,
+      classroomId: schedule.classroomId,
+      semesterId: schedule.semesterId,
+      startsAt: new Date('2026-11-03T01:00:00Z'),
+      endsAt: new Date('2026-11-03T03:00:00Z'),
+      durationMinutes: 90,
+      type: schedule.type,
+      createdById: schedule.createdById,
+      makeupOfId: schedule.id,
+      participants: [
+        { studentId: ids.ani, reason: 'SICK', note: null },
+        { studentId: ids.budi, reason: 'SICK', note: null },
+      ],
+    })
+    sessions.sessions.set(
+      'm',
+      sessionFor(first!, {
+        id: 'm',
+        studentId: ids.ani,
+        status: 'SUBMITTED',
+        submittedAt: NOW,
+      }),
+    )
+
+    const rows = await useCase.execute(
+      schedule.id,
+      new Date('2026-11-04T00:00:00Z'),
+    )
+
+    expect(rows.find((row) => row.name === 'Ani')?.eligibility).toEqual({
+      eligible: false,
+      reason: 'ALREADY_SAT',
+    })
+    expect(rows.find((row) => row.name === 'Budi')?.eligibility).toEqual({
+      eligible: true,
+    })
+  })
+
+  it('lets a student whose regular session was closed by the clock with no answers sit a makeup', async () => {
+    const { schedule, sessions, useCase } = await setup()
+    sessions.sessions.set(
+      'g',
+      sessionFor(schedule, { id: 'g', studentId: ids.ani, status: 'GRADED' }),
+    )
+
+    const rows = await useCase.execute(schedule.id, NOW)
+
+    expect(rows.find((row) => row.name === 'Ani')?.eligibility).toEqual({
+      eligible: true,
+    })
   })
 })

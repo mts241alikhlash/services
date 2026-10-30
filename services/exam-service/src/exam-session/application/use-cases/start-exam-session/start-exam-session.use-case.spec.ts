@@ -161,7 +161,11 @@ describe('StartExamSessionUseCase', () => {
   it('refuses a session that was already handed in', async () => {
     sessions.sessions.set(
       'done',
-      sessionFor(schedule, { id: 'done', status: 'SUBMITTED' }),
+      sessionFor(schedule, {
+        id: 'done',
+        status: 'SUBMITTED',
+        submittedAt: NOW,
+      }),
     )
 
     await expect(start(build())).rejects.toThrow('Ujian sudah dikumpulkan')
@@ -370,7 +374,11 @@ describe('StartExamSessionUseCase', () => {
       const makeup = await withMakeup()
       sessions.sessions.set(
         'r',
-        sessionFor(schedule, { id: 'r', status: 'SUBMITTED' }),
+        sessionFor(schedule, {
+          id: 'r',
+          status: 'SUBMITTED',
+          submittedAt: NOW,
+        }),
       )
 
       await expect(startMakeup(makeup)).rejects.toThrow(
@@ -390,6 +398,67 @@ describe('StartExamSessionUseCase', () => {
       })
 
       await expect(startMakeup(makeup, moved)).resolves.toBeDefined()
+    })
+
+    it('refuses a student who already sat an earlier makeup of the same exam', async () => {
+      const earlier = await schedules.createMakeup({
+        packageId: schedule.packageId,
+        classroomId: schedule.classroomId,
+        semesterId: schedule.semesterId,
+        startsAt: new Date('2026-11-03T01:00:00.000Z'),
+        endsAt: new Date('2026-11-03T04:00:00.000Z'),
+        durationMinutes: 90,
+        type: schedule.type,
+        createdById: schedule.createdById,
+        makeupOfId: schedule.id,
+        participants: [
+          { studentId: STUDENT_ID, reason: 'SICK' as const, note: null },
+        ],
+      })
+      sessions.sessions.set(
+        'e',
+        sessionFor(earlier!, {
+          id: 'e',
+          status: 'GRADED',
+          submittedAt: NOW,
+        }),
+      )
+      const makeup = await withMakeup()
+
+      await expect(startMakeup(makeup)).rejects.toThrow(
+        'Anda sudah mengikuti ujian ini',
+      )
+    })
+
+    it('lets a student whose regular session was closed by the clock with no answers sit the makeup', async () => {
+      const makeup = await withMakeup()
+      sessions.sessions.set(
+        'g',
+        sessionFor(schedule, { id: 'g', status: 'GRADED' }),
+      )
+
+      await expect(startMakeup(makeup)).resolves.toBeDefined()
+    })
+
+    it('refuses a makeup whose regular exam was cancelled', async () => {
+      const makeup = await withMakeup()
+      await schedules.cancel(schedule.id)
+
+      await expect(startMakeup(makeup)).rejects.toThrow(
+        'Ujian utama sudah dibatalkan',
+      )
+    })
+
+    it('refuses to start the regular exam once the student has a session on a makeup of it', async () => {
+      const makeup = await withMakeup()
+      sessions.sessions.set(
+        'm',
+        sessionFor(makeup, { id: 'm', status: 'IN_PROGRESS' }),
+      )
+
+      await expect(start(build())).rejects.toThrow(
+        'Anda sudah mengikuti ujian ini',
+      )
     })
 
     it('refuses a cancelled makeup', async () => {
