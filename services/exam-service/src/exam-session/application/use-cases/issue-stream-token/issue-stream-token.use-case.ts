@@ -44,14 +44,14 @@ export class IssueStreamTokenUseCase {
     const expiresAt = new Date(
       Math.min(session.deadline.getTime(), now.getTime() + TOKEN_TTL_MS),
     )
+    if (expiresAt.getTime() <= now.getTime()) {
+      throw new ConflictException('Waktu ujian sudah habis')
+    }
     const token = await this.jwt.signAsync(
       { sub: session.id, nonce, kind: 'whip-publish' },
       {
         secret: this.config.getOrThrow<string>('JWT_SECRET'),
-        expiresIn: Math.max(
-          1,
-          Math.floor((expiresAt.getTime() - now.getTime()) / 1000),
-        ),
+        expiresIn: Math.floor((expiresAt.getTime() - now.getTime()) / 1000),
       },
     )
 
@@ -60,7 +60,8 @@ export class IssueStreamTokenUseCase {
       .replace(/\/$/, '')
 
     return {
-      publishUrl: `${base}/whip/${session.id}?token=${encodeURIComponent(token)}`,
+      // MediaMTX publishes WHIP at /<path>/whip, so the path is the session id.
+      publishUrl: `${base}/${session.id}/whip?token=${encodeURIComponent(token)}`,
       expiresAt,
       heartbeatSeconds: 20,
     }

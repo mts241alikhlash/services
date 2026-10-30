@@ -48,11 +48,11 @@ describe('ReportCameraBlockedUseCase', () => {
   })
 
   it('never counts as a violation', async () => {
-    const { useCase, sessions } = await setup()
+    const { useCase, sessions } = await setup({ violationCount: 1 })
 
     await useCase.execute(STUDENT_USER, 'a', 'network', NOW)
 
-    expect(sessions.sessions.get('a')?.violationCount).toBe(0)
+    expect(sessions.sessions.get('a')?.violationCount).toBe(1)
   })
 
   it('keeps the first reason so repeated reports do not churn the row', async () => {

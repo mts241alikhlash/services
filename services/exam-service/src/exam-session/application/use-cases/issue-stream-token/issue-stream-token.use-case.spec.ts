@@ -95,7 +95,7 @@ describe('IssueStreamTokenUseCase', () => {
     const result = await useCase.execute(STUDENT_USER, 'a', NOW)
 
     expect(result.publishUrl).toMatch(
-      /^https:\/\/stream\.test\/whip\/a\?token=/,
+      /^https:\/\/stream\.test\/a\/whip\?token=/,
     )
     expect(result.heartbeatSeconds).toBe(20)
   })
