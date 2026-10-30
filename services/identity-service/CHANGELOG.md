@@ -1,5 +1,20 @@
 # identity-service
 
+## 1.14.0
+
+### Minor Changes
+
+- 6c0ba91: Teachers grade the short answers and essays of their classes in exam-service; the last grade closes the session and its score is posted by a minute job, with backoff, to the new exam_scores table in assessment-service (separate from student scores and the report card). Blank manual answers score 0 at once. Schedules now report hasSessions and the session list carries student names. identity-service gains exam-grading.read|grade|manage-all and exam-scores.read|read-all; edited roles need the new codes in admin-web. exam-service now requires ASSESSMENT_SERVICE_URL.
+- 72cffb6: Add exam packages and schedules to the exam service: packages pin the approved version of each question and lock when scheduled, schedules tie a package to a classroom with a time window and duration, and the access code students enter is derived from the schedule and never stored. Identity gains the exam-packages and exam-schedules permission codes, given only through the curriculum staff, the deputy for curriculum and the academic admin roles. exam-service now needs EXAM_ACCESS_CODE_SECRET (at least 32 characters).
+- 1d018b8: Add exam sessions for students: GET /me/exams, start with the access code (device bound, five wrong codes lock for five minutes), the shuffled paper without keys, idempotent answers, submit, automatic scoring of objective questions and a minute job that closes sessions past their finalize time. Supervisors list the sessions of a schedule and release a session from a device. A schedule with sessions cannot be cancelled and can only be extended. identity-service gains exam-sessions.take (students) and exam-sessions.read and release (curriculum staff); edited roles need the new codes in admin-web.
+- 1c04cb4: Add /auth/native/login, /auth/native/refresh and /auth/native/logout for the Android exam app: tokens in the body without cookies, students and teachers only, a refresh bound to the tablet that signed in, and idempotent logout.
+- ac69fb7: The TEACHER role now holds exam-packages.read, create, update and delete, so a teacher can build an exam package of their own subjects. Scheduling stays with curriculum staff.
+
+### Patch Changes
+
+- a71ddc1: Refresh in two tabs no longer signs the user out, and the reset link is mailed to the profile email.
+- 78ab363: Images run with `NODE_ENV=production` unless the environment overrides it, so a missing variable can no longer expose reset tokens or skip the production checks.
+
 ## 1.13.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # student-service
 
+## 2.1.0
+
+### Minor Changes
+
+- 14ad587: GET /students/me now carries the caller's own birth place, birth date, email and phone, read from identity-service; the roster and list endpoints still leave them out. GET /students/me/classroom now reports the semester the enrollment belongs to, as `semester` with its name and sequence, or null when it cannot be resolved.
+
+### Patch Changes
+
+- 78ab363: Images run with `NODE_ENV=production` unless the environment overrides it, so a missing variable can no longer expose reset tokens or skip the production checks.
+- b2c2fc2: Accounts created without a password get a random one instead of their NIP, NUPTK, NIK or NIS.
+
 ## 2.0.1
 
 ### Patch Changes

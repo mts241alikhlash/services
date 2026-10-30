@@ -1,6 +1,6 @@
 {
   "name": "presence-service",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "241 Presence — gate credentials, devices, scans, daily attendance and leave, for staff and students",
   "author": "mhrmnvl",
   "private": true,

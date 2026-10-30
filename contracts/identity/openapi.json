@@ -5223,7 +5223,7 @@
   "info": {
     "title": "Identity Service API",
     "description": "Identity Service",
-    "version": "1.13.0",
+    "version": "1.14.0",
     "contact": {}
   },
   "tags": [],

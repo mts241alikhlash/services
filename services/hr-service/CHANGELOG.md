@@ -1,5 +1,12 @@
 # hr-service
 
+## 1.0.4
+
+### Patch Changes
+
+- 78ab363: Images run with `NODE_ENV=production` unless the environment overrides it, so a missing variable can no longer expose reset tokens or skip the production checks.
+- b2c2fc2: Accounts created without a password get a random one instead of their NIP, NUPTK, NIK or NIS.
+
 ## 1.0.3
 
 ### Patch Changes
