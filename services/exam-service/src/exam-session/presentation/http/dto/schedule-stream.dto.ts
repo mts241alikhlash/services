@@ -12,7 +12,7 @@ export class ScheduleStreamDto {
   @ApiProperty({
     type: String,
     nullable: true,
-    enum: ['network', 'permission', 'battery', 'stopped'],
+    enum: ['network', 'permission', 'battery', 'stopped', 'cameraBusy'],
     description: 'Why the camera is not streaming; null once it streams again',
   })
   cameraBlocked!: string | null

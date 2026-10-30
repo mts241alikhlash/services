@@ -10,6 +10,8 @@ export const CAMERA_BLOCKED_REASONS = [
   'permission',
   'battery',
   'stopped',
+  /** Another app on the phone holds the camera; the app retries on its own. */
+  'cameraBusy',
 ] as const
 
 export type CameraBlockedReason = (typeof CAMERA_BLOCKED_REASONS)[number]
