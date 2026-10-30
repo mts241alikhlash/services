@@ -15,26 +15,26 @@ enum ScorePublicationStatus {
 /// working time and `finalizeAt` the end of the period in which late answers
 /// still arrive. `deviceId` is null once a supervisor released the session.
 model ExamSession {
-  id           String            @id @default(uuid()) @db.Uuid
-  scheduleId   String            @map("schedule_id") @db.Uuid
-  studentId    String            @map("student_id") @db.Uuid
-  userId       String            @map("user_id") @db.Uuid
-  deviceId     String?           @map("device_id") @db.VarChar(100)
-  enrollmentId String?           @map("enrollment_id") @db.Uuid
-  shuffleSeed  String            @map("shuffle_seed") @db.VarChar(32)
-  startedAt    DateTime          @map("started_at")
-  deadline     DateTime
-  finalizeAt   DateTime          @map("finalize_at")
-  status       ExamSessionStatus @default(IN_PROGRESS)
-  submittedAt  DateTime?         @map("submitted_at")
-  rawScore     Float?            @map("raw_score")
-  maxScore     Float?            @map("max_score")
-  releasedAt   DateTime?         @map("released_at")
-  releasedById String?           @map("released_by_id") @db.Uuid
-  gradedAt     DateTime?         @map("graded_at")
-  violationCount Int             @default(0) @map("violation_count")
-  createdAt    DateTime          @default(now()) @map("created_at")
-  updatedAt    DateTime          @updatedAt @map("updated_at")
+  id             String            @id @default(uuid()) @db.Uuid
+  scheduleId     String            @map("schedule_id") @db.Uuid
+  studentId      String            @map("student_id") @db.Uuid
+  userId         String            @map("user_id") @db.Uuid
+  deviceId       String?           @map("device_id") @db.VarChar(100)
+  enrollmentId   String?           @map("enrollment_id") @db.Uuid
+  shuffleSeed    String            @map("shuffle_seed") @db.VarChar(32)
+  startedAt      DateTime          @map("started_at")
+  deadline       DateTime
+  finalizeAt     DateTime          @map("finalize_at")
+  status         ExamSessionStatus @default(IN_PROGRESS)
+  submittedAt    DateTime?         @map("submitted_at")
+  rawScore       Float?            @map("raw_score")
+  maxScore       Float?            @map("max_score")
+  releasedAt     DateTime?         @map("released_at")
+  releasedById   String?           @map("released_by_id") @db.Uuid
+  gradedAt       DateTime?         @map("graded_at")
+  violationCount Int               @default(0) @map("violation_count")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
 
   schedule    ExamSchedule      @relation(fields: [scheduleId], references: [id])
   answers     ExamAnswer[]

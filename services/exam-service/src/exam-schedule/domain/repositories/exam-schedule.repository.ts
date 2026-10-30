@@ -4,6 +4,10 @@ import type {
   ExamScheduleStatus,
   ExamType,
 } from '../entities/exam-schedule.entity.js'
+import type {
+  NewParticipant,
+  ScheduleParticipant,
+} from '../entities/schedule-participant.entity.js'
 
 export interface ExamScheduleListQuery {
   page: number
@@ -33,6 +37,11 @@ export interface NewExamSchedule {
   createdById: string
 }
 
+export interface NewMakeupSchedule extends NewExamSchedule {
+  makeupOfId: string
+  participants: NewParticipant[]
+}
+
 export interface ScheduleWindowFields {
   startsAt: Date
   endsAt: Date
@@ -55,6 +64,26 @@ export abstract class IExamScheduleRepository {
   abstract createAndLockPackage(
     input: NewExamSchedule,
   ): Promise<ExamSchedule | null>
+  abstract createMakeup(input: NewMakeupSchedule): Promise<ExamSchedule | null>
+  abstract listParticipants(scheduleId: string): Promise<ScheduleParticipant[]>
+  abstract addParticipants(
+    scheduleId: string,
+    rows: NewParticipant[],
+    addedById: string,
+  ): Promise<void>
+  abstract removeParticipant(
+    scheduleId: string,
+    studentId: string,
+  ): Promise<boolean>
+  abstract findParticipation(
+    scheduleId: string,
+    studentId: string,
+  ): Promise<ScheduleParticipant | null>
+  abstract findMakeupsOf(originalId: string): Promise<ExamSchedule[]>
+  abstract findMakeupsForStudent(
+    studentId: string,
+    semesterId: string,
+  ): Promise<ExamSchedule[]>
   abstract updateWindow(
     id: string,
     fields: ScheduleWindowFields,

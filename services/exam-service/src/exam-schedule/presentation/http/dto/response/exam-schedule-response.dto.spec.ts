@@ -12,6 +12,8 @@ const view = {
   endsAt: new Date('2026-11-02T04:00:00.000Z'),
   durationMinutes: 90,
   type: 'UH' as const,
+  kind: 'MAKEUP' as const,
+  makeupOfId: '44444444-4444-4444-8444-444444444444',
   tokenRotation: 3,
   status: 'SCHEDULED' as const,
   createdById: '99999999-9999-4999-8999-999999999999',
@@ -32,6 +34,13 @@ describe('exam schedule response DTOs', () => {
 
     expect(dto.startsAt).toBe('2026-11-02T01:00:00.000Z')
     expect(dto.endsAt).toBe('2026-11-02T04:00:00.000Z')
+  })
+
+  it('says whether a schedule is a makeup and of which one', () => {
+    const dto = ExamScheduleDto.fromDomain(view)
+
+    expect(dto.kind).toBe('MAKEUP')
+    expect(dto.makeupOfId).toBe('44444444-4444-4444-8444-444444444444')
   })
 
   it('exposes the access code only through AccessCodeDto', () => {

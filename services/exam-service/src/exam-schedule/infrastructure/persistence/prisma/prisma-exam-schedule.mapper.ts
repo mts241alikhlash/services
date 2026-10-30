@@ -1,5 +1,6 @@
 import type { Prisma } from '../../../../generated/prisma/client.js'
 import type { ExamSchedule } from '../../../domain/entities/exam-schedule.entity.js'
+import type { ScheduleParticipant } from '../../../domain/entities/schedule-participant.entity.js'
 
 export const SCHEDULE_INCLUDE = {
   package: { select: { title: true, subjectId: true } },
@@ -19,10 +20,25 @@ export function toSchedule(row: Row): ExamSchedule {
     endsAt: row.endsAt,
     durationMinutes: row.durationMinutes,
     type: row.type,
+    kind: row.kind,
+    makeupOfId: row.makeupOfId,
     tokenRotation: row.tokenRotation,
     status: row.status,
     createdById: row.createdById,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
+  }
+}
+
+type ParticipantRow = Prisma.ExamScheduleParticipantGetPayload<object>
+
+export function toParticipant(row: ParticipantRow): ScheduleParticipant {
+  return {
+    scheduleId: row.scheduleId,
+    studentId: row.studentId,
+    reason: row.reason,
+    note: row.note,
+    addedById: row.addedById,
+    createdAt: row.createdAt,
   }
 }

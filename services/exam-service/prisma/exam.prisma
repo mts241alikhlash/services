@@ -10,21 +10,21 @@ enum QuestionType {
 /// academic-service and equal those of the package. `currentVersion` is the
 /// version being edited; `revision` counts every edit.
 model Question {
-  id               String         @id @default(uuid()) @db.Uuid
-  packageId        String         @map("package_id") @db.Uuid
-  subjectId        String         @map("subject_id") @db.Uuid
-  gradeId          String         @map("grade_id") @db.Uuid
-  authorEmployeeId String         @map("author_employee_id") @db.Uuid
-  type             QuestionType
-  currentVersion   Int            @default(1) @map("current_version")
-  revision         Int            @default(1)
+  id                   String       @id @default(uuid()) @db.Uuid
+  packageId            String       @map("package_id") @db.Uuid
+  subjectId            String       @map("subject_id") @db.Uuid
+  gradeId              String       @map("grade_id") @db.Uuid
+  authorEmployeeId     String       @map("author_employee_id") @db.Uuid
+  type                 QuestionType
+  currentVersion       Int          @default(1) @map("current_version")
+  revision             Int          @default(1)
   /// Plain lineage of a copy, not a foreign key: deleting the source never blocks a copy.
-  copiedFromQuestionId String?    @map("copied_from_question_id") @db.Uuid
-  copiedFromVersion    Int?       @map("copied_from_version")
-  createdById      String         @map("created_by_id") @db.Uuid
-  createdAt        DateTime       @default(now()) @map("created_at")
-  updatedAt        DateTime       @updatedAt @map("updated_at")
-  deletedAt        DateTime?      @map("deleted_at")
+  copiedFromQuestionId String?      @map("copied_from_question_id") @db.Uuid
+  copiedFromVersion    Int?         @map("copied_from_version")
+  createdById          String       @map("created_by_id") @db.Uuid
+  createdAt            DateTime     @default(now()) @map("created_at")
+  updatedAt            DateTime     @updatedAt @map("updated_at")
+  deletedAt            DateTime?    @map("deleted_at")
 
   package      ExamPackage       @relation(fields: [packageId], references: [id])
   versions     QuestionVersion[]
