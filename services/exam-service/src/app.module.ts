@@ -22,6 +22,7 @@ import { ExamScheduleModule } from './exam-schedule/exam-schedule.module.js'
 import { ScorePublisherModule } from './platform/score-publisher/score-publisher.module.js'
 import { StudentDirectoryModule } from './platform/student-directory/student-directory.module.js'
 import { ExamGradingModule } from './exam-grading/exam-grading.module.js'
+import { ExamMakeupModule } from './exam-schedule/exam-makeup.module.js'
 import { ExamSessionModule } from './exam-session/exam-session.module.js'
 import { QuestionImportModule } from './question-import/question-import.module.js'
 import { QuestionModule } from './question/question.module.js'
@@ -45,6 +46,7 @@ import { PermissionGuard } from './platform/access-control/permission/guards/per
     ExamPackageModule,
     ExamScheduleModule,
     ExamSessionModule,
+    ExamMakeupModule,
     ExamGradingModule,
     ScorePublisherModule,
     StudentDirectoryModule,
