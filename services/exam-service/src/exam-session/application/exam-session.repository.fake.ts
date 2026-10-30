@@ -113,7 +113,9 @@ export class FakeExamSessionRepository extends IExamSessionRepository {
       maxScore: closure.maxScore,
     }
     this.sessions.set(id, closed)
-    if (closure.status === 'GRADED') this.publications.set(id, 'PENDING')
+    if (closure.status === 'GRADED' && closure.publish !== false) {
+      this.publications.set(id, 'PENDING')
+    }
     for (const { answerId, score } of closure.scores) {
       const answer = this.answers.get(answerId)
       if (answer) this.answers.set(answerId, { ...answer, score })

@@ -92,6 +92,49 @@ describe('grading queries', () => {
       ).toBe(0)
     })
 
+    it('lists an ended schedule nobody started, so a makeup can be made for it', async () => {
+      const w = build()
+      const { schedule } = await paperWithManual(w)
+
+      const page = await listSchedules(w).execute(
+        TEACHER,
+        { page: 1, limit: 10 },
+        new Date(schedule.endsAt.getTime() + 60_000),
+      )
+
+      expect(page.data.map((row) => row.id)).toEqual([schedule.id])
+      expect(page.data[0].sessions).toBe(0)
+    })
+
+    it('lists a makeup before anyone started it, only for the teacher of that class', async () => {
+      const w = build()
+      const { schedule } = await paperWithManual(w)
+      const makeup = await w.schedules.createMakeup({
+        packageId: schedule.packageId,
+        classroomId: schedule.classroomId,
+        semesterId: schedule.semesterId,
+        startsAt: new Date(schedule.endsAt.getTime() + 3_600_000),
+        endsAt: new Date(schedule.endsAt.getTime() + 7_200_000),
+        durationMinutes: 30,
+        type: schedule.type,
+        createdById: 'someone',
+        makeupOfId: schedule.id,
+        participants: [{ studentId: 'st1', reason: 'SICK', note: null }],
+      })
+
+      const mine = await listSchedules(w).execute(TEACHER, {
+        page: 1,
+        limit: 10,
+      })
+      const other = await listSchedules(build({ taught: [] })).execute(
+        TEACHER,
+        { page: 1, limit: 10 },
+      )
+
+      expect(mine.data.map((row) => row.id)).toEqual([makeup!.id])
+      expect(other.total).toBe(0)
+    })
+
     it('uses the semester asked for, else the active one', async () => {
       const w = build()
       const { schedule, questionIds } = await paperWithManual(w)

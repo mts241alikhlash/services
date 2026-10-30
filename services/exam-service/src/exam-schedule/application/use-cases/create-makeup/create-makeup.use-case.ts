@@ -13,6 +13,8 @@ import {
   validateScheduleWindow,
 } from '../../../domain/policies/validate-schedule-window.policy.js'
 import { IExamScheduleRepository } from '../../../domain/repositories/exam-schedule.repository.js'
+import type { GradingUser } from '../../../../exam-grading/application/grading-scope.service.js'
+import { MakeupScopeService } from '../../makeup-scope.service.js'
 import { MakeupParticipantsService } from '../../makeup-participants.service.js'
 
 export interface CreateMakeupInput {
@@ -29,10 +31,11 @@ export class CreateMakeupUseCase {
     private readonly schedules: IExamScheduleRepository,
     private readonly packages: IExamPackageRepository,
     private readonly participants: MakeupParticipantsService,
+    private readonly scope: MakeupScopeService,
   ) {}
 
   async execute(
-    user: { id: string },
+    user: GradingUser,
     originalId: string,
     input: CreateMakeupInput,
     now: Date = new Date(),
@@ -46,6 +49,7 @@ export class CreateMakeupUseCase {
       throw new ConflictException('Jadwal ujian sudah dibatalkan')
     }
 
+    await this.scope.assertAllowed(user, original)
     validateScheduleWindow(input)
     assertWindowNotPast(input, now)
     if (input.startsAt.getTime() < original.endsAt.getTime()) {

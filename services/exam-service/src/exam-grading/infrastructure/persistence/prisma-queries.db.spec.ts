@@ -110,6 +110,12 @@ suite('Prisma queries against a real database', () => {
       where: { sessionId: { in: sessionIds } },
     })
     await prisma.examSession.deleteMany({ where: { id: { in: sessionIds } } })
+    await prisma.examScheduleParticipant.deleteMany({
+      where: { scheduleId: { in: scheduleIds } },
+    })
+    await prisma.examSchedule.deleteMany({
+      where: { makeupOfId: { in: scheduleIds } },
+    })
     await prisma.examSchedule.deleteMany({ where: { id: { in: scheduleIds } } })
     await prisma.examPackageItem.deleteMany({
       where: { packageId: { in: packageIds } },
@@ -122,6 +128,49 @@ suite('Prisma queries against a real database', () => {
     await prisma.$disconnect()
   })
 
+  it('also finds an ended schedule nobody started and a makeup, but not a running empty one', async () => {
+    const quiet = await schedule()
+    const found = (now: Date) =>
+      schedules
+        .findForGrading({
+          semesterId,
+          pairs: [{ subjectId, classroomId }],
+          now,
+          page: 1,
+          limit: 100,
+        })
+        .then((page) => page.data.map((row) => row.id))
+
+    expect(await found(new Date('2026-11-02T02:00:00.000Z'))).not.toContain(
+      quiet.scheduleId,
+    )
+    expect(await found(new Date('2026-11-02T05:00:00.000Z'))).toContain(
+      quiet.scheduleId,
+    )
+
+    await prisma.examPackage.update({
+      where: { id: quiet.packageId },
+      data: { status: 'APPROVED' },
+    })
+    const makeup = await schedules.createMakeup({
+      packageId: quiet.packageId,
+      classroomId,
+      semesterId,
+      startsAt: new Date('2099-01-01T01:00:00.000Z'),
+      endsAt: new Date('2099-01-01T03:00:00.000Z'),
+      durationMinutes: 60,
+      type: 'UH',
+      createdById: userId,
+      makeupOfId: quiet.scheduleId,
+      participants: [{ studentId: id(), reason: 'SICK', note: null }],
+    })
+    scheduleIds.push(makeup!.id)
+
+    expect(await found(new Date('2026-11-02T02:00:00.000Z'))).toContain(
+      makeup!.id,
+    )
+  })
+
   it('finds only the schedules with sessions that match the teacher pairs and the semester', async () => {
     const mine = await schedule()
     await session(mine.scheduleId)
@@ -132,24 +181,28 @@ suite('Prisma queries against a real database', () => {
     const hit = await schedules.findForGrading({
       semesterId,
       pairs: [{ subjectId, classroomId }],
+      now: new Date(0),
       page: 1,
       limit: 50,
     })
     const wrongPair = await schedules.findForGrading({
       semesterId,
       pairs: [{ subjectId: id(), classroomId }],
+      now: new Date(0),
       page: 1,
       limit: 50,
     })
     const all = await schedules.findForGrading({
       semesterId,
       pairs: null,
+      now: new Date(0),
       page: 1,
       limit: 50,
     })
     const none = await schedules.findForGrading({
       semesterId,
       pairs: [],
+      now: new Date(0),
       page: 1,
       limit: 50,
     })

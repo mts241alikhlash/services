@@ -22,6 +22,7 @@ export interface ExamScheduleListQuery {
 export interface ExamScheduleGradingQuery {
   semesterId: string
   pairs: { subjectId: string; classroomId: string }[] | null
+  now: Date
   page: number
   limit: number
 }

@@ -3,11 +3,11 @@ import { PERMISSIONS_KEY } from '../../../platform/access-control/permission/dec
 import { ExamMakeupController } from './exam-makeup.controller.js'
 
 const expected: Record<string, string[]> = {
-  absentees: ['exam-schedules.read'],
-  makeup: ['exam-schedules.create'],
-  participants: ['exam-schedules.read'],
-  addToMakeup: ['exam-schedules.create'],
-  removeFromMakeup: ['exam-schedules.create'],
+  absentees: ['exam-grading.read'],
+  makeup: ['exam-grading.grade'],
+  participants: ['exam-grading.read'],
+  addToMakeup: ['exam-grading.grade'],
+  removeFromMakeup: ['exam-grading.grade'],
 }
 
 describe('ExamMakeupController permissions', () => {

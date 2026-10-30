@@ -19,7 +19,13 @@ import {
 } from '../../../../exam-session/application/exam-session.test-support.js'
 import { FakeQuestionRepository } from '../../../../question/application/question.repository.fake.js'
 import { FakeExamScheduleRepository } from '../../exam-schedule.repository.fake.js'
-import { CLASSROOM_7A, SEMESTER_ID } from '../../exam-schedule.test-support.js'
+import {
+  CLASSROOM_7A,
+  SEMESTER_ID,
+  STAFF_USER,
+  TEACHER_USER,
+  makeupScope,
+} from '../../exam-schedule.test-support.js'
 import { MakeupCandidatesService } from '../../makeup-candidates.service.js'
 import { MakeupParticipantsService } from '../../makeup-participants.service.js'
 import { CreateMakeupUseCase } from './create-makeup.use-case.js'
@@ -70,6 +76,7 @@ describe('CreateMakeupUseCase', () => {
         directory,
         schedules,
       ),
+      makeupScope(),
     )
     return { schedule, schedules, packages, questions, sessions, useCase }
   }
@@ -85,7 +92,7 @@ describe('CreateMakeupUseCase', () => {
     const { schedule, schedules, useCase } = await setup()
 
     const makeup = await useCase.execute(
-      USER,
+      STAFF_USER,
       schedule.id,
       { ...WINDOW, participants: people(ids.ani, ids.budi) },
       NOW,
@@ -106,16 +113,16 @@ describe('CreateMakeupUseCase', () => {
     const { schedule, schedules, useCase } = await setup()
     const input = { ...WINDOW, participants: people(ids.ani) }
 
-    await expect(useCase.execute(USER, 'missing', input, NOW)).rejects.toThrow(
-      NotFoundException,
-    )
-    const makeup = await useCase.execute(USER, schedule.id, input, NOW)
-    await expect(useCase.execute(USER, makeup.id, input, NOW)).rejects.toThrow(
-      BadRequestException,
-    )
+    await expect(
+      useCase.execute(STAFF_USER, 'missing', input, NOW),
+    ).rejects.toThrow(NotFoundException)
+    const makeup = await useCase.execute(STAFF_USER, schedule.id, input, NOW)
+    await expect(
+      useCase.execute(STAFF_USER, makeup.id, input, NOW),
+    ).rejects.toThrow(BadRequestException)
     await schedules.cancel(schedule.id)
     await expect(
-      useCase.execute(USER, schedule.id, input, NOW),
+      useCase.execute(STAFF_USER, schedule.id, input, NOW),
     ).rejects.toThrow(ConflictException)
   })
 
@@ -124,7 +131,7 @@ describe('CreateMakeupUseCase', () => {
 
     await expect(
       useCase.execute(
-        USER,
+        STAFF_USER,
         schedule.id,
         {
           startsAt: new Date(schedule.endsAt.getTime() - 60_000),
@@ -143,7 +150,7 @@ describe('CreateMakeupUseCase', () => {
 
     await expect(
       useCase.execute(
-        USER,
+        STAFF_USER,
         schedule.id,
         { ...WINDOW, durationMinutes: 600, participants },
         NOW,
@@ -151,7 +158,7 @@ describe('CreateMakeupUseCase', () => {
     ).rejects.toThrow(BadRequestException)
     await expect(
       useCase.execute(
-        USER,
+        STAFF_USER,
         schedule.id,
         { ...WINDOW, participants },
         new Date('2026-11-06T00:00:00.000Z'),
@@ -164,11 +171,16 @@ describe('CreateMakeupUseCase', () => {
     const base = { ...WINDOW }
 
     await expect(
-      useCase.execute(USER, schedule.id, { ...base, participants: [] }, NOW),
+      useCase.execute(
+        STAFF_USER,
+        schedule.id,
+        { ...base, participants: [] },
+        NOW,
+      ),
     ).rejects.toThrow('Pilih minimal satu siswa')
     await expect(
       useCase.execute(
-        USER,
+        STAFF_USER,
         schedule.id,
         { ...base, participants: people(ids.ani, ids.ani) },
         NOW,
@@ -176,7 +188,7 @@ describe('CreateMakeupUseCase', () => {
     ).rejects.toThrow('Siswa terdaftar dua kali')
     await expect(
       useCase.execute(
-        USER,
+        STAFF_USER,
         schedule.id,
         {
           ...base,
@@ -201,7 +213,7 @@ describe('CreateMakeupUseCase', () => {
 
     await expect(
       useCase.execute(
-        USER,
+        STAFF_USER,
         schedule.id,
         { ...WINDOW, participants: people(ids.ani, ids.budi) },
         NOW,
@@ -212,7 +224,7 @@ describe('CreateMakeupUseCase', () => {
   it('refuses a second live makeup for a student who is already on one', async () => {
     const { schedule, useCase } = await setup()
     await useCase.execute(
-      USER,
+      STAFF_USER,
       schedule.id,
       { ...WINDOW, participants: people(ids.ani) },
       NOW,
@@ -220,7 +232,7 @@ describe('CreateMakeupUseCase', () => {
 
     await expect(
       useCase.execute(
-        USER,
+        STAFF_USER,
         schedule.id,
         { ...WINDOW, participants: people(ids.ani) },
         NOW,
@@ -243,7 +255,7 @@ describe('CreateMakeupUseCase', () => {
     const input = { ...WINDOW, participants: people(ids.ani) }
 
     const makeup = await useCase.execute(
-      USER,
+      STAFF_USER,
       schedule.id,
       { ...input, packageId: other.id },
       NOW,
@@ -251,7 +263,7 @@ describe('CreateMakeupUseCase', () => {
     expect(makeup.packageId).toBe(other.id)
     await expect(
       useCase.execute(
-        USER,
+        STAFF_USER,
         schedule.id,
         { ...input, packageId: draft.id },
         NOW,
@@ -259,11 +271,27 @@ describe('CreateMakeupUseCase', () => {
     ).rejects.toThrow(ConflictException)
     await expect(
       useCase.execute(
-        USER,
+        STAFF_USER,
         schedule.id,
         { ...input, packageId: foreign.id },
         NOW,
       ),
     ).rejects.toThrow('Paket susulan harus untuk mapel dan tingkat yang sama')
+  })
+
+  it('lets a teacher create a makeup only for a class and subject they teach', async () => {
+    const { schedule, useCase } = await setup()
+    const input = { ...WINDOW, participants: people(ids.ani) }
+
+    await expect(
+      new CreateMakeupUseCase(
+        (useCase as unknown as { schedules: never }).schedules,
+        (useCase as unknown as { packages: never }).packages,
+        (useCase as unknown as { participants: never }).participants,
+        makeupScope([]),
+      ).execute(TEACHER_USER, schedule.id, input, NOW),
+    ).rejects.toThrow('Anda tidak mengajar mapel ini di kelas ini')
+    const made = await useCase.execute(TEACHER_USER, schedule.id, input, NOW)
+    expect(made.createdById).toBe(TEACHER_USER.id)
   })
 })

@@ -7,6 +7,8 @@ import {
 import type { NewParticipant } from '../../../domain/entities/schedule-participant.entity.js'
 import { assertWindowNotPast } from '../../../domain/policies/validate-schedule-window.policy.js'
 import { IExamScheduleRepository } from '../../../domain/repositories/exam-schedule.repository.js'
+import type { GradingUser } from '../../../../exam-grading/application/grading-scope.service.js'
+import { MakeupScopeService } from '../../makeup-scope.service.js'
 import { MakeupParticipantsService } from '../../makeup-participants.service.js'
 
 @Injectable()
@@ -14,10 +16,11 @@ export class AddMakeupParticipantsUseCase {
   constructor(
     private readonly schedules: IExamScheduleRepository,
     private readonly participants: MakeupParticipantsService,
+    private readonly scope: MakeupScopeService,
   ) {}
 
   async execute(
-    user: { id: string },
+    user: GradingUser,
     scheduleId: string,
     rows: NewParticipant[],
     now: Date = new Date(),
@@ -27,6 +30,7 @@ export class AddMakeupParticipantsUseCase {
     if (makeup.kind !== 'MAKEUP' || makeup.makeupOfId === null) {
       throw new BadRequestException('Hanya jadwal susulan yang punya peserta')
     }
+    await this.scope.assertAllowed(user, makeup)
     if (makeup.status !== 'SCHEDULED') {
       throw new ConflictException('Jadwal ujian sudah dibatalkan')
     }

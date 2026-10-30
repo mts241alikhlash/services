@@ -56,6 +56,7 @@ export class FinalizeSessionService extends ISessionFinalizer {
         rawScore: result.rawScore,
         maxScore: result.maxScore,
         scores: result.scores,
+        publish: !(as === 'EXPIRED' && answers.length === 0),
       }
     })
     if (closed !== null) return closed

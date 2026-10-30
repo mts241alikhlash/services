@@ -16,7 +16,13 @@ import {
 } from '../../../../exam-session/application/exam-session.test-support.js'
 import { FakeQuestionRepository } from '../../../../question/application/question.repository.fake.js'
 import { FakeExamScheduleRepository } from '../../exam-schedule.repository.fake.js'
-import { CLASSROOM_7A, SEMESTER_ID } from '../../exam-schedule.test-support.js'
+import {
+  CLASSROOM_7A,
+  SEMESTER_ID,
+  STAFF_USER,
+  TEACHER_USER,
+  makeupScope,
+} from '../../exam-schedule.test-support.js'
 import { MakeupCandidatesService } from '../../makeup-candidates.service.js'
 import { MakeupParticipantsService } from '../../makeup-participants.service.js'
 import { AddMakeupParticipantsUseCase } from './add-makeup-participants.use-case.js'
@@ -80,14 +86,20 @@ describe('makeup participants', () => {
       directory,
       schedules,
     )
+    const scope = makeupScope()
     return {
       schedule,
       makeup,
       schedules,
       sessions,
-      add: new AddMakeupParticipantsUseCase(schedules, participants),
-      remove: new RemoveMakeupParticipantUseCase(schedules, sessions),
-      get: new GetMakeupParticipantsUseCase(schedules, sessions, directory),
+      add: new AddMakeupParticipantsUseCase(schedules, participants, scope),
+      remove: new RemoveMakeupParticipantUseCase(schedules, sessions, scope),
+      get: new GetMakeupParticipantsUseCase(
+        schedules,
+        sessions,
+        directory,
+        scope,
+      ),
     }
   }
 
@@ -95,11 +107,11 @@ describe('makeup participants', () => {
     it('adds an eligible student and refuses one already on it', async () => {
       const { makeup, schedules, add } = await setup()
 
-      await add.execute(USER, makeup.id, [person(ids.citra)], NOW)
+      await add.execute(STAFF_USER, makeup.id, [person(ids.citra)], NOW)
 
       expect(await schedules.listParticipants(makeup.id)).toHaveLength(3)
       await expect(
-        add.execute(USER, makeup.id, [person(ids.citra)], NOW),
+        add.execute(STAFF_USER, makeup.id, [person(ids.citra)], NOW),
       ).rejects.toThrow(BadRequestException)
     })
 
@@ -116,7 +128,7 @@ describe('makeup participants', () => {
       )
 
       await expect(
-        add.execute(USER, makeup.id, [person(ids.dewi)], NOW),
+        add.execute(STAFF_USER, makeup.id, [person(ids.dewi)], NOW),
       ).rejects.toThrow('Dewi sudah mengikuti ujian ini')
     })
 
@@ -124,7 +136,7 @@ describe('makeup participants', () => {
       const { makeup, add } = await setup()
 
       await expect(
-        add.execute(USER, makeup.id, [person(ids.ani)], NOW),
+        add.execute(STAFF_USER, makeup.id, [person(ids.ani)], NOW),
       ).rejects.toThrow('Ani sudah terdaftar di susulan ini')
     })
 
@@ -133,7 +145,7 @@ describe('makeup participants', () => {
       await schedules.cancel(schedule.id)
 
       await expect(
-        add.execute(USER, makeup.id, [person(ids.citra)], NOW),
+        add.execute(STAFF_USER, makeup.id, [person(ids.citra)], NOW),
       ).rejects.toThrow('Ujian utama sudah dibatalkan')
     })
 
@@ -141,14 +153,14 @@ describe('makeup participants', () => {
       const { schedule, makeup, schedules, add } = await setup()
 
       await expect(
-        add.execute(USER, 'missing', [person(ids.citra)], NOW),
+        add.execute(STAFF_USER, 'missing', [person(ids.citra)], NOW),
       ).rejects.toThrow(NotFoundException)
       await expect(
-        add.execute(USER, schedule.id, [person(ids.citra)], NOW),
+        add.execute(STAFF_USER, schedule.id, [person(ids.citra)], NOW),
       ).rejects.toThrow('Hanya jadwal susulan yang punya peserta')
       await expect(
         add.execute(
-          USER,
+          STAFF_USER,
           makeup.id,
           [person(ids.citra)],
           new Date('2026-11-06T00:00:00.000Z'),
@@ -156,7 +168,7 @@ describe('makeup participants', () => {
       ).rejects.toThrow('Jendela ujian sudah lewat')
       await schedules.cancel(makeup.id)
       await expect(
-        add.execute(USER, makeup.id, [person(ids.citra)], NOW),
+        add.execute(STAFF_USER, makeup.id, [person(ids.citra)], NOW),
       ).rejects.toThrow(ConflictException)
     })
   })
@@ -165,7 +177,7 @@ describe('makeup participants', () => {
     it('removes a student who has no session yet', async () => {
       const { makeup, schedules, remove } = await setup()
 
-      await remove.execute(makeup.id, ids.budi)
+      await remove.execute(STAFF_USER, makeup.id, ids.budi)
 
       expect(
         (await schedules.listParticipants(makeup.id)).map((p) => p.studentId),
@@ -179,21 +191,21 @@ describe('makeup participants', () => {
         sessionFor(makeup, { id: 'm', studentId: ids.budi }),
       )
 
-      await expect(remove.execute(makeup.id, ids.budi)).rejects.toThrow(
-        'Siswa sudah punya sesi, tidak bisa dihapus',
-      )
+      await expect(
+        remove.execute(STAFF_USER, makeup.id, ids.budi),
+      ).rejects.toThrow('Siswa sudah punya sesi, tidak bisa dihapus')
     })
 
     it('refuses to empty the makeup and to remove someone who is not on it', async () => {
       const { makeup, remove } = await setup()
-      await remove.execute(makeup.id, ids.budi)
+      await remove.execute(STAFF_USER, makeup.id, ids.budi)
 
-      await expect(remove.execute(makeup.id, ids.ani)).rejects.toThrow(
-        'Susulan harus punya minimal satu siswa',
-      )
-      await expect(remove.execute(makeup.id, ids.dewi)).rejects.toThrow(
-        NotFoundException,
-      )
+      await expect(
+        remove.execute(STAFF_USER, makeup.id, ids.ani),
+      ).rejects.toThrow('Susulan harus punya minimal satu siswa')
+      await expect(
+        remove.execute(STAFF_USER, makeup.id, ids.dewi),
+      ).rejects.toThrow(NotFoundException)
     })
   })
 
@@ -227,7 +239,7 @@ describe('makeup participants', () => {
         }),
       )
 
-      const rows = await get.execute(makeup.id)
+      const rows = await get.execute(STAFF_USER, makeup.id)
 
       expect(rows.map((row) => [row.name, row.status])).toEqual([
         ['Ani', 'SAT_REGULAR'],
@@ -248,9 +260,33 @@ describe('makeup participants', () => {
         }),
       )
 
-      const rows = await get.execute(makeup.id)
+      const rows = await get.execute(STAFF_USER, makeup.id)
 
       expect(rows.find((row) => row.name === 'Ani')?.status).toBe('WAITING')
+    })
+  })
+
+  describe('scope', () => {
+    it('keeps a teacher who does not teach the class away from the participants', async () => {
+      const { schedules, sessions, makeup } = await setup()
+      const outsider = makeupScope([])
+      const directory = new FakeStudentDirectory()
+
+      await expect(
+        new GetMakeupParticipantsUseCase(
+          schedules,
+          sessions,
+          directory,
+          outsider,
+        ).execute(TEACHER_USER, makeup.id),
+      ).rejects.toThrow('Anda tidak mengajar mapel ini di kelas ini')
+      await expect(
+        new RemoveMakeupParticipantUseCase(
+          schedules,
+          sessions,
+          outsider,
+        ).execute(TEACHER_USER, makeup.id, ids.ani),
+      ).rejects.toThrow('Anda tidak mengajar')
     })
   })
 })

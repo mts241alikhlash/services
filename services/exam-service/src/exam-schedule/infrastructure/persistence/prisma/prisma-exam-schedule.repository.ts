@@ -65,15 +65,25 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
     }
     const where: Prisma.ExamScheduleWhereInput = {
       semesterId: query.semesterId,
-      sessions: { some: {} },
-      ...(query.pairs === null
-        ? {}
-        : {
-            OR: query.pairs.map((pair) => ({
-              classroomId: pair.classroomId,
-              package: { subjectId: pair.subjectId },
-            })),
-          }),
+      AND: [
+        {
+          OR: [
+            { sessions: { some: {} } },
+            { kind: 'MAKEUP' },
+            { endsAt: { lte: query.now } },
+          ],
+        },
+        ...(query.pairs === null
+          ? []
+          : [
+              {
+                OR: query.pairs.map((pair) => ({
+                  classroomId: pair.classroomId,
+                  package: { subjectId: pair.subjectId },
+                })),
+              },
+            ]),
+      ],
     }
     const [rows, total] = await Promise.all([
       this.prisma.examSchedule.findMany({
@@ -230,7 +240,11 @@ export class PrismaExamScheduleRepository extends IExamScheduleRepository {
     studentId: string,
   ): Promise<boolean> {
     const result = await this.prisma.examScheduleParticipant.deleteMany({
-      where: { scheduleId, studentId },
+      where: {
+        scheduleId,
+        studentId,
+        schedule: { sessions: { none: { studentId } } },
+      },
     })
     return result.count > 0
   }

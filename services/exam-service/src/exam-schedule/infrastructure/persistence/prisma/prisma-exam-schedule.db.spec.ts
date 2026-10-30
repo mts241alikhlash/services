@@ -22,6 +22,7 @@ suite('Prisma makeup schedules against a real database', () => {
   const subjectId = id()
   const packageIds: string[] = []
   const scheduleIds: string[] = []
+  const sessionIds: string[] = []
   const students = [id(), id(), id()]
 
   async function approvedPackage() {
@@ -58,6 +59,7 @@ suite('Prisma makeup schedules against a real database', () => {
   }
 
   afterAll(async () => {
+    await prisma.examSession.deleteMany({ where: { id: { in: sessionIds } } })
     await prisma.examScheduleParticipant.deleteMany({
       where: { scheduleId: { in: scheduleIds } },
     })
@@ -256,5 +258,45 @@ suite('Prisma makeup schedules against a real database', () => {
         userId,
       ),
     ).rejects.toBeDefined()
+  })
+
+  it('does not remove a student whose session exists, even when the check came first', async () => {
+    const base = await original()
+    const makeup = await schedules.createMakeup({
+      packageId: base.packageId,
+      classroomId,
+      semesterId,
+      startsAt: new Date('2099-11-04T01:00:00Z'),
+      endsAt: new Date('2099-11-04T03:00:00Z'),
+      durationMinutes: 90,
+      type: 'UTS',
+      createdById: userId,
+      makeupOfId: base.id,
+      participants: [
+        { studentId: students[0], reason: 'SICK', note: null },
+        { studentId: students[1], reason: 'SICK', note: null },
+      ],
+    })
+    scheduleIds.push(makeup!.id)
+    const started = await prisma.examSession.create({
+      data: {
+        scheduleId: makeup!.id,
+        studentId: students[0],
+        userId: id(),
+        deviceId: 'dev',
+        shuffleSeed: 'seed',
+        startedAt: new Date(),
+        deadline: new Date(),
+        finalizeAt: new Date(),
+      },
+    })
+    sessionIds.push(started.id)
+
+    expect(await schedules.removeParticipant(makeup!.id, students[0])).toBe(
+      false,
+    )
+    expect(await schedules.removeParticipant(makeup!.id, students[1])).toBe(
+      true,
+    )
   })
 })

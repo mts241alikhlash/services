@@ -7,6 +7,8 @@ import { GetMakeupParticipantsUseCase } from './application/use-cases/makeup-par
 import { RemoveMakeupParticipantUseCase } from './application/use-cases/makeup-participants/remove-makeup-participant.use-case.js'
 import { CreateMakeupUseCase } from './application/use-cases/create-makeup/create-makeup.use-case.js'
 import { ListAbsenteesUseCase } from './application/use-cases/list-absentees/list-absentees.use-case.js'
+import { GradingScopeService } from '../exam-grading/application/grading-scope.service.js'
+import { MakeupScopeService } from './application/makeup-scope.service.js'
 import { MakeupParticipantsService } from './application/makeup-participants.service.js'
 import { MakeupCandidatesService } from './application/makeup-candidates.service.js'
 import { ExamMakeupController } from './presentation/http/exam-makeup.controller.js'
@@ -15,6 +17,8 @@ import { ExamMakeupController } from './presentation/http/exam-makeup.controller
   imports: [ExamPackageModule, ExamScheduleModule, ExamSessionModule],
   controllers: [ExamMakeupController],
   providers: [
+    GradingScopeService,
+    MakeupScopeService,
     MakeupCandidatesService,
     MakeupParticipantsService,
     ListAbsenteesUseCase,

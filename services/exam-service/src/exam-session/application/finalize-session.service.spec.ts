@@ -135,6 +135,34 @@ describe('FinalizeSessionService', () => {
     expect(closed).toMatchObject({ rawScore: 0, maxScore: 4, status: 'GRADED' })
   })
 
+  describe('sending the score to the assessment', () => {
+    it('sends nothing for a session the clock closed with no answer at all', async () => {
+      await start([choiceSpec('B')])
+
+      const closed = await service.finalize('a', 'EXPIRED', LATER)
+
+      expect(closed.status).toBe('GRADED')
+      expect(sessions.publications.has('a')).toBe(false)
+    })
+
+    it('sends the score of a session the clock closed after some answers', async () => {
+      const [questionId] = await start([choiceSpec('B')])
+      answer(questionId, { key: 'A' })
+
+      await service.finalize('a', 'EXPIRED', LATER)
+
+      expect(sessions.publications.get('a')).toBe('PENDING')
+    })
+
+    it('sends the score of a student who handed in an empty paper', async () => {
+      await start([choiceSpec('B')])
+
+      await service.finalize('a', 'SUBMITTED', NOW)
+
+      expect(sessions.publications.get('a')).toBe('PENDING')
+    })
+  })
+
   it('submitting twice leaves the score unchanged', async () => {
     const [mc] = await start([choiceSpec('B')])
     answer(mc, { key: 'B' })

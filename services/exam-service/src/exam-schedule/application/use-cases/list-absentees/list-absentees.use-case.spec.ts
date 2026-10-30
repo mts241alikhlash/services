@@ -11,7 +11,13 @@ import {
 } from '../../../../exam-session/application/exam-session.test-support.js'
 import { FakeQuestionRepository } from '../../../../question/application/question.repository.fake.js'
 import { FakeExamScheduleRepository } from '../../exam-schedule.repository.fake.js'
-import { CLASSROOM_7A, SEMESTER_ID } from '../../exam-schedule.test-support.js'
+import {
+  CLASSROOM_7A,
+  SEMESTER_ID,
+  STAFF_USER,
+  TEACHER_USER,
+  makeupScope,
+} from '../../exam-schedule.test-support.js'
 import { MakeupCandidatesService } from '../../makeup-candidates.service.js'
 import { ListAbsenteesUseCase } from './list-absentees.use-case.js'
 
@@ -52,6 +58,7 @@ describe('ListAbsenteesUseCase', () => {
       schedules,
       new MakeupCandidatesService(enrollments, sessions, schedules),
       directory,
+      makeupScope(),
     )
     return { schedule, schedules, sessions, useCase }
   }
@@ -84,7 +91,7 @@ describe('ListAbsenteesUseCase', () => {
       participants: [{ studentId: ids.dewi, reason: 'SICK', note: null }],
     })
 
-    const rows = await useCase.execute(schedule.id, NOW)
+    const rows = await useCase.execute(STAFF_USER, schedule.id, NOW)
 
     expect(rows.map((row) => [row.name, row.eligibility])).toEqual([
       ['Ani', { eligible: true }],
@@ -110,7 +117,7 @@ describe('ListAbsenteesUseCase', () => {
     })
     await schedules.cancel(makeup?.id ?? '')
 
-    const rows = await useCase.execute(schedule.id, NOW)
+    const rows = await useCase.execute(STAFF_USER, schedule.id, NOW)
 
     expect(rows.find((row) => row.name === 'Dewi')?.eligibility).toEqual({
       eligible: true,
@@ -132,12 +139,12 @@ describe('ListAbsenteesUseCase', () => {
       participants: [{ studentId: ids.ani, reason: 'SICK', note: null }],
     })
 
-    await expect(useCase.execute('missing', NOW)).rejects.toThrow(
+    await expect(useCase.execute(STAFF_USER, 'missing', NOW)).rejects.toThrow(
       NotFoundException,
     )
-    await expect(useCase.execute(makeup?.id ?? '', NOW)).rejects.toThrow(
-      BadRequestException,
-    )
+    await expect(
+      useCase.execute(STAFF_USER, makeup?.id ?? '', NOW),
+    ).rejects.toThrow(BadRequestException)
   })
 
   it('keeps out a student who already sat an earlier makeup that has ended', async () => {
@@ -168,6 +175,7 @@ describe('ListAbsenteesUseCase', () => {
     )
 
     const rows = await useCase.execute(
+      STAFF_USER,
       schedule.id,
       new Date('2026-11-04T00:00:00Z'),
     )
@@ -188,10 +196,37 @@ describe('ListAbsenteesUseCase', () => {
       sessionFor(schedule, { id: 'g', studentId: ids.ani, status: 'GRADED' }),
     )
 
-    const rows = await useCase.execute(schedule.id, NOW)
+    const rows = await useCase.execute(STAFF_USER, schedule.id, NOW)
 
     expect(rows.find((row) => row.name === 'Ani')?.eligibility).toEqual({
       eligible: true,
     })
+  })
+
+  it('shows a teacher the roster only of a class and subject they teach', async () => {
+    const { schedule, schedules, sessions } = await setup()
+    const scoped = (taught: { subjectId: string; classroomId: string }[]) =>
+      new ListAbsenteesUseCase(
+        schedules,
+        new MakeupCandidatesService(
+          new FakeEnrollment({ roster: Object.values(ids).map(enrollment) }),
+          sessions,
+          schedules,
+        ),
+        new FakeStudentDirectory(),
+        makeupScope(taught),
+      )
+
+    await expect(
+      scoped([]).execute(TEACHER_USER, schedule.id, NOW),
+    ).rejects.toThrow('Anda tidak mengajar mapel ini di kelas ini')
+    await expect(
+      scoped([
+        { subjectId: schedule.subjectId, classroomId: schedule.classroomId },
+      ]).execute(TEACHER_USER, schedule.id, NOW),
+    ).resolves.toHaveLength(4)
+    await expect(
+      scoped([]).execute(STAFF_USER, schedule.id, NOW),
+    ).resolves.toHaveLength(4)
   })
 })

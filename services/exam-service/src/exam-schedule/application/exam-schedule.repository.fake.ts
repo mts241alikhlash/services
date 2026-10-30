@@ -46,7 +46,12 @@ export class FakeExamScheduleRepository extends IExamScheduleRepository {
   findForGrading(query: ExamScheduleGradingQuery) {
     const rows = [...this.schedules.values()]
       .filter((row) => row.semesterId === query.semesterId)
-      .filter((row) => this.withSessions(row.id))
+      .filter(
+        (row) =>
+          this.withSessions(row.id) ||
+          row.kind === 'MAKEUP' ||
+          row.endsAt <= query.now,
+      )
       .filter(
         (row) =>
           query.pairs === null ||
@@ -115,6 +120,7 @@ export class FakeExamScheduleRepository extends IExamScheduleRepository {
   async createMakeup(input: NewMakeupSchedule) {
     const pkg = await this.packages.findById(input.packageId)
     if (pkg === null) return null
+    if (pkg.status !== 'APPROVED' && pkg.status !== 'LOCKED') return null
     const now = new Date()
     const row: ExamSchedule = {
       id: randomUUID(),

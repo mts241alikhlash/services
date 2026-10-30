@@ -1,8 +1,15 @@
 import type { FakeExamPackageRepository } from '../../exam-package/application/exam-package.repository.fake.js'
 import {
+  SUBJECT_ID,
   USER,
   seedPackage,
 } from '../../exam-package/application/exam-package.test-support.js'
+import {
+  GradingScopeService,
+  type GradingUser,
+} from '../../exam-grading/application/grading-scope.service.js'
+import type { IEmployeeIdentityReadPort } from '../../platform/employee-identity/employee-identity.port.js'
+import { MakeupScopeService } from './makeup-scope.service.js'
 import type { FakeQuestionRepository } from '../../question/application/question.repository.fake.js'
 import {
   IAcademicLookupPort,
@@ -94,3 +101,36 @@ export function approvedPackage(
 }
 
 export { USER }
+
+export const TEACHER_USER: GradingUser = {
+  id: 'teacher-user',
+  roles: ['TEACHER'],
+  permissions: ['exam-grading.read', 'exam-grading.grade'],
+}
+
+export const STAFF_USER: GradingUser = {
+  id: 'staff-user',
+  roles: ['CURRICULUM_STAFF'],
+  permissions: [
+    'exam-grading.read',
+    'exam-grading.grade',
+    'exam-grading.manage-all',
+  ],
+}
+
+export function makeupScope(
+  taught: { subjectId: string; classroomId: string }[] = [
+    { subjectId: SUBJECT_ID, classroomId: CLASSROOM_7A.id },
+  ],
+): MakeupScopeService {
+  const employees = {
+    findEmployeeIdByUserId: () => Promise.resolve('emp-1'),
+    employeeExists: () => Promise.resolve(true),
+  } as IEmployeeIdentityReadPort
+  return new MakeupScopeService(
+    new GradingScopeService(
+      employees,
+      new FakeAcademicLookup({ assignments: taught }),
+    ),
+  )
+}

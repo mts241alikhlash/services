@@ -50,4 +50,30 @@ describe('GradingScheduleDto', () => {
       } as GradingSchedule).title,
     ).toBe('Bilangan')
   })
+
+  it('carries what the makeup dialog needs: the package, the duration and the kind', () => {
+    const dto = GradingScheduleDto.fromDomain({
+      id: 's3',
+      packageId: 'p1',
+      packageTitle: 'Bilangan',
+      durationMinutes: 60,
+      kind: 'REGULAR',
+      subjectId: 'subject-1',
+      classroomId: 'c1',
+      classroomName: 'VII A',
+      semesterId: 'sem',
+      type: 'UTS',
+      startsAt: new Date('2026-11-02T01:00:00.000Z'),
+      endsAt: new Date('2026-11-02T03:00:00.000Z'),
+      sessions: 0,
+      awaitingGrading: 0,
+      graded: 0,
+    } as GradingSchedule)
+
+    expect(dto).toMatchObject({
+      packageId: 'p1',
+      durationMinutes: 60,
+      kind: 'REGULAR',
+    })
+  })
 })

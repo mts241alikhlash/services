@@ -26,6 +26,7 @@ export class ListGradingSchedulesUseCase {
   async execute(
     user: GradingUser,
     query: { page: number; limit: number; semesterId?: string },
+    now: Date = new Date(),
   ): Promise<PaginatedResult<GradingSchedule>> {
     const semesterId =
       query.semesterId ?? (await this.academic.activeSemester())?.id
@@ -38,6 +39,7 @@ export class ListGradingSchedulesUseCase {
     const page = await this.schedules.findForGrading({
       semesterId,
       pairs,
+      now,
       page: query.page,
       limit: query.limit,
     })

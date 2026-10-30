@@ -4,6 +4,8 @@ import { IStudentDirectoryPort } from '../../../../platform/student-directory/st
 import type { MakeupReason } from '../../../domain/entities/exam-schedule.entity.js'
 import { sittingOutcome } from '../../../domain/policies/makeup-eligibility.policy.js'
 import { loadSittings } from '../../student-sittings.js'
+import type { GradingUser } from '../../../../exam-grading/application/grading-scope.service.js'
+import { MakeupScopeService } from '../../makeup-scope.service.js'
 import { IExamScheduleRepository } from '../../../domain/repositories/exam-schedule.repository.js'
 
 export type ParticipantStatus =
@@ -24,13 +26,18 @@ export class GetMakeupParticipantsUseCase {
     private readonly schedules: IExamScheduleRepository,
     private readonly sessions: IExamSessionRepository,
     private readonly students: IStudentDirectoryPort,
+    private readonly scope: MakeupScopeService,
   ) {}
 
-  async execute(scheduleId: string): Promise<ParticipantRow[]> {
+  async execute(
+    user: GradingUser,
+    scheduleId: string,
+  ): Promise<ParticipantRow[]> {
     const makeup = await this.schedules.findById(scheduleId)
     if (makeup?.kind !== 'MAKEUP' || makeup.makeupOfId === null) {
       throw new NotFoundException('Jadwal susulan tidak ditemukan')
     }
+    await this.scope.assertAllowed(user, makeup)
     const participants = await this.schedules.listParticipants(scheduleId)
     const refs = new Map(
       (
