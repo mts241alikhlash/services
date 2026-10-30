@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { JwtModule } from '@nestjs/jwt'
+import { ProvisioningTokenGuard } from '../core/guards/provisioning-token.guard.js'
 import { ExamFileModule } from '../exam-file/exam-file.module.js'
 import { ExamPackageModule } from '../exam-package/exam-package.module.js'
 import { QuestionModule } from '../question/question.module.js'
@@ -16,6 +19,9 @@ import { FinalizeDueSessionsJob } from './infrastructure/jobs/finalize-due-sessi
 import { FinalizeSessionService } from './application/finalize-session.service.js'
 import { FinalizeDueSessionsUseCase } from './application/use-cases/finalize-due-sessions/finalize-due-sessions.use-case.js'
 import { RecordViolationsUseCase } from './application/use-cases/record-violations/record-violations.use-case.js'
+import { IssueStreamTokenUseCase } from './application/use-cases/issue-stream-token/issue-stream-token.use-case.js'
+import { ReportCameraBlockedUseCase } from './application/use-cases/report-camera-blocked/report-camera-blocked.use-case.js'
+import { CheckStreamTokenUseCase } from './application/use-cases/check-stream-token/check-stream-token.use-case.js'
 import { SubmitExamSessionUseCase } from './application/use-cases/submit-exam-session/submit-exam-session.use-case.js'
 import { IExamSessionRepository } from './domain/repositories/exam-session.repository.js'
 import { PrismaExamAccessAttemptRepository } from './infrastructure/persistence/prisma/prisma-exam-access-attempt.repository.js'
@@ -25,9 +31,16 @@ import { ListScheduleSessionsUseCase } from './application/use-cases/list-schedu
 import { ReleaseSessionUseCase } from './application/use-cases/release-session/release-session.use-case.js'
 import { SessionExamController } from './presentation/http/session-exam.controller.js'
 import { StudentExamController } from './presentation/http/student-exam.controller.js'
+import { StreamAuthController } from './presentation/http/stream-auth.controller.js'
 
 @Module({
   imports: [
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.getOrThrow<string>('JWT_SECRET'),
+      }),
+    }),
     ExamPackageModule,
     ExamScheduleModule,
     ExamFileModule,
@@ -37,6 +50,7 @@ import { StudentExamController } from './presentation/http/student-exam.controll
     StudentExamController,
     SessionExamController,
     ExamSessionAdminController,
+    StreamAuthController,
   ],
   providers: [
     { provide: IExamSessionRepository, useClass: PrismaExamSessionRepository },
@@ -48,6 +62,10 @@ import { StudentExamController } from './presentation/http/student-exam.controll
     { provide: ISessionFinalizer, useExisting: FinalizeSessionService },
     SubmitExamSessionUseCase,
     RecordViolationsUseCase,
+    IssueStreamTokenUseCase,
+    ReportCameraBlockedUseCase,
+    CheckStreamTokenUseCase,
+    ProvisioningTokenGuard,
     ListScheduleSessionsUseCase,
     ReleaseSessionUseCase,
     FinalizeDueSessionsUseCase,

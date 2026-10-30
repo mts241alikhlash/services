@@ -9,6 +9,8 @@ const expected: Record<string, string[]> = {
   submit: ['exam-sessions.take'],
   violations: ['exam-sessions.take'],
   file: ['exam-sessions.take'],
+  streamToken: ['exam-sessions.take'],
+  cameraBlocked: ['exam-sessions.take'],
 }
 
 describe('SessionExamController permissions', () => {

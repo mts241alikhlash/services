@@ -250,6 +250,20 @@ export class PrismaExamSessionRepository extends IExamSessionRepository {
     })
   }
 
+  async touchStream(id: string, nonce: string, at: Date): Promise<void> {
+    await this.prisma.examSession.updateMany({
+      where: { id, status: 'IN_PROGRESS' },
+      data: { streamNonce: nonce, lastSeenAt: at, cameraBlocked: null },
+    })
+  }
+
+  async setCameraBlocked(id: string, reason: string): Promise<void> {
+    await this.prisma.examSession.updateMany({
+      where: { id, status: 'IN_PROGRESS', cameraBlocked: null },
+      data: { cameraBlocked: reason },
+    })
+  }
+
   async countsBySchedule(
     scheduleIds: string[],
   ): Promise<Map<string, ScheduleSessionCounts>> {
