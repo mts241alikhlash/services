@@ -38,9 +38,6 @@ export class CheckStreamTokenUseCase {
     action: string,
     now: Date = new Date(),
   ): Promise<StreamAuthResult> {
-    const log = (why: string) =>
-      require('node:fs').appendFileSync('/tmp/stream-deny.log', `${why}\n`)
-
     const claims = await this.verify(token)
     if (!claims) return { allowed: false }
 
