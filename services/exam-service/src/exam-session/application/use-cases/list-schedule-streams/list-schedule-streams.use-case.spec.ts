@@ -17,7 +17,7 @@ import { ListScheduleStreamsUseCase } from './list-schedule-streams.use-case.js'
 const config = {
   getOrThrow: () => 'a'.repeat(48),
   get: (key: string, fallback?: string) =>
-    key === 'STREAM_PUBLIC_URL' ? 'https://stream.test' : fallback,
+    key === 'STREAM_HLS_URL' ? 'https://stream.test' : fallback,
 } as unknown as ConfigService
 
 describe('ListScheduleStreamsUseCase', () => {

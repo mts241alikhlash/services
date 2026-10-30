@@ -34,7 +34,7 @@ export class ListScheduleStreamsUseCase {
     // Every session of the schedule, not one page: the grid shows the whole room.
     const page = await this.sessions.execute(scheduleId, 1, 500)
     const base = this.config
-      .get<string>('STREAM_PUBLIC_URL', 'https://stream.invalid')
+      .get<string>('STREAM_HLS_URL', 'https://stream.invalid')
       .replace(/\/$/, '')
 
     return Promise.all(
