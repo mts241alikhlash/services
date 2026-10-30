@@ -21,6 +21,7 @@ import { FakeQuestionRepository } from '../../../../question/application/questio
 import { FakeExamScheduleRepository } from '../../exam-schedule.repository.fake.js'
 import { CLASSROOM_7A, SEMESTER_ID } from '../../exam-schedule.test-support.js'
 import { MakeupCandidatesService } from '../../makeup-candidates.service.js'
+import { MakeupParticipantsService } from '../../makeup-participants.service.js'
 import { CreateMakeupUseCase } from './create-makeup.use-case.js'
 
 const ids = {
@@ -60,12 +61,14 @@ describe('CreateMakeupUseCase', () => {
     const useCase = new CreateMakeupUseCase(
       schedules,
       packages,
-      new MakeupCandidatesService(
-        new FakeEnrollment({ roster: Object.values(ids).map(enrollment) }),
-        sessions,
-        schedules,
+      new MakeupParticipantsService(
+        new MakeupCandidatesService(
+          new FakeEnrollment({ roster: Object.values(ids).map(enrollment) }),
+          sessions,
+          schedules,
+        ),
+        directory,
       ),
-      directory,
     )
     return { schedule, schedules, packages, questions, sessions, useCase }
   }

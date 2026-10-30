@@ -5,6 +5,9 @@ import { ExamMakeupController } from './exam-makeup.controller.js'
 const expected: Record<string, string[]> = {
   absentees: ['exam-schedules.read'],
   makeup: ['exam-schedules.create'],
+  participants: ['exam-schedules.read'],
+  addToMakeup: ['exam-schedules.create'],
+  removeFromMakeup: ['exam-schedules.create'],
 }
 
 describe('ExamMakeupController permissions', () => {

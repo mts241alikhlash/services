@@ -66,3 +66,12 @@ export class CreateMakeupDto {
   @Type(() => MakeupParticipantDto)
   participants!: MakeupParticipantDto[]
 }
+
+export class AddParticipantsDto {
+  @ApiProperty({ type: () => [MakeupParticipantDto], maxItems: 100 })
+  @IsArray()
+  @ArrayMaxSize(100)
+  @ValidateNested({ each: true })
+  @Type(() => MakeupParticipantDto)
+  participants!: MakeupParticipantDto[]
+}
